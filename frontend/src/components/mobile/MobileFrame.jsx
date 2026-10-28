@@ -4,7 +4,8 @@ import { Phone, Star, Palette, Clock, CheckCircle } from 'lucide-react';
 export default function MobileFrame({ 
   products, 
   onSelectProduct, 
-  onOpenTracking 
+  onOpenTracking,
+  onOpenCustomBuilder 
 }) {
   return (
     <div className="max-w-sm mx-auto my-6 animate-fadeIn">
@@ -53,6 +54,14 @@ export default function MobileFrame({
               <span>•</span>
               <span className="flex items-center gap-1">💌 Tặng thiệp</span>
             </div>
+
+            {/* Custom Flower Builder CTA */}
+            <button
+              onClick={onOpenCustomBuilder}
+              className="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm hover:scale-102 transition-all"
+            >
+              <span>🌸 Tự Cắm Bó Hoa Riêng Theo Ý Thích</span>
+            </button>
 
             {/* Featured Product Card */}
             {products[0] && (
@@ -120,6 +129,13 @@ export default function MobileFrame({
             <div className="text-rose-600 font-bold flex flex-col items-center">
               <span className="text-sm">🌸</span>
               <span>Đặt Hoa</span>
+            </div>
+            <div 
+              onClick={onOpenCustomBuilder}
+              className="flex flex-col items-center cursor-pointer hover:text-rose-600 font-medium"
+            >
+              <span className="text-sm">✨</span>
+              <span>Tự Thiết Kế</span>
             </div>
             <div 
               onClick={onOpenTracking}

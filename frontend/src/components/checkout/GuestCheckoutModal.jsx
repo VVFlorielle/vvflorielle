@@ -50,7 +50,8 @@ export default function GuestCheckoutModal({
         wrappingPaper: customRecipe.wrappingPaper,
         ribbon: customRecipe.ribbon,
         addons: customRecipe.addons,
-        notes: customRecipe.notes
+        notes: customRecipe.notes,
+        inspirationPhoto: customRecipe.inspirationPhoto || null
       },
       card: {
         message: customRecipe.cardMessage,
@@ -125,6 +126,12 @@ export default function GuestCheckoutModal({
             <div>• <strong>Ruy băng:</strong> {customRecipe.ribbon}</div>
             {customRecipe.addons.length > 0 && (
               <div className="sm:col-span-2">• <strong>Thêm/Thay hoa:</strong> {customRecipe.addons.join(', ')}</div>
+            )}
+            {customRecipe.inspirationPhoto && (
+              <div className="sm:col-span-2 flex items-center gap-2 pt-1">
+                <img src={customRecipe.inspirationPhoto} alt="Mẫu khách gửi" className="w-9 h-9 rounded-lg object-cover border border-rose-300 shadow-xs" />
+                <span className="text-[11px] text-rose-700 font-semibold">• Có đính kèm ảnh mẫu tham khảo của khách</span>
+              </div>
             )}
             <div className="sm:col-span-2">• <strong>Lời chúc thiệp:</strong> <span className="italic">"{customRecipe.cardMessage}"</span></div>
           </div>

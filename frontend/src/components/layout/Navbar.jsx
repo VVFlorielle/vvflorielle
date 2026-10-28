@@ -7,6 +7,7 @@ export default function Navbar({
   activeCategory,
   setActiveCategory,
   onOpenTracking,
+  onOpenCustomBuilder,
   currentView,
   setCurrentView,
   deviceMode,
@@ -20,7 +21,9 @@ export default function Navbar({
     'Hoa Khai Trương',
     'Bó Hoa Tình Yêu',
     'Giỏ Hoa Để Bàn',
-    'Lan Hồ Điệp'
+    'Lan Hồ Điệp',
+    'Hoa Tốt Nghiệp',
+    'Hoa Chia Buồn'
   ];
 
   return (
@@ -54,13 +57,22 @@ export default function Navbar({
           <div className="relative">
             <input 
               type="text"
-              placeholder="Tìm theo hoa, mã MS (LP-108)..."
+              placeholder="Tìm theo hoa, mã MS (VV-108)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="glass-input text-xs rounded-full pl-9 pr-4 py-2 w-48 sm:w-60 text-slate-700 focus:w-64 transition-all"
+              className="glass-input text-xs rounded-full pl-9 pr-4 py-2 w-44 sm:w-56 text-slate-700 focus:w-60 transition-all"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           </div>
+
+          {/* Tự Cắm Hoa Riêng CTA Button */}
+          <button
+            onClick={onOpenCustomBuilder}
+            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white flex items-center gap-1.5 shadow-sm hover:scale-105 transition-all"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+            <span>Tự Thiết Kế Hoa</span>
+          </button>
 
           {/* Tra cứu đơn hàng */}
           <button

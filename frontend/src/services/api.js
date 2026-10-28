@@ -1,7 +1,7 @@
 // API Client for Hoa Tuoi Linh Phuong
 // Connects to Backend on Render / Localhost, with graceful mock fallback
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_BASE || (window.location.hostname === 'localhost' ? '/api' : 'https://vvflorielle-api.onrender.com/api');
 
 export const api = {
   // Health check (used by keep-alive pinger)
@@ -40,6 +40,20 @@ export const api = {
       return await res.json();
     } catch (err) {
       console.error('Error updating price:', err);
+      return { success: false };
+    }
+  },
+
+  async createProduct(productData) {
+    try {
+      const res = await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData)
+      });
+      return await res.json();
+    } catch (err) {
+      console.error('Error creating product:', err);
       return { success: false };
     }
   },

@@ -6,21 +6,24 @@ import ProductCard from './components/storefront/ProductCard';
 import ProductDetailModal from './components/pdp/ProductDetailModal';
 import GuestCheckoutModal from './components/checkout/GuestCheckoutModal';
 import OrderTrackingModal from './components/tracking/OrderTrackingModal';
+import CustomFlowerBuilderModal from './components/custom/CustomFlowerBuilderModal';
 import AdminPortal from './components/admin/AdminPortal';
 import MobileFrame from './components/mobile/MobileFrame';
 import Footer from './components/layout/Footer';
-import { defaultProducts, initialOrders } from './data/defaultData';
+import { defaultProducts, initialOrders, looseFlowersInventory } from './data/defaultData';
 import { api } from './services/api';
 
 export default function App() {
   const [products, setProducts] = useState(defaultProducts);
   const [orders, setOrders] = useState(initialOrders);
+  const [looseFlowers, setLooseFlowers] = useState(looseFlowersInventory);
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [searchTerm, setSearchTerm] = useState('');
   
   // Modals & Navigation state
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [customRecipeForCheckout, setCustomRecipeForCheckout] = useState(null);
+  const [isCustomBuilderOpen, setIsCustomBuilderOpen] = useState(false);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState(null);
   
@@ -94,6 +97,15 @@ export default function App() {
     await api.updatePrice(productId, newPrice);
   };
 
+  const handleUpdateLooseFlowerPrice = (flowerId, newPrice) => {
+    setLooseFlowers(looseFlowers.map(f => f.id === flowerId ? { ...f, unitPrice: newPrice } : f));
+  };
+
+  const handleAddProduct = async (newProduct) => {
+    setProducts([newProduct, ...products]);
+    await api.createProduct(newProduct);
+  };
+
   const handleSurgeHolidayPrice = async (percentage) => {
     const rate = 1 + (percentage / 100);
     setProducts(products.map(p => ({
@@ -132,7 +144,7 @@ export default function App() {
     <div className="min-h-screen p-3 sm:p-6 md:p-8 max-w-7xl mx-auto flex flex-col justify-between">
       
       <div>
-        {/* Trust Bar (Hotline & Cam kết vàng theo phong cách hoatuoilinhphuong.com) */}
+        {/* Trust Bar (Hotline & Cam kết vàng) */}
         <TrustBar />
 
         {/* Navigation Header */}
@@ -142,6 +154,7 @@ export default function App() {
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
           onOpenTracking={() => setIsTrackingOpen(true)}
+          onOpenCustomBuilder={() => setIsCustomBuilderOpen(true)}
           currentView={currentView}
           setCurrentView={setCurrentView}
           deviceMode={deviceMode}
@@ -158,9 +171,12 @@ export default function App() {
           <AdminPortal 
             products={products}
             orders={orders}
+            looseFlowers={looseFlowers}
             onUpdateOrderStatus={handleUpdateOrderStatus}
             onUploadFinishedPhoto={handleUploadFinishedPhoto}
             onUpdatePrice={handleUpdatePrice}
+            onUpdateLooseFlowerPrice={handleUpdateLooseFlowerPrice}
+            onAddProduct={handleAddProduct}
             onSurgeHolidayPrice={handleSurgeHolidayPrice}
             onBackToStorefront={() => setCurrentView('storefront')}
           />
@@ -174,6 +190,7 @@ export default function App() {
               products={filteredProducts}
               onSelectProduct={(p) => setSelectedProduct(p)}
               onOpenTracking={() => setIsTrackingOpen(true)}
+              onOpenCustomBuilder={() => setIsCustomBuilderOpen(true)}
             />
           ) : (
             /* Desktop Web View */
@@ -181,6 +198,7 @@ export default function App() {
               {/* Hero Banner */}
               <HeroBanner 
                 onSelectFeatured={() => setSelectedProduct(products[0])}
+                onOpenCustomBuilder={() => setIsCustomBuilderOpen(true)}
               />
 
               {/* Product Grid */}
@@ -224,7 +242,7 @@ export default function App() {
       <Footer onOpenAdmin={() => setCurrentView('admin')} />
 
       {/* ======================================================== */}
-      {/* MODALS: PDP CUSTOMIZER, GUEST CHECKOUT, ORDER TRACKING    */}
+      {/* MODALS: PDP CUSTOMIZER, CUSTOM BUILDER, GUEST CHECKOUT    */}
       {/* ======================================================== */}
 
       {/* 1. Modal Chi Tiết Mẫu Hoa & Tùy Biến (PDP) */}
@@ -239,7 +257,19 @@ export default function App() {
         />
       )}
 
-      {/* 2. Modal Đặt Hàng Nhanh (Guest Checkout - Không cần đăng nhập) */}
+      {/* 2. Modal Tự Thiết Kế & Cắm Hoa Theo Ý Thích (Custom Flower Builder) */}
+      {isCustomBuilderOpen && (
+        <CustomFlowerBuilderModal 
+          looseFlowers={looseFlowers}
+          onClose={() => setIsCustomBuilderOpen(false)}
+          onProceedToCheckout={(customRecipe) => {
+            setIsCustomBuilderOpen(false);
+            setCustomRecipeForCheckout(customRecipe);
+          }}
+        />
+      )}
+
+      {/* 3. Modal Đặt Hàng Nhanh (Guest Checkout - Không cần đăng nhập) */}
       {customRecipeForCheckout && (
         <GuestCheckoutModal 
           customRecipe={customRecipeForCheckout}
@@ -248,7 +278,7 @@ export default function App() {
         />
       )}
 
-      {/* 3. Modal Tra Cứu Tiến Độ & Duyệt Ảnh Thành Phẩm */}
+      {/* 4. Modal Tra Cứu Tiến Độ & Duyệt Ảnh Thành Phẩm */}
       {isTrackingOpen && (
         <OrderTrackingModal 
           orders={orders}

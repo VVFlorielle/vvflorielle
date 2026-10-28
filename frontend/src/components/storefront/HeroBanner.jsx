@@ -1,7 +1,7 @@
 import React from 'react';
-import { Sparkles, Palette, Clock, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Palette, Clock, CheckCircle2, Flower2 } from 'lucide-react';
 
-export default function HeroBanner({ onSelectFeatured }) {
+export default function HeroBanner({ onSelectFeatured, onOpenCustomBuilder }) {
   return (
     <section className="glass-panel rounded-3xl p-6 sm:p-8 mb-8 relative overflow-hidden shadow-lg border border-white/70">
       {/* Decorative gradient glow */}
@@ -41,14 +41,22 @@ export default function HeroBanner({ onSelectFeatured }) {
           </span>
         </div>
 
-        {/* Action Button */}
-        <div className="pt-2">
+        {/* Action Buttons */}
+        <div className="pt-2 flex flex-wrap items-center gap-3">
           <button
             onClick={onSelectFeatured}
-            className="glass-button text-white font-bold px-6 py-3 rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
+            className="glass-button text-white font-bold px-5 py-3 rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
           >
-            <span>Trải Nghiệm Tùy Biến Bó Hoa Ánh Dương (VV-108)</span>
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-4 h-4 text-amber-200" />
+            <span>Mẫu Nổi Bật: Ánh Dương (VV-108)</span>
+          </button>
+
+          <button
+            onClick={onOpenCustomBuilder}
+            className="px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold bg-white/80 hover:bg-white text-slate-800 border border-white shadow-md flex items-center gap-2 hover:scale-105 transition-all"
+          >
+            <Flower2 className="w-4 h-4 text-rose-500" />
+            <span>🌸 Tự Cắm Bó Hoa Riêng (Chọn Từng Cành)</span>
           </button>
         </div>
       </div>

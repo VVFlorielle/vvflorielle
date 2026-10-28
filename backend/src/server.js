@@ -70,6 +70,20 @@ app.get('/api/products/:id', (req, res) => {
   res.json(product);
 });
 
+// Admin: Thêm sản phẩm hoa mới
+app.post('/api/products', (req, res) => {
+  const newProduct = req.body;
+  if (!newProduct || !newProduct.name) {
+    return res.status(400).json({ error: 'Thiếu thông tin sản phẩm' });
+  }
+  if (!newProduct.id) {
+    newProduct.id = 'VV-' + Math.floor(300 + Math.random() * 600);
+  }
+  inMemoryDB.products.unshift(newProduct);
+  console.log(`[Admin] Đã thêm sản phẩm mới: ${newProduct.name} (${newProduct.sku || newProduct.id})`);
+  res.status(201).json({ success: true, product: newProduct });
+});
+
 // Admin: Cập nhật giá sản phẩm
 app.put('/api/products/:id/price', (req, res) => {
   const { newPrice } = req.body;

@@ -76,7 +76,7 @@ export default function OrderTrackingModal({
             <div className="relative flex-1">
               <input
                 type="text"
-                placeholder="Nhập mã đơn (Ví dụ: DH-LP1082)..."
+                placeholder="Nhập mã đơn (Ví dụ: DH-VV1082)..."
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
                 className="glass-input w-full text-xs rounded-xl pl-9 pr-3 py-2 text-slate-800 uppercase font-mono font-bold"

@@ -1,10 +1,9 @@
-name = "hoatuoilinhphuong-keepalive"
+name = "vvflorielle-keepalive"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
 [vars]
-BACKEND_HEALTH_URL = "https://hoatuoilinhphuong-api.onrender.com/api/health"
+BACKEND_HEALTH_URL = "https://vvflorielle-api.onrender.com/api/health"
 
 [triggers]
-# Chạy mỗi 4 phút một lần
 crons = ["*/4 * * * *"]
