@@ -128,7 +128,7 @@ app.get('/api/orders/:id', (req, res) => {
 // Tạo đơn hàng mới từ Web Khách (Không cần đăng nhập)
 app.post('/api/orders', (req, res) => {
   const orderData = req.body;
-  const newOrderId = 'DH-LP' + Math.floor(1000 + Math.random() * 9000);
+  const newOrderId = 'DH-VV' + Math.floor(1000 + Math.random() * 9000);
 
   const newOrder = {
     id: newOrderId,
@@ -193,7 +193,7 @@ app.post('/api/orders/:id/approve', (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`\n🚀 [Hoa Tươi Linh Phương API] Server running at http://localhost:${PORT}`);
+  console.log(`\n🌸 [V&V Florielle Boutique API] Server running at http://localhost:${PORT}`);
   console.log(`👉 Healthcheck: http://localhost:${PORT}/api/health`);
   console.log(`👉 Products API: http://localhost:${PORT}/api/products`);
   console.log(`👉 Orders API: http://localhost:${PORT}/api/orders\n`);

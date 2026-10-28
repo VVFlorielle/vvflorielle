@@ -32,18 +32,18 @@ export default function Navbar({
           onClick={() => setCurrentView('storefront')}
           className="flex items-center gap-3 cursor-pointer group"
         >
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 flex items-center justify-center text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
-            LP
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 flex items-center justify-center text-white font-black text-sm tracking-tighter shadow-md group-hover:scale-105 transition-transform">
+            V&V
           </div>
           <div>
             <div className="text-xl font-black tracking-tight text-slate-800 flex items-center gap-1.5">
-              <span>HOA TƯƠI LINH PHƯƠNG</span>
+              <span>V&V FLORIELLE</span>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 border border-rose-200 uppercase tracking-wider">
                 Boutique
               </span>
             </div>
             <p className="text-xs text-slate-500 font-serif italic">
-              Trao gửi yêu thương qua từng đóa hoa tươi nghệ thuật
+              Nghệ thuật hoa tươi & quà tặng tùy biến cao cấp
             </p>
           </div>
         </div>

@@ -1,10 +1,10 @@
-// Default data for Hoa Tuoi Linh Phuong Frontend
+// Default data for V&V Florielle Frontend
 
 export const defaultProducts = [
   {
-    id: "LP-108",
+    id: "VV-108",
     name: "Bó Hoa Ánh Dương Rực Rỡ",
-    sku: "MS: LP-108",
+    sku: "MS: VV-108",
     category: "Bó Hoa Sinh Nhật",
     basePrice: 650000,
     originalPrice: 750000,
@@ -30,9 +30,9 @@ export const defaultProducts = [
     defaultRibbon: "Satin Champagne"
   },
   {
-    id: "LP-201",
+    id: "VV-201",
     name: "Bó Hồng Pastel Nàng Thơ",
-    sku: "MS: LP-201",
+    sku: "MS: VV-201",
     category: "Bó Hoa Sinh Nhật",
     basePrice: 580000,
     originalPrice: 680000,
@@ -57,9 +57,9 @@ export const defaultProducts = [
     defaultRibbon: "Lụa Hồng Pastel"
   },
   {
-    id: "LP-202",
+    id: "VV-202",
     name: "Kệ Hoa Khai Trương Phát Tài",
-    sku: "MS: LP-202",
+    sku: "MS: VV-202",
     category: "Hoa Khai Trương",
     basePrice: 1250000,
     originalPrice: 1450000,
@@ -83,9 +83,9 @@ export const defaultProducts = [
     defaultRibbon: "Đỏ Rượu In Chữ"
   },
   {
-    id: "LP-203",
+    id: "VV-203",
     name: "Bó Hoa Tulip Trắng Tinh Khôi",
-    sku: "MS: LP-203",
+    sku: "MS: VV-203",
     category: "Bó Hoa Tình Yêu",
     basePrice: 720000,
     originalPrice: 850000,
@@ -109,9 +109,9 @@ export const defaultProducts = [
     defaultRibbon: "Voan Trắng Tinh"
   },
   {
-    id: "LP-204",
+    id: "VV-204",
     name: "Giỏ Hoa Mây Ban Mai Ngọt Ngào",
-    sku: "MS: LP-204",
+    sku: "MS: VV-204",
     category: "Giỏ Hoa Để Bàn",
     basePrice: 690000,
     originalPrice: 790000,
@@ -135,9 +135,9 @@ export const defaultProducts = [
     defaultRibbon: "Satin Nâu Be"
   },
   {
-    id: "LP-205",
+    id: "VV-205",
     name: "Chậu Lan Hồ Điệp Phú Quý (5 Cành)",
-    sku: "MS: LP-205",
+    sku: "MS: VV-205",
     category: "Lan Hồ Điệp",
     basePrice: 1450000,
     originalPrice: 1650000,
@@ -190,12 +190,12 @@ export const defaultAddons = [
 
 export const initialOrders = [
   {
-    id: "DH-LP1082",
+    id: "DH-VV1082",
     createdAt: new Date(Date.now() - 35 * 60000).toISOString(),
     status: "preparing",
-    productId: "LP-108",
+    productId: "VV-108",
     productName: "Bó Hoa Ánh Dương Rực Rỡ",
-    productSku: "MS: LP-108",
+    productSku: "MS: VV-108",
     productImage: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=400&q=80",
     totalPrice: 710000,
     recipe: {

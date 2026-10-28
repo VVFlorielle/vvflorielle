@@ -1,7 +1,7 @@
-# 🌸 HOA TƯƠI LINH PHƯƠNG - HỆ THỐNG WEB ĐẶT HOA & TÙY BIẾN CAO CẤP
+# 🌸 V&V FLORIELLE - HỆ THỐNG WEB ĐẶT HOA & TÙY BIẾN CAO CẤP
 *(Thiết kế Glassmorphism • Dual-Web Storefront & Admin • Sẵn sàng Deploy Cloudflare Pages + Render + Neon)*
 
-Dự án được xây dựng hoàn thiện tại thư mục: `E:\hoatuoilinhphuong`
+Dự án được xây dựng hoàn thiện tại thư mục: `E:\hoatuoilinhphuong` (Tên thương hiệu: **V&V Florielle**)
 
 ---
 

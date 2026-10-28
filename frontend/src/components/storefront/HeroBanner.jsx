@@ -22,7 +22,7 @@ export default function HeroBanner({ onSelectFeatured }) {
         </h1>
 
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-          Mỗi bó hoa tại <strong>Hoa Tươi Linh Phương</strong> đều có ảnh chụp HD chân thực. Bạn có thể zoom cận cảnh từng cánh hoa, chọn màu giấy gói, đổi màu nơ hoặc thêm bớt cành hoa trước khi gửi đơn hàng trực tiếp về cho tiệm.
+          Mỗi tác phẩm hoa tại <strong>V&V Florielle</strong> đều có ảnh chụp HD chân thực. Bạn có thể zoom cận cảnh từng cánh hoa, chọn màu giấy gói, đổi màu nơ hoặc thêm bớt cành hoa trước khi gửi đơn hàng trực tiếp về cho tiệm.
         </p>
 
         {/* Feature highlight tags */}
@@ -47,7 +47,7 @@ export default function HeroBanner({ onSelectFeatured }) {
             onClick={onSelectFeatured}
             className="glass-button text-white font-bold px-6 py-3 rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all"
           >
-            <span>Trải Nghiệm Tùy Biến Bó Hoa Ánh Dương (LP-108)</span>
+            <span>Trải Nghiệm Tùy Biến Bó Hoa Ánh Dương (VV-108)</span>
             <Sparkles className="w-4 h-4" />
           </button>
         </div>

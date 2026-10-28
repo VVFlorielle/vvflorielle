@@ -61,7 +61,7 @@ export default function App() {
 
   // Handle Order Success from Guest Checkout
   const handleOrderSuccess = async (newOrderPayload) => {
-    const newOrderId = 'DH-LP' + Math.floor(1000 + Math.random() * 9000);
+    const newOrderId = 'DH-VV' + Math.floor(1000 + Math.random() * 9000);
     const completeOrder = {
       id: newOrderId,
       createdAt: new Date().toISOString(),

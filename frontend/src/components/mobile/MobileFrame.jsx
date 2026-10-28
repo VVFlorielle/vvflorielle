@@ -22,8 +22,8 @@ export default function MobileFrame({
           {/* Mobile Top Header */}
           <div className="p-4 glass-panel border-b border-white/60 flex items-center justify-between">
             <div>
-              <div className="font-black text-sm text-slate-800 tracking-tight">LINH PHƯƠNG</div>
-              <div className="text-[10px] text-rose-600 font-bold">Florist Boutique</div>
+              <div className="font-black text-sm text-slate-800 tracking-tight">V&V FLORIELLE</div>
+              <div className="text-[10px] text-rose-600 font-bold">Boutique Florist</div>
             </div>
 
             <div className="flex items-center gap-2">

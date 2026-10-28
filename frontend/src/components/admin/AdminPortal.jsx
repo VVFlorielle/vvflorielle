@@ -69,9 +69,9 @@ export default function AdminPortal({
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
             <h1 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-              <span>ADMIN PORTAL - QUẢN LÝ TIỆM HOA</span>
+              <span>ADMIN PORTAL - V&V FLORIELLE</span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-mono">
-                admin.hoatuoilinhphuong.com
+                admin.vvflorielle.com
               </span>
             </h1>
           </div>
