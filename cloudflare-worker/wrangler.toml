@@ -1,0 +1,10 @@
+name = "hoatuoilinhphuong-keepalive"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+BACKEND_HEALTH_URL = "https://hoatuoilinhphuong-api.onrender.com/api/health"
+
+[triggers]
+# Chạy mỗi 4 phút một lần
+crons = ["*/4 * * * *"]

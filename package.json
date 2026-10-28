@@ -1,0 +1,24 @@
+{
+  "name": "hoatuoilinhphuong-master",
+  "version": "1.0.0",
+  "description": "Full-stack Flower Boutique E-Commerce Website for Hoa Tuoi Linh Phuong",
+  "private": true,
+  "scripts": {
+    "start": "npm run server",
+    "server": "cd backend && npm start",
+    "server:dev": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "flower-shop",
+    "glassmorphism",
+    "react",
+    "tailwind",
+    "render",
+    "cloudflare-pages",
+    "neon-postgres"
+  ],
+  "author": "Hoa Tuoi Linh Phuong",
+  "license": "ISC"
+}
