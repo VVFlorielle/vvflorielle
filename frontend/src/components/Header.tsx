@@ -171,18 +171,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
       {/* 3. FLOATING ROUNDED HEADER NAVBAR (3 DETACHED ISLANDS: LOGO, NAVIGATION, USER ACTIONS) */}
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between gap-2 sm:gap-3 w-full">
-          {/* === ISLAND 1: BRAND LOGO (DETACHED LEFT ISLAND) === */}
+          {/* === BRAND LOGO (FRAMELESS & PROMINENTLY ENLARGED) === */}
           <div
             onClick={() => setCurrentView('store')}
-            className="rounded-2xl md:rounded-[24px] glass-nav-luminous px-3 sm:px-4 py-2 sm:py-2.5 flex items-center shrink-0 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer select-none group"
+            className="flex items-center shrink-0 cursor-pointer select-none group py-0.5 px-1 transition-transform hover:scale-[1.03] active:scale-95"
             title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
           >
-            {/* Desktop Horizontal Brand Logo */}
-            <div className="hidden sm:flex items-center gap-2">
+            {/* Desktop Horizontal Brand Logo - Large & Frameless */}
+            <div className="hidden sm:flex items-center">
               <img
                 src="/logo-vvflorielle-horizontal.png"
                 alt="Tiệm Hoa V&V Florielle"
-                className="h-8 md:h-9 w-auto object-contain transition-transform group-hover:scale-105"
+                className="h-11 md:h-12 lg:h-13 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform duration-300"
               />
             </div>
             {/* Mobile Compact Emblem Logo */}
@@ -190,11 +190,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
               <img
                 src="/logo-vvflorielle-square.png"
                 alt="V&V Florielle"
-                className="h-8 w-auto object-contain"
+                className="h-10 w-auto object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.12)]"
               />
-              <div className="font-extrabold text-sm text-slate-800 tracking-tight leading-none">
+              <div className="font-extrabold text-base text-slate-900 tracking-tight leading-none">
                 <span>V&V</span>
-                <span className="text-emerald-700 font-semibold text-[10px] ml-1 px-1.5 py-0.2 rounded-full bg-emerald-50 border border-emerald-200">
+                <span className="text-emerald-700 font-bold text-[11px] ml-1 px-1.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 shadow-xs">
                   FLORIELLE
                 </span>
               </div>
@@ -297,7 +297,22 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
             </div>
           </div>
 
-          {/* === ISLAND 3: RIGHT USER ACTIONS & CART (DETACHED RIGHT ISLAND) === */}
+          {/* === STANDALONE FLOATING CART BUTTON (To the left of Login/Notification Island) === */}
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="relative px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-2xl md:rounded-[22px] text-white bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 border border-white/95 shadow-[0_6px_20px_rgba(249,115,22,0.48),inset_0_1.5px_1px_rgba(255,255,255,0.85)] ring-2 ring-orange-300/40 group transition-all duration-200 active:scale-95 flex items-center gap-2 shrink-0 cursor-pointer"
+            title="Giỏ hoa của bạn"
+          >
+            <ShoppingCart className="w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:scale-110 transition-transform" />
+            <span className="hidden md:inline text-xs font-black tracking-wide">Giỏ hoa</span>
+            {totalCartCount > 0 && (
+              <span className="bg-white text-orange-600 text-[10px] font-black rounded-full px-1.5 py-0.2 shadow-sm animate-pulse border border-orange-200">
+                {totalCartCount}
+              </span>
+            )}
+          </button>
+
+          {/* === ISLAND 3: RIGHT USER ACTIONS (LOGIN / PROFILE & NOTIFICATIONS) === */}
           <div className="rounded-2xl md:rounded-[24px] glass-nav-luminous px-2 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 shrink-0 transition-all duration-300 shadow-sm relative">
               {/* Bell Hub (In-App Notification Center) */}
               <div className="relative">
@@ -477,21 +492,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                   </button>
                 </div>
               )}
-
-              {/* Cart Drawer Trigger (Supermarket Shopping Cart Orange Button with Luminous Border) */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-2 sm:px-2.5 sm:py-2 rounded-xl text-white bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 border border-white/90 shadow-[0_4px_16px_rgba(249,115,22,0.45),inset_0_1px_1px_rgba(255,255,255,0.8)] ring-2 ring-orange-300/40 group transition-all duration-200 active:scale-95 flex items-center gap-1.5"
-                title="Giỏ hoa của bạn"
-              >
-                <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span className="hidden md:inline text-xs font-bold">Giỏ hoa</span>
-                {totalCartCount > 0 && (
-                  <span className="bg-white text-orange-600 text-[10px] font-black rounded-full px-1.5 py-0.2 shadow-sm animate-pulse border border-orange-200">
-                    {totalCartCount}
-                  </span>
-                )}
-              </button>
             </div>
           </div>
         </header>
