@@ -13,11 +13,14 @@ import {
   Palette,
   Truck,
   Sparkles,
-  Heart
+  Heart,
+  Smartphone,
+  Download,
+  QrCode
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
-export type PopupType = 'guarantee' | 'voucher' | 'locations' | 'care' | 'promotions' | 'services' | 'about' | null;
+export type PopupType = 'guarantee' | 'voucher' | 'locations' | 'care' | 'promotions' | 'services' | 'about' | 'app-download' | null;
 
 interface InfoPopupsProps {
   activePopup: PopupType;
@@ -249,13 +252,42 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
               <div className="flex items-start gap-2.5">
                 <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-slate-800">Hoa cưới & Sự kiện:</strong> Thiết kế trọn gói hoa cưới cầm tay, trang trí lễ đường, backdrop hoa tươi và sự kiện doanh nghiệp cao cấp.
+                  <strong className="text-slate-800">Hoa cưới &amp; Sự kiện:</strong> Thiết kế trọn gói hoa cưới cầm tay, trang trí lễ đường, backdrop hoa tươi và sự kiện doanh nghiệp cao cấp.
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5 pt-2 border-t border-slate-200/60 bg-emerald-50/70 -mx-2 px-2.5 py-2 rounded-xl">
+                <Smartphone className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <strong className="text-emerald-950 font-bold">Ứng dụng di động (Android APK):</strong>
+                    <a
+                      href="/VVFlorielle.apk"
+                      download="VVFlorielle.apk"
+                      className="text-[10px] font-bold text-white bg-emerald-700 hover:bg-emerald-800 px-2 py-0.5 rounded-lg transition-colors shadow-2xs flex items-center gap-1"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Tải 0.85MB</span>
+                    </a>
+                  </div>
+                  <div className="text-slate-600 text-[10.5px] mt-0.5 leading-snug">
+                    Bản cài đặt APK chính thức: Đặt hoa siêu mượt, nhận chuông thông báo đơn hàng và tích điểm VIP tức thì.
+                  </div>
                 </div>
               </div>
             </div>
-            <button onClick={onClose} className="btn-primary w-full text-xs py-2.5 rounded-xl shadow-md">
-              Khám phá mẫu hoa ngay
-            </button>
+            <div className="flex gap-2">
+              <a
+                href="/VVFlorielle.apk"
+                download="VVFlorielle.apk"
+                className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Tải App APK (0.85MB)</span>
+              </a>
+              <button onClick={onClose} className="btn-secondary px-4 text-xs py-2.5 rounded-xl">
+                Đóng
+              </button>
+            </div>
           </div>
         )}
 
@@ -291,6 +323,94 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
             <button onClick={onClose} className="btn-primary w-full text-xs py-2.5 rounded-xl shadow-md">
               Đóng
             </button>
+          </div>
+        )}
+
+        {/* 7. APP DOWNLOAD MODAL (Android WebView APK) */}
+        {activePopup === 'app-download' && (
+          <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-700 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-600/25 border-2 border-white overflow-hidden p-2">
+              <img src="/logo-vvflorielle-square.png" alt="V&V Florielle App" className="w-full h-full object-contain" />
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider mb-1">
+                <span>Android APK v1.0.0</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                <span>Siêu Nhẹ 0.85 MB</span>
+              </div>
+              <h3 className="font-extrabold text-base text-slate-900 tracking-tight">Tải Ứng Dụng V&V Florielle</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Tiệm Hoa Tươi Nghệ Thuật 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội</p>
+            </div>
+
+            {/* App Features Grid */}
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-700">
+              <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 flex items-start gap-2">
+                <Truck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900 leading-tight">Điện hoa 60-90P</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">Chụp ảnh duyệt qua Zalo</div>
+                </div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-100 flex items-start gap-2">
+                <Gift className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900 leading-tight">Tích điểm VIP</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">Freeship 100% quà tặng</div>
+                </div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-sky-50/70 border border-sky-100 flex items-start gap-2">
+                <Sparkles className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900 leading-tight">Chuông Báo Đơn</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">Cập nhật đơn hàng tức thì</div>
+                </div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-purple-50/70 border border-purple-100 flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-slate-900 leading-tight">Cọc VietQR 2P</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">Đối soát siêu tốc 24/7</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Direct Download Action Button */}
+            <a
+              href="/VVFlorielle.apk"
+              download="VVFlorielle.apk"
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-transform active:scale-95"
+            >
+              <Download className="w-4 h-4" />
+              <span>Tải Xuống File APK (VVFlorielle.apk • 0.85 MB)</span>
+            </a>
+
+            {/* QR Code Section for Scanning from Desktop or Other Phones */}
+            <div className="p-3 bg-slate-50/90 rounded-2xl border border-slate-200/70 flex items-center gap-3">
+              <div className="p-1 bg-white rounded-xl border border-slate-200 shrink-0 shadow-2xs">
+                <img
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=0&data=https://vvflorielle.pages.dev/VVFlorielle.apk"
+                  alt="QR tải app V&V Florielle"
+                  className="w-16 h-16 object-contain"
+                />
+              </div>
+              <div className="text-[11px] text-slate-600 leading-snug">
+                <div className="font-bold text-slate-900 flex items-center gap-1">
+                  <QrCode className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Quét QR để tải về điện thoại</span>
+                </div>
+                <p className="text-[10.5px] text-slate-500 mt-0.5">
+                  Dùng camera hoặc Zalo trên điện thoại quét mã QR bên cạnh để tải trực tiếp file cài đặt APK.
+                </p>
+              </div>
+            </div>
+
+            {/* Fast Install Guide */}
+            <div className="text-[10.5px] text-slate-500 space-y-1 bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/80">
+              <div className="font-bold text-emerald-950">Hướng dẫn cài đặt nhanh:</div>
+              <div>1. Bấm <strong>Tải Xuống File APK</strong> ở trên (hoặc quét mã QR).</div>
+              <div>2. Mở file <code className="bg-white px-1 py-0.2 rounded border border-emerald-200 font-semibold">VVFlorielle.apk</code>, chọn <strong>Cho phép cài đặt từ nguồn này</strong>.</div>
+              <div>3. Bấm <strong>Cài đặt</strong> và mở ứng dụng để trải nghiệm mua hoa nghệ thuật!</div>
+            </div>
           </div>
         )}
         </div>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>V&V Florielle - Kết Nối Lại</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 100vw; height: 100vh;
+      background: radial-gradient(circle at 50% 20%, #ecfdf5 0%, #f0fdf4 60%, #e6f4ea 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #064e3b; text-align: center; padding: 24px;
+    }
+    .logo-box {
+      width: 90px; height: 90px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 12px 30px rgba(5, 150, 105, 0.18);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px; padding: 8px;
+    }
+    .logo-box img { width: 100%; height: 100%; object-fit: contain; }
+    h2 { font-size: 20px; font-weight: 800; color: #064e3b; margin-bottom: 8px; }
+    p { font-size: 13.5px; color: #047857; max-width: 320px; line-height: 1.5; margin-bottom: 22px; }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #ffffff; border: 1px solid #a7f3d0;
+      padding: 8px 16px; border-radius: 9999px; font-size: 12px; font-weight: 600; color: #059669;
+      margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .spinner {
+      width: 14px; height: 14px; border: 2px solid #a7f3d0;
+      border-top-color: #059669; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-retry {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #ffffff; border: none; padding: 12px 28px;
+      font-size: 14px; font-weight: 700; border-radius: 9999px;
+      cursor: pointer; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-box">
+    <img src="logo-vvflorielle-square.png" alt="V&V Florielle">
+  </div>
+  <h2>Tiệm Hoa Tươi V&V Florielle</h2>
+  <p>Đang chờ kết nối Internet hoặc mạng chập chờn. Ứng dụng sẽ tự động kết nối lại ngay khi có sóng Wi-Fi/4G nha!</p>
+  <div class="status-badge">
+    <div class="spinner"></div>
+    <span id="st">Đang kiểm tra kết nối...</span>
+  </div>
+  <div>
+    <button class="btn-retry" onclick="reconnect()">Thử Kết Nối Lại</button>
+  </div>
+  <script>
+    const TARGET = "https://vvflorielle.pages.dev";
+    function reconnect() {
+      document.getElementById("st").innerText = "Đang thử tải lại...";
+      window.location.href = TARGET;
+    }
+    setInterval(async () => {
+      try {
+        const res = await fetch(TARGET, { mode: "no-cors", cache: "no-store" });
+        window.location.href = TARGET;
+      } catch (e) {}
+    }, 4000);
+  </script>
+</body>
+</html>

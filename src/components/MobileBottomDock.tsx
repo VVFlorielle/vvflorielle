@@ -256,6 +256,19 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 className="dock-unfurl-item"
                 onClick={() => {
                   setIsExpanded(false);
+                  if (onOpenPopup) onOpenPopup('app-download');
+                }}
+                title="Tải ứng dụng V&V Florielle cho điện thoại Android (APK)"
+              >
+                <span className="dock-unfurl-icon">📱</span>
+                <span className="dock-unfurl-label">Tải App</span>
+              </button>
+
+              <button
+                type="button"
+                className="dock-unfurl-item"
+                onClick={() => {
+                  setIsExpanded(false);
                   if (onOpenPopup) onOpenPopup('about');
                 }}
                 title="Giới thiệu V&V Florielle"

@@ -22,7 +22,9 @@ import {
   Truck,
   Heart,
   BookOpen,
-  Scissors
+  Scissors,
+  Smartphone,
+  Download
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 import { CategoryId } from '../types';
@@ -498,6 +500,22 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                       <div>
                         <div className="font-bold text-xs text-slate-800">Hoa Cưới &amp; Sự Kiện</div>
                         <div className="text-[10px] text-slate-400">Trang trí lễ đường &amp; sự kiện doanh nghiệp</div>
+                      </div>
+                    </div>
+                    <div
+                      onClick={() => {
+                        setIsServiceMenuOpen(false);
+                        if (onOpenPopup) onOpenPopup('app-download');
+                      }}
+                      className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5 border-t border-slate-100 bg-emerald-50/40"
+                    >
+                      <Smartphone className="w-4 h-4 text-emerald-700" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-xs text-emerald-950">Cài Đặt &amp; Tải App APK</span>
+                          <span className="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded-full">0.85MB</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500">Tải file cài đặt Android hoặc quét QR</div>
                       </div>
                     </div>
                   </div>
