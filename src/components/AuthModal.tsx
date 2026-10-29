@@ -173,34 +173,50 @@ export const AuthModal: React.FC = () => {
         className="glass-modal-content max-w-sm sm:max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Fixed Header with Role Switcher & Close Button */}
+        {/* Fixed Header with Tab Switcher (Customer / Register) & Discreet Admin Mode */}
         <div className="glass-modal-header">
-          <div className="flex p-1 bg-slate-100/90 rounded-2xl border border-white/80 flex-1 mr-3">
-            <button
-              type="button"
-              onClick={() => setAuthModalMode('customer')}
-              className={`flex-1 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                authModalMode === 'customer' || authModalMode === 'register' || authModalMode === 'forgot'
-                  ? 'bg-white text-emerald-800 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              <span>Khách Hàng</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setAuthModalMode('admin')}
-              className={`flex-1 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                authModalMode === 'admin'
-                  ? 'bg-purple-700 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-purple-700'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Quản Trị Viên</span>
-            </button>
-          </div>
+          {authModalMode === 'admin' ? (
+            <div className="flex items-center gap-2 flex-1 mr-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-purple-600 animate-pulse" />
+              <span className="text-xs font-black text-purple-900 uppercase tracking-wider">
+                Xác Thực Quản Trị Hệ Thống
+              </span>
+              <button
+                type="button"
+                onClick={() => setAuthModalMode('customer')}
+                className="ml-auto text-[11px] text-slate-500 hover:text-emerald-700 font-semibold"
+              >
+                Về Khách Hàng
+              </button>
+            </div>
+          ) : (
+            <div className="flex p-1 bg-slate-100/90 rounded-2xl border border-white/80 flex-1 mr-3">
+              <button
+                type="button"
+                onClick={() => setAuthModalMode('customer')}
+                className={`flex-1 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  authModalMode === 'customer' || authModalMode === 'forgot'
+                    ? 'bg-white text-emerald-800 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>Đăng Nhập</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthModalMode('register')}
+                className={`flex-1 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  authModalMode === 'register'
+                    ? 'bg-white text-emerald-800 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Đăng Ký Mới</span>
+              </button>
+            </div>
+          )}
 
           <button
             onClick={() => setIsAuthModalOpen(false)}

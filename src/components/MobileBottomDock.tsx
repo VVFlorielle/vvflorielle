@@ -214,7 +214,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
           onMouseEnter={resetAutoCollapse}
         >
           {isExpanded ? (
-            <nav className="logged-in-public-dock-unfurl" aria-label="Menu duyệt hoa">
+            <nav className="logged-in-public-dock-unfurl" aria-label="Menu chức năng mở rộng">
               <button
                 type="button"
                 className="dock-unfurl-gear-toggle active"
@@ -227,66 +227,41 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
 
               <button
                 type="button"
-                className={`dock-unfurl-item ${currentView === 'store' ? 'active' : ''}`}
+                className="dock-unfurl-item"
                 onClick={() => {
                   setIsExpanded(false);
-                  setCurrentView('store');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  handleCatalogClick();
                 }}
-                title="Trang chủ"
-              >
-                <span className="dock-unfurl-icon">🏠</span>
-                <span className="dock-unfurl-label">Trang chủ</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => handleSelectCategory('khai-truong')}
-                title="Khai Trương"
+                title="Mẫu hoa tươi"
               >
                 <span className="dock-unfurl-icon">💐</span>
-                <span className="dock-unfurl-label">Khai Trương</span>
+                <span className="dock-unfurl-label">Mẫu Hoa</span>
               </button>
 
               <button
                 type="button"
                 className="dock-unfurl-item"
-                onClick={() => handleSelectCategory('sinh-nhat')}
-                title="Sinh Nhật"
+                onClick={() => {
+                  setIsExpanded(false);
+                  if (onOpenPopup) onOpenPopup('services');
+                }}
+                title="Dịch vụ hoa tươi chuyên nghiệp"
               >
-                <span className="dock-unfurl-icon">🎂</span>
-                <span className="dock-unfurl-label">Sinh Nhật</span>
+                <span className="dock-unfurl-icon">✂️</span>
+                <span className="dock-unfurl-label">Dịch Vụ</span>
               </button>
 
               <button
                 type="button"
                 className="dock-unfurl-item"
-                onClick={() => handleSelectCategory('lan-ho-diep')}
-                title="Lan Hồ Điệp"
+                onClick={() => {
+                  setIsExpanded(false);
+                  if (onOpenPopup) onOpenPopup('about');
+                }}
+                title="Giới thiệu V&V Florielle"
               >
-                <span className="dock-unfurl-icon">🪴</span>
-                <span className="dock-unfurl-label">Hồ Điệp</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => handleSelectCategory('tinh-yeu')}
-                title="Hoa Tình Yêu"
-              >
-                <span className="dock-unfurl-icon">🌹</span>
-                <span className="dock-unfurl-label">Tình Yêu</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={handleOpenVoucher}
-                title="Voucher 30K"
-              >
-                <span className="dock-unfurl-icon">🎁</span>
-                <span className="dock-unfurl-label">Voucher</span>
+                <span className="dock-unfurl-icon">💖</span>
+                <span className="dock-unfurl-label">Giới Thiệu</span>
               </button>
 
               <button
@@ -297,6 +272,29 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               >
                 <span className="dock-unfurl-icon">📖</span>
                 <span className="dock-unfurl-label">Cẩm Nang</span>
+              </button>
+
+              <button
+                type="button"
+                className="dock-unfurl-item"
+                onClick={handleOpenVoucher}
+                title="Voucher ưu đãi 30K"
+              >
+                <span className="dock-unfurl-icon">🎁</span>
+                <span className="dock-unfurl-label">Voucher</span>
+              </button>
+
+              <button
+                type="button"
+                className="dock-unfurl-item"
+                onClick={() => {
+                  setIsExpanded(false);
+                  if (onOpenPopup) onOpenPopup('locations');
+                }}
+                title="Địa chỉ & Hotline"
+              >
+                <span className="dock-unfurl-icon">📍</span>
+                <span className="dock-unfurl-label">Liên Hệ</span>
               </button>
             </nav>
           ) : (

@@ -385,7 +385,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const saved = localStorage.getItem('vvf_customer');
     const role = localStorage.getItem('vvf_session_role');
     if (role === 'ADMIN') return null; // Exclusive session
-    return saved ? JSON.parse(saved) : INITIAL_CUSTOMER;
+    return saved ? JSON.parse(saved) : null;
   });
 
   // Dual Admin System (admin & vvflorielle)

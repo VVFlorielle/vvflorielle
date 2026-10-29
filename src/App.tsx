@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from './context/StoreContext';
 import { Header } from './components/Header';
 import { MarqueeBanner } from './components/MarqueeBanner';
@@ -20,6 +20,32 @@ export const AppContent: React.FC = () => {
   const { currentView, toasts } = useStore();
   const [activePopup, setActivePopup] = useState<PopupType>(null);
 
+  // Synchronized scroll-dimming for sticky top navigation & announcement banner
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+  useEffect(() => {
+    let timer: any = null;
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsHeaderScrolled(true);
+      } else {
+        setIsHeaderScrolled(false);
+      }
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        setIsHeaderScrolled(false);
+      }, 350);
+    };
+    const handleTouch = () => setIsHeaderScrolled(false);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('touchstart', handleTouch, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchstart', handleTouch);
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col relative selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden w-full">
       {/* Background Decorative Ambient Blobs for Glass Effect */}
@@ -32,7 +58,9 @@ export const AppContent: React.FC = () => {
       </div>
 
       {/* Unified Floating Sticky Header & Announcement Banner (Maintains Unbreachable Gap) */}
-      <div className="sticky top-2 sm:top-4 z-50 w-full pointer-events-none flex flex-col gap-2.5 sm:gap-3">
+      <div className={`sticky top-2 sm:top-4 z-50 w-full pointer-events-none flex flex-col gap-2.5 sm:gap-3 transition-opacity duration-300 ${
+        isHeaderScrolled ? 'opacity-40 hover:opacity-100' : 'opacity-100'
+      }`}>
         <div className="pointer-events-auto relative z-20">
           <Header onOpenPopup={(type) => setActivePopup(type)} />
         </div>

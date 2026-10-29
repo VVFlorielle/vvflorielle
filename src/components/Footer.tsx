@@ -113,22 +113,19 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
             </span>
           </div>
 
-          {/* 6. Khung Ngang 5: Cổng Quản Trị Viên & Chủ Cửa Hàng */}
+          {/* 6. Khung Ngang 5: Giới Thiệu & Câu Chuyện V&V Florielle */}
           <div
-            onClick={() => {
-              setAuthModalMode('admin');
-              setIsAuthModalOpen(true);
-            }}
-            className="p-2.5 px-3 rounded-xl bg-purple-50/70 hover:bg-purple-100/80 backdrop-blur-md border border-purple-200/80 shadow-2xs flex items-center justify-between gap-2 text-xs cursor-pointer active:scale-[0.99] transition-all"
+            onClick={() => onOpenPopup && onOpenPopup('about')}
+            className="p-3 rounded-xl bg-white/75 hover:bg-white/95 backdrop-blur-md border border-white/90 shadow-2xs flex items-center justify-between gap-2 text-xs cursor-pointer active:scale-[0.99] transition-all"
           >
-            <div className="flex items-center gap-2 min-w-0 text-purple-800">
-              <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
-              <span className="text-[11.5px] font-bold truncate">
-                Cổng Quản Trị Viên (Admin &amp; Chủ tiệm hoa)
+            <div className="flex items-center gap-2 min-w-0">
+              <HeartHandshake className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-slate-800 text-[11.5px] font-medium truncate">
+                Về tiệm hoa V&V Florielle • Nghệ thuật trao gửi yêu thương
               </span>
             </div>
-            <span className="text-[10.5px] font-bold text-purple-700 shrink-0 flex items-center gap-0.5">
-              Đăng nhập <ChevronRight className="w-3 h-3" />
+            <span className="text-[10.5px] font-bold text-emerald-700 shrink-0 flex items-center gap-0.5">
+              Chi tiết <ChevronRight className="w-3 h-3" />
             </span>
           </div>
 
@@ -324,25 +321,15 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
             </div>
           </div>
 
-          {/* 3. BOTTOM COPYRIGHT & ADMIN PORTAL ACCESS */}
+          {/* 3. BOTTOM COPYRIGHT */}
           <div className="pt-4 border-t border-white/80 flex items-center justify-between text-xs text-slate-400 gap-3">
             <div>
               © {new Date().getFullYear()} {settings.name}. Hệ thống đặt hoa trực tuyến cao cấp tại 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội.
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => {
-                  setAuthModalMode('admin');
-                  setIsAuthModalOpen(true);
-                }}
-                className="text-[11px] text-slate-500 hover:text-purple-700 flex items-center gap-1 transition-colors hover:underline font-semibold"
-                title="Dành cho Quản trị viên (admin & vvflorielle)"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                <span>Cổng Quản Trị Viên</span>
-              </button>
+            <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+              <span>Boutique Florist &amp; Custom Design</span>
               <span>•</span>
-              <span className="text-[11px]">Boutique Florist &amp; Custom Design</span>
+              <span>100% Hoa Tươi Loại 1</span>
             </div>
           </div>
         </div>

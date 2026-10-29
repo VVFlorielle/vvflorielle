@@ -17,7 +17,12 @@ import {
   CheckCircle2,
   Volume2,
   Trash2,
-  X
+  X,
+  Palette,
+  Truck,
+  Heart,
+  BookOpen,
+  Scissors
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 import { CategoryId } from '../types';
@@ -58,6 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const [localSearch, setLocalSearch] = useState(searchQuery);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [isServiceMenuOpen, setIsServiceMenuOpen] = useState(false);
   const [isNotificationHubOpen, setIsNotificationHubOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
@@ -197,16 +203,29 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
 
       {/* 3. FLOATING ROUNDED HEADER NAVBAR (STREAMLINED MOBILE & LUXURY DESKTOP) */}
       <header className="w-full max-w-7xl mx-auto px-2 sm:px-6">
-        {/* === MOBILE HEADER (MD:HIDDEN): 3 CỤM ĐẢO NỔI BÓNG KÍNH ĐỘC LẬP (NÚT TÌM KIẾM NHỎ + LOGO TO RÕ CHÍNH GIỮA + THÔNG BÁO/AUTH) === */}
-        <div className={`flex md:hidden flex-col w-full gap-2 transition-all duration-300 ${
-          isScrolled ? 'opacity-40 -translate-y-1 scale-[0.98]' : 'opacity-100 translate-y-0 scale-100'
-        }`}>
+        {/* === MOBILE HEADER (MD:HIDDEN): KHỐI TRÁI (THÔNG BÁO + TÌM KIẾM) | GIỮA (LOGO KHÔNG KHUNG & TO HƠN) | PHẢI (CỤM TÀI KHOẢN + ĐĂNG XUẤT) === */}
+        <div className="flex md:hidden flex-col w-full gap-2 transition-all duration-300">
           <div className="flex items-center justify-between gap-1.5 w-full">
-            {/* Cụm 1 (Bên trái): Đảo chứa nút tìm kiếm nhỏ */}
-            <div className="rounded-2xl glass-nav-luminous p-1 shadow-xs border border-white/90 shrink-0">
+            {/* Cụm 1 (Bên trái): Đảo chứa NÚT THÔNG BÁO và NÚT TÌM KIẾM */}
+            <div className="rounded-2xl glass-nav-luminous p-1 px-1.5 shadow-xs border border-white/90 shrink-0 flex items-center gap-1">
+              {/* Nút thông báo */}
+              <button
+                onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
+                className="relative w-8 h-8 rounded-xl glass-btn-base flex items-center justify-center text-slate-700 hover:text-emerald-700 shrink-0"
+                title="Trung tâm thông báo"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadNotificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[8px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white">
+                    {unreadNotificationCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Nút tìm kiếm */}
               <button
                 onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                className={`w-8.5 h-8.5 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
                   isMobileSearchOpen
                     ? 'bg-emerald-600 text-white shadow-md'
                     : 'glass-btn-base text-slate-700 hover:text-emerald-700'
@@ -217,65 +236,49 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
               </button>
             </div>
 
-            {/* Cụm 2 (Chính giữa): Đảo Logo V&V Florielle to rõ không bị chìm */}
+            {/* Cụm 2 (Chính giữa): Logo V&V Florielle KHÔNG CÓ KHUNG BAO QUANH & TO HƠN NỮA */}
             <div
               onClick={() => setCurrentView('store')}
-              className="flex-1 min-w-0 rounded-2xl glass-nav-luminous px-3 py-1.5 shadow-xs border border-white/90 flex items-center justify-center cursor-pointer select-none transition-transform active:scale-95"
+              className="flex-1 min-w-0 flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 px-1 py-0.5"
               title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
             >
               <img
                 src="/logo-vvflorielle-horizontal.png"
                 alt="V&V Florielle"
-                className="h-10 sm:h-11 max-w-[170px] sm:max-w-[200px] w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
+                className="h-11 sm:h-13 max-w-[190px] sm:max-w-[220px] w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
               />
             </div>
 
-            {/* Cụm 3 (Bên phải): Đảo thông báo & Auth / Đăng nhập / Đăng xuất */}
+            {/* Cụm 3 (Bên phải): Cụm 2 nút tài khoản và nút đăng xuất sau khi đăng nhập (hoặc nút Đăng nhập nếu chưa) */}
             <div className="rounded-2xl glass-nav-luminous p-1 px-1.5 shadow-xs border border-white/90 shrink-0 flex items-center gap-1">
-              {/* Nút thông báo */}
-              <button
-                onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
-                className="relative w-8 h-8 rounded-xl glass-btn-base flex items-center justify-center text-slate-700 hover:text-emerald-700 shrink-0"
-                title="Trung tâm thông báo"
-              >
-                <Bell className="w-3.5 h-3.5" />
-                {unreadNotificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[8px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white">
-                    {unreadNotificationCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Khách hàng đã đăng nhập */}
               {customer && (
-                <div className="flex items-center gap-0.5 shrink-0">
+                <>
                   <button
                     onClick={() => setCurrentView('customer')}
-                    className="h-8 px-2 rounded-xl glass-btn-emerald-pill text-[10.5px] font-bold flex items-center gap-1 text-emerald-800"
-                    title="Trang quản lý khách hàng"
+                    className="h-8 px-2.5 rounded-xl glass-btn-emerald-pill text-[11px] font-bold flex items-center gap-1 text-emerald-800"
+                    title="Trang quản lý tài khoản"
                   >
-                    <User className="w-3 h-3 text-emerald-700" />
-                    <span className="max-w-[42px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
+                    <User className="w-3.5 h-3.5 text-emerald-700" />
+                    <span className="max-w-[48px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
                   </button>
                   <button
                     onClick={logoutCustomer}
                     title="Đăng xuất"
-                    className="w-7 h-7 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
                   >
-                    <LogOut className="w-3 h-3" />
+                    <LogOut className="w-3.5 h-3.5" />
                   </button>
-                </div>
+                </>
               )}
 
-              {/* Admin đã đăng nhập */}
               {isAdmin && (
-                <div className="flex items-center gap-0.5 shrink-0">
+                <>
                   <button
                     onClick={() => setCurrentView('admin')}
-                    className="h-8 px-2 rounded-xl glass-btn-purple-pill text-[10.5px] font-bold flex items-center gap-1 text-purple-800"
+                    className="h-8 px-2.5 rounded-xl glass-btn-purple-pill text-[11px] font-bold flex items-center gap-1 text-purple-800"
                     title="Trang quản trị"
                   >
-                    <ShieldCheck className="w-3 h-3 text-purple-700" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
                     <span>Admin</span>
                   </button>
                   <button
@@ -283,19 +286,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                     title="Đăng xuất quản trị"
                     className="w-7 h-7 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
                   >
-                    <LogOut className="w-3 h-3" />
+                    <LogOut className="w-3.5 h-3.5" />
                   </button>
-                </div>
+                </>
               )}
 
-              {/* Chưa đăng nhập: Nút Đăng nhập */}
               {!customer && !isAdmin && (
                 <button
                   onClick={() => {
                     setAuthModalMode('customer');
                     setIsAuthModalOpen(true);
                   }}
-                  className="h-8 px-2 rounded-xl glass-btn-base text-[10.5px] font-bold text-emerald-700 flex items-center gap-1 hover:border-emerald-300 shrink-0"
+                  className="h-8 px-3 rounded-xl glass-btn-base text-[11px] font-bold text-emerald-800 flex items-center gap-1.5 hover:border-emerald-300"
                   title="Đăng nhập tài khoản"
                 >
                   <User className="w-3.5 h-3.5 text-emerald-600" />
@@ -334,7 +336,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
           )}
         </div>
 
-        {/* === DESKTOP HEADER (HIDDEN MD:FLEX): 3 ĐẢO BÓNG KÍNH ĐỘC LẬP (LOGO TO RÕ, TÌM KIẾM/DANH MỤC, THAO TÁC NGƯỜI DÙNG) === */}
+        {/* === DESKTOP HEADER (HIDDEN MD:FLEX): 3 ĐẢO BÓNG KÍNH ĐỘC LẬP (LOGO TO RÕ, ĐẦY ĐỦ CÁC MENU TRANG WEB, THAO TÁC NGƯỜI DÙNG) === */}
         <div className="hidden md:flex items-center justify-between gap-3 w-full">
           {/* === BRAND LOGO (FRAMELESS & PROMINENTLY ENLARGED) === */}
           <div
@@ -349,100 +351,201 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
             />
           </div>
 
-          {/* === ISLAND 2: CENTER SEARCH & CATEGORIES (DETACHED CENTER ISLAND) === */}
-          <div className="flex-1 rounded-2xl md:rounded-[24px] glass-nav-luminous px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2.5 min-w-0 transition-all duration-300 shadow-sm relative">
-            {/* Search Input Bar */}
-            <form
-              onSubmit={handleSearchSubmit}
-              className="flex items-center flex-1 max-w-md relative"
+          {/* === ISLAND 2: ĐẦY ĐỦ CÁC MENU CHỨC NĂNG (TRANG CHỦ, MẪU HOA, DỊCH VỤ, GIỚI THIỆU, TIN TỨC, LIÊN HỆ & TÌM KIẾM) === */}
+          <div className="flex-1 rounded-2xl md:rounded-[24px] glass-nav-luminous px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2 min-w-0 transition-all duration-300 shadow-sm relative">
+            {/* 1. Trang Chủ */}
+            <button
+              onClick={() => {
+                setCurrentView('store');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                currentView === 'store' ? 'text-emerald-800 bg-emerald-100/70' : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+              }`}
             >
+              Trang Chủ
+            </button>
+
+            {/* 2. Mẫu Hoa Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setIsCategoryMenuOpen(!isCategoryMenuOpen);
+                  setIsServiceMenuOpen(false);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors ${
+                  isCategoryMenuOpen ? 'glass-btn-emerald-pill !border-emerald-500' : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+                }`}
+              >
+                <Flower2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Mẫu Hoa</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isCategoryMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsCategoryMenuOpen(false)} />
+                  <div className="absolute top-full left-0 mt-2.5 w-72 p-2.5 rounded-2xl bg-white/95 backdrop-blur-2xl border border-white/90 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1 flex items-center justify-between">
+                      <span>Các Dòng Hoa Tươi</span>
+                      <span className="text-[10px] text-emerald-700 font-semibold">{categories.length} danh mục</span>
+                    </div>
+                    <div className="grid grid-cols-1 gap-1 max-h-72 overflow-y-auto">
+                      {categories.map((cat) => (
+                        <div
+                          key={cat.id}
+                          onClick={() => {
+                            handleSelectCategory(cat.id);
+                            setIsCategoryMenuOpen(false);
+                          }}
+                          className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer transition-colors group"
+                        >
+                          {cat.imageUrl ? (
+                            <img src={cat.imageUrl} alt={cat.name} className="w-9 h-9 rounded-lg object-cover shadow-xs group-hover:scale-105 transition-transform shrink-0" />
+                          ) : (
+                            <div className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                              <Flower2 className="w-4 h-4" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-xs text-slate-800 group-hover:text-emerald-700 truncate">{cat.name}</div>
+                            <div className="text-[10px] text-slate-400 truncate">{cat.description}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* 3. Dịch Vụ Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setIsServiceMenuOpen(!isServiceMenuOpen);
+                  setIsCategoryMenuOpen(false);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors ${
+                  isServiceMenuOpen ? 'glass-btn-emerald-pill !border-emerald-500' : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+                }`}
+              >
+                <Scissors className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Dịch Vụ</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isServiceMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isServiceMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsServiceMenuOpen(false)} />
+                  <div className="absolute top-full left-0 mt-2.5 w-72 p-2.5 rounded-2xl bg-white/95 backdrop-blur-2xl border border-white/90 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 space-y-1">
+                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
+                      Dịch Vụ Hoa Chuyên Nghiệp
+                    </div>
+                    <div
+                      onClick={() => {
+                        setIsServiceMenuOpen(false);
+                        setCurrentView('store');
+                        setTimeout(() => {
+                          document.getElementById('featured-flowers')?.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                      }}
+                      className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
+                    >
+                      <Flower2 className="w-4 h-4 text-emerald-600" />
+                      <div>
+                        <div className="font-bold text-xs text-slate-800">Hoa Tươi Mẫu Sẵn</div>
+                        <div className="text-[10px] text-slate-400">Các mẫu hoa thiết kế sẵn mới mỗi sáng</div>
+                      </div>
+                    </div>
+                    <div
+                      onClick={() => {
+                        setIsServiceMenuOpen(false);
+                        setCurrentView('store');
+                        setTimeout(() => {
+                          document.getElementById('custom-builder-section')?.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                      }}
+                      className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
+                    >
+                      <Palette className="w-4 h-4 text-rose-600" />
+                      <div>
+                        <div className="font-bold text-xs text-slate-800">Hoa Thiết Kế Theo Yêu Cầu</div>
+                        <div className="text-[10px] text-slate-400">Tự phối hoa &amp; tư vấn tone màu riêng</div>
+                      </div>
+                    </div>
+                    <div
+                      onClick={() => {
+                        setIsServiceMenuOpen(false);
+                        if (onOpenPopup) onOpenPopup('guarantee');
+                      }}
+                      className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
+                    >
+                      <Truck className="w-4 h-4 text-sky-600" />
+                      <div>
+                        <div className="font-bold text-xs text-slate-800">Điện Hoa Hỏa Tốc 60 - 90P</div>
+                        <div className="text-[10px] text-slate-400">Giao nhanh nội thành, duyệt ảnh qua Zalo</div>
+                      </div>
+                    </div>
+                    <div
+                      onClick={() => {
+                        setIsServiceMenuOpen(false);
+                        if (onOpenPopup) onOpenPopup('services');
+                      }}
+                      className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <div>
+                        <div className="font-bold text-xs text-slate-800">Hoa Cưới &amp; Sự Kiện</div>
+                        <div className="text-[10px] text-slate-400">Trang trí lễ đường &amp; sự kiện doanh nghiệp</div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* 4. Giới Thiệu */}
+            <button
+              onClick={() => onOpenPopup && onOpenPopup('about')}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors"
+            >
+              Giới Thiệu
+            </button>
+
+            {/* 5. Cẩm Nang / Tin Tức */}
+            <button
+              onClick={() => onOpenPopup && onOpenPopup('care')}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors"
+            >
+              Cẩm Nang
+            </button>
+
+            {/* 6. Liên Hệ */}
+            <button
+              onClick={() => onOpenPopup && onOpenPopup('locations')}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors"
+            >
+              Liên Hệ
+            </button>
+
+            {/* 7. Ô Tìm Kiếm Gọn Gàng */}
+            <form onSubmit={handleSearchSubmit} className="flex items-center relative max-w-[170px] lg:max-w-[210px]">
               <input
                 type="text"
-                placeholder="Tìm hoa khai trương, sinh nhật, lan hồ điệp..."
+                placeholder="Tìm hoa tươi..."
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                className="glass-input w-full pr-8 pl-3.5 text-xs py-1.5 sm:py-2 rounded-xl transition-all"
+                className="glass-input w-full pr-7 pl-2.5 text-xs py-1.5 rounded-xl transition-all"
               />
               <button
                 type="submit"
-                className="absolute right-2 text-slate-400 hover:text-emerald-600 p-1 rounded-lg hover:bg-emerald-50 transition-colors"
+                className="absolute right-1.5 text-slate-400 hover:text-emerald-600 p-0.5 rounded-lg transition-colors"
                 title="Tìm kiếm"
               >
-                <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <Search className="w-3.5 h-3.5" />
               </button>
             </form>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {/* Mega Categories Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                    isCategoryMenuOpen
-                      ? 'glass-btn-emerald-pill !border-emerald-500 ring-2 ring-emerald-500/20'
-                      : 'glass-btn-base'
-                  }`}
-                >
-                  <Flower2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="hidden sm:inline">Danh Mục Hoa</span>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Categories Dropdown Grid (V&V Florielle Boutique Style) */}
-                {isCategoryMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsCategoryMenuOpen(false)}
-                    />
-                    <div className="absolute top-full left-0 sm:left-auto sm:right-0 mt-2.5 w-72 sm:w-80 p-2.5 rounded-2xl bg-white/95 backdrop-blur-2xl border border-white/90 shadow-[0_20px_50px_rgba(0,0,0,0.18),inset_0_1.5px_1px_rgba(255,255,255,1)] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1 flex items-center justify-between">
-                        <span>Các Danh Mục Hoa Tươi</span>
-                        <span className="text-[10px] text-emerald-700 font-semibold">{categories.length} danh mục</span>
-                      </div>
-                      <div className="grid grid-cols-1 gap-1 max-h-72 overflow-y-auto">
-                        {categories.map((cat) => (
-                          <div
-                            key={cat.id}
-                            onClick={() => handleSelectCategory(cat.id)}
-                            className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer transition-colors group"
-                          >
-                            {cat.imageUrl ? (
-                              <img
-                                src={cat.imageUrl}
-                                alt={cat.name}
-                                className="w-10 h-10 rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform shrink-0"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                                <Flower2 className="w-5 h-5" />
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-xs text-slate-800 group-hover:text-emerald-700 truncate">
-                                {cat.name}
-                              </div>
-                              <div className="text-[10px] text-slate-400 truncate">{cat.description}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Promotions Button (Glowing Rose Glass Pill) */}
-              {onOpenPopup && (
-                <button
-                  onClick={() => onOpenPopup('promotions')}
-                  className="hidden lg:inline-flex px-3 py-1.5 rounded-xl text-xs font-semibold glass-btn-rose-pill"
-                >
-                  <Gift className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Khuyến mãi</span>
-                </button>
-              )}
-            </div>
           </div>
 
 
@@ -576,31 +679,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                 </div>
               )}
 
-              {/* Guest Login & Admin Access (When neither Customer nor Admin is logged in) */}
+              {/* Guest Login (When neither Customer nor Admin is logged in - Admin login is kept discreet like phototiinlove) */}
               {!customer && !isAdmin && (
-                <div className="flex items-center gap-1 sm:gap-1.5">
-                  <button
-                    onClick={() => {
-                      setAuthModalMode('customer');
-                      setIsAuthModalOpen(true);
-                    }}
-                    className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-btn-base"
-                  >
-                    <User className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Đăng nhập</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setAuthModalMode('admin');
-                      setIsAuthModalOpen(true);
-                    }}
-                    className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold glass-btn-base text-slate-700 hover:text-purple-700 hover:border-purple-300 transition-colors"
-                    title="Cổng Quản Trị Viên (Admin & VVFlorielle)"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                    <span className="hidden xl:inline">Quản trị</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    setAuthModalMode('customer');
+                    setIsAuthModalOpen(true);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold glass-btn-base flex items-center gap-1.5 text-emerald-800 hover:border-emerald-300"
+                  title="Đăng nhập tài khoản"
+                >
+                  <User className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Đăng nhập</span>
+                </button>
               )}
 
               {/* Admin Portal Button (ONLY shown when Admin is logged in!) */}

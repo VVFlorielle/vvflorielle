@@ -1,8 +1,23 @@
 import React from 'react';
-import { X, ShieldCheck, MapPin, PhoneCall, Gift, Droplets, Scissors, Sun, CheckCircle2 } from 'lucide-react';
+import {
+  X,
+  ShieldCheck,
+  MapPin,
+  PhoneCall,
+  Gift,
+  Droplets,
+  Scissors,
+  Sun,
+  CheckCircle2,
+  Flower2,
+  Palette,
+  Truck,
+  Sparkles,
+  Heart
+} from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
-export type PopupType = 'guarantee' | 'voucher' | 'locations' | 'care' | 'promotions' | null;
+export type PopupType = 'guarantee' | 'voucher' | 'locations' | 'care' | 'promotions' | 'services' | 'about' | null;
 
 interface InfoPopupsProps {
   activePopup: PopupType;
@@ -198,6 +213,83 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
             </div>
             <button onClick={onClose} className="btn-primary w-full text-xs py-2.5 rounded-xl shadow-md">
               Đã ghi nhớ
+            </button>
+          </div>
+        )}
+
+        {/* 5. DỊCH VỤ HOA TƯƠI V&V FLORIELLE */}
+        {activePopup === 'services' && (
+          <div className="space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-md shadow-emerald-600/10 border border-emerald-200/50">
+              <Flower2 className="w-7 h-7" />
+            </div>
+            <div className="text-center">
+              <h3 className="font-bold text-base text-slate-900 tracking-tight">Dịch Vụ Hoa Tươi Chuyên Nghiệp</h3>
+              <p className="text-xs text-slate-500 mt-1">Đa dạng lựa chọn theo mọi nhu cầu và sự kiện tại Hà Nội</p>
+            </div>
+            <div className="space-y-2.5 text-xs text-slate-600 bg-slate-50/90 p-4 rounded-2xl border border-slate-200/60 leading-relaxed">
+              <div className="flex items-start gap-2.5">
+                <Flower2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-800">Hoa tươi mẫu sẵn:</strong> Hàng trăm mẫu bó hoa Hàn Quốc, giỏ hoa khai trương, lan hồ điệp được thiết kế mới mỗi sáng từ hoa loại 1 Đà Lạt & hoa nhập khẩu.
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Palette className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-800">Thiết kế hoa theo yêu cầu:</strong> Nghệ nhân tư vấn riêng theo tone màu phong thủy, loại hoa sở thích và ngân sách của bạn để tạo ra tác phẩm độc bản.
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Truck className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-800">Điện hoa hỏa tốc 60 - 90P:</strong> Giao hoa tận tay nội thành Hà Nội. Luôn chụp ảnh hoa thật gửi qua Zalo cho bạn duyệt ưng ý 100% mới xuất phát.
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-800">Hoa cưới & Sự kiện:</strong> Thiết kế trọn gói hoa cưới cầm tay, trang trí lễ đường, backdrop hoa tươi và sự kiện doanh nghiệp cao cấp.
+                </div>
+              </div>
+            </div>
+            <button onClick={onClose} className="btn-primary w-full text-xs py-2.5 rounded-xl shadow-md">
+              Khám phá mẫu hoa ngay
+            </button>
+          </div>
+        )}
+
+        {/* 6. GIỚI THIỆU VỀ V&V FLORIELLE */}
+        {activePopup === 'about' && (
+          <div className="space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-100 to-teal-100 text-emerald-800 flex items-center justify-center mx-auto shadow-md shadow-emerald-600/10 border border-emerald-200/50">
+              <Heart className="w-7 h-7 text-emerald-700" />
+            </div>
+            <div className="text-center">
+              <h3 className="font-bold text-base text-slate-900 tracking-tight">Về Tiệm Hoa V&V Florielle</h3>
+              <p className="text-xs text-slate-500 mt-1">Nghệ Thuật Trao Gửi Yêu Thương • 105 Doãn Kế Thiện, Hà Nội</p>
+            </div>
+            <div className="space-y-3 text-xs text-slate-600 bg-slate-50/90 p-4 rounded-2xl border border-slate-200/60 leading-relaxed">
+              <p>
+                <strong>V&V Florielle</strong> là thương hiệu tiệm hoa tươi nghệ thuật cao cấp tọa lạc tại <strong>105 Doãn Kế Thiện, Cầu Giấy, Hà Nội</strong>. Chúng tôi tin rằng mỗi đóa hoa trao đi là một thông điệp chân thành của tình yêu, sự trân trọng và niềm tin.
+              </p>
+              <div className="space-y-2 pt-1 border-t border-slate-200/60">
+                <div className="flex items-center gap-2 text-slate-800 font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>100% hoa tươi loại 1 tuyển chọn mỗi sáng</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-800 font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Chụp ảnh thật gửi duyệt qua Zalo trước khi giao</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-800 font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Cam kết bảo hành đổi mới trong 2H nếu không ưng ý</span>
+                </div>
+              </div>
+            </div>
+            <button onClick={onClose} className="btn-primary w-full text-xs py-2.5 rounded-xl shadow-md">
+              Đóng
             </button>
           </div>
         )}
