@@ -373,17 +373,102 @@
 }
 
 .glass-modal-content {
-  background: var(--glass-bg-modal);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: var(--glass-shadow-lg);
-  border-radius: var(--radius-xl);
-  max-width: 640px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(32px) saturate(210%);
+  -webkit-backdrop-filter: blur(32px) saturate(210%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.18), 0 10px 25px -5px rgba(5, 150, 105, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 1);
+  border-radius: 28px;
   width: 100%;
   max-height: 90vh;
+  overflow: hidden !important; /* Strictly prevents square scrollbars from breaching rounded corners */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  animation: scaleUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .glass-modal-content {
+    border-radius: 36px;
+  }
+}
+
+.glass-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.125rem 1.25rem 0.875rem 1.25rem;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.9);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (min-width: 640px) {
+  .glass-modal-header {
+    padding: 1.25rem 1.5rem 1rem 1.5rem;
+  }
+}
+
+.glass-modal-body {
+  flex: 1 1 auto;
   overflow-y: auto;
-  animation: scaleUp 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-x: hidden;
+  padding: 1.125rem 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .glass-modal-body {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.glass-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid rgba(241, 245, 249, 0.9);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (min-width: 640px) {
+  .glass-modal-footer {
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* Custom rounded scrollbar for modals that never reaches square corners */
+.glass-modal-body::-webkit-scrollbar,
+.glass-modal-content::-webkit-scrollbar,
+.glass-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.glass-modal-body::-webkit-scrollbar-track,
+.glass-modal-content::-webkit-scrollbar-track,
+.glass-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 14px 0;
+}
+
+.glass-modal-body::-webkit-scrollbar-thumb,
+.glass-modal-content::-webkit-scrollbar-thumb,
+.glass-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.35);
+  border-radius: 9999px;
+}
+
+.glass-modal-body::-webkit-scrollbar-thumb:hover,
+.glass-modal-content::-webkit-scrollbar-thumb:hover,
+.glass-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.65);
 }
 
 .glass-drawer {

@@ -2411,86 +2411,95 @@ export const AdminPortal: React.FC = () => {
       {viewingBillOrder && (
         <div className="glass-overlay" onClick={() => setViewingBillOrder(null)}>
           <div
-            className="glass-modal-content p-6 max-w-lg rounded-[28px] border border-white/80 bg-white/95"
+            className="glass-modal-content max-w-xl md:max-w-2xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white/95"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+            <div className="glass-modal-header">
               <div>
-                <h3 className="font-bold text-base text-slate-900">Chi Tiết Ảnh Bill Chuyển Khoản</h3>
+                <h3 className="font-bold text-base sm:text-lg text-slate-900">Chi Tiết Ảnh Bill Chuyển Khoản</h3>
                 <p className="text-xs text-slate-500">
-                  Mã đơn: #{viewingBillOrder.id} • Khách hàng: {viewingBillOrder.senderName}
+                  Mã đơn: <span className="font-mono font-bold text-purple-700">#{viewingBillOrder.id}</span> • Khách hàng: {viewingBillOrder.senderName}
                 </p>
               </div>
               <button
                 onClick={() => setViewingBillOrder(null)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-2xl overflow-hidden border border-slate-200 max-h-[350px] bg-slate-100 flex items-center justify-center">
-                {viewingBillOrder.billImageDataUrl ? (
-                  <img
-                    src={viewingBillOrder.billImageDataUrl}
-                    alt={`Bill đơn #${viewingBillOrder.id}`}
-                    className="max-h-[350px] w-auto object-contain"
-                  />
-                ) : (
-                  <div className="py-12 text-slate-400 text-xs">Không có hình ảnh bill</div>
-                )}
-              </div>
+            <div className="glass-modal-body space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <div className="rounded-2xl overflow-hidden border border-slate-200 min-h-[240px] max-h-[350px] bg-slate-100 flex items-center justify-center shadow-inner">
+                  {viewingBillOrder.billImageDataUrl ? (
+                    <img
+                      src={viewingBillOrder.billImageDataUrl}
+                      alt={`Bill đơn #${viewingBillOrder.id}`}
+                      className="max-h-[350px] w-auto object-contain"
+                    />
+                  ) : (
+                    <div className="py-12 text-slate-400 text-xs">Không có hình ảnh bill</div>
+                  )}
+                </div>
 
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Người chuyển / SĐT:</span>
-                  <span className="font-semibold text-slate-800">
-                    {viewingBillOrder.senderName} ({viewingBillOrder.senderPhone})
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Nội dung cú pháp chuẩn:</span>
-                  <span className="font-mono font-bold text-purple-700">
-                    VVF {viewingBillOrder.id} {viewingBillOrder.senderPhone}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Số tiền cọc 50% yêu cầu:</span>
-                  <span className="font-bold text-rose-700">
-                    {formatPrice(
-                      viewingBillOrder.depositAmount || Math.round(viewingBillOrder.flowerPrice * 0.5)
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Tổng giá trị đơn:</span>
-                  <span className="font-bold text-slate-900">{formatPrice(viewingBillOrder.totalAmount)}</span>
+                <div className="space-y-3">
+                  <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 text-xs space-y-2">
+                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-200/60">
+                      <span className="text-slate-500">Người chuyển / SĐT:</span>
+                      <span className="font-semibold text-slate-800 text-right">
+                        {viewingBillOrder.senderName} ({viewingBillOrder.senderPhone})
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-200/60">
+                      <span className="text-slate-500">Cú pháp chuẩn:</span>
+                      <span className="font-mono font-bold text-purple-700">
+                        VVF {viewingBillOrder.id} {viewingBillOrder.senderPhone}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-200/60">
+                      <span className="text-slate-500">Tiền cọc 50% yêu cầu:</span>
+                      <span className="font-bold text-rose-700 text-sm">
+                        {formatPrice(
+                          viewingBillOrder.depositAmount || Math.round(viewingBillOrder.flowerPrice * 0.5)
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">Tổng giá trị đơn:</span>
+                      <span className="font-bold text-slate-900 text-sm">{formatPrice(viewingBillOrder.totalAmount)}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-purple-50/70 border border-purple-200/80 text-[11px] text-purple-800">
+                    Trạng thái cọc hiện tại:{' '}
+                    <strong>{viewingBillOrder.isDepositPaid ? 'Đã thanh toán cọc' : 'Chờ xác nhận cọc'}</strong>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div className="pt-2 flex gap-2">
+            <div className="glass-modal-footer">
+              <button
+                type="button"
+                onClick={() => setViewingBillOrder(null)}
+                className="btn-secondary text-xs py-2 px-4 rounded-xl"
+              >
+                Đóng
+              </button>
+              {!viewingBillOrder.isDepositPaid && (
                 <button
                   type="button"
-                  onClick={() => setViewingBillOrder(null)}
-                  className="btn-secondary flex-1 text-xs py-2.5 rounded-xl"
+                  onClick={() => {
+                    approveOrderDeposit(viewingBillOrder.id, 'ADMIN');
+                    setViewingBillOrder(null);
+                  }}
+                  className="btn-primary text-xs py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-md flex items-center justify-center gap-1.5"
                 >
-                  Đóng
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Duyệt Cọc 50% Ngay</span>
                 </button>
-                {!viewingBillOrder.isDepositPaid && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      approveOrderDeposit(viewingBillOrder.id, 'ADMIN');
-                      setViewingBillOrder(null);
-                    }}
-                    className="btn-primary flex-1 text-xs py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-md flex items-center justify-center gap-1.5"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Duyệt Cọc 50% Ngay</span>
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -2502,20 +2511,20 @@ export const AdminPortal: React.FC = () => {
       {editShippingOrder && (
         <div className="glass-overlay" onClick={() => setEditShippingOrder(null)}>
           <div
-            className="glass-modal-content p-6 max-w-sm rounded-[28px] border border-white/80 bg-white"
+            className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+            <div className="glass-modal-header">
               <h3 className="font-bold text-base text-slate-900">Điều Chỉnh Phí Vận Chuyển</h3>
               <button
                 onClick={() => setEditShippingOrder(null)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4 text-xs">
+            <div className="glass-modal-body space-y-4 text-xs">
               <p className="text-slate-600">
                 Mã đơn hàng: <strong className="font-mono text-purple-700">#{editShippingOrder.id}</strong>
               </p>
@@ -2533,26 +2542,26 @@ export const AdminPortal: React.FC = () => {
                   Giá tổng đơn hàng sẽ tự động cập nhật lại = Giá hoa + Phí ship mới.
                 </span>
               </div>
+            </div>
 
-              <div className="pt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditShippingOrder(null)}
-                  className="btn-secondary flex-1 text-xs py-2.5 rounded-xl"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    adjustOrderShippingFee(editShippingOrder.id, editShippingOrder.fee);
-                    setEditShippingOrder(null);
-                  }}
-                  className="btn-primary flex-1 text-xs py-2.5 rounded-xl"
-                >
-                  Lưu Phí Ship
-                </button>
-              </div>
+            <div className="glass-modal-footer">
+              <button
+                type="button"
+                onClick={() => setEditShippingOrder(null)}
+                className="btn-secondary text-xs py-2 px-4 rounded-xl"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  adjustOrderShippingFee(editShippingOrder.id, editShippingOrder.fee);
+                  setEditShippingOrder(null);
+                }}
+                className="btn-primary text-xs py-2 px-4 rounded-xl"
+              >
+                Lưu Phí Ship
+              </button>
             </div>
           </div>
         </div>
@@ -2564,44 +2573,56 @@ export const AdminPortal: React.FC = () => {
       {tempPassModal && (
         <div className="glass-overlay" onClick={() => setTempPassModal(null)}>
           <div
-            className="glass-modal-content p-6 max-w-sm rounded-[28px] border border-white/80 bg-white"
+            className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3 shadow-md border border-amber-200">
-              <KeyRound className="w-6 h-6" />
+            <div className="glass-modal-header">
+              <h3 className="font-bold text-base text-slate-900">Đã Cấp Mật Khẩu Tạm</h3>
+              <button
+                onClick={() => setTempPassModal(null)}
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div className="text-center space-y-1">
-              <h3 className="font-bold text-base text-slate-900">Đã Cấp Lại Mật Khẩu Tạm</h3>
-              <p className="text-xs text-slate-500">
-                Khách hàng: <strong>{tempPassModal.customerName}</strong>
+            <div className="glass-modal-body space-y-3 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-1 shadow-md border border-amber-200">
+                <KeyRound className="w-6 h-6" />
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-500">
+                  Khách hàng: <strong className="text-slate-800">{tempPassModal.customerName}</strong>
+                </p>
+              </div>
+
+              <div className="my-2 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-1">
+                <span className="text-[11px] text-amber-800 font-medium">Mật khẩu tạm thời mới:</span>
+                <div className="font-mono text-xl font-extrabold text-slate-900 tracking-wider">
+                  {tempPassModal.pass}
+                </div>
+              </div>
+
+              <p className="text-[11px] text-slate-500 text-center leading-relaxed">
+                Hãy sao chép và gửi mật khẩu này cho khách hàng. Sau khi đăng nhập, khách có thể đổi lại mật khẩu trong trang cá nhân.
               </p>
             </div>
 
-            <div className="my-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-1">
-              <span className="text-[11px] text-amber-800 font-medium">Mật khẩu tạm thời mới:</span>
-              <div className="font-mono text-xl font-extrabold text-slate-900 tracking-wider">
-                {tempPassModal.pass}
-              </div>
+            <div className="glass-modal-footer">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(tempPassModal.pass);
+                  showToast('Đã sao chép mật khẩu tạm!', 'success');
+                  setTempPassModal(null);
+                }}
+                className="btn-primary w-full text-xs py-2.5 rounded-xl shadow-md flex items-center justify-center gap-1.5"
+              >
+                <Copy className="w-4 h-4" />
+                <span>Sao Chép Mật Khẩu &amp; Đóng</span>
+              </button>
             </div>
-
-            <p className="text-[11px] text-slate-500 text-center mb-4 leading-relaxed">
-              Hãy sao chép và gửi mật khẩu này cho khách hàng. Sau khi đăng nhập, khách có thể đổi lại mật khẩu trong
-              trang cá nhân.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(tempPassModal.pass);
-                showToast('Đã sao chép mật khẩu tạm!', 'success');
-                setTempPassModal(null);
-              }}
-              className="btn-primary w-full text-xs py-2.5 rounded-xl shadow-md flex items-center justify-center gap-1.5"
-            >
-              <Copy className="w-4 h-4" />
-              <span>Sao Chép Mật Khẩu &amp; Đóng</span>
-            </button>
           </div>
         </div>
       )}
@@ -2612,14 +2633,14 @@ export const AdminPortal: React.FC = () => {
       {isAddingChannel && (
         <div className="glass-overlay" onClick={() => setIsAddingChannel(false)}>
           <div
-            className="glass-modal-content p-6 max-w-md rounded-[28px] border border-white/80 bg-white"
+            className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+            <div className="glass-modal-header">
               <h3 className="font-bold text-base text-slate-900">Thêm Kênh Liên Hệ Mới</h3>
               <button
                 onClick={() => setIsAddingChannel(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -2646,69 +2667,71 @@ export const AdminPortal: React.FC = () => {
                 setNewChannelValue('');
                 setNewChannelUrl('');
               }}
-              className="space-y-3.5 text-xs"
+              className="flex flex-col flex-1 min-h-0"
             >
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Loại kênh liên hệ</label>
-                <select
-                  value={newChannelType}
-                  onChange={(e) => setNewChannelType(e.target.value as ContactChannel['type'])}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                >
-                  <option value="zalo">Zalo Chat</option>
-                  <option value="hotline">Hotline Gọi Ngay</option>
-                  <option value="tiktok">TikTok Kênh Video</option>
-                  <option value="facebook">Facebook Fanpage</option>
-                  <option value="messenger">Facebook Messenger</option>
-                  <option value="maps">Google Maps (105 Doãn Kế Thiện)</option>
-                  <option value="custom">Kênh Khác</option>
-                </select>
+              <div className="glass-modal-body space-y-3.5 text-xs">
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Loại kênh liên hệ</label>
+                  <select
+                    value={newChannelType}
+                    onChange={(e) => setNewChannelType(e.target.value as ContactChannel['type'])}
+                    className="glass-input w-full text-xs py-2 rounded-xl"
+                  >
+                    <option value="zalo">Zalo Chat</option>
+                    <option value="hotline">Hotline Gọi Ngay</option>
+                    <option value="tiktok">TikTok Kênh Video</option>
+                    <option value="facebook">Facebook Fanpage</option>
+                    <option value="messenger">Facebook Messenger</option>
+                    <option value="maps">Google Maps (105 Doãn Kế Thiện)</option>
+                    <option value="custom">Kênh Khác</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Tên hiển thị *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ví dụ: Chat Zalo Florist, Chỉ đường Showroom..."
+                    value={newChannelTitle}
+                    onChange={(e) => setNewChannelTitle(e.target.value)}
+                    className="glass-input w-full text-xs py-2 rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Giá trị hiển thị phụ</label>
+                  <input
+                    type="text"
+                    placeholder="Ví dụ: 0987.654.321 hoặc @vvflorielle"
+                    value={newChannelValue}
+                    onChange={(e) => setNewChannelValue(e.target.value)}
+                    className="glass-input w-full text-xs py-2 rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Đường dẫn liên kết (URL) *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="https://zalo.me/... hoặc https://maps.google.com/..."
+                    value={newChannelUrl}
+                    onChange={(e) => setNewChannelUrl(e.target.value)}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Tên hiển thị *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: Chat Zalo Florist, Chỉ đường Showroom..."
-                  value={newChannelTitle}
-                  onChange={(e) => setNewChannelTitle(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Giá trị hiển thị phụ</label>
-                <input
-                  type="text"
-                  placeholder="Ví dụ: 0987.654.321 hoặc @vvflorielle"
-                  value={newChannelValue}
-                  onChange={(e) => setNewChannelValue(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Đường dẫn liên kết (URL) *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="https://zalo.me/... hoặc https://maps.google.com/..."
-                  value={newChannelUrl}
-                  onChange={(e) => setNewChannelUrl(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl font-mono"
-                />
-              </div>
-
-              <div className="pt-2 flex gap-2">
+              <div className="glass-modal-footer">
                 <button
                   type="button"
                   onClick={() => setIsAddingChannel(false)}
-                  className="btn-secondary flex-1 text-xs py-2.5 rounded-xl"
+                  className="btn-secondary text-xs py-2 px-4 rounded-xl"
                 >
                   Hủy
                 </button>
-                <button type="submit" className="btn-primary flex-1 text-xs py-2.5 rounded-xl">
+                <button type="submit" className="btn-primary text-xs py-2 px-4 rounded-xl">
                   Thêm Kênh
                 </button>
               </div>
@@ -2723,14 +2746,14 @@ export const AdminPortal: React.FC = () => {
       {isAddVoucherOpen && (
         <div className="glass-overlay" onClick={() => setIsAddVoucherOpen(false)}>
           <div
-            className="glass-modal-content p-6 max-w-md rounded-[28px] border border-white/80 bg-white"
+            className="glass-modal-content max-w-lg md:max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
-              <h3 className="font-bold text-base text-slate-900">Tạo Mã Giảm Giá / Voucher Mới</h3>
+            <div className="glass-modal-header">
+              <h3 className="font-bold text-base sm:text-lg text-slate-900">Tạo Mã Giảm Giá / Voucher Mới</h3>
               <button
                 onClick={() => setIsAddVoucherOpen(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -2764,99 +2787,101 @@ export const AdminPortal: React.FC = () => {
                 setNewVoucherTitle('');
                 setNewVoucherDesc('');
               }}
-              className="space-y-3.5 text-xs"
+              className="flex flex-col flex-1 min-h-0"
             >
-              <div className="grid grid-cols-2 gap-3">
+              <div className="glass-modal-body space-y-3.5 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Mã Voucher *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="FREESHIP30K"
+                      value={newVoucherCode}
+                      onChange={(e) => setNewVoucherCode(e.target.value.toUpperCase())}
+                      className="glass-input w-full text-xs py-2 rounded-xl font-mono font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Nhãn / Badge</label>
+                    <input
+                      type="text"
+                      placeholder="FREESHIP, HOT, VIP"
+                      value={newVoucherBadge}
+                      onChange={(e) => setNewVoucherBadge(e.target.value)}
+                      className="glass-input w-full text-xs py-2 rounded-xl"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Mã Voucher *</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Tiêu đề voucher *</label>
                   <input
                     type="text"
                     required
-                    placeholder="FREESHIP30K"
-                    value={newVoucherCode}
-                    onChange={(e) => setNewVoucherCode(e.target.value.toUpperCase())}
-                    className="glass-input w-full text-xs py-2 rounded-xl font-mono font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Nhãn / Badge</label>
-                  <input
-                    type="text"
-                    placeholder="FREESHIP, HOT, VIP"
-                    value={newVoucherBadge}
-                    onChange={(e) => setNewVoucherBadge(e.target.value)}
+                    placeholder="Miễn phí vận chuyển 30K..."
+                    value={newVoucherTitle}
+                    onChange={(e) => setNewVoucherTitle(e.target.value)}
                     className="glass-input w-full text-xs py-2 rounded-xl"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Tiêu đề voucher *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Miễn phí vận chuyển 30K..."
-                  value={newVoucherTitle}
-                  onChange={(e) => setNewVoucherTitle(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Mô tả điều kiện áp dụng</label>
-                <textarea
-                  rows={2}
-                  placeholder="Áp dụng cho đơn hoa từ 300.000đ..."
-                  value={newVoucherDesc}
-                  onChange={(e) => setNewVoucherDesc(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-2.5">
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Số tiền giảm</label>
-                  <input
-                    type="number"
-                    step={5000}
-                    value={newVoucherDiscount}
-                    onChange={(e) => setNewVoucherDiscount(Number(e.target.value))}
-                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  <label className="font-semibold text-slate-700 block mb-1">Mô tả điều kiện áp dụng</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Áp dụng cho đơn hoa từ 300.000đ..."
+                    value={newVoucherDesc}
+                    onChange={(e) => setNewVoucherDesc(e.target.value)}
+                    className="glass-input w-full text-xs py-2 rounded-xl"
                   />
                 </div>
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Đơn tối thiểu</label>
-                  <input
-                    type="number"
-                    step={10000}
-                    value={newVoucherMinOrder}
-                    onChange={(e) => setNewVoucherMinOrder(Number(e.target.value))}
-                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Điểm đổi (nếu có)</label>
-                  <input
-                    type="number"
-                    step={50}
-                    value={newVoucherPoints}
-                    onChange={(e) => setNewVoucherPoints(Number(e.target.value))}
-                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
-                  />
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Số tiền giảm</label>
+                    <input
+                      type="number"
+                      step={5000}
+                      value={newVoucherDiscount}
+                      onChange={(e) => setNewVoucherDiscount(Number(e.target.value))}
+                      className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Đơn tối thiểu</label>
+                    <input
+                      type="number"
+                      step={10000}
+                      value={newVoucherMinOrder}
+                      onChange={(e) => setNewVoucherMinOrder(Number(e.target.value))}
+                      className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Điểm đổi (nếu có)</label>
+                    <input
+                      type="number"
+                      step={50}
+                      value={newVoucherPoints}
+                      onChange={(e) => setNewVoucherPoints(Number(e.target.value))}
+                      className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-2 flex gap-2">
+              <div className="glass-modal-footer">
                 <button
                   type="button"
                   onClick={() => setIsAddVoucherOpen(false)}
-                  className="btn-secondary flex-1 text-xs py-2.5 rounded-xl"
+                  className="btn-secondary text-xs py-2 px-4 rounded-xl"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="btn-primary flex-1 text-xs py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700"
+                  className="btn-primary text-xs py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-700"
                 >
                   Tạo Voucher
                 </button>
@@ -2867,19 +2892,22 @@ export const AdminPortal: React.FC = () => {
       )}
 
       {/* =========================================================================
-          MODAL: ADD NEW FLOWER PRODUCT
+          MODAL: ADD NEW FLOWER PRODUCT (EXPANDED DESKTOP 2-COLUMN GRID)
           ========================================================================= */}
       {isAddProductOpen && (
         <div className="glass-overlay" onClick={() => setIsAddProductOpen(false)}>
           <div
-            className="glass-modal-content p-6 max-w-lg rounded-[28px] border border-white/80 bg-white"
+            className="glass-modal-content max-w-2xl lg:max-w-3xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
-              <h3 className="font-bold text-base text-slate-900">Thêm Mẫu Hoa Thiết Kế Mới</h3>
+            <div className="glass-modal-header">
+              <div>
+                <h3 className="font-bold text-base sm:text-lg text-slate-900">Thêm Mẫu Hoa Thiết Kế Mới</h3>
+                <p className="text-xs text-slate-500">Cập nhật sản phẩm trực tiếp vào catalog V&amp;V Florielle</p>
+              </div>
               <button
                 onClick={() => setIsAddProductOpen(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -2917,100 +2945,128 @@ export const AdminPortal: React.FC = () => {
                 setNewProdName('');
                 showToast('Đã thêm mẫu hoa mới vào catalog!', 'success');
               }}
-              className="space-y-3.5 text-xs"
+              className="flex flex-col flex-1 min-h-0"
             >
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Tên mẫu hoa *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: Lẵng Khai Trương Thịnh Vượng Vàng Gold..."
-                  value={newProdName}
-                  onChange={(e) => setNewProdName(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl font-bold"
-                />
-              </div>
+              <div className="glass-modal-body space-y-4 text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Left Column */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">Tên mẫu hoa *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ví dụ: Lẵng Khai Trương Thịnh Vượng Vàng Gold..."
+                        value={newProdName}
+                        onChange={(e) => setNewProdName(e.target.value)}
+                        className="glass-input w-full text-xs py-2 rounded-xl font-bold"
+                      />
+                    </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Danh mục dịp tặng</label>
-                  <select
-                    value={newProdCategory}
-                    onChange={(e) => setNewProdCategory(e.target.value as CategoryId)}
-                    className="glass-input w-full text-xs py-2 rounded-xl"
-                  >
-                    <option value="khai-truong">Hoa Khai Trương</option>
-                    <option value="sinh-nhat">Hoa Sinh Nhật</option>
-                    <option value="tinh-yeu">Hoa Tình Yêu</option>
-                    <option value="lan-ho-diep">Lan Hồ Điệp</option>
-                    <option value="cam-on">Hoa Cảm Ơn &amp; Chúc Mừng</option>
-                    <option value="chia-buon">Hoa Chia Buồn</option>
-                  </select>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="font-semibold text-slate-700 block mb-1">Dịp tặng</label>
+                        <select
+                          value={newProdCategory}
+                          onChange={(e) => setNewProdCategory(e.target.value as CategoryId)}
+                          className="glass-input w-full text-xs py-2 rounded-xl"
+                        >
+                          <option value="khai-truong">Hoa Khai Trương</option>
+                          <option value="sinh-nhat">Hoa Sinh Nhật</option>
+                          <option value="tinh-yeu">Hoa Tình Yêu</option>
+                          <option value="lan-ho-diep">Lan Hồ Điệp</option>
+                          <option value="cam-on">Hoa Cảm Ơn &amp; Chúc Mừng</option>
+                          <option value="chia-buon">Hoa Chia Buồn</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="font-semibold text-slate-700 block mb-1">Giá bán (VNĐ) *</label>
+                        <input
+                          type="number"
+                          step={10000}
+                          required
+                          value={newProdPrice}
+                          onChange={(e) => setNewProdPrice(Number(e.target.value))}
+                          className="glass-input w-full text-xs py-2 rounded-xl font-mono font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">URL Ảnh Chụp Thật Sản Phẩm *</label>
+                      <input
+                        type="url"
+                        required
+                        placeholder="https://images.unsplash.com/..."
+                        value={newProdImageUrl}
+                        onChange={(e) => setNewProdImageUrl(e.target.value)}
+                        className="glass-input w-full text-xs py-2 rounded-xl font-mono text-[11px]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">Hoa thành phần (phân cách bằng dấu phẩy)</label>
+                      <input
+                        type="text"
+                        placeholder="Hồng Ecuador, Cẩm tú cầu, Baby trắng..."
+                        value={newProdFlowers}
+                        onChange={(e) => setNewProdFlowers(e.target.value)}
+                        className="glass-input w-full text-xs py-2 rounded-xl"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">Ý nghĩa &amp; Thông điệp thiết kế</label>
+                      <input
+                        type="text"
+                        placeholder="Thông điệp gửi gắm chúc mừng tài lộc..."
+                        value={newProdMeaning}
+                        onChange={(e) => setNewProdMeaning(e.target.value)}
+                        className="glass-input w-full text-xs py-2 rounded-xl"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">Mô tả chi tiết</label>
+                      <textarea
+                        rows={3}
+                        placeholder="Mô tả kích thước hoa, xuất xứ hoa tươi..."
+                        value={newProdDesc}
+                        onChange={(e) => setNewProdDesc(e.target.value)}
+                        className="glass-input w-full text-xs py-2 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Image Preview Box */}
+                    {newProdImageUrl && (
+                      <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 h-28 flex items-center justify-center">
+                        <img
+                          src={newProdImageUrl}
+                          alt="Xem trước ảnh"
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Giá bán (VNĐ) *</label>
-                  <input
-                    type="number"
-                    step={10000}
-                    required
-                    value={newProdPrice}
-                    onChange={(e) => setNewProdPrice(Number(e.target.value))}
-                    className="glass-input w-full text-xs py-2 rounded-xl font-mono font-bold"
-                  />
-                </div>
               </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">URL Ảnh Chụp Thật Sản Phẩm *</label>
-                <input
-                  type="url"
-                  required
-                  value={newProdImageUrl}
-                  onChange={(e) => setNewProdImageUrl(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl font-mono text-[11px]"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Hoa thành phần chính (phân cách bằng dấu phẩy)</label>
-                <input
-                  type="text"
-                  value={newProdFlowers}
-                  onChange={(e) => setNewProdFlowers(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Ý nghĩa &amp; Thông điệp thiết kế</label>
-                <input
-                  type="text"
-                  value={newProdMeaning}
-                  onChange={(e) => setNewProdMeaning(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Mô tả chi tiết</label>
-                <textarea
-                  rows={2}
-                  value={newProdDesc}
-                  onChange={(e) => setNewProdDesc(e.target.value)}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
-              </div>
-
-              <div className="pt-2 flex gap-2">
+              <div className="glass-modal-footer">
                 <button
                   type="button"
                   onClick={() => setIsAddProductOpen(false)}
-                  className="btn-secondary flex-1 text-xs py-2.5 rounded-xl"
+                  className="btn-secondary text-xs py-2 px-4 rounded-xl"
                 >
                   Hủy
                 </button>
-                <button type="submit" className="btn-primary flex-1 text-xs py-2.5 rounded-xl">
+                <button type="submit" className="btn-primary text-xs py-2 px-4 rounded-xl">
                   Lưu Sản Phẩm
                 </button>
               </div>
@@ -3020,85 +3076,132 @@ export const AdminPortal: React.FC = () => {
       )}
 
       {/* =========================================================================
-          MODAL: CUSTOMER DETAIL & ORDER HISTORY
+          MODAL: CUSTOMER DETAIL & ORDER HISTORY (EXPANDED DESKTOP WIDE VIEW)
           ========================================================================= */}
       {selectedCustomer && (
         <div className="glass-overlay" onClick={() => setSelectedCustomer(null)}>
           <div
-            className="glass-modal-content p-6 max-w-xl rounded-[28px] border border-white/80 bg-white max-h-[85vh] overflow-y-auto"
+            className="glass-modal-content max-w-2xl lg:max-w-4xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+            <div className="glass-modal-header">
               <div>
-                <h3 className="font-bold text-base text-slate-900">Chi Tiết Hồ Sơ Khách Hàng</h3>
+                <h3 className="font-bold text-base sm:text-lg text-slate-900">Chi Tiết Hồ Sơ Khách Hàng</h3>
                 <p className="text-xs text-slate-500">
-                  {selectedCustomer.fullName} • {selectedCustomer.phone}
+                  {selectedCustomer.fullName} • <span className="font-mono">{selectedCustomer.phone}</span>
                 </p>
               </div>
               <button
                 onClick={() => setSelectedCustomer(null)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+            <div className="glass-modal-body space-y-4 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50/80 border border-slate-200">
                 <div>
-                  <span className="text-slate-500">Hạng thành viên:</span>
-                  <div className="font-bold text-purple-700 mt-0.5">{selectedCustomer.tier}</div>
+                  <span className="text-slate-500 block">Hạng thành viên:</span>
+                  <div className="font-bold text-purple-700 mt-0.5 text-sm">{selectedCustomer.tier}</div>
                 </div>
                 <div>
-                  <span className="text-slate-500">Trạng thái xác thực:</span>
-                  <div className="font-bold text-emerald-700 mt-0.5">
-                    {selectedCustomer.isVerified ? 'Hội viên đã xác thực (100% điểm)' : 'Thành viên thường (70% điểm)'}
+                  <span className="text-slate-500 block">Trạng thái xác thực:</span>
+                  <div className="font-bold text-emerald-700 mt-0.5 text-xs">
+                    {selectedCustomer.isVerified ? 'Hội viên đã xác thực' : 'Thành viên thường'}
                   </div>
                 </div>
                 <div>
-                  <span className="text-slate-500">Ví điểm tích lũy:</span>
+                  <span className="text-slate-500 block">Ví điểm tích lũy:</span>
                   <div className="font-extrabold text-sm text-emerald-800 mt-0.5">
-                    {selectedCustomer.points} điểm ({formatPrice(selectedCustomer.points * 100)})
+                    {selectedCustomer.points} điểm
                   </div>
                 </div>
                 <div>
-                  <span className="text-slate-500">Tổng chi tiêu:</span>
+                  <span className="text-slate-500 block">Tổng chi tiêu:</span>
                   <div className="font-extrabold text-sm text-slate-900 mt-0.5">
-                    {formatPrice(selectedCustomer.totalSpent)} ({selectedCustomer.ordersCount} đơn)
+                    {formatPrice(selectedCustomer.totalSpent)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Extra Details on Desktop */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 space-y-1.5">
+                  <span className="text-slate-500 font-semibold block">Thông Tin Cá Nhân &amp; Liên Hệ</span>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Email:</span>
+                    <span className="font-medium text-slate-800">{selectedCustomer.email || 'Chưa cung cấp'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ngày sinh:</span>
+                    <span className="font-medium text-slate-800">{selectedCustomer.birthday || 'Chưa cung cấp'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Địa chỉ hiện tại:</span>
+                    <span className="font-medium text-slate-800 text-right max-w-[220px] truncate">{selectedCustomer.address || 'Chưa cung cấp'}</span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 space-y-1.5">
+                  <span className="text-slate-500 font-semibold block">Sở Thích &amp; Ghi Chú Florist</span>
+                  <div>
+                    <span className="text-slate-400">Hoa yêu thích: </span>
+                    <span className="font-medium text-purple-700">
+                      {selectedCustomer.favoriteFlowers?.length ? selectedCustomer.favoriteFlowers.join(', ') : 'Chưa có'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Ghi chú florist: </span>
+                    <span className="font-medium text-slate-700">{selectedCustomer.notes || 'Không có ghi chú'}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-bold text-xs text-slate-800 mb-2">Lịch Sử Mua Hàng ({getCustomerOrderHistory(selectedCustomer.phone).length})</h4>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                  {getCustomerOrderHistory(selectedCustomer.phone).map((ord) => (
-                    <div
-                      key={ord.id}
-                      className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200 flex items-center justify-between"
-                    >
-                      <div>
-                        <div className="font-mono font-bold text-purple-800">#{ord.id}</div>
-                        <div className="text-[11px] text-slate-500">{ord.createdAt} • {ord.recipientName}</div>
+                <h4 className="font-bold text-xs text-slate-800 mb-2 flex items-center justify-between">
+                  <span>Lịch Sử Mua Hàng ({getCustomerOrderHistory(selectedCustomer.phone).length})</span>
+                  <span className="text-[11px] font-normal text-slate-400">Mới nhất lên đầu</span>
+                </h4>
+                <div className="space-y-2">
+                  {getCustomerOrderHistory(selectedCustomer.phone).length === 0 ? (
+                    <div className="py-6 text-center text-slate-400 bg-slate-50 rounded-xl">Chưa có đơn hàng nào</div>
+                  ) : (
+                    getCustomerOrderHistory(selectedCustomer.phone).map((ord) => (
+                      <div
+                        key={ord.id}
+                        className="p-3 rounded-xl bg-slate-50/80 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                      >
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-purple-800">#{ord.id}</span>
+                            <span className="text-[11px] text-slate-500">• {ord.createdAt}</span>
+                          </div>
+                          <div className="text-[11px] text-slate-600">
+                            Người nhận: <strong>{ord.recipientName}</strong> ({ord.recipientPhone}) - {ord.recipientAddress}
+                          </div>
+                        </div>
+                        <div className="text-right sm:shrink-0">
+                          <div className="font-bold text-slate-900">{formatPrice(ord.totalAmount)}</div>
+                          <span className="text-[10px] font-semibold text-emerald-700 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200">
+                            {ord.status}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold text-slate-900">{formatPrice(ord.totalAmount)}</div>
-                        <span className="text-[10px] font-semibold text-emerald-700">{ord.status}</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
+            </div>
 
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedCustomer(null)}
-                  className="btn-secondary w-full text-xs py-2.5 rounded-xl"
-                >
-                  Đóng
-                </button>
-              </div>
+            <div className="glass-modal-footer">
+              <button
+                type="button"
+                onClick={() => setSelectedCustomer(null)}
+                className="btn-secondary text-xs py-2 px-4 rounded-xl"
+              >
+                Đóng
+              </button>
             </div>
           </div>
         </div>
@@ -3110,20 +3213,20 @@ export const AdminPortal: React.FC = () => {
       {adjustingCustomer && (
         <div className="glass-overlay" onClick={() => setAdjustingCustomer(null)}>
           <div
-            className="glass-modal-content p-6 max-w-sm rounded-[28px] border border-white/80 bg-white"
+            className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+            <div className="glass-modal-header">
               <h3 className="font-bold text-base text-slate-900">Điều Chỉnh Điểm Tích Lũy</h3>
               <button
                 onClick={() => setAdjustingCustomer(null)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3.5 text-xs">
+            <div className="glass-modal-body space-y-3.5 text-xs">
               <p className="text-slate-600">
                 Khách hàng: <strong>{adjustingCustomer.fullName}</strong>
                 <br />
@@ -3150,28 +3253,29 @@ export const AdminPortal: React.FC = () => {
                   value={pointsReason}
                   onChange={(e) => setPointsReason(e.target.value)}
                   className="glass-input w-full text-xs py-2 rounded-xl"
+                  placeholder="Ví dụ: Thưởng thành viên tích cực, hoàn điểm..."
                 />
               </div>
+            </div>
 
-              <div className="pt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAdjustingCustomer(null)}
-                  className="btn-secondary flex-1 text-xs py-2.5 rounded-xl"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    adjustCustomerPoints(adjustingCustomer.id, pointsDelta, pointsReason);
-                    setAdjustingCustomer(null);
-                  }}
-                  className="btn-primary flex-1 text-xs py-2.5 rounded-xl"
-                >
-                  Xác Nhận
-                </button>
-              </div>
+            <div className="glass-modal-footer">
+              <button
+                type="button"
+                onClick={() => setAdjustingCustomer(null)}
+                className="btn-secondary text-xs py-2 px-4 rounded-xl"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  adjustCustomerPoints(adjustingCustomer.id, pointsDelta, pointsReason);
+                  setAdjustingCustomer(null);
+                }}
+                className="btn-primary text-xs py-2 px-4 rounded-xl"
+              >
+                Xác Nhận
+              </button>
             </div>
           </div>
         </div>
@@ -3183,20 +3287,20 @@ export const AdminPortal: React.FC = () => {
       {editingCustomer && (
         <div className="glass-overlay" onClick={() => setEditingCustomer(null)}>
           <div
-            className="glass-modal-content p-6 max-w-md rounded-[28px] border border-white/80 bg-white"
+            className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+            <div className="glass-modal-header">
               <h3 className="font-bold text-base text-slate-900">Ghi Chú Sở Thích &amp; Florist</h3>
               <button
                 onClick={() => setEditingCustomer(null)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3.5 text-xs">
+            <div className="glass-modal-body space-y-3.5 text-xs">
               <p className="text-slate-600">
                 Khách hàng: <strong className="text-slate-800">{editingCustomer.fullName}</strong> (
                 {editingCustomer.phone})
@@ -3225,32 +3329,32 @@ export const AdminPortal: React.FC = () => {
                   placeholder="Ghi chú về thói quen đặt hoa, giờ giao hàng yêu thích, dịp tặng..."
                 />
               </div>
+            </div>
 
-              <div className="pt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingCustomer(null)}
-                  className="btn-secondary flex-1 text-xs py-2.5 rounded-xl"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    updateCustomerByAdmin(editingCustomer.id, {
-                      favoriteFlowers: editFavFlowers
-                        .split(',')
-                        .map((f) => f.trim())
-                        .filter(Boolean),
-                      notes: editNotes.trim()
-                    });
-                    setEditingCustomer(null);
-                  }}
-                  className="btn-primary flex-1 text-xs py-2.5 rounded-xl"
-                >
-                  Lưu Ghi Chú
-                </button>
-              </div>
+            <div className="glass-modal-footer">
+              <button
+                type="button"
+                onClick={() => setEditingCustomer(null)}
+                className="btn-secondary text-xs py-2 px-4 rounded-xl"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  updateCustomerByAdmin(editingCustomer.id, {
+                    favoriteFlowers: editFavFlowers
+                      .split(',')
+                      .map((f) => f.trim())
+                      .filter(Boolean),
+                    notes: editNotes.trim()
+                  });
+                  setEditingCustomer(null);
+                }}
+                className="btn-primary text-xs py-2 px-4 rounded-xl"
+              >
+                Lưu Ghi Chú
+              </button>
             </div>
           </div>
         </div>

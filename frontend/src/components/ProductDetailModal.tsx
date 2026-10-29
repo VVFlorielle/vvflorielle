@@ -60,18 +60,29 @@ export const ProductDetailModal: React.FC = () => {
   return (
     <div className="glass-overlay" onClick={() => setSelectedProduct(null)}>
       <div
-        className="glass-modal-content p-6 sm:p-7 max-w-2xl relative rounded-[28px] border border-white/90 shadow-2xl bg-white/85 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-200"
+        className="glass-modal-content max-w-2xl lg:max-w-3xl relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button
-          onClick={() => setSelectedProduct(null)}
-          className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors z-10"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {/* Fixed Header with Title & Close button */}
+        <div className="glass-modal-header">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+              Chi Tiết Mẫu Hoa Nghệ Thuật
+            </span>
+            <span className="text-xs text-slate-500 font-medium hidden sm:inline">105 Doãn Kế Thiện, Cầu Giấy</span>
+          </div>
+          <button
+            onClick={() => setSelectedProduct(null)}
+            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Đóng chi tiết"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Scrollable Modal Body */}
+        <div className="glass-modal-body space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left: Real Flower Photography & Guarantee */}
           <div>
             <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-md">
@@ -305,6 +316,7 @@ export const ProductDetailModal: React.FC = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -170,48 +170,51 @@ export const AuthModal: React.FC = () => {
   return (
     <div className="glass-overlay" onClick={() => setIsAuthModalOpen(false)}>
       <div
-        className="glass-modal-content p-6 sm:p-7 max-w-sm sm:max-w-md w-full relative rounded-[28px] shadow-2xl"
+        className="glass-modal-content max-w-sm sm:max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button
-          onClick={() => setIsAuthModalOpen(false)}
-          className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-colors z-20"
-          title="Đóng cửa sổ"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {/* Fixed Header with Role Switcher & Close Button */}
+        <div className="glass-modal-header">
+          <div className="flex p-1 bg-slate-100/90 rounded-2xl border border-white/80 flex-1 mr-3">
+            <button
+              type="button"
+              onClick={() => setAuthModalMode('customer')}
+              className={`flex-1 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                authModalMode === 'customer' || authModalMode === 'register' || authModalMode === 'forgot'
+                  ? 'bg-white text-emerald-800 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Khách Hàng</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuthModalMode('admin')}
+              className={`flex-1 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                authModalMode === 'admin'
+                  ? 'bg-purple-700 text-white shadow-sm'
+                  : 'text-slate-500 hover:text-purple-700'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Quản Trị Viên</span>
+            </button>
+          </div>
 
-        {/* Top Role Switcher Tabs (Dễ Dàng Đăng Nhập Khách Hàng Hoặc Quản Trị) */}
-        <div className="flex p-1 bg-slate-100/90 rounded-2xl mb-4 border border-white/80 pr-10">
           <button
-            type="button"
-            onClick={() => setAuthModalMode('customer')}
-            className={`flex-1 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-              authModalMode === 'customer' || authModalMode === 'register' || authModalMode === 'forgot'
-                ? 'bg-white text-emerald-800 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
+            onClick={() => setIsAuthModalOpen(false)}
+            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-colors cursor-pointer"
+            title="Đóng cửa sổ"
           >
-            <User className="w-3.5 h-3.5" />
-            <span>Khách Hàng</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setAuthModalMode('admin')}
-            className={`flex-1 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-              authModalMode === 'admin'
-                ? 'bg-purple-700 text-white shadow-sm'
-                : 'text-slate-500 hover:text-purple-700'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Quản Trị Viên</span>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* 1. CUSTOMER LOGIN MODE */}
-        {authModalMode === 'customer' && (
+        {/* Scrollable Modal Body */}
+        <div className="glass-modal-body p-5 sm:p-6">
+          {/* 1. CUSTOMER LOGIN MODE */}
+          {authModalMode === 'customer' && (
           <div>
             <div className="text-center mb-5">
               <div
@@ -646,6 +649,7 @@ export const AuthModal: React.FC = () => {
             </form>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

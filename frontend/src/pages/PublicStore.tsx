@@ -603,22 +603,22 @@ export const PublicStore: React.FC = () => {
       {selectedArticle && (
         <div className="glass-overlay" onClick={() => setSelectedArticle(null)}>
           <div
-            className="glass-modal-content p-6 sm:p-8 max-w-2xl w-full rounded-[28px] border border-white/90 shadow-2xl bg-white/95"
+            className="glass-modal-content max-w-2xl w-full rounded-[28px] sm:rounded-[36px] border border-white/90 shadow-2xl bg-white/95"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
-              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+            <div className="glass-modal-header">
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/60">
                 {selectedArticle.category}
               </span>
               <button
                 onClick={() => setSelectedArticle(null)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="glass-modal-body space-y-4">
               <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-snug">
                 {selectedArticle.title}
               </h2>
@@ -627,7 +627,7 @@ export const PublicStore: React.FC = () => {
                 <span>• {selectedArticle.readTime}</span>
               </div>
 
-              <div className="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-slate-100">
+              <div className="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-200/60">
                 <img
                   src={selectedArticle.imageUrl}
                   alt={selectedArticle.title}
@@ -640,16 +640,16 @@ export const PublicStore: React.FC = () => {
                   <p key={idx}>{p}</p>
                 ))}
               </div>
+            </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs text-slate-400">V&V Florielle Editorial</span>
-                <button
-                  onClick={() => setSelectedArticle(null)}
-                  className="btn-primary text-xs py-2 px-4 rounded-xl"
-                >
-                  Đóng bài viết
-                </button>
-              </div>
+            <div className="glass-modal-footer justify-between">
+              <span className="text-xs text-slate-400">V&amp;V Florielle Editorial • 105 Doãn Kế Thiện</span>
+              <button
+                onClick={() => setSelectedArticle(null)}
+                className="btn-primary text-xs py-2 px-4 rounded-xl"
+              >
+                Đóng bài viết
+              </button>
             </div>
           </div>
         </div>
