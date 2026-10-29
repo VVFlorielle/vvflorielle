@@ -17,17 +17,22 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
   return (
     <div className="glass-overlay z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="glass-modal-content p-6 sm:p-7 max-w-md w-full relative rounded-[28px] border border-white/90 shadow-2xl bg-white/90 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
+        className="glass-modal-content max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <div className="glass-modal-header">
+          <span className="text-xs font-bold text-slate-800">Thông Tin Dịch Vụ V&V Florielle</span>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Đóng cửa sổ"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-        {/* 1. FRESHNESS GUARANTEE POPUP */}
+        <div className="glass-modal-body">
+          {/* 1. FRESHNESS GUARANTEE POPUP */}
         {activePopup === 'guarantee' && (
           <div className="space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-md shadow-emerald-600/10 border border-emerald-200/50">
@@ -196,6 +201,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

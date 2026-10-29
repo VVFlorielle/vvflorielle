@@ -739,137 +739,145 @@ export const CustomerPortal: React.FC = () => {
       {isEditProfileModalOpen && (
         <div className="glass-overlay z-[120]" onClick={() => setIsEditProfileModalOpen(false)}>
           <div
-            className="glass-modal-content p-6 max-w-lg w-full rounded-[28px] shadow-2xl border border-emerald-200 animate-in fade-in zoom-in-95 duration-200"
+            className="glass-modal-content max-w-lg md:max-w-2xl w-full relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            {/* Fixed Header */}
+            <div className="glass-modal-header">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                   <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-slate-900">Chỉnh Sửa Hồ Sơ Cá Nhân</h3>
+                  <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-tight">Chỉnh Sửa Hồ Sơ Cá Nhân</h3>
                   <p className="text-[11px] text-slate-500">Cập nhật thông tin để tiệm hoa phục vụ bạn chu đáo nhất</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsEditProfileModalOpen(false)}
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Đóng cửa sổ"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="space-y-3.5">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  Họ và tên của bạn *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editFullName}
-                  onChange={(e) => setEditFullName(e.target.value)}
-                  placeholder="Nhập họ và tên..."
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl"
-                />
-              </div>
+            {/* Scrollable Body */}
+            <form onSubmit={handleSaveProfile} className="flex-1 flex flex-col overflow-hidden">
+              <div className="glass-modal-body space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">
+                      Họ và tên của bạn *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editFullName}
+                      onChange={(e) => setEditFullName(e.target.value)}
+                      placeholder="Nhập họ và tên..."
+                      className="glass-input w-full text-xs py-2 px-3 rounded-xl"
+                    />
+                  </div>
 
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1 flex items-center gap-1">
-                  <Cake className="w-3.5 h-3.5 text-pink-500" />
-                  <span>Ngày sinh nhật</span>
-                  <span className="text-[10px] text-slate-400 font-normal ml-auto">(Tặng quà & freeship dịp sinh nhật)</span>
-                </label>
-                <input
-                  type="date"
-                  value={editBirthday}
-                  onChange={(e) => setEditBirthday(e.target.value)}
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl text-slate-700"
-                />
-              </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1 flex items-center gap-1">
+                      <Cake className="w-3.5 h-3.5 text-pink-500" />
+                      <span>Ngày sinh nhật</span>
+                      <span className="text-[10px] text-slate-400 font-normal ml-auto">(Quà & freeship)</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={editBirthday}
+                      onChange={(e) => setEditBirthday(e.target.value)}
+                      className="glass-input w-full text-xs py-2 px-3 rounded-xl text-slate-700"
+                    />
+                  </div>
+                </div>
 
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1 flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Địa chỉ nơi ở hiện tại / thường trú tại Hà Nội</span>
-                </label>
-                <input
-                  type="text"
-                  value={editAddress}
-                  onChange={(e) => setEditAddress(e.target.value)}
-                  placeholder="Số nhà, ngõ/phố, phường, quận tại Hà Nội..."
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl"
-                />
-              </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1 flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Địa chỉ nơi ở hiện tại / thường trú tại Hà Nội</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
+                    placeholder="Số nhà, ngõ/phố, phường, quận tại Hà Nội..."
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl"
+                  />
+                </div>
 
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  Sở thích / Phong cách hoa tươi ưa chuộng
-                </label>
-                <input
-                  type="text"
-                  value={editNotes}
-                  onChange={(e) => setEditNotes(e.target.value)}
-                  placeholder="VD: Tone pastel, hoa hồng Ohara, cúc họa mi..."
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl"
-                />
-              </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">
+                    Sở thích / Phong cách hoa tươi ưa chuộng
+                  </label>
+                  <input
+                    type="text"
+                    value={editNotes}
+                    onChange={(e) => setEditNotes(e.target.value)}
+                    placeholder="VD: Tone pastel, hoa hồng Ohara, cúc họa mi..."
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl"
+                  />
+                </div>
 
-              {/* Sub-actions for Security */}
-              <div className="pt-2 border-t border-slate-100 space-y-2">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Cập nhật tài khoản & bảo mật
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsEditProfileModalOpen(false);
-                      setIsChangePassOpen(true);
-                    }}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
-                  >
-                    Đổi Mật Khẩu
-                  </button>
+                {/* Sub-actions for Security */}
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Cập nhật tài khoản & bảo mật
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditProfileModalOpen(false);
+                        setIsChangePassOpen(true);
+                      }}
+                      className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
+                    >
+                      Đổi Mật Khẩu
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsEditProfileModalOpen(false);
-                      setIsChangeIdentityOpen('phone');
-                      setNewIdentityValue(customer.phone);
-                    }}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
-                  >
-                    Đổi SĐT (OTP)
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditProfileModalOpen(false);
+                        setIsChangeIdentityOpen('phone');
+                        setNewIdentityValue(customer.phone);
+                      }}
+                      className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
+                    >
+                      Đổi SĐT (OTP)
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsEditProfileModalOpen(false);
-                      setIsChangeIdentityOpen('email');
-                      setNewIdentityValue(customer.email || '');
-                    }}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
-                  >
-                    Đổi Gmail (OTP)
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditProfileModalOpen(false);
+                        setIsChangeIdentityOpen('email');
+                        setNewIdentityValue(customer.email || '');
+                      }}
+                      className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
+                    >
+                      Đổi Gmail (OTP)
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-3 border-t border-slate-100">
+              {/* Fixed Footer */}
+              <div className="glass-modal-footer">
                 <button
                   type="button"
                   onClick={() => setIsEditProfileModalOpen(false)}
-                  className="flex-1 py-2.5 text-xs text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer"
+                  className="py-2.5 px-4 text-xs text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="btn-primary flex-1 py-2.5 text-xs font-bold rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                  className="btn-primary py-2.5 px-5 text-xs font-bold rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Save className="w-4 h-4" />
                   <span>Lưu Hồ Sơ</span>
@@ -886,16 +894,17 @@ export const CustomerPortal: React.FC = () => {
       {isAddressBookModalOpen && (
         <div className="glass-overlay z-[120]" onClick={() => setIsAddressBookModalOpen(false)}>
           <div
-            className="glass-modal-content p-6 max-w-lg w-full rounded-[28px] shadow-2xl border border-emerald-200 animate-in fade-in zoom-in-95 duration-200 space-y-4"
+            className="glass-modal-content max-w-lg md:max-w-2xl w-full relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            {/* Fixed Header */}
+            <div className="glass-modal-header">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                   <BookmarkCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-slate-900">
+                  <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-tight">
                     Sổ Địa Chỉ Người Nhận ({customer.savedAddresses?.length || 0}/3)
                   </h3>
                   <p className="text-[11px] text-slate-500">
@@ -905,18 +914,19 @@ export const CustomerPortal: React.FC = () => {
               </div>
               <button
                 onClick={() => setIsAddressBookModalOpen(false)}
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Đóng cửa sổ"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Address list */}
-            <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+            {/* Scrollable Address List Body */}
+            <div className="glass-modal-body space-y-3">
               {(!customer.savedAddresses || customer.savedAddresses.length === 0) ? (
-                <div className="py-8 text-center text-slate-400 space-y-2">
-                  <MapPin className="w-8 h-8 mx-auto text-slate-300" />
-                  <p className="text-xs">Chưa có mẫu địa chỉ người nhận nào.</p>
+                <div className="py-12 text-center text-slate-400 space-y-2">
+                  <MapPin className="w-10 h-10 mx-auto text-slate-300" />
+                  <p className="text-xs font-semibold">Chưa có mẫu địa chỉ người nhận nào.</p>
                   <p className="text-[11px] text-slate-400">
                     Lưu sẵn địa chỉ người thân, người yêu, đối tác để 1 chạm là đặt ngay!
                   </p>
@@ -992,8 +1002,8 @@ export const CustomerPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Add Address button */}
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+            {/* Fixed Footer */}
+            <div className="glass-modal-footer justify-between">
               <span className="text-[11px] text-slate-500">
                 Tối đa được lưu 3 địa chỉ
               </span>
@@ -1021,134 +1031,140 @@ export const CustomerPortal: React.FC = () => {
       {isAddEditAddressFormOpen && (
         <div className="glass-overlay z-[130]" onClick={() => setIsAddEditAddressFormOpen(false)}>
           <div
-            className="glass-modal-content p-6 max-w-md w-full rounded-[28px] shadow-2xl border border-emerald-200 animate-in fade-in zoom-in-95 duration-200"
+            className="glass-modal-content max-w-md w-full relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+            {/* Fixed Header */}
+            <div className="glass-modal-header">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                   <BookmarkCheck className="w-4 h-4" />
                 </div>
-                <h3 className="font-bold text-sm text-slate-900">
+                <h3 className="font-bold text-sm sm:text-base text-slate-900">
                   {editingAddressId ? 'Chỉnh Sửa Mẫu Người Nhận' : 'Thêm Mẫu Người Nhận Mới'}
                 </h3>
               </div>
               <button
                 onClick={() => setIsAddEditAddressFormOpen(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Đóng cửa sổ"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveAddressSubmit} className="space-y-3">
-              <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
-                  Tên gợi nhớ *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="VD: Nhà riêng, Công ty, Người yêu..."
-                  value={addrName}
-                  onChange={(e) => setAddrName(e.target.value)}
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleSaveAddressSubmit} className="flex-1 flex flex-col overflow-hidden">
+              <div className="glass-modal-body space-y-3">
                 <div>
                   <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
-                    Tên người nhận *
+                    Tên gợi nhớ *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="VD: Chị Thảo"
-                    value={addrRecipientName}
-                    onChange={(e) => setAddrRecipientName(e.target.value)}
+                    placeholder="VD: Nhà riêng, Công ty, Người yêu..."
+                    value={addrName}
+                    onChange={(e) => setAddrName(e.target.value)}
                     className="glass-input w-full text-xs py-2 px-3 rounded-xl"
                   />
                 </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
+                      Tên người nhận *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="VD: Chị Thảo"
+                      value={addrRecipientName}
+                      onChange={(e) => setAddrRecipientName(e.target.value)}
+                      className="glass-input w-full text-xs py-2 px-3 rounded-xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
+                      Số điện thoại *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="0987 654 321"
+                      value={addrRecipientPhone}
+                      onChange={(e) => setAddrRecipientPhone(e.target.value)}
+                      className="glass-input w-full text-xs py-2 px-3 rounded-xl"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
-                    Số điện thoại *
+                    Địa chỉ chi tiết tại Hà Nội *
                   </label>
                   <input
-                    type="tel"
+                    type="text"
                     required
-                    placeholder="0987 654 321"
-                    value={addrRecipientPhone}
-                    onChange={(e) => setAddrRecipientPhone(e.target.value)}
+                    placeholder="Số nhà, ngõ/phố, tòa nhà, quận tại Hà Nội..."
+                    value={addrRecipientAddress}
+                    onChange={(e) => setAddrRecipientAddress(e.target.value)}
                     className="glass-input w-full text-xs py-2 px-3 rounded-xl"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
-                  Địa chỉ chi tiết tại Hà Nội *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Số nhà, ngõ/phố, tòa nhà, quận tại Hà Nội..."
-                  value={addrRecipientAddress}
-                  onChange={(e) => setAddrRecipientAddress(e.target.value)}
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl"
-                />
-              </div>
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[11px] font-semibold text-slate-700">
+                      Khoảng cách từ 105 Doãn Kế Thiện:
+                    </label>
+                    <span className="text-[11px] font-bold text-emerald-700">
+                      {addrDistanceKm} km
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {[2, 5, 8, 12, 18, 25, 35].map((km) => (
+                      <button
+                        key={km}
+                        type="button"
+                        onClick={() => setAddrDistanceKm(km)}
+                        className={`py-1 px-2.5 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
+                          addrDistanceKm === km
+                            ? 'bg-emerald-600 text-white border-emerald-600'
+                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {km} km
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-[11px] font-semibold text-slate-700">
-                    Khoảng cách từ 105 Doãn Kế Thiện:
+                <div className="pt-1">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={addrIsDefault}
+                      onChange={(e) => setAddrIsDefault(e.target.checked)}
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                    />
+                    <span>Đặt làm địa chỉ nhận hoa mặc định</span>
                   </label>
-                  <span className="text-[11px] font-bold text-emerald-700">
-                    {addrDistanceKm} km
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {[2, 5, 8, 12, 18, 25, 35].map((km) => (
-                    <button
-                      key={km}
-                      type="button"
-                      onClick={() => setAddrDistanceKm(km)}
-                      className={`py-1 px-2.5 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
-                        addrDistanceKm === km
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      {km} km
-                    </button>
-                  ))}
                 </div>
               </div>
 
-              <div className="pt-1">
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={addrIsDefault}
-                    onChange={(e) => setAddrIsDefault(e.target.checked)}
-                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                  />
-                  <span>Đặt làm địa chỉ nhận hoa mặc định</span>
-                </label>
-              </div>
-
-              <div className="flex gap-2 pt-2 border-t border-slate-100">
+              {/* Fixed Footer */}
+              <div className="glass-modal-footer">
                 <button
                   type="button"
                   onClick={() => setIsAddEditAddressFormOpen(false)}
-                  className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer"
+                  className="py-2 px-4 text-xs text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="btn-primary flex-1 py-2 text-xs font-bold rounded-xl shadow-sm cursor-pointer"
+                  className="btn-primary py-2 px-4 text-xs font-bold rounded-xl shadow-sm cursor-pointer"
                 >
                   {editingAddressId ? 'Lưu Cập Nhật' : 'Lưu Vào Sổ'}
                 </button>
@@ -1163,40 +1179,49 @@ export const CustomerPortal: React.FC = () => {
       {/* ========================================================================= */}
       {isOtpModalOpen && (
         <div className="glass-overlay z-[140]" onClick={() => setIsOtpModalOpen(false)}>
-          <div className="glass-modal-content p-6 max-w-sm w-full rounded-3xl" onClick={(e) => e.stopPropagation()}>
-            <div className="text-center space-y-2 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 mx-auto flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
+          <div className="glass-modal-content max-w-sm w-full relative" onClick={(e) => e.stopPropagation()}>
+            <div className="glass-modal-header">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                <h3 className="font-bold text-sm text-slate-900">Xác Thực Hội Viên</h3>
               </div>
-              <h3 className="text-base font-bold text-slate-900">Xác Thực Hội Viên</h3>
-              <p className="text-xs text-slate-500">
-                Nhập mã OTP 6 số đã được gửi qua thông báo (mã mẫu: <span className="font-mono font-bold">190903</span>)
-              </p>
+              <button
+                onClick={() => setIsOtpModalOpen(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <form onSubmit={handleVerifyOtpSubmit} className="space-y-3">
-              <input
-                type="text"
-                maxLength={6}
-                placeholder="Nhập 6 số OTP"
-                value={otpInput}
-                onChange={(e) => setOtpInput(e.target.value)}
-                className="glass-input w-full text-center text-lg font-mono tracking-widest py-2 rounded-xl"
-              />
+            <div className="glass-modal-body text-center space-y-3">
+              <p className="text-xs text-slate-500">
+                Nhập mã OTP 6 số đã được gửi qua thông báo (mã mẫu: <span className="font-mono font-bold text-emerald-700">190903</span>)
+              </p>
 
-              <div className="flex gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setIsOtpModalOpen(false)}
-                  className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer"
-                >
-                  Đóng
-                </button>
-                <button type="submit" className="btn-primary flex-1 py-2 text-xs font-bold rounded-xl cursor-pointer">
-                  Xác Thực Ngay
-                </button>
-              </div>
-            </form>
+              <form onSubmit={handleVerifyOtpSubmit} className="space-y-3">
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder="Nhập 6 số OTP"
+                  value={otpInput}
+                  onChange={(e) => setOtpInput(e.target.value)}
+                  className="glass-input w-full text-center text-lg font-mono tracking-widest py-2.5 rounded-xl"
+                />
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setIsOtpModalOpen(false)}
+                    className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50"
+                  >
+                    Đóng
+                  </button>
+                  <button type="submit" className="btn-primary flex-1 py-2 text-xs font-bold rounded-xl cursor-pointer">
+                    Xác Thực Ngay
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -1206,50 +1231,58 @@ export const CustomerPortal: React.FC = () => {
       {/* ========================================================================= */}
       {isChangePassOpen && (
         <div className="glass-overlay z-[140]" onClick={() => setIsChangePassOpen(false)}>
-          <div className="glass-modal-content p-6 max-w-sm w-full rounded-3xl" onClick={(e) => e.stopPropagation()}>
-            <div className="text-center space-y-2 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-800 mx-auto flex items-center justify-center">
-                <KeyRound className="w-6 h-6" />
+          <div className="glass-modal-content max-w-sm w-full relative" onClick={(e) => e.stopPropagation()}>
+            <div className="glass-modal-header">
+              <div className="flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-purple-600" />
+                <h3 className="font-bold text-sm text-slate-900">Đổi Mật Khẩu</h3>
               </div>
-              <h3 className="text-base font-bold text-slate-900">Đổi Mật Khẩu</h3>
+              <button
+                onClick={() => setIsChangePassOpen(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <form onSubmit={handleChangePassSubmit} className="space-y-3">
-              <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">Mật khẩu hiện tại</label>
-                <input
-                  type="password"
-                  required
-                  value={oldPass}
-                  onChange={(e) => setOldPass(e.target.value)}
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl"
-                />
-              </div>
+            <div className="glass-modal-body">
+              <form onSubmit={handleChangePassSubmit} className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">Mật khẩu hiện tại</label>
+                  <input
+                    type="password"
+                    required
+                    value={oldPass}
+                    onChange={(e) => setOldPass(e.target.value)}
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl"
+                  />
+                </div>
 
-              <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">Mật khẩu mới (Tối thiểu 6 ký tự)</label>
-                <input
-                  type="password"
-                  required
-                  value={newPass}
-                  onChange={(e) => setNewPass(e.target.value)}
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl"
-                />
-              </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">Mật khẩu mới (Tối thiểu 6 ký tự)</label>
+                  <input
+                    type="password"
+                    required
+                    value={newPass}
+                    onChange={(e) => setNewPass(e.target.value)}
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl"
+                  />
+                </div>
 
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsChangePassOpen(false)}
-                  className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer"
-                >
-                  Hủy
-                </button>
-                <button type="submit" className="btn-primary flex-1 py-2 text-xs font-bold rounded-xl cursor-pointer">
-                  Cập Nhật
-                </button>
-              </div>
-            </form>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsChangePassOpen(false)}
+                    className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50"
+                  >
+                    Hủy
+                  </button>
+                  <button type="submit" className="btn-primary flex-1 py-2 text-xs font-bold rounded-xl cursor-pointer">
+                    Cập Nhật
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -1259,78 +1292,87 @@ export const CustomerPortal: React.FC = () => {
       {/* ========================================================================= */}
       {isChangeIdentityOpen && (
         <div className="glass-overlay z-[140]" onClick={() => setIsChangeIdentityOpen(null)}>
-          <div className="glass-modal-content p-6 max-w-sm w-full rounded-3xl" onClick={(e) => e.stopPropagation()}>
-            <div className="text-center space-y-1 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 mx-auto flex items-center justify-center mb-2">
-                {isChangeIdentityOpen === 'phone' ? <Phone className="w-6 h-6" /> : <Mail className="w-6 h-6" />}
+          <div className="glass-modal-content max-w-sm w-full relative" onClick={(e) => e.stopPropagation()}>
+            <div className="glass-modal-header">
+              <div className="flex items-center gap-2">
+                {isChangeIdentityOpen === 'phone' ? <Phone className="w-4 h-4 text-emerald-600" /> : <Mail className="w-4 h-4 text-emerald-600" />}
+                <h3 className="font-bold text-sm text-slate-900">
+                  {isChangeIdentityOpen === 'phone' ? 'Đổi Số Điện Thoại' : 'Đổi Gmail Nhận Thông Báo'}
+                </h3>
               </div>
-              <h3 className="text-base font-bold text-slate-900">
-                {isChangeIdentityOpen === 'phone' ? 'Đổi Số Điện Thoại' : 'Đổi Gmail Nhận Thông Báo'}
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                Để bảo vệ điểm thưởng, bạn cần xác thực mã OTP trước khi thay đổi
-              </p>
+              <button
+                onClick={() => setIsChangeIdentityOpen(null)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <form onSubmit={handleIdentitySubmit} className="space-y-3">
-              <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
-                  {isChangeIdentityOpen === 'phone' ? 'Số điện thoại mới' : 'Địa chỉ Gmail mới'}
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type={isChangeIdentityOpen === 'phone' ? 'tel' : 'email'}
-                    required
-                    value={newIdentityValue}
-                    onChange={(e) => setNewIdentityValue(e.target.value)}
-                    className="glass-input flex-1 text-xs py-2 px-3 rounded-xl"
-                  />
+            <div className="glass-modal-body space-y-3">
+              <p className="text-[11px] text-slate-500">
+                Để bảo vệ quyền lợi thành viên, bạn cần xác thực mã OTP trước khi thay đổi.
+              </p>
+
+              <form onSubmit={handleIdentitySubmit} className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
+                    {isChangeIdentityOpen === 'phone' ? 'Số điện thoại mới' : 'Địa chỉ Gmail mới'}
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type={isChangeIdentityOpen === 'phone' ? 'tel' : 'email'}
+                      required
+                      value={newIdentityValue}
+                      onChange={(e) => setNewIdentityValue(e.target.value)}
+                      className="glass-input flex-1 text-xs py-2 px-3 rounded-xl"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSendIdentityOtp}
+                      className="py-2 px-3 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] font-bold rounded-xl whitespace-nowrap cursor-pointer"
+                    >
+                      Gửi OTP
+                    </button>
+                  </div>
+                </div>
+
+                {isIdentityOtpSent && (
+                  <div className="animate-in fade-in">
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
+                      Mã xác thực OTP (Mã mẫu: 190903)
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      placeholder="Nhập 6 số OTP"
+                      value={identityOtp}
+                      onChange={(e) => setIdentityOtp(e.target.value)}
+                      className="glass-input w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl"
+                    />
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-2">
                   <button
                     type="button"
-                    onClick={handleSendIdentityOtp}
-                    className="py-2 px-3 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] font-bold rounded-xl whitespace-nowrap cursor-pointer"
+                    onClick={() => setIsChangeIdentityOpen(null)}
+                    className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50"
                   >
-                    Gửi OTP
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!isIdentityOtpSent}
+                    className={`btn-primary flex-1 py-2 text-xs font-bold rounded-xl cursor-pointer ${
+                      !isIdentityOtpSent ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    Lưu Thay Đổi
                   </button>
                 </div>
-              </div>
-
-              {isIdentityOtpSent && (
-                <div className="animate-in fade-in">
-                  <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
-                    Mã xác thực OTP (Mã mẫu: 190903)
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    placeholder="Nhập 6 số OTP"
-                    value={identityOtp}
-                    onChange={(e) => setIdentityOtp(e.target.value)}
-                    className="glass-input w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl"
-                  />
-                </div>
-              )}
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsChangeIdentityOpen(null)}
-                  className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={!isIdentityOtpSent}
-                  className={`btn-primary flex-1 py-2 text-xs font-bold rounded-xl cursor-pointer ${
-                    !isIdentityOtpSent ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  Lưu Thay Đổi
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}

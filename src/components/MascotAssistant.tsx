@@ -314,27 +314,24 @@ export const MascotAssistant: React.FC = () => {
           </div>
         )}
 
-        {/* Transparent Floating Mascot (NO Circular Container / NO Background Enclosure) */}
+        {/* Transparent Floating Mascot (NO Circular Container / NO Background Enclosure / NO Green Square Halo) */}
         <div
           onClick={handleMascotClick}
           className="relative group cursor-pointer transition-transform duration-300 hover:scale-105 active:scale-95"
           title="Trợ lý ảo V&V Florielle (Kéo rê tự do quanh màn hình / Bấm trò chuyện & hỏi đáp)"
         >
-          {/* Gentle ambient halo glow behind the transparent mascot */}
-          <div className="absolute inset-0 rounded-full bg-emerald-400/20 blur-xl animate-pulse pointer-events-none" />
-
-          {/* Transparent Logo / Mascot Image (No Circle Wrapper) */}
+          {/* Transparent Logo / Mascot Image (Clean drop shadow, no glowing halo) */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center select-none">
             {isOpen ? (
               <div className="w-12 h-12 rounded-2xl bg-slate-900/90 text-white backdrop-blur-md flex items-center justify-center shadow-xl border border-white/40">
                 <X className="w-6 h-6 text-white" />
               </div>
             ) : (
-              <div className="relative w-full h-full flex items-center justify-center animate-float-gentle">
+              <div className="relative w-full h-full flex items-center justify-center">
                 <img
                   src={settings.mascotImageUrl || '/logo-vvflorielle-square.png'}
                   alt="Linh vật AI V&V Florielle"
-                  className="w-full h-full object-contain pointer-events-none filter drop-shadow-[0_10px_22px_rgba(5,150,105,0.35)] drop-shadow-[0_4px_10px_rgba(0,0,0,0.18)]"
+                  className="w-full h-full object-contain pointer-events-none filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
                 />
                 {/* Cute pill badge underneath */}
                 <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[9px] font-black text-emerald-950 bg-white/95 px-2 py-0.5 rounded-full shadow-md border border-emerald-200 whitespace-nowrap tracking-tight">
@@ -347,7 +344,7 @@ export const MascotAssistant: React.FC = () => {
           {/* Online green indicator dot */}
           {!isOpen && (
             <span className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm flex items-center justify-center pointer-events-none">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
             </span>
           )}
         </div>

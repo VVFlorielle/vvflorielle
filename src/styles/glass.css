@@ -373,17 +373,102 @@
 }
 
 .glass-modal-content {
-  background: var(--glass-bg-modal);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: var(--glass-shadow-lg);
-  border-radius: var(--radius-xl);
-  max-width: 640px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(32px) saturate(210%);
+  -webkit-backdrop-filter: blur(32px) saturate(210%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.18), 0 10px 25px -5px rgba(5, 150, 105, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 1);
+  border-radius: 28px;
   width: 100%;
   max-height: 90vh;
+  overflow: hidden !important; /* Strictly prevents square scrollbars from breaching rounded corners */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  animation: scaleUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .glass-modal-content {
+    border-radius: 36px;
+  }
+}
+
+.glass-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.125rem 1.25rem 0.875rem 1.25rem;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.9);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (min-width: 640px) {
+  .glass-modal-header {
+    padding: 1.25rem 1.5rem 1rem 1.5rem;
+  }
+}
+
+.glass-modal-body {
+  flex: 1 1 auto;
   overflow-y: auto;
-  animation: scaleUp 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-x: hidden;
+  padding: 1.125rem 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .glass-modal-body {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.glass-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid rgba(241, 245, 249, 0.9);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (min-width: 640px) {
+  .glass-modal-footer {
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* Custom rounded scrollbar for modals that never reaches square corners */
+.glass-modal-body::-webkit-scrollbar,
+.glass-modal-content::-webkit-scrollbar,
+.glass-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.glass-modal-body::-webkit-scrollbar-track,
+.glass-modal-content::-webkit-scrollbar-track,
+.glass-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 14px 0;
+}
+
+.glass-modal-body::-webkit-scrollbar-thumb,
+.glass-modal-content::-webkit-scrollbar-thumb,
+.glass-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.35);
+  border-radius: 9999px;
+}
+
+.glass-modal-body::-webkit-scrollbar-thumb:hover,
+.glass-modal-content::-webkit-scrollbar-thumb:hover,
+.glass-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.65);
 }
 
 .glass-drawer {
@@ -470,4 +555,201 @@
 @keyframes slideInUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile & Desktop Dual Bottom Glass Navigation Dock (matching phototiinlove) */
+.logged-in-nav-outer {
+  display: flex;
+  position: fixed;
+  left: calc(14px + env(safe-area-inset-left, 0px));
+  right: auto;
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  z-index: 9991;
+  pointer-events: auto;
+  align-items: center;
+  justify-content: flex-start;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dock-unfurl-gear-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 12px 30px rgba(5, 150, 105, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dock-unfurl-gear-toggle .gear-spin {
+  font-size: 20px;
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dock-unfurl-gear-toggle:hover {
+  transform: scale(1.08);
+  background: #ecfdf5 !important;
+}
+
+.dock-unfurl-gear-toggle:active {
+  transform: scale(0.92);
+}
+
+.dock-unfurl-gear-toggle.active {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85), 0 8px 20px rgba(5, 150, 105, 0.35) !important;
+  border: none !important;
+}
+
+.dock-unfurl-gear-toggle.active .gear-spin {
+  transform: rotate(90deg);
+  filter: brightness(2);
+}
+
+.logged-in-public-dock-unfurl {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 4px 14px 4px 4px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 16px 40px rgba(5, 150, 105, 0.16), 0 4px 14px rgba(0, 0, 0, 0.06);
+  animation: paperScrollUnfurl 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  width: auto;
+  max-width: calc(100vw - 28px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  transform-origin: left center;
+  box-sizing: border-box;
+}
+
+@keyframes paperScrollUnfurl {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.12) scaleY(0.7);
+    transform-origin: left center;
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1) scaleY(1);
+    transform-origin: left center;
+    filter: blur(0px);
+  }
+}
+
+.dock-unfurl-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  color: #475569;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.dock-unfurl-item:hover:not(.active) {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.dock-unfurl-item .dock-unfurl-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.dock-unfurl-item .dock-unfurl-label {
+  font-size: 9.5px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: currentColor;
+}
+
+.dock-unfurl-item:active {
+  transform: scale(0.92);
+}
+
+.dock-unfurl-item.active {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  box-shadow: inset 0 0 0 1px rgba(5, 150, 105, 0.1);
+}
+
+@media (min-width: 901px) {
+  .logged-in-nav-outer {
+    display: none !important;
+  }
+}
+
+/* Main 5-Button Bottom Dock (Mobile & Desktop Management Portal) */
+.mobile-bottom-dock,
+.management-bottom-nav {
+  position: fixed !important;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: min(calc(100vw - 20px), 440px) !important;
+  height: 60px !important;
+  z-index: 9990 !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(28px) saturate(210%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(210%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 4px 14px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.95) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 6px !important;
+  user-select: none !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease !important;
+}
+
+.management-bottom-nav.management-nav-hidden,
+.mobile-bottom-dock.management-nav-hidden {
+  transform: translate(-50%, 120px) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* On Desktop: display bottom dock when inside admin or customer management portal */
+@media (min-width: 768px) {
+  .management-bottom-nav.portal-desktop-nav,
+  .mobile-bottom-dock.portal-desktop-nav {
+    display: flex !important;
+    width: min(92%, 560px) !important;
+    height: 66px !important;
+    bottom: 22px !important;
+    padding: 0 12px !important;
+  }
+  .management-bottom-nav:not(.portal-desktop-nav),
+  .mobile-bottom-dock:not(.portal-desktop-nav) {
+    display: none !important;
+  }
 }

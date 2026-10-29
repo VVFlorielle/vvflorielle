@@ -10,7 +10,9 @@ import {
   HeartHandshake,
   QrCode,
   Gift,
-  Droplets
+  Droplets,
+  ChevronRight,
+  ExternalLink
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 
@@ -22,12 +24,127 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
   const { settings, setSelectedCategory, setCurrentView, setAuthModalMode, setIsAuthModalOpen } = useStore();
 
   return (
-    <footer className="mt-16 pb-24 md:pb-12 text-slate-600 select-none">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6">
-        {/* FROSTED GLASS OUTER WRAPPER WITH GENTLE ROUNDED CORNERS (Synchronized Width with Header) */}
-        <div className="rounded-3xl md:rounded-[36px] glass-nav-luminous p-5 sm:p-7 md:p-8 space-y-6 shadow-[0_20px_50px_rgba(0,0,0,0.06),inset_0_1.5px_1px_rgba(255,255,255,1)]">
+    <footer className="mt-16 pb-28 md:pb-12 text-slate-600 select-none">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6">
+        {/* =========================================================================
+            MOBILE FOOTER (MD:HIDDEN): MỖI THÔNG TIN TRÊN 1 KHUNG NGANG (GIỐNG PHOTOTIINLOVE)
+            Tối ưu màn hình hẹp, không để nhiều khối to cồng kềnh, tinh gọn & thanh thoát
+            ========================================================================= */}
+        <div className="block md:hidden space-y-2.5">
+          {/* 1. Header Khung Nhãn Hiệu & Slogan */}
+          <div className="p-3.5 rounded-2xl glass-nav-luminous flex items-center justify-between gap-3 shadow-xs border border-white/90">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <img
+                src="/logo-vvflorielle-horizontal.png"
+                alt="V&V Florielle"
+                className="h-7 w-auto object-contain shrink-0"
+              />
+              <div className="min-w-0">
+                <div className="font-extrabold text-xs text-slate-900 truncate">V&V Florielle</div>
+                <div className="text-[10px] text-slate-500 truncate">Hoa tươi nghệ thuật 105 Doãn Kế Thiện</div>
+              </div>
+            </div>
+            <span className="text-[9.5px] font-bold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-full shrink-0">
+              Hà Nội
+            </span>
+          </div>
+
+          {/* 2. Khung Ngang 1: Địa chỉ Showroom */}
+          <div
+            onClick={() => onOpenPopup && onOpenPopup('locations')}
+            className="p-3 rounded-xl bg-white/75 hover:bg-white/95 backdrop-blur-md border border-white/90 shadow-2xs flex items-center justify-between gap-2 text-xs cursor-pointer active:scale-[0.99] transition-all"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-slate-800 text-[11.5px] font-medium truncate">
+                {settings.address}
+              </span>
+            </div>
+            <span className="text-[10.5px] font-bold text-emerald-700 shrink-0 flex items-center gap-0.5">
+              Bản đồ <ChevronRight className="w-3 h-3" />
+            </span>
+          </div>
+
+          {/* 3. Khung Ngang 2: Hotline & Zalo Tư Vấn 24/7 */}
+          <div className="p-3 rounded-xl bg-white/75 hover:bg-white/95 backdrop-blur-md border border-white/90 shadow-2xs flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 min-w-0">
+              <PhoneCall className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-slate-800 text-[11.5px] font-medium">
+                Hotline / Zalo: <strong className="font-bold text-slate-900">{settings.hotline}</strong>
+              </span>
+            </div>
+            <a
+              href={`tel:${settings.hotline.replace(/[^0-9]/g, '')}`}
+              className="text-[10.5px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-2.5 py-1 rounded-lg shrink-0 shadow-xs"
+            >
+              Gọi ngay
+            </a>
+          </div>
+
+          {/* 4. Khung Ngang 3: Cam kết giao hỏa tốc 60-90p & Duyệt ảnh Zalo */}
+          <div
+            onClick={() => onOpenPopup && onOpenPopup('guarantee')}
+            className="p-3 rounded-xl bg-white/75 hover:bg-white/95 backdrop-blur-md border border-white/90 shadow-2xs flex items-center justify-between gap-2 text-xs cursor-pointer active:scale-[0.99] transition-all"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-slate-800 text-[11.5px] font-medium truncate">
+                Giao hoả tốc 60 - 90P Hà Nội • Chụp ảnh duyệt qua Zalo
+              </span>
+            </div>
+            <span className="text-[10.5px] font-bold text-emerald-700 shrink-0 flex items-center gap-0.5">
+              Cam kết <ChevronRight className="w-3 h-3" />
+            </span>
+          </div>
+
+          {/* 5. Khung Ngang 4: VietQR MB Bank Cọc 50% tự động */}
+          <div
+            onClick={() => onOpenPopup && onOpenPopup('voucher')}
+            className="p-3 rounded-xl bg-white/75 hover:bg-white/95 backdrop-blur-md border border-white/90 shadow-2xs flex items-center justify-between gap-2 text-xs cursor-pointer active:scale-[0.99] transition-all"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <QrCode className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-slate-800 text-[11.5px] font-medium truncate">
+                VietQR {settings.bankName} - <strong className="font-mono text-emerald-700">{settings.bankAccount}</strong> (Cọc 50%)
+              </span>
+            </div>
+            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">
+              Tự động 2P
+            </span>
+          </div>
+
+          {/* 6. Khung Ngang 5: Cổng Quản Trị Viên & Chủ Cửa Hàng */}
+          <div
+            onClick={() => {
+              setAuthModalMode('admin');
+              setIsAuthModalOpen(true);
+            }}
+            className="p-2.5 px-3 rounded-xl bg-purple-50/70 hover:bg-purple-100/80 backdrop-blur-md border border-purple-200/80 shadow-2xs flex items-center justify-between gap-2 text-xs cursor-pointer active:scale-[0.99] transition-all"
+          >
+            <div className="flex items-center gap-2 min-w-0 text-purple-800">
+              <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
+              <span className="text-[11.5px] font-bold truncate">
+                Cổng Quản Trị Viên (Admin &amp; Chủ tiệm hoa)
+              </span>
+            </div>
+            <span className="text-[10.5px] font-bold text-purple-700 shrink-0 flex items-center gap-0.5">
+              Đăng nhập <ChevronRight className="w-3 h-3" />
+            </span>
+          </div>
+
+          {/* 7. Copyright chân trang mobile */}
+          <div className="pt-2 text-center text-[10.5px] text-slate-400 space-y-0.5">
+            <div>© {new Date().getFullYear()} {settings.name} • 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội</div>
+            <div>Boutique Florist &amp; Thiết kế hoa nghệ thuật cao cấp</div>
+          </div>
+        </div>
+
+        {/* =========================================================================
+            DESKTOP FOOTER (HIDDEN MD:BLOCK): BỐ TRÍ ĐẦY ĐỦ 4 THẺ CAM KẾT & 3 CỘT NỘI DUNG
+            ========================================================================= */}
+        <div className="hidden md:block rounded-[36px] glass-nav-luminous p-7 md:p-8 space-y-6 shadow-[0_20px_50px_rgba(0,0,0,0.06),inset_0_1.5px_1px_rgba(255,255,255,1)]">
           {/* 1. TOP COMMITMENT FEATURE CARDS (4 Rounded Inner Cards) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <div
               onClick={() => onOpenPopup && onOpenPopup('locations')}
               className="flex items-start gap-3 p-3.5 rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-xs transition-all cursor-pointer hover:-translate-y-0.5"
@@ -82,14 +199,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
           </div>
 
           {/* 2. THREE ROUNDED INNER CARDS FOR CONTENT */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 text-sm">
+          <div className="grid grid-cols-3 gap-5 text-sm">
             {/* Card 1: Khung Thông Tin Tiệm Hoa */}
             <div className="rounded-2xl bg-white/60 hover:bg-white/75 backdrop-blur-md border border-white/80 p-5 shadow-xs space-y-3 transition-colors">
               <div>
                 <img
                   src="/logo-vvflorielle-horizontal.png"
                   alt="V&V Florielle"
-                  className="h-8 sm:h-9 w-auto object-contain mb-2"
+                  className="h-9 w-auto object-contain mb-2"
                 />
                 <div className="font-extrabold text-base text-slate-900 tracking-tight flex items-center gap-1.5">
                   <span>{settings.name}</span>
@@ -208,7 +325,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
           </div>
 
           {/* 3. BOTTOM COPYRIGHT & ADMIN PORTAL ACCESS */}
-          <div className="pt-4 border-t border-white/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+          <div className="pt-4 border-t border-white/80 flex items-center justify-between text-xs text-slate-400 gap-3">
             <div>
               © {new Date().getFullYear()} {settings.name}. Hệ thống đặt hoa trực tuyến cao cấp tại 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội.
             </div>

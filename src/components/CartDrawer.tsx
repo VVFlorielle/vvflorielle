@@ -286,9 +286,12 @@ export const CartDrawer: React.FC = () => {
   )}&accountName=${encodeURIComponent(settings.bankHolder)}`;
 
   return (
-    <div className="glass-overlay" onClick={handleClose}>
+    <div
+      className="fixed inset-0 z-[10000] bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200"
+      onClick={handleClose}
+    >
       <div
-        className="glass-drawer p-5 flex flex-col justify-between max-w-md w-full"
+        className="w-full max-w-xl max-h-[90vh] bg-white/95 backdrop-blur-3xl rounded-[28px] sm:rounded-[36px] border border-white/95 shadow-[0_25px_60px_rgba(0,0,0,0.28),inset_0_2px_4px_rgba(255,255,255,0.9)] p-5 sm:p-6 flex flex-col justify-between overflow-hidden animate-in zoom-in-95 duration-200 relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
