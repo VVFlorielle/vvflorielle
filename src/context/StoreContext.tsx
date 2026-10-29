@@ -287,7 +287,23 @@ function speakCuteVoice(rawText: string) {
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Navigation & View
-  const [currentView, setCurrentView] = useState<'store' | 'customer' | 'admin'>('store');
+  const [currentView, setCurrentView] = useState<'store' | 'customer' | 'admin'>(() => {
+    if (typeof window !== 'undefined') {
+      if (window.location.hash === '#customer') return 'customer';
+      if (window.location.hash === '#admin') return 'admin';
+    }
+    return 'store';
+  });
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#customer') setCurrentView('customer');
+      else if (window.location.hash === '#admin') setCurrentView('admin');
+      else if (window.location.hash === '' || window.location.hash === '#store') setCurrentView('store');
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
