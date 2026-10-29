@@ -59,6 +59,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
   const [localSearch, setLocalSearch] = useState(searchQuery);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [isNotificationHubOpen, setIsNotificationHubOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,37 +169,154 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
         </div>
       )}
 
-      {/* 3. FLOATING ROUNDED HEADER NAVBAR (3 DETACHED ISLANDS: LOGO, NAVIGATION, USER ACTIONS) */}
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between gap-2 sm:gap-3 w-full">
+      {/* 3. FLOATING ROUNDED HEADER NAVBAR (STREAMLINED MOBILE & LUXURY DESKTOP) */}
+      <header className="w-full max-w-7xl mx-auto px-2 sm:px-6">
+        {/* === MOBILE HEADER (MD:HIDDEN): NÚT TÌM KIẾM NHỎ + LOGO CHÍNH GIỮA + ĐĂNG NHẬP/ĐĂNG XUẤT/THÔNG BÁO === */}
+        <div className="flex md:hidden flex-col w-full gap-1.5">
+          <div className="flex items-center justify-between gap-1 w-full px-2 py-1.5 rounded-2xl glass-nav-luminous shadow-sm">
+            {/* 1. Nút tìm kiếm nhỏ bên trái */}
+            <button
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0 ${
+                isMobileSearchOpen
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'glass-btn-base text-slate-700 hover:text-emerald-700'
+              }`}
+              title="Tìm kiếm mẫu hoa"
+            >
+              <Search className="w-3.5 h-3.5" />
+            </button>
+
+            {/* 2. Logo chính giữa to rõ hơn */}
+            <div
+              onClick={() => setCurrentView('store')}
+              className="flex items-center justify-center flex-1 min-w-0 cursor-pointer select-none px-1 transition-transform active:scale-95"
+              title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
+            >
+              <img
+                src="/logo-vvflorielle-horizontal.png"
+                alt="V&V Florielle"
+                className="h-8.5 sm:h-10 max-w-[140px] sm:max-w-[170px] w-auto object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.12)]"
+              />
+            </div>
+
+            {/* 3. Bên phải: Nút thông báo và đăng nhập/đăng xuất */}
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Nút thông báo */}
+              <button
+                onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
+                className="relative w-8 h-8 rounded-full glass-btn-base flex items-center justify-center text-slate-700 hover:text-emerald-700 shrink-0"
+                title="Trung tâm thông báo"
+              >
+                <Bell className="w-3.5 h-3.5" />
+                {unreadNotificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[8px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white">
+                    {unreadNotificationCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Khách hàng đã đăng nhập */}
+              {customer && (
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <button
+                    onClick={() => setCurrentView('customer')}
+                    className="h-8 px-2 rounded-full glass-btn-emerald-pill text-[10.5px] font-bold flex items-center gap-1 text-emerald-800"
+                    title="Trang quản lý khách hàng"
+                  >
+                    <User className="w-3 h-3 text-emerald-700" />
+                    <span className="max-w-[40px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
+                  </button>
+                  <button
+                    onClick={logoutCustomer}
+                    title="Đăng xuất"
+                    className="w-7 h-7 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
+                  >
+                    <LogOut className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
+              {/* Admin đã đăng nhập */}
+              {isAdmin && (
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <button
+                    onClick={() => setCurrentView('admin')}
+                    className="h-8 px-2 rounded-full glass-btn-purple-pill text-[10.5px] font-bold flex items-center gap-1 text-purple-800"
+                    title="Trang quản trị"
+                  >
+                    <ShieldCheck className="w-3 h-3 text-purple-700" />
+                    <span>Admin</span>
+                  </button>
+                  <button
+                    onClick={logoutAdmin}
+                    title="Đăng xuất quản trị"
+                    className="w-7 h-7 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
+                  >
+                    <LogOut className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
+              {/* Chưa đăng nhập: Nút Đăng nhập */}
+              {!customer && !isAdmin && (
+                <button
+                  onClick={() => {
+                    setAuthModalMode('customer');
+                    setIsAuthModalOpen(true);
+                  }}
+                  className="h-8 px-2 rounded-full glass-btn-base text-[10.5px] font-bold text-emerald-700 flex items-center gap-1 hover:border-emerald-300 shrink-0"
+                  title="Đăng nhập tài khoản"
+                >
+                  <User className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Đăng nhập</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Ô tìm kiếm xổ ra trên Mobile khi bấm nút kính lúp */}
+          {isMobileSearchOpen && (
+            <div className="w-full px-1 animate-in fade-in slide-in-from-top-2 duration-200">
+              <form
+                onSubmit={(e) => {
+                  handleSearchSubmit(e);
+                  setIsMobileSearchOpen(false);
+                }}
+                className="flex items-center relative w-full"
+              >
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Tìm hoa khai trương, sinh nhật, lan hồ điệp..."
+                  value={localSearch}
+                  onChange={(e) => setLocalSearch(e.target.value)}
+                  className="glass-input w-full pr-10 pl-3.5 text-xs py-2 rounded-xl border border-emerald-300/80 shadow-md"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+
+        {/* === DESKTOP HEADER (HIDDEN MD:FLEX): 3 ĐẢO BÓNG KÍNH ĐỘC LẬP (LOGO TO RÕ, TÌM KIẾM/DANH MỤC, THAO TÁC NGƯỜI DÙNG) === */}
+        <div className="hidden md:flex items-center justify-between gap-3 w-full">
           {/* === BRAND LOGO (FRAMELESS & PROMINENTLY ENLARGED) === */}
           <div
             onClick={() => setCurrentView('store')}
             className="flex items-center shrink-0 cursor-pointer select-none group py-0.5 px-1 transition-transform hover:scale-[1.03] active:scale-95"
             title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
           >
-            {/* Desktop Horizontal Brand Logo - Large & Frameless */}
-            <div className="hidden sm:flex items-center">
-              <img
-                src="/logo-vvflorielle-horizontal.png"
-                alt="Tiệm Hoa V&V Florielle"
-                className="h-11 md:h-12 lg:h-13 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform duration-300"
-              />
-            </div>
-            {/* Mobile Compact Emblem Logo */}
-            <div className="flex items-center gap-2 sm:hidden">
-              <img
-                src="/logo-vvflorielle-square.png"
-                alt="V&V Florielle"
-                className="h-10 w-auto object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.12)]"
-              />
-              <div className="font-extrabold text-base text-slate-900 tracking-tight leading-none">
-                <span>V&V</span>
-                <span className="text-emerald-700 font-bold text-[11px] ml-1 px-1.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 shadow-xs">
-                  FLORIELLE
-                </span>
-              </div>
-            </div>
+            <img
+              src="/logo-vvflorielle-horizontal.png"
+              alt="Tiệm Hoa V&V Florielle"
+              className="h-16 lg:h-20 xl:h-22 w-auto object-contain filter drop-shadow-[0_2px_10px_rgba(0,0,0,0.15)] transition-transform duration-300"
+            />
           </div>
 
           {/* === ISLAND 2: CENTER SEARCH & CATEGORIES (DETACHED CENTER ISLAND) === */}
@@ -297,20 +415,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
             </div>
           </div>
 
-          {/* === STANDALONE FLOATING CART BUTTON (To the left of Login/Notification Island) === */}
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="relative px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-2xl md:rounded-[22px] text-white bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 border border-white/95 shadow-[0_6px_20px_rgba(249,115,22,0.48),inset_0_1.5px_1px_rgba(255,255,255,0.85)] ring-2 ring-orange-300/40 group transition-all duration-200 active:scale-95 flex items-center gap-2 shrink-0 cursor-pointer"
-            title="Giỏ hoa của bạn"
-          >
-            <ShoppingCart className="w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:scale-110 transition-transform" />
-            <span className="hidden md:inline text-xs font-black tracking-wide">Giỏ hoa</span>
-            {totalCartCount > 0 && (
-              <span className="bg-white text-orange-600 text-[10px] font-black rounded-full px-1.5 py-0.2 shadow-sm animate-pulse border border-orange-200">
-                {totalCartCount}
-              </span>
-            )}
-          </button>
 
           {/* === ISLAND 3: RIGHT USER ACTIONS (LOGIN / PROFILE & NOTIFICATIONS) === */}
           <div className="rounded-2xl md:rounded-[24px] glass-nav-luminous px-2 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 shrink-0 transition-all duration-300 shadow-sm relative">

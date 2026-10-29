@@ -130,7 +130,7 @@ export const PublicStore: React.FC = () => {
                 </div>
 
                 <div className="overflow-x-auto no-scrollbar py-0.5">
-                  <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700 whitespace-nowrap inline-block drop-shadow-xs px-2">
+                  <h1 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700 whitespace-nowrap inline-block drop-shadow-xs px-1">
                     Tiệm Hoa V&V Florielle
                   </h1>
                 </div>

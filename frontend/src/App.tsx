@@ -11,6 +11,7 @@ import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
 import { MobileBottomDock } from './components/MobileBottomDock';
 import { FloatingContactWidget } from './components/FloatingContactWidget';
+import { FloatingCartWidget } from './components/FloatingCartWidget';
 import { MascotAssistant } from './components/MascotAssistant';
 import { InfoPopups, PopupType } from './components/InfoPopups';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
@@ -20,7 +21,7 @@ export const AppContent: React.FC = () => {
   const [activePopup, setActivePopup] = useState<PopupType>(null);
 
   return (
-    <div className="min-h-screen flex flex-col relative selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen flex flex-col relative selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden w-full">
       {/* Background Decorative Ambient Blobs for Glass Effect */}
       <div className="bg-ambient-layer">
         <div className="ambient-blob-1" />
@@ -55,6 +56,9 @@ export const AppContent: React.FC = () => {
 
       {/* Floating Speed Dial & Contact Tooltip (Right Side) */}
       <FloatingContactWidget />
+
+      {/* Floating Draggable Cart Widget (Bottom Right) */}
+      <FloatingCartWidget />
 
       {/* Floating AI Mascot Assistant (Left Side) */}
       <MascotAssistant />
