@@ -1,0 +1,16 @@
+{
+  "name": "V&V Florielle - Tiệm Hoa Tươi Nghệ Thuật",
+  "short_name": "V&V Florielle",
+  "description": "Boutique Florist & Custom Floral Design - 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#065f46",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
