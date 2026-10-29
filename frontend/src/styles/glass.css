@@ -1,0 +1,473 @@
+/* ==========================================================================
+   V&V Florielle - Ultra-Refined Glassmorphism & Soft Botanical Aesthetics
+   High-contrast translucent frosted glass, specular highlights & curved forms
+   ========================================================================== */
+
+:root {
+  --primary-color: #059669;
+  --primary-hover: #047857;
+  --primary-light: #ecfdf5;
+  --primary-glow: rgba(5, 150, 105, 0.22);
+  
+  --accent-rose: #e11d48;
+  --accent-gold: #d97706;
+  --accent-purple: #7c3aed;
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+
+  /* Frosted Glass Layers (Luminous Botanical Glass) */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.55);
+  --glass-bg-card: rgba(255, 255, 255, 0.75);
+  --glass-bg-hover: rgba(255, 255, 255, 0.92);
+  --glass-bg-modal: rgba(255, 255, 255, 0.82);
+  
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-border-subtle: rgba(255, 255, 255, 0.75);
+  
+  /* Specular Highlight Shadows (Apple-level Glossy Beveled Glass) */
+  --glass-shadow: 0 12px 36px -8px rgba(16, 185, 129, 0.09), 0 4px 14px -2px rgba(15, 23, 42, 0.04), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95);
+  --glass-shadow-lg: 0 25px 60px -15px rgba(15, 23, 42, 0.12), 0 10px 25px -5px rgba(5, 150, 105, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 1);
+  --glass-shadow-hover: 0 20px 48px -10px rgba(5, 150, 105, 0.18), 0 8px 18px -4px rgba(15, 23, 42, 0.06), inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1);
+
+  /* Soft Rounded Radiuses */
+  --radius-xs: 10px;
+  --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 28px;
+  --radius-2xl: 34px;
+  --radius-full: 9999px;
+}
+
+/* 1. Luminous Glass Navigation Bar Frame & Footer (High Translucency & Specular Bevels) */
+.glass-nav-luminous {
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(28px) saturate(210%);
+  -webkit-backdrop-filter: blur(28px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.4),
+    0 20px 48px -12px rgba(5, 150, 105, 0.12),
+    0 8px 24px -4px rgba(15, 23, 42, 0.04);
+}
+
+.glass-footer-luminous {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(28px) saturate(210%);
+  -webkit-backdrop-filter: blur(28px) saturate(210%);
+  border-top: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.98),
+    0 -12px 40px -8px rgba(15, 23, 42, 0.04);
+}
+
+/* 2. Glass Panels & Cards */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(26px) saturate(200%);
+  -webkit-backdrop-filter: blur(26px) saturate(200%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow-lg);
+  border-radius: var(--radius-xl);
+}
+
+.glass-card {
+  background: var(--glass-bg-card);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  border: 1px solid var(--glass-border-subtle);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: var(--glass-bg-hover);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-4px) scale(1.006);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+    0 12px 32px -8px rgba(0, 0, 0, 0.06);
+}
+
+/* 3. Specialized Glass Buttons & Action Controls (Hiệu Ứng Bóng Kính Nổi Bật) */
+
+/* Base Neutral Glass Button (Dropdowns, Secondary Actions) */
+.glass-btn-base {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.68) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
+    0 4px 14px 0 rgba(15, 23, 42, 0.04);
+  color: #1e293b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-btn-base:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.85) 100%);
+  border-color: rgba(5, 150, 105, 0.35);
+  color: #047857;
+  transform: translateY(-1.5px);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
+    0 8px 22px 0 rgba(5, 150, 105, 0.16);
+}
+
+.glass-btn-base:active {
+  transform: translateY(0);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Glowing Emerald Jewel Glass Button (Cart, Primary CTA) */
+.glass-btn-emerald-jewel {
+  background: linear-gradient(135deg, #059669 0%, #10b981 55%, #14b8a6 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.15),
+    0 8px 25px -4px rgba(5, 150, 105, 0.42);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-btn-emerald-jewel:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 55%, #0d9488 100%);
+  transform: translateY(-1.5px) scale(1.03);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.75),
+    0 12px 30px -2px rgba(5, 150, 105, 0.52);
+}
+
+.glass-btn-emerald-jewel:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Rose Frosted Glass Pill (Khuyến Mãi, Hot Offers) */
+.glass-btn-rose-pill {
+  background: linear-gradient(135deg, rgba(255, 241, 242, 0.94) 0%, rgba(255, 228, 230, 0.8) 50%, rgba(254, 243, 199, 0.7) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(254, 205, 211, 0.95);
+  color: #be123c;
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
+    0 4px 14px 0 rgba(244, 63, 94, 0.12);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-btn-rose-pill:hover {
+  background: linear-gradient(135deg, rgba(255, 228, 230, 0.98) 0%, rgba(254, 205, 211, 0.92) 100%);
+  border-color: rgba(244, 63, 94, 0.5);
+  color: #9f1239;
+  transform: translateY(-1.5px);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
+    0 8px 22px 0 rgba(244, 63, 94, 0.22);
+}
+
+/* Emerald Translucent Glass Pill (VIP Customer Profile, Active State) */
+.glass-btn-emerald-pill {
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.94) 0%, rgba(209, 250, 229, 0.82) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(167, 243, 208, 0.95);
+  color: #065f46;
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
+    0 4px 14px 0 rgba(5, 150, 105, 0.12);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-btn-emerald-pill:hover {
+  background: linear-gradient(135deg, rgba(209, 250, 229, 0.98) 0%, rgba(167, 243, 208, 0.92) 100%);
+  border-color: rgba(5, 150, 105, 0.5);
+  color: #047857;
+  transform: translateY(-1.5px);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
+    0 8px 22px 0 rgba(5, 150, 105, 0.2);
+}
+
+/* Purple Translucent Glass Pill (Admin Portal Button) */
+.glass-btn-purple-pill {
+  background: linear-gradient(135deg, rgba(245, 243, 255, 0.94) 0%, rgba(237, 233, 254, 0.82) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(221, 214, 254, 0.95);
+  color: #5b21b6;
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
+    0 4px 14px 0 rgba(124, 58, 237, 0.12);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-btn-purple-pill:hover {
+  background: linear-gradient(135deg, rgba(237, 233, 254, 0.98) 0%, rgba(221, 214, 254, 0.92) 100%);
+  border-color: rgba(124, 58, 237, 0.5);
+  color: #4c1d95;
+  transform: translateY(-1.5px);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
+    0 8px 22px 0 rgba(124, 58, 237, 0.2);
+}
+
+/* 4. Glass Inputs with Specular Inner Glow */
+.glass-input {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.6) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  color: var(--text-main);
+  font-size: 13px;
+  outline: none;
+  transition: all 0.24s ease;
+  box-shadow: 
+    inset 0 1.5px 3px rgba(15, 23, 42, 0.03),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.glass-input:hover {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: var(--primary-color);
+  box-shadow: 
+    0 0 0 4px var(--primary-glow),
+    inset 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+/* 5. Standard Primary / Secondary Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.4),
+    0 6px 18px rgba(5, 150, 105, 0.28);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55),
+    0 10px 24px rgba(5, 150, 105, 0.4);
+  transform: translateY(-1.5px);
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.7) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--text-main);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.22s ease;
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95),
+    0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 1),
+    0 4px 14px rgba(5, 150, 105, 0.12);
+}
+
+.btn-pill {
+  border-radius: var(--radius-full);
+}
+
+.glass-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.98),
+    0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+/* Floating Glass Modals & Drawers */
+.glass-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.24s ease;
+}
+
+.glass-modal-content {
+  background: var(--glass-bg-modal);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: var(--glass-shadow-lg);
+  border-radius: var(--radius-xl);
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: scaleUp 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 460px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border-left: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.95),
+    -12px 0 36px rgba(15, 23, 42, 0.16);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Toast container */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: slideInUp 0.25s ease;
+}
+
+.toast-item.success {
+  background: rgba(6, 95, 70, 0.92);
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+.toast-item.error {
+  background: rgba(159, 18, 57, 0.92);
+  border-color: rgba(251, 113, 133, 0.4);
+}
+
+.toast-item.info {
+  background: rgba(30, 58, 138, 0.92);
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}

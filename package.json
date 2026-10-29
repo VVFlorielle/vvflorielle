@@ -1,7 +1,7 @@
 {
-  "name": "hoatuoilinhphuong-master",
+  "name": "vvflorielle",
   "version": "1.0.0",
-  "description": "Full-stack Flower Boutique E-Commerce Website for Hoa Tuoi Linh Phuong",
+  "description": "Hệ thống Web Tiệm Hoa Tươi Nghệ Thuật V&V Florielle 105 Doãn Kế Thiện",
   "private": true,
   "scripts": {
     "start": "npm run server",
@@ -12,13 +12,14 @@
   },
   "keywords": [
     "flower-shop",
+    "vvflorielle",
     "glassmorphism",
     "react",
-    "tailwind",
+    "vite",
     "render",
     "cloudflare-pages",
     "neon-postgres"
   ],
-  "author": "Hoa Tuoi Linh Phuong",
+  "author": "V&V Florielle",
   "license": "ISC"
 }

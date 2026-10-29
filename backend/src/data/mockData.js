@@ -485,7 +485,7 @@ export const initialOrders = [
       timeSlot: "Chiều nay (16:30 - 17:30)",
       receiverName: "Nguyễn Thùy Linh",
       receiverPhone: "0912.888.345",
-      address: "Tầng 12, Tòa nhà Bitexco, Số 2 Hải Triều, P. Bến Nghé, Quận 1, TP.HCM",
+      address: "105 Doãn Kế Thiện, Mai Dịch, Cầu Giấy, Hà Nội",
       secretGift: false
     },
     customer: {

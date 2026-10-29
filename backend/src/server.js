@@ -205,6 +205,115 @@ app.post('/api/orders/:id/approve', (req, res) => {
   res.json({ success: true, order });
 });
 
+// =========================================================================
+// 5. AUTHENTICATION & CUSTOMER PORTAL API
+// =========================================================================
+
+// Customer login / register
+app.post('/api/auth/customer-login', (req, res) => {
+  const { phoneOrEmail, name } = req.body;
+  if (!phoneOrEmail) {
+    return res.status(400).json({ error: 'Vui lòng cung cấp số điện thoại hoặc email' });
+  }
+
+  const customerUser = {
+    id: 'CUST-' + Math.floor(1000 + Math.random() * 9000),
+    name: name || 'Khách Thân Thiết',
+    phone: phoneOrEmail.includes('@') ? '0903.111.890' : phoneOrEmail,
+    email: phoneOrEmail.includes('@') ? phoneOrEmail : 'khachhang@vvflorielle.com',
+    tier: 'Thành Viên Hoa Hồng (Rose Member)',
+    rewardPoints: 120,
+    vouchers: [
+      { code: 'CHAOXUAN50', discount: 50000, desc: 'Giảm 50k cho đơn từ 450k', expiry: '30/11/2026' },
+      { code: 'FREESHIP2H', discount: 35000, desc: 'Miễn phí giao hỏa tốc 2 giờ', expiry: '31/12/2026' }
+    ],
+    savedAddresses: [
+      '105 Doãn Kế Thiện, Mai Dịch, Cầu Giấy, Hà Nội',
+      'Tòa nhà Keangnam Landmark 72, Phạm Hùng, Nam Từ Liêm, Hà Nội'
+    ]
+  };
+
+  res.json({ success: true, user: customerUser });
+});
+
+// Admin secret login with PIN
+app.post('/api/auth/admin-login', (req, res) => {
+  const { username, password, pin } = req.body;
+  if (
+    (username === 'admin' || username === 'vvflorielle' || username?.includes('vvflorielle')) &&
+    (password === 'admin123' || password === 'rnd_kZAntNAOVM3xaMEYPnir6b0zrlo4') &&
+    (pin === '888999' || pin === '123456')
+  ) {
+    const adminToken = 'vv_adm_' + Date.now();
+    res.json({
+      success: true,
+      role: 'ADMIN',
+      token: adminToken,
+      displayName: 'Chủ Quán V&V Florielle'
+    });
+  } else {
+    res.status(401).json({ error: 'Thông tin tài khoản hoặc mã PIN quản trị không chính xác' });
+  }
+});
+
+// Admin PIN Recovery via Gmail App Password & OTP
+app.post('/api/auth/send-pin-otp', async (req, res) => {
+  const { email, appPassword, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ error: 'Thiếu email hoặc mã OTP' });
+  }
+
+  console.log(`[Security] Yêu cầu gửi mã OTP ${otp} đến email: ${email}`);
+
+  if (appPassword) {
+    try {
+      const nodemailer = await import('nodemailer').catch(() => null);
+      if (nodemailer) {
+        const transporter = nodemailer.default.createTransport({
+          service: 'gmail',
+          auth: {
+            user: email,
+            pass: appPassword.replace(/\s+/g, '')
+          }
+        });
+
+        await transporter.sendMail({
+          from: `"V&V Florielle Security" <${email}>`,
+          to: email,
+          subject: `[V&V Florielle] Mã OTP khôi phục PIN Quản Trị: ${otp}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; padding: 24px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <h2 style="color: #059669; margin-top: 0;">V&V Florielle - Bảo Mật Hệ Thống</h2>
+              <p>Xin chào Chủ Quán V&V Florielle,</p>
+              <p>Hệ thống nhận được yêu cầu đổi / khôi phục mã PIN Quản trị. Dưới đây là mã xác thực OTP của bạn:</p>
+              <div style="background: #ecfdf5; border: 1px dashed #059669; padding: 14px; font-size: 26px; font-weight: bold; letter-spacing: 5px; text-align: center; color: #047857; margin: 18px 0; border-radius: 8px;">
+                ${otp}
+              </div>
+              <p style="font-size: 12px; color: #64748b;">Mã này có hiệu lực trong 10 phút. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.</p>
+            </div>
+          `
+        });
+        return res.json({ success: true, message: `Mã OTP đã được gửi thành công đến ${email}` });
+      }
+    } catch (err) {
+      console.error('[Security] Lỗi gửi Gmail qua Nodemailer:', err.message);
+      return res.json({ success: false, message: 'Lỗi SMTP Google: ' + err.message, fallbackOtp: otp });
+    }
+  }
+
+  res.json({ success: true, message: 'Đã tạo OTP xác thực', otp });
+});
+
+// Customer order history by phone
+app.get('/api/customer/orders', (req, res) => {
+  const { phone } = req.query;
+  if (!phone) {
+    return res.json([]);
+  }
+  const customerOrders = inMemoryDB.orders.filter(o => o.customer?.phone === phone);
+  res.json(customerOrders);
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`\n🌸 [V&V Florielle Boutique API] Server running at http://localhost:${PORT}`);

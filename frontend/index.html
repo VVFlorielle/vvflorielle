@@ -2,13 +2,123 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>V&amp;V Florielle - Tiệm Hoa Tươi Nghệ Thuật &amp; Thiết Kế Hoa Cầu Giấy, Hà Nội</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="V&amp;V Florielle - Tiệm hoa tươi nghệ thuật cao cấp tại 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội. Thiết kế hoa khai trương, hoa sinh nhật, hoa sự kiện, giao nhanh 60-90 phút nội thành Hà Nội. Cam kết hoa tươi mới 100% mỗi sáng." />
+    <meta name="keywords" content="hoa tươi hà nội, đặt hoa cầu giấy, tiệm hoa doãn kế thiện, hoa khai trương hà nội, hoa sinh nhật cao cấp, v&amp;v florielle, hoa tươi thiết kế" />
+    <meta name="author" content="V&amp;V Florielle" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://vvflorielle.vn/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vvflorielle.vn/" />
+    <meta property="og:title" content="V&amp;V Florielle - Tiệm Hoa Tươi Nghệ Thuật Cầu Giấy, Hà Nội" />
+    <meta property="og:description" content="Thiết kế hoa tươi nghệ thuật theo yêu cầu tại 105 Doãn Kế Thiện, Cầu Giấy. Giao hoa hỏa tốc nội thành Hà Nội, cam kết bảo hành 100% trong 2H." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1200&q=80" />
+    <meta property="og:locale" content="vi_VN" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="V&amp;V Florielle - Tiệm Hoa Tươi Nghệ Thuật Cầu Giấy, Hà Nội" />
+    <meta name="twitter:description" content="Thiết kế hoa tươi nghệ thuật tại 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội. Giao hoa hỏa tốc." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1200&q=80" />
+
+    <!-- PWA & Mobile Web App -->
+    <meta name="theme-color" content="#065f46" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="V&amp;V Florielle" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Favicon & Icons -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>V&V Florielle - Tiệm Hoa Tươi Nghệ Thuật & Tùy Biến Theo Yêu Cầu</title>
-    <meta name="description" content="V&V Florielle - Dịch vụ hoa tươi cao cấp, giao hoa hỏa tốc 2 giờ tại TP.HCM. Chụp ảnh hoa thật trước khi giao, tùy biến màu giấy và ruy băng miễn phí." />
+
+    <!-- Google Fonts & Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          container: {
+            center: true,
+            padding: {
+              DEFAULT: '1rem',
+              sm: '1.25rem',
+              md: '1.5rem',
+              lg: '1.5rem',
+              xl: '1.5rem',
+              '2xl': '1.5rem'
+            },
+            screens: {
+              sm: '640px',
+              md: '768px',
+              lg: '1024px',
+              xl: '1280px',
+              '2xl': '1280px'
+            }
+          },
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            }
+          }
+        }
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Schema.org JSON-LD for Local Business (Florist) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Florist",
+      "name": "V&V Florielle",
+      "image": "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1200&q=80",
+      "@id": "https://vvflorielle.vn",
+      "url": "https://vvflorielle.vn",
+      "telephone": "0987.654.321",
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "105 Doãn Kế Thiện",
+        "addressLocality": "Cầu Giấy",
+        "addressRegion": "Hà Nội",
+        "postalCode": "100000",
+        "addressCountry": "VN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 21.0379,
+        "longitude": 105.7772
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "opens": "07:30",
+        "closes": "21:30"
+      },
+      "sameAs": [
+        "https://zalo.me/0987654321",
+        "https://tiktok.com/@vvflorielle",
+        "https://facebook.com/vvflorielle"
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
