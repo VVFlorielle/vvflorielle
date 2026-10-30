@@ -218,6 +218,19 @@ export const AuthModal: React.FC = () => {
             </div>
           )}
 
+          {/* Discreet Admin Lock Button (Standard matching phototiinlove) */}
+          {authModalMode !== 'admin' && (
+            <button
+              type="button"
+              onClick={() => setAuthModalMode('admin')}
+              className="p-1.5 rounded-full text-slate-400 hover:text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer mr-1"
+              title="Lối vào Quản Trị Viên & Cửa Hàng (Admin / Chủ tiệm)"
+              aria-label="Đăng nhập quản trị viên"
+            >
+              <Lock className="w-4 h-4 text-slate-400 hover:text-purple-600" />
+            </button>
+          )}
+
           <button
             onClick={() => setIsAuthModalOpen(false)}
             className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-colors cursor-pointer"
@@ -303,7 +316,7 @@ export const AuthModal: React.FC = () => {
                 </button>
               </div>
 
-              <div className="text-center pt-2 border-t border-slate-100">
+              <div className="text-center pt-2.5 border-t border-slate-100 space-y-2">
                 <p className="text-xs text-slate-500">
                   Chưa có tài khoản?{' '}
                   <button
@@ -314,6 +327,14 @@ export const AuthModal: React.FC = () => {
                     Đăng ký thành viên mới
                   </button>
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setAuthModalMode('admin')}
+                  className="text-[11px] text-slate-400 hover:text-purple-700 transition-colors flex items-center justify-center gap-1.5 mx-auto font-medium"
+                >
+                  <Lock className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Cổng Quản Trị & Cửa Hàng (Admin)</span>
+                </button>
               </div>
             </form>
           </div>
@@ -425,7 +446,7 @@ export const AuthModal: React.FC = () => {
                 </button>
               </div>
 
-              <div className="text-center pt-2 border-t border-slate-100">
+              <div className="text-center pt-2.5 border-t border-slate-100 space-y-2">
                 <p className="text-xs text-slate-500">
                   Đã có tài khoản?{' '}
                   <button
@@ -436,6 +457,14 @@ export const AuthModal: React.FC = () => {
                     Đăng nhập
                   </button>
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setAuthModalMode('admin')}
+                  className="text-[11px] text-slate-400 hover:text-purple-700 transition-colors flex items-center justify-center gap-1.5 mx-auto font-medium"
+                >
+                  <Lock className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Cổng Quản Trị & Cửa Hàng (Admin)</span>
+                </button>
               </div>
             </form>
           </div>

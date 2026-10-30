@@ -18,7 +18,8 @@ import {
   MarqueeItem,
   AdminAccountType,
   AdminViewMode,
-  SessionRole
+  SessionRole,
+  StoreView
 } from '../types';
 import {
   INITIAL_CATEGORIES,
@@ -42,8 +43,8 @@ interface ToastNotice {
 
 interface StoreContextType {
   // Navigation / View
-  currentView: 'store' | 'customer' | 'admin';
-  setCurrentView: (view: 'store' | 'customer' | 'admin') => void;
+  currentView: StoreView;
+  setCurrentView: (view: StoreView) => void;
   selectedCategory: CategoryId;
   setSelectedCategory: (cat: CategoryId) => void;
   searchQuery: string;
@@ -287,19 +288,29 @@ function speakCuteVoice(rawText: string) {
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Navigation & View
-  const [currentView, setCurrentView] = useState<'store' | 'customer' | 'admin'>(() => {
+  const [currentView, setCurrentView] = useState<StoreView>(() => {
     if (typeof window !== 'undefined') {
-      if (window.location.hash === '#customer') return 'customer';
-      if (window.location.hash === '#admin') return 'admin';
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#customer') return 'customer';
+      if (hash === '#admin') return 'admin';
+      if (hash === '#catalog' || hash === '#mau-hoa') return 'catalog';
+      if (hash === '#about' || hash === '#gioi-thieu') return 'about';
+      if (hash === '#contact' || hash === '#lien-he') return 'contact';
+      if (hash === '#care' || hash === '#cam-nang') return 'care';
     }
     return 'store';
   });
 
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#customer') setCurrentView('customer');
-      else if (window.location.hash === '#admin') setCurrentView('admin');
-      else if (window.location.hash === '' || window.location.hash === '#store') setCurrentView('store');
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#customer') setCurrentView('customer');
+      else if (hash === '#admin') setCurrentView('admin');
+      else if (hash === '#catalog' || hash === '#mau-hoa') setCurrentView('catalog');
+      else if (hash === '#about' || hash === '#gioi-thieu') setCurrentView('about');
+      else if (hash === '#contact' || hash === '#lien-he') setCurrentView('contact');
+      else if (hash === '#care' || hash === '#cam-nang') setCurrentView('care');
+      else if (hash === '' || hash === '#store') setCurrentView('store');
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);

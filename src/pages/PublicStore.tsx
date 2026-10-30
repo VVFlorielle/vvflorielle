@@ -188,45 +188,49 @@ export const PublicStore: React.FC = () => {
           </div>
         </section>
       ) : (
-        /* DEDICATED CATEGORY LANDING BANNER */
-        <section className="container pt-6">
-          <div className="relative rounded-[32px] overflow-hidden shadow-2xl border border-white/80 bg-slate-900 text-white min-h-[220px] sm:min-h-[260px] flex items-center">
-            {/* Background Cover Photo */}
+        /* DEDICATED CATEGORY LANDING BANNER (LUMINOUS FLORAL GLASS - NO DARK OVERLAY) */
+        <section className="container pt-4 sm:pt-6">
+          <div className="relative rounded-[32px] overflow-hidden shadow-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/80 text-slate-900 min-h-[200px] sm:min-h-[230px] flex items-center">
+            {/* Background Floral Accents */}
             <img
               src={currentCategoryData.bannerUrl || currentCategoryData.imageUrl}
               alt={currentCategoryData.name}
-              className="absolute inset-0 w-full h-full object-cover opacity-40 scale-105"
+              className="absolute right-0 top-0 w-full sm:w-1/2 h-full object-cover opacity-25 filter blur-[0.4px]"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/70 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-transparent sm:to-white/20" />
+            
+            {/* Luminous Glow Orbs */}
+            <div className="absolute top-0 right-1/4 w-60 h-60 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 right-10 w-48 h-48 bg-rose-400/10 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="relative z-10 p-6 sm:p-10 max-w-2xl space-y-3">
+            <div className="relative z-10 p-6 sm:p-10 max-w-2xl space-y-2.5">
               {/* Breadcrumbs */}
-              <div className="flex items-center gap-2 text-xs text-emerald-300 font-medium">
+              <div className="flex items-center gap-2 text-xs text-emerald-800 font-semibold">
                 <button
                   onClick={() => setSelectedCategory('all')}
-                  className="hover:underline hover:text-white"
+                  className="hover:underline text-slate-500 hover:text-emerald-700"
                 >
                   Trang chủ
                 </button>
-                <span>/</span>
-                <span className="text-white font-semibold">{currentCategoryData.name}</span>
+                <span className="text-slate-300">/</span>
+                <span className="text-emerald-900 font-bold">{currentCategoryData.name}</span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-4xl font-black text-emerald-950 tracking-tight">
                 {currentCategoryData.name}
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-lg">
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-lg">
                 {currentCategoryData.description}. {currentCategoryData.tagline}
               </p>
 
-              <div className="pt-2 flex items-center gap-3">
-                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-200 border border-emerald-400/40">
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 border border-emerald-300/80 shadow-xs">
                   {filteredProducts.length} mẫu hoa tươi có sẵn
                 </span>
                 <button
                   onClick={() => setSelectedCategory('all')}
-                  className="text-xs text-slate-300 hover:text-white underline"
+                  className="text-xs text-emerald-700 hover:text-emerald-900 font-bold underline"
                 >
                   Xem tất cả danh mục
                 </button>

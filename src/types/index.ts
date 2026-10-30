@@ -230,3 +230,5 @@ export interface MarqueeItem {
 export type AdminAccountType = 'admin' | 'vvflorielle';
 export type AdminViewMode = 'STUDIO_CMS' | 'BOUTIQUE_OPS';
 export type SessionRole = 'ADMIN' | 'KHACHHANG' | 'GUEST';
+export type StoreView = 'store' | 'catalog' | 'about' | 'contact' | 'care' | 'customer' | 'admin';
+

@@ -92,10 +92,10 @@ export const MascotAssistant: React.FC = () => {
     }
   ]);
 
-  // Initial draggable position (floating comfortably on the left side)
+  // Initial draggable position (Fixed at exact vertical center on the left edge)
   const getDefaultPos = () => ({
-    x: 20,
-    y: typeof window !== 'undefined' ? Math.max(120, Math.round(window.innerHeight * 0.56)) : 380,
+    x: 12,
+    y: typeof window !== 'undefined' ? Math.round((window.innerHeight - 80) / 2) : 340,
   });
 
   const [pos, setPos] = useState(getDefaultPos);
@@ -333,10 +333,6 @@ export const MascotAssistant: React.FC = () => {
                   alt="Linh vật AI V&V Florielle"
                   className="w-full h-full object-contain pointer-events-none filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
                 />
-                {/* Cute pill badge underneath */}
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[9px] font-black text-emerald-950 bg-white/95 px-2 py-0.5 rounded-full shadow-md border border-emerald-200 whitespace-nowrap tracking-tight">
-                  AI FLORI
-                </span>
               </div>
             )}
           </div>

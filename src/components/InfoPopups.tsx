@@ -28,14 +28,20 @@ interface InfoPopupsProps {
 }
 
 export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) => {
-  const { settings, promotions, showToast } = useStore();
+  const { settings, promotions, showToast, setCurrentView } = useStore();
 
   if (!activePopup) return null;
 
   return (
-    <div className="glass-overlay z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="glass-overlay z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
       <div
-        className="glass-modal-content max-w-md w-full relative"
+        className={`glass-modal-content w-full relative transition-all duration-300 ${
+          activePopup === 'services'
+            ? 'max-w-2xl sm:max-w-3xl'
+            : activePopup === 'app-download'
+            ? 'max-w-lg'
+            : 'max-w-md'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="glass-modal-header">
@@ -220,73 +226,142 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
           </div>
         )}
 
-        {/* 5. DỊCH VỤ HOA TƯƠI V&V FLORIELLE */}
+        {/* 5. DỊCH VỤ HOA TƯƠI V&V FLORIELLE (SPACIOUS LUXURY GRID) */}
         {activePopup === 'services' && (
-          <div className="space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-md shadow-emerald-600/10 border border-emerald-200/50">
-              <Flower2 className="w-7 h-7" />
+          <div className="space-y-5">
+            <div className="text-center space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3 py-0.5 rounded-full">
+                V&V Florielle Hà Nội
+              </span>
+              <h3 className="font-extrabold text-xl sm:text-2xl text-slate-900 tracking-tight">
+                Dịch Vụ Hoa Tươi Nghệ Thuật Chuyên Nghiệp
+              </h3>
+              <p className="text-xs text-slate-500 max-w-lg mx-auto">
+                105 Doãn Kế Thiện, Cầu Giấy • Đáp ứng trọn vẹn mọi nhu cầu quà tặng và sự kiện
+              </p>
             </div>
-            <div className="text-center">
-              <h3 className="font-bold text-base text-slate-900 tracking-tight">Dịch Vụ Hoa Tươi Chuyên Nghiệp</h3>
-              <p className="text-xs text-slate-500 mt-1">Đa dạng lựa chọn theo mọi nhu cầu và sự kiện tại Hà Nội</p>
-            </div>
-            <div className="space-y-2.5 text-xs text-slate-600 bg-slate-50/90 p-4 rounded-2xl border border-slate-200/60 leading-relaxed">
-              <div className="flex items-start gap-2.5">
-                <Flower2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-slate-800">Hoa tươi mẫu sẵn:</strong> Hàng trăm mẫu bó hoa Hàn Quốc, giỏ hoa khai trương, lan hồ điệp được thiết kế mới mỗi sáng từ hoa loại 1 Đà Lạt & hoa nhập khẩu.
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Palette className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-slate-800">Thiết kế hoa theo yêu cầu:</strong> Nghệ nhân tư vấn riêng theo tone màu phong thủy, loại hoa sở thích và ngân sách của bạn để tạo ra tác phẩm độc bản.
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Truck className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-slate-800">Điện hoa hỏa tốc 60 - 90P:</strong> Giao hoa tận tay nội thành Hà Nội. Luôn chụp ảnh hoa thật gửi qua Zalo cho bạn duyệt ưng ý 100% mới xuất phát.
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-slate-800">Hoa cưới &amp; Sự kiện:</strong> Thiết kế trọn gói hoa cưới cầm tay, trang trí lễ đường, backdrop hoa tươi và sự kiện doanh nghiệp cao cấp.
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5 pt-2 border-t border-slate-200/60 bg-emerald-50/70 -mx-2 px-2.5 py-2 rounded-xl">
-                <Smartphone className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <strong className="text-emerald-950 font-bold">Ứng dụng di động (Android APK):</strong>
-                    <a
-                      href="/VVFlorielle.apk"
-                      download="VVFlorielle.apk"
-                      className="text-[10px] font-bold text-white bg-emerald-700 hover:bg-emerald-800 px-2 py-0.5 rounded-lg transition-colors shadow-2xs flex items-center gap-1"
-                    >
-                      <Download className="w-3 h-3" />
-                      <span>Tải 0.85MB</span>
-                    </a>
+
+            {/* 2x2 Spacious Luxury Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* Card 1 */}
+              <div className="p-4 rounded-2xl bg-white/95 border border-emerald-200/80 shadow-xs flex flex-col justify-between space-y-3 hover:shadow-md transition-shadow">
+                <div className="space-y-1.5">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                    <Flower2 className="w-5 h-5" />
                   </div>
-                  <div className="text-slate-600 text-[10.5px] mt-0.5 leading-snug">
-                    Bản cài đặt APK chính thức: Đặt hoa siêu mượt, nhận chuông thông báo đơn hàng và tích điểm VIP tức thì.
-                  </div>
+                  <h4 className="font-bold text-sm text-slate-900">Hoa Tươi Thiết Kế Mẫu Sẵn</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Hàng trăm mẫu bó hoa Hàn Quốc, giỏ hoa khai trương, lan hồ điệp cắm mới mỗi sáng từ hoa loại 1 Đà Lạt.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    setCurrentView('catalog');
+                  }}
+                  className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-colors text-center"
+                >
+                  Xem Tất Cả Mẫu Hoa →
+                </button>
+              </div>
+
+              {/* Card 2 */}
+              <div className="p-4 rounded-2xl bg-white/95 border border-rose-200/80 shadow-xs flex flex-col justify-between space-y-3 hover:shadow-md transition-shadow">
+                <div className="space-y-1.5">
+                  <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center">
+                    <Palette className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-900">Hoa Thiết Kế Riêng Theo Yêu Cầu</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Florist tư vấn riêng theo tone màu phong thủy, loại hoa yêu thích và ngân sách của bạn để tạo tác phẩm độc bản.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    setCurrentView('contact');
+                  }}
+                  className="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold transition-colors text-center"
+                >
+                  Gửi Yêu Cầu Thiết Kế →
+                </button>
+              </div>
+
+              {/* Card 3 */}
+              <div className="p-4 rounded-2xl bg-white/95 border border-sky-200/80 shadow-xs flex flex-col justify-between space-y-3 hover:shadow-md transition-shadow">
+                <div className="space-y-1.5">
+                  <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 flex items-center justify-center">
+                    <Truck className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-900">Điện Hoa Hỏa Tốc 60 - 90 Phút</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Giao nhanh nội thành Hà Nội. Luôn chụp ảnh và gửi video thành phẩm qua Zalo cho bạn duyệt trước khi giao.
+                  </p>
+                </div>
+                <a
+                  href={`tel:${settings.hotline.replace(/[^0-9]/g, '')}`}
+                  className="w-full py-2 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-colors text-center block"
+                >
+                  Gọi Hotline Giao Gấp ({settings.hotline})
+                </a>
+              </div>
+
+              {/* Card 4 */}
+              <div className="p-4 rounded-2xl bg-white/95 border border-amber-200/80 shadow-xs flex flex-col justify-between space-y-3 hover:shadow-md transition-shadow">
+                <div className="space-y-1.5">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-900">Hoa Cưới &amp; Sự Kiện Doanh Nghiệp</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Thiết kế trọn gói hoa cưới cầm tay, trang trí lễ đường, backdrop hoa tươi và lẵng hoa chúc mừng đối tác lớn.
+                  </p>
+                </div>
+                <a
+                  href={`https://zalo.me/${settings.hotline.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-colors text-center block"
+                >
+                  Tư Vấn Zalo Sự Kiện →
+                </a>
               </div>
             </div>
-            <div className="flex gap-2">
-              <a
-                href="/VVFlorielle.apk"
-                download="VVFlorielle.apk"
-                className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Tải App APK (0.85MB)</span>
-              </a>
-              <button onClick={onClose} className="btn-secondary px-4 text-xs py-2.5 rounded-xl">
-                Đóng
-              </button>
+
+            {/* Bottom APK Download Card */}
+            <div className="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-300/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Smartphone className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <strong className="text-emerald-950 font-bold text-xs">Ứng Dụng V&V Florielle (Android APK)</strong>
+                    <span className="text-[9px] bg-emerald-600 text-white font-black px-1.5 py-0.2 rounded-full">0.85MB</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 mt-0.5">Cài đặt trực tiếp trên điện thoại: Tích điểm VIP, đặt hoa 1 chạm</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <a
+                  href="/VVFlorielle.apk"
+                  download="VVFlorielle.apk"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Tải File APK</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-3 py-2 rounded-xl bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold border border-slate-200"
+                >
+                  Đóng
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -8,10 +8,20 @@ import {
   ShoppingBag,
   ShieldCheck,
   ChevronLeft,
+  ChevronRight,
   Search,
   Store,
   FileSearch,
-  PackageCheck
+  PackageCheck,
+  Compass,
+  Flower2,
+  Palette,
+  Truck,
+  BookOpen,
+  PhoneCall,
+  Smartphone,
+  Download,
+  X
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 import { CategoryId } from '../types';
@@ -35,14 +45,20 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     setIsAuthModalOpen,
     setAuthModalMode,
     setSelectedCategory,
+    categories,
+    settings,
   } = useStore();
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const isLoggedIn = Boolean(customer || isAdmin);
 
-  // Unfurl Dock 1 expanded state
+  // Unfurl Dock 1 expanded state (when logged in)
   const [isExpanded, setIsExpanded] = useState(false);
   const autoCollapseTimer = useRef<any>(null);
+
+  // Mobile Drawer Sheets (when guest)
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
+  const [isUtilityMenuOpen, setIsUtilityMenuOpen] = useState(false);
 
   // Scroll Hide / Reveal state (matching phototiinlove)
   const [hidden, setHidden] = useState(false);
@@ -133,6 +149,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
 
   const handleSelectCategory = (catId: CategoryId) => {
     setIsExpanded(false);
+    setIsCategorySheetOpen(false);
     setSelectedCategory(catId);
     if (currentView !== 'store') {
       setCurrentView('store');
@@ -143,37 +160,27 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     }, 100);
   };
 
-  const handleOpenCare = () => {
-    setIsExpanded(false);
-    if (onOpenPopup) onOpenPopup('care');
-  };
-
-  const handleOpenVoucher = () => {
-    setIsExpanded(false);
-    if (onOpenPopup) onOpenPopup('voucher');
-  };
-
   const handleCatalogClick = () => {
     handleUserInteract();
-    if (onOpenCategories) {
-      onOpenCategories();
-    } else {
-      setCurrentView('store');
-      setTimeout(() => {
-        const el = document.getElementById('categories-section') || document.getElementById('featured-flowers');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
+    setIsCategorySheetOpen(false);
+    setIsUtilityMenuOpen(false);
+    setSelectedCategory('all');
+    setCurrentView('catalog');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleOrderLookupClick = () => {
     handleUserInteract();
+    setIsCategorySheetOpen(false);
+    setIsUtilityMenuOpen(false);
     setAuthModalMode('customer');
     setIsAuthModalOpen(true);
   };
 
   const handleOrdersClick = () => {
     handleUserInteract();
+    setIsCategorySheetOpen(false);
+    setIsUtilityMenuOpen(false);
     if (isAdmin) {
       setCurrentView('admin');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -190,6 +197,8 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
 
   const handleAccountSwitchClick = () => {
     handleUserInteract();
+    setIsCategorySheetOpen(false);
+    setIsUtilityMenuOpen(false);
     if (isAdmin) {
       setCurrentView(currentView === 'admin' ? 'store' : 'admin');
     } else if (customer) {
@@ -243,12 +252,38 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 className="dock-unfurl-item"
                 onClick={() => {
                   setIsExpanded(false);
-                  if (onOpenPopup) onOpenPopup('services');
+                  setCurrentView('care');
                 }}
-                title="Dịch vụ hoa tươi chuyên nghiệp"
+                title="Cẩm nang dưỡng hoa"
               >
-                <span className="dock-unfurl-icon">✂️</span>
-                <span className="dock-unfurl-label">Dịch Vụ</span>
+                <span className="dock-unfurl-icon">📖</span>
+                <span className="dock-unfurl-label">Cẩm Nang</span>
+              </button>
+
+              <button
+                type="button"
+                className="dock-unfurl-item"
+                onClick={() => {
+                  setIsExpanded(false);
+                  setCurrentView('about');
+                }}
+                title="Giới thiệu tiệm hoa"
+              >
+                <span className="dock-unfurl-icon">🌸</span>
+                <span className="dock-unfurl-label">Giới Thiệu</span>
+              </button>
+
+              <button
+                type="button"
+                className="dock-unfurl-item"
+                onClick={() => {
+                  setIsExpanded(false);
+                  setCurrentView('contact');
+                }}
+                title="Liên hệ & Chỉ đường"
+              >
+                <span className="dock-unfurl-icon">📞</span>
+                <span className="dock-unfurl-label">Liên Hệ</span>
               </button>
 
               <button
@@ -258,7 +293,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   setIsExpanded(false);
                   if (onOpenPopup) onOpenPopup('app-download');
                 }}
-                title="Tải ứng dụng V&V Florielle cho điện thoại Android (APK)"
+                title="Cài đặt & Tải App APK"
               >
                 <span className="dock-unfurl-icon">📱</span>
                 <span className="dock-unfurl-label">Tải App</span>
@@ -269,54 +304,24 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 className="dock-unfurl-item"
                 onClick={() => {
                   setIsExpanded(false);
-                  if (onOpenPopup) onOpenPopup('about');
+                  if (onOpenPopup) onOpenPopup('voucher');
                 }}
-                title="Giới thiệu V&V Florielle"
-              >
-                <span className="dock-unfurl-icon">💖</span>
-                <span className="dock-unfurl-label">Giới Thiệu</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={handleOpenCare}
-                title="Cẩm nang chăm sóc hoa"
-              >
-                <span className="dock-unfurl-icon">📖</span>
-                <span className="dock-unfurl-label">Cẩm Nang</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={handleOpenVoucher}
-                title="Voucher ưu đãi 30K"
+                title="Voucher & Tích điểm"
               >
                 <span className="dock-unfurl-icon">🎁</span>
-                <span className="dock-unfurl-label">Voucher</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => {
-                  setIsExpanded(false);
-                  if (onOpenPopup) onOpenPopup('locations');
-                }}
-                title="Địa chỉ & Hotline"
-              >
-                <span className="dock-unfurl-icon">📍</span>
-                <span className="dock-unfurl-label">Liên Hệ</span>
+                <span className="dock-unfurl-label">Ưu Đãi</span>
               </button>
             </nav>
           ) : (
             <button
               type="button"
               className="dock-unfurl-gear-toggle"
-              onClick={() => setIsExpanded(true)}
-              aria-label="Mở menu danh mục hoa"
-              title="Danh mục hoa & Cẩm nang"
+              onClick={() => {
+                handleUserInteract();
+                setIsExpanded(true);
+              }}
+              aria-label="Mở menu chức năng phụ"
+              title="Khám phá tiện ích & danh mục"
             >
               <span className="gear-spin">⚙️</span>
             </button>
@@ -325,52 +330,285 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
       )}
 
       {/* ================================================================
-          DOCK 2: THANH DOCK CHÍNH 5 NÚT (MOBILE TOÀN BỘ & DESKTOP TRANG QUẢN TRỊ)
-          5 nút: Trở lại, Trang chủ, Giỏ hoa (FAB), Đơn hàng, Tài khoản / Quản trị.
-          Hỗ trợ hiệu ứng lướt ẩn / dừng hiện & đồng bộ cấu trúc phototiinlove.
+          DRAWER 1: MẪU HOA & DỊCH VỤ (MOBILE POPUP KHI BẤM NÚT DANH MỤC)
+          ================================================================ */}
+      {isCategorySheetOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsCategorySheetOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-8 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-3.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-600" />
+                <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Mẫu Hoa &amp; Dịch Vụ</span>
+              </div>
+              <button
+                onClick={() => setIsCategorySheetOpen(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Mục 1: Tất Cả Mẫu Hoa (Mở Trang Riêng) */}
+            <div
+              onClick={() => {
+                setIsCategorySheetOpen(false);
+                setSelectedCategory('all');
+                setCurrentView('catalog');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 text-white cursor-pointer shadow-md flex items-center justify-between hover:shadow-lg transition-all"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="font-black text-xs flex items-center gap-1.5">
+                    <span>Tất Cả Mẫu Hoa</span>
+                    <span className="text-[9px] bg-emerald-300 text-emerald-950 font-black px-1.5 py-0.2 rounded-full">Trang riêng</span>
+                  </div>
+                  <div className="text-[10px] text-emerald-100">Bộ lọc chi tiết, sắp xếp giá &amp; tìm kiếm hoa</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white" />
+            </div>
+
+            {/* Mục 2: Danh Mục Mẫu Hoa Tươi */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">Danh Mục Mẫu Hoa</span>
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map((cat) => (
+                  <div
+                    key={cat.id}
+                    onClick={() => {
+                      setIsCategorySheetOpen(false);
+                      handleSelectCategory(cat.id);
+                    }}
+                    className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
+                  >
+                    <Flower2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="text-xs font-semibold text-slate-800 truncate">{cat.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mục 3: Dịch Vụ Hoa Tươi Chuyên Nghiệp */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">Dịch Vụ Hoa Chuyên Nghiệp</span>
+              <div className="space-y-2">
+                <div
+                  onClick={() => {
+                    setIsCategorySheetOpen(false);
+                    if (onOpenPopup) onOpenPopup('services');
+                  }}
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-rose-600" />
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">Hoa Thiết Kế Riêng Theo Yêu Cầu</div>
+                      <div className="text-[10px] text-slate-400">Tư vấn màu sắc phong thủy &amp; loài hoa yêu thích</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-700">Chi tiết →</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    setIsCategorySheetOpen(false);
+                    if (onOpenPopup) onOpenPopup('guarantee');
+                  }}
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Truck className="w-4 h-4 text-sky-600" />
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">Điện Hoa Hỏa Tốc 60 - 90P Hà Nội</div>
+                      <div className="text-[10px] text-slate-400">Giao nhanh, gửi ảnh duyệt Zalo trước khi giao</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-700">Chi tiết →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================
+          DRAWER 2: TIỆN ÍCH & TRA CỨU (GIỚI THIỆU, CẨM NANG, LIÊN HỆ, TRA CỨU, APP)
+          ================================================================ */}
+      {isUtilityMenuOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsUtilityMenuOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-8 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-2.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Compass className="w-4 h-4 text-emerald-600" />
+                <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Tiện Ích &amp; Thông Tin Tiệm</span>
+              </div>
+              <button
+                onClick={() => setIsUtilityMenuOpen(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* 1. Giới Thiệu (Mở Trang Riêng) */}
+            <div
+              onClick={() => {
+                setIsUtilityMenuOpen(false);
+                setCurrentView('about');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Flower2 className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <div className="font-bold text-xs text-slate-900">Giới Thiệu Tiệm Hoa V&V Florielle</div>
+                  <div className="text-[10px] text-slate-500">105 Doãn Kế Thiện • Câu chuyện nghệ thuật hoa</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+
+            {/* 2. Cẩm Nang Dưỡng Hoa (Mở Trang Riêng) */}
+            <div
+              onClick={() => {
+                setIsUtilityMenuOpen(false);
+                setCurrentView('care');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <div className="font-bold text-xs text-slate-900">Cẩm Nang Dưỡng Hoa Tươi Lâu</div>
+                  <div className="text-[10px] text-slate-500">Bí quyết giữ hoa 7 ngày &amp; ý nghĩa loài hoa</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+
+            {/* 3. Liên Hệ & Bản Đồ (Mở Trang Riêng) */}
+            <div
+              onClick={() => {
+                setIsUtilityMenuOpen(false);
+                setCurrentView('contact');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+                  <PhoneCall className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <div className="font-bold text-xs text-slate-900">Liên Hệ &amp; Bản Đồ Chỉ Đường</div>
+                  <div className="text-[10px] text-slate-500">Hotline: {settings.hotline} • Mở cửa 06:30 - 21:30</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+
+            {/* 4. Tra Cứu Đơn Hàng & VietQR */}
+            <div
+              onClick={() => {
+                setIsUtilityMenuOpen(false);
+                handleOrderLookupClick();
+              }}
+              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
+                  <FileSearch className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <div className="font-bold text-xs text-slate-900">Tra Cứu Tình Trạng Đơn Hàng</div>
+                  <div className="text-[10px] text-slate-500">Xem tiến độ cắm hoa &amp; đối soát cọc VietQR</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+
+            {/* 5. Cài Đặt & Tải App APK */}
+            <div
+              onClick={() => {
+                setIsUtilityMenuOpen(false);
+                if (onOpenPopup) onOpenPopup('app-download');
+              }}
+              className="p-3 rounded-2xl bg-emerald-50/90 border border-emerald-300 flex items-center justify-between cursor-pointer active:scale-95 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Smartphone className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-xs text-emerald-950">Cài Đặt &amp; Tải App APK</span>
+                    <span className="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded-full">0.85MB</span>
+                  </div>
+                  <div className="text-[10px] text-slate-600">File cài đặt Android chính thức cho điện thoại</div>
+                </div>
+              </div>
+              <Download className="w-4 h-4 text-emerald-700" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================
+          DOCK CHÍNH (5 NÚT CÔNG KHAI KHI GUEST / 5 NÚT ĐIỀU HÀNH KHI LOGGED IN)
           ================================================================ */}
       <nav
-        className={`management-bottom-nav ${hidden && !isTouched ? 'management-nav-hidden' : ''} ${
-          currentView !== 'store' ? 'portal-desktop-nav' : ''
-        }`}
+        className={`management-bottom-nav ${hidden && !isTouched ? 'management-nav-hidden' : ''}`}
         aria-label="Thanh điều hướng chính"
         onTouchStart={handleUserInteract}
         onMouseEnter={handleUserInteract}
       >
         {isLoggedIn ? (
-          // ==================== ĐÃ ĐĂNG NHẬP (5 NÚT CÔNG CỤ CHỨC NĂNG) ====================
+          // ==================== ĐÃ ĐĂNG NHẬP (QUẢN TRỊ / KHÁCH HÀNG) ====================
           <>
             {/* 1. Quay lại */}
             <button
               type="button"
               onClick={handleBack}
-              className="min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 text-slate-500 hover:text-emerald-700 transition-all active:scale-95 group"
+              className="min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 text-slate-500 hover:text-emerald-700 transition-all active:scale-95"
               title="Quay lại"
             >
-              <ChevronLeft className="w-5 h-5 stroke-[2.4] group-hover:-translate-x-0.5 transition-transform" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Trở lại</span>
+              <ChevronLeft className="w-4.5 h-4.5 stroke-[2.2]" />
+              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Quay lại</span>
             </button>
 
-            {/* 2. Trang chủ */}
+            {/* 2. Mẫu hoa */}
             <button
               type="button"
-              onClick={() => {
-                handleUserInteract();
-                setCurrentView('store');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onClick={handleCatalogClick}
               className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
-                currentView === 'store' ? 'text-emerald-700 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
+                currentView === 'catalog' ? 'text-emerald-700 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
               }`}
-              title="Về tiệm hoa"
+              title="Khám phá mẫu hoa tươi"
             >
-              <Home className={`w-4.5 h-4.5 ${currentView === 'store' ? 'stroke-[2.5] text-emerald-700' : 'stroke-[2]'}`} />
-              <span className={`text-[9.5px] mt-0.5 leading-none truncate max-w-full text-center ${currentView === 'store' ? 'font-black text-emerald-900' : 'font-bold'}`}>
-                Trang chủ
-              </span>
+              <Sparkles className="w-4.5 h-4.5 stroke-[2]" />
+              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Mẫu hoa</span>
             </button>
 
-            {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE) */}
+            {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - TO RỘNG RÃI) */}
             <div className="min-w-0 flex-1 flex justify-center items-center h-full">
               <button
                 type="button"
@@ -378,12 +616,12 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   handleUserInteract();
                   setIsCartOpen(true);
                 }}
-                className="w-13.5 h-13.5 -mt-5 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_24px_rgba(249,115,22,0.52),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group"
+                className="w-15 h-15 sm:w-16 sm:h-16 -mt-6 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_24px_rgba(249,115,22,0.48),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3.5"
                 title="Giỏ hoa của bạn (Bấm để xem)"
               >
-                <ShoppingCart className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
+                <ShoppingCart className="w-6.5 h-6.5 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
                 {totalCartCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 min-w-[19px] h-[19px] px-0.5 rounded-full bg-rose-600 text-white text-[9.5px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
+                  <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
                     {totalCartCount > 99 ? '99+' : totalCartCount}
                   </span>
                 ) : (
@@ -405,7 +643,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Đơn hàng</span>
             </button>
 
-            {/* 5. Tài khoản / Quản trị (Chuyển đổi giao diện) */}
+            {/* 5. Tài khoản / Quản trị */}
             <button
               type="button"
               onClick={handleAccountSwitchClick}
@@ -451,41 +689,55 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               type="button"
               onClick={() => {
                 handleUserInteract();
+                setIsCategorySheetOpen(false);
+                setIsUtilityMenuOpen(false);
                 setCurrentView('store');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 text-emerald-800 transition-all active:scale-95"
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
+                currentView === 'store' ? 'text-emerald-800 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
+              }`}
               title="Trang chủ tiệm hoa"
             >
-              <Home className="w-4.5 h-4.5 stroke-[2.4] text-emerald-700" />
-              <span className="text-[9.5px] font-bold mt-0.5 text-emerald-900 leading-none truncate max-w-full text-center">Trang chủ</span>
+              <Home className="w-4.5 h-4.5 stroke-[2.4]" />
+              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Trang chủ</span>
             </button>
 
-            {/* 2. Danh mục mẫu hoa */}
+            {/* 2. Danh mục & Dịch vụ mẫu hoa */}
             <button
               type="button"
-              onClick={handleCatalogClick}
-              className="min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 text-slate-500 hover:text-emerald-700 transition-all active:scale-95"
-              title="Danh mục hoa tươi"
+              onClick={() => {
+                handleUserInteract();
+                setIsUtilityMenuOpen(false);
+                setIsCategorySheetOpen(!isCategorySheetOpen);
+              }}
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
+                isCategorySheetOpen || currentView === 'catalog'
+                  ? 'text-emerald-800 font-extrabold'
+                  : 'text-slate-500 hover:text-emerald-700'
+              }`}
+              title="Mẫu hoa & Dịch vụ"
             >
               <Sparkles className="w-4.5 h-4.5 stroke-[2]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Danh mục</span>
+              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Mẫu hoa</span>
             </button>
 
-            {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE) */}
+            {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - TO RỘNG RÃI SANG TRỌNG) */}
             <div className="min-w-0 flex-1 flex justify-center items-center h-full">
               <button
                 type="button"
                 onClick={() => {
                   handleUserInteract();
+                  setIsCategorySheetOpen(false);
+                  setIsUtilityMenuOpen(false);
                   setIsCartOpen(true);
                 }}
-                className="w-13.5 h-13.5 -mt-5 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_24px_rgba(249,115,22,0.52),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group"
+                className="w-15 h-15 sm:w-16 sm:h-16 -mt-6 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_24px_rgba(249,115,22,0.48),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3.5"
                 title="Giỏ hoa của bạn (Bấm để xem)"
               >
-                <ShoppingCart className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
+                <ShoppingCart className="w-6.5 h-6.5 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
                 {totalCartCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 min-w-[19px] h-[19px] px-0.5 rounded-full bg-rose-600 text-white text-[9.5px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
+                  <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
                     {totalCartCount > 99 ? '99+' : totalCartCount}
                   </span>
                 ) : (
@@ -494,15 +746,23 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               </button>
             </div>
 
-            {/* 4. Tra cứu đơn hàng */}
+            {/* 4. Tiện ích (Giới thiệu, Cẩm nang, Liên hệ, Tra cứu) */}
             <button
               type="button"
-              onClick={handleOrderLookupClick}
-              className="min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 text-slate-500 hover:text-emerald-700 transition-all active:scale-95"
-              title="Tra cứu tình trạng đơn hàng"
+              onClick={() => {
+                handleUserInteract();
+                setIsCategorySheetOpen(false);
+                setIsUtilityMenuOpen(!isUtilityMenuOpen);
+              }}
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
+                isUtilityMenuOpen || currentView === 'about' || currentView === 'contact' || currentView === 'care'
+                  ? 'text-emerald-800 font-extrabold'
+                  : 'text-slate-500 hover:text-emerald-700'
+              }`}
+              title="Tiện ích & Tra cứu"
             >
-              <FileSearch className="w-4.5 h-4.5 stroke-[2]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Tra cứu</span>
+              <Compass className="w-4.5 h-4.5 stroke-[2]" />
+              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Tiện ích</span>
             </button>
 
             {/* 5. Đăng nhập */}
@@ -510,6 +770,8 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               type="button"
               onClick={() => {
                 handleUserInteract();
+                setIsCategorySheetOpen(false);
+                setIsUtilityMenuOpen(false);
                 setAuthModalMode('customer');
                 setIsAuthModalOpen(true);
               }}

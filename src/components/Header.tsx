@@ -392,6 +392,26 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                       <span>Các Dòng Hoa Tươi</span>
                       <span className="text-[10px] text-emerald-700 font-semibold">{categories.length} danh mục</span>
                     </div>
+                    {/* Nút Xem Tất Cả Mẫu Hoa (Mở Trang Riêng) */}
+                    <div
+                      onClick={() => {
+                        setIsCategoryMenuOpen(false);
+                        setSelectedCategory('all');
+                        setCurrentView('catalog');
+                      }}
+                      className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/90 hover:bg-emerald-100/90 cursor-pointer transition-colors group border border-emerald-200/60 mb-1"
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-xs text-emerald-950 group-hover:text-emerald-800 flex items-center gap-1">
+                          <span>Tất Cả Mẫu Hoa</span>
+                          <span className="text-[9px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.2 rounded-full">Trang riêng</span>
+                        </div>
+                        <div className="text-[10px] text-emerald-700">Bộ lọc chi tiết, sắp xếp giá & tìm kiếm</div>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 gap-1 max-h-72 overflow-y-auto">
                       {categories.map((cat) => (
                         <div
@@ -523,26 +543,38 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
               )}
             </div>
 
-            {/* 4. Giới Thiệu */}
+            {/* 4. Giới Thiệu (Mở Trang Riêng) */}
             <button
-              onClick={() => onOpenPopup && onOpenPopup('about')}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors"
+              onClick={() => setCurrentView('about')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                currentView === 'about'
+                  ? 'text-emerald-900 bg-emerald-100/90 font-bold shadow-xs'
+                  : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+              }`}
             >
               Giới Thiệu
             </button>
 
-            {/* 5. Cẩm Nang / Tin Tức */}
+            {/* 5. Cẩm Nang / Tin Tức (Mở Trang Riêng) */}
             <button
-              onClick={() => onOpenPopup && onOpenPopup('care')}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors"
+              onClick={() => setCurrentView('care')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                currentView === 'care'
+                  ? 'text-emerald-900 bg-emerald-100/90 font-bold shadow-xs'
+                  : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+              }`}
             >
               Cẩm Nang
             </button>
 
-            {/* 6. Liên Hệ */}
+            {/* 6. Liên Hệ (Mở Trang Riêng) */}
             <button
-              onClick={() => onOpenPopup && onOpenPopup('locations')}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors"
+              onClick={() => setCurrentView('contact')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                currentView === 'contact'
+                  ? 'text-emerald-900 bg-emerald-100/90 font-bold shadow-xs'
+                  : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+              }`}
             >
               Liên Hệ
             </button>

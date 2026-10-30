@@ -49,9 +49,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
             </span>
           </div>
 
-          {/* 2. Khung Ngang 1: Địa chỉ Showroom */}
+          {/* 2. Khung Ngang 1: Địa chỉ Showroom (Mở trang Liên Hệ & Chỉ Đường) */}
           <div
-            onClick={() => onOpenPopup && onOpenPopup('locations')}
+            onClick={() => setCurrentView('contact')}
             className="p-3 rounded-xl bg-white/75 hover:bg-white/95 backdrop-blur-md border border-white/90 shadow-2xs flex items-center justify-between gap-2 text-xs cursor-pointer active:scale-[0.99] transition-all"
           >
             <div className="flex items-center gap-2 min-w-0">
@@ -218,7 +218,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
 
               <div className="space-y-2 text-xs pt-1 border-t border-slate-100">
                 <div
-                  onClick={() => onOpenPopup && onOpenPopup('locations')}
+                  onClick={() => setCurrentView('contact')}
                   className="flex items-start gap-2 cursor-pointer hover:text-emerald-700 transition-colors"
                 >
                   <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -287,7 +287,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
                   <span>Chậu hoa Lan Hồ Điệp đại sảnh cao cấp</span>
                 </li>
                 <li
-                  onClick={() => onOpenPopup && onOpenPopup('care')}
+                  onClick={() => setCurrentView('care')}
                   className="hover:text-emerald-700 cursor-pointer transition-colors text-emerald-700 font-semibold pt-1 flex items-center gap-1"
                 >
                   <Droplets className="w-3.5 h-3.5 text-emerald-600" />

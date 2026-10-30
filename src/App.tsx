@@ -4,6 +4,10 @@ import { Header } from './components/Header';
 import { MarqueeBanner } from './components/MarqueeBanner';
 import { Footer } from './components/Footer';
 import { PublicStore } from './pages/PublicStore';
+import { CatalogPage } from './pages/CatalogPage';
+import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
+import { CarePage } from './pages/CarePage';
 import { CustomerPortal } from './pages/CustomerPortal';
 import { AdminPortal } from './pages/AdminPortal';
 import { ProductDetailModal } from './components/ProductDetailModal';
@@ -57,9 +61,9 @@ export const AppContent: React.FC = () => {
         <div className="ambient-blob-5" />
       </div>
 
-      {/* Unified Floating Sticky Header & Announcement Banner (Maintains Unbreachable Gap) */}
-      <div className={`sticky top-2 sm:top-4 z-50 w-full pointer-events-none flex flex-col gap-2.5 sm:gap-3 transition-opacity duration-300 ${
-        isHeaderScrolled ? 'opacity-40 hover:opacity-100' : 'opacity-100'
+      {/* Unified Floating Fixed Header & Announcement Banner (Always floating on top, never hidden) */}
+      <div className={`fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5 transition-opacity duration-300 ${
+        isHeaderScrolled ? 'opacity-30 backdrop-blur-md hover:opacity-100' : 'opacity-100'
       }`}>
         <div className="pointer-events-auto relative z-20">
           <Header onOpenPopup={(type) => setActivePopup(type)} />
@@ -69,9 +73,13 @@ export const AppContent: React.FC = () => {
         </div>
       </div>
 
-      {/* Active View (extra bottom padding on mobile for MobileBottomDock) */}
-      <main className="flex-1 pb-16 md:pb-0">
+      {/* Active View (Proper top padding for fixed header & bottom padding for mobile dock) */}
+      <main className="flex-1 pt-24 sm:pt-32 pb-20 md:pb-8">
         {currentView === 'store' && <PublicStore />}
+        {currentView === 'catalog' && <CatalogPage />}
+        {currentView === 'about' && <AboutPage />}
+        {currentView === 'contact' && <ContactPage />}
+        {currentView === 'care' && <CarePage />}
         {currentView === 'customer' && <CustomerPortal />}
         {currentView === 'admin' && <AdminPortal />}
       </main>
