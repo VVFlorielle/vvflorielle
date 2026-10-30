@@ -295,10 +295,10 @@ export const CartDrawer: React.FC = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-slate-200">
-          <div className="flex items-center gap-2">
+        <div className="relative flex items-center justify-center pb-3.5 border-b border-slate-200 text-center">
+          <div className="flex items-center justify-center gap-2 mx-auto">
             <ShoppingBag className="w-5 h-5 text-emerald-600" />
-            <h3 className="font-bold text-slate-900 text-base">
+            <h3 className="font-bold text-slate-900 text-base text-center">
               {step === 'cart' && `Giỏ hoa của bạn (${cart.length})`}
               {step === 'checkout' && 'Thông tin nhận hoa & Cọc đơn'}
               {step === 'success' && 'Xác nhận đơn & Quét mã VietQR'}
@@ -306,7 +306,7 @@ export const CartDrawer: React.FC = () => {
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

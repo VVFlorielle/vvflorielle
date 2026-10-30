@@ -339,14 +339,14 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             onClick={() => setIsCategorySheetOpen(false)}
           />
           <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-8 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-3.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <div className="flex items-center gap-2">
+            <div className="relative flex items-center justify-center pb-2 border-b border-slate-100 text-center">
+              <div className="flex items-center justify-center gap-2 mx-auto">
                 <Sparkles className="w-4 h-4 text-emerald-600" />
                 <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Mẫu Hoa &amp; Dịch Vụ</span>
               </div>
               <button
                 onClick={() => setIsCategorySheetOpen(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="absolute right-0 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -450,14 +450,14 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             onClick={() => setIsUtilityMenuOpen(false)}
           />
           <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-8 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-2.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <div className="flex items-center gap-2">
+            <div className="relative flex items-center justify-center pb-2 border-b border-slate-100 text-center">
+              <div className="flex items-center justify-center gap-2 mx-auto">
                 <Compass className="w-4 h-4 text-emerald-600" />
                 <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Tiện Ích &amp; Thông Tin Tiệm</span>
               </div>
               <button
                 onClick={() => setIsUtilityMenuOpen(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="absolute right-0 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -620,12 +620,10 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 title="Giỏ hoa của bạn (Bấm để xem)"
               >
                 <ShoppingCart className="w-6.5 h-6.5 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
-                {totalCartCount > 0 ? (
+                {totalCartCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
                     {totalCartCount > 99 ? '99+' : totalCartCount}
                   </span>
-                ) : (
-                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-white" />
                 )}
               </button>
             </div>
@@ -736,12 +734,10 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 title="Giỏ hoa của bạn (Bấm để xem)"
               >
                 <ShoppingCart className="w-6.5 h-6.5 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
-                {totalCartCount > 0 ? (
+                {totalCartCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
                     {totalCartCount > 99 ? '99+' : totalCartCount}
                   </span>
-                ) : (
-                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-white" />
                 )}
               </button>
             </div>

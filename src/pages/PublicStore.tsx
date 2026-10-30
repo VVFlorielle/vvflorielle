@@ -25,8 +25,6 @@ import { CategoryId, BlogArticle } from '../types';
 import {
   FloralCornerTopLeft,
   FloralCornerTopRight,
-  FloralCornerBottomLeft,
-  FloralCornerBottomRight,
   FloatingPetals
 } from '../components/FloralHeroOrnaments';
 
@@ -104,11 +102,9 @@ export const PublicStore: React.FC = () => {
         /* HOME HERO BANNER (Welcoming, Centered & Lush Botanical Floral Borders) */
         <section className="container pt-4 sm:pt-6">
           <div className="glass-panel p-6 sm:p-12 relative overflow-hidden bg-gradient-to-br from-white/95 via-emerald-50/50 to-rose-50/30 backdrop-blur-2xl rounded-[32px] sm:rounded-[40px] border border-emerald-200/80 shadow-[0_25px_60px_-15px_rgba(5,150,105,0.16),inset_0_1.5px_2px_rgba(255,255,255,1),inset_0_0_24px_rgba(16,185,129,0.05)] text-center transition-all duration-300">
-            {/* 1. ARTISTIC BOTANICAL CORNER FLOWERS (Roses, Peonies, Orchids & Leaves) */}
+            {/* 1. ARTISTIC BOTANICAL CORNER FLOWERS (2 Top Corners: Roses, Peonies & Leaves) */}
             <FloralCornerTopLeft className="absolute -top-1 -left-1 sm:top-0 sm:left-0 w-28 h-28 sm:w-44 sm:h-44 lg:w-52 lg:h-52 z-0 opacity-90 transition-transform duration-500 hover:scale-105" />
             <FloralCornerTopRight className="absolute -top-1 -right-1 sm:top-0 sm:right-0 w-28 h-28 sm:w-44 sm:h-44 lg:w-52 lg:h-52 z-0 opacity-90 transition-transform duration-500 hover:scale-105" />
-            <FloralCornerBottomLeft className="absolute -bottom-1 -left-1 sm:bottom-0 sm:left-0 w-24 h-24 sm:w-36 sm:h-36 lg:w-44 lg:h-44 z-0 opacity-80 hidden sm:block transition-transform duration-500 hover:scale-105" />
-            <FloralCornerBottomRight className="absolute -bottom-1 -right-1 sm:bottom-0 sm:right-0 w-24 h-24 sm:w-36 sm:h-36 lg:w-44 lg:h-44 z-0 opacity-80 hidden sm:block transition-transform duration-500 hover:scale-105" />
 
             {/* 2. GENTLE FLOATING FLOWER PETALS */}
             <FloatingPetals />
@@ -203,9 +199,9 @@ export const PublicStore: React.FC = () => {
             <div className="absolute top-0 right-1/4 w-60 h-60 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 right-10 w-48 h-48 bg-rose-400/10 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="relative z-10 p-6 sm:p-10 max-w-2xl space-y-2.5">
+            <div className="relative z-10 p-6 sm:p-10 max-w-3xl mx-auto space-y-3 text-center flex flex-col items-center justify-center">
               {/* Breadcrumbs */}
-              <div className="flex items-center gap-2 text-xs text-emerald-800 font-semibold">
+              <div className="flex items-center justify-center gap-2 text-xs text-emerald-800 font-semibold">
                 <button
                   onClick={() => setSelectedCategory('all')}
                   className="hover:underline text-slate-500 hover:text-emerald-700"
@@ -216,15 +212,15 @@ export const PublicStore: React.FC = () => {
                 <span className="text-emerald-900 font-bold">{currentCategoryData.name}</span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-black text-emerald-950 tracking-tight">
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight text-center">
                 {currentCategoryData.name}
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-lg">
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl text-center mx-auto">
                 {currentCategoryData.description}. {currentCategoryData.tagline}
               </p>
 
-              <div className="pt-2 flex flex-wrap items-center gap-3">
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 border border-emerald-300/80 shadow-xs">
                   {filteredProducts.length} mẫu hoa tươi có sẵn
                 </span>

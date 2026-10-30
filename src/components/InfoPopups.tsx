@@ -44,11 +44,13 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="glass-modal-header">
-          <span className="text-xs font-bold text-slate-800">Thông Tin Dịch Vụ V&V Florielle</span>
+        <div className="glass-modal-header relative flex items-center justify-center text-center">
+          <span className="text-xs sm:text-sm font-bold text-slate-800 text-center mx-auto">
+            Thông Tin Dịch Vụ V&V Florielle
+          </span>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             title="Đóng cửa sổ"
           >
             <X className="w-5 h-5" />

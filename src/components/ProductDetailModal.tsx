@@ -64,8 +64,8 @@ export const ProductDetailModal: React.FC = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Fixed Header with Title & Close button */}
-        <div className="glass-modal-header">
-          <div className="flex items-center gap-2">
+        <div className="glass-modal-header relative flex items-center justify-center text-center">
+          <div className="flex items-center justify-center gap-2 mx-auto">
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
               Chi Tiết Mẫu Hoa Nghệ Thuật
             </span>
@@ -73,7 +73,7 @@ export const ProductDetailModal: React.FC = () => {
           </div>
           <button
             onClick={() => setSelectedProduct(null)}
-            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             title="Đóng chi tiết"
           >
             <X className="w-5 h-5" />

@@ -37,11 +37,11 @@ export const ContactPage: React.FC = () => {
   return (
     <div className="container py-6 space-y-8 animate-in fade-in duration-300">
       {/* 1. HERO BANNER */}
-      <div className="rounded-[36px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-teal-50/80 border border-emerald-200/80 shadow-xl relative overflow-hidden text-center sm:text-left">
+      <div className="rounded-[36px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-teal-50/80 border border-emerald-200/80 shadow-xl relative overflow-hidden text-center flex flex-col items-center justify-center">
         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-emerald-800">
+        <div className="relative z-10 max-w-3xl mx-auto space-y-3.5 text-center flex flex-col items-center">
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800">
             <button
               onClick={() => setCurrentView('store')}
               className="hover:underline flex items-center gap-1 text-slate-500 hover:text-emerald-700"
@@ -53,10 +53,10 @@ export const ContactPage: React.FC = () => {
             <span className="text-emerald-900 font-bold">Liên Hệ & Ghé Tiệm</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-black text-emerald-950 tracking-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight text-center">
             Liên Hệ V&V Florielle
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          <p className="text-xs sm:text-base text-slate-600 leading-relaxed max-w-2xl text-center mx-auto">
             Chúng mình luôn sẵn lòng lắng nghe và tư vấn mẫu hoa phù hợp nhất cho bạn. Ghé trực tiếp cửa hàng tại 105 Doãn Kế Thiện hoặc để lại lời nhắn để florist gọi lại hỗ trợ ngay nhé!
           </p>
         </div>

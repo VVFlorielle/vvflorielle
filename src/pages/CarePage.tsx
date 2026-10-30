@@ -69,11 +69,11 @@ export const CarePage: React.FC = () => {
   return (
     <div className="container py-6 space-y-8 animate-in fade-in duration-300">
       {/* 1. HERO BANNER */}
-      <div className="rounded-[36px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-amber-50/70 border border-emerald-200/80 shadow-xl relative overflow-hidden text-center sm:text-left">
+      <div className="rounded-[36px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-amber-50/70 border border-emerald-200/80 shadow-xl relative overflow-hidden text-center flex flex-col items-center justify-center">
         <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-semibold text-emerald-800">
+        <div className="relative z-10 max-w-3xl mx-auto space-y-3.5 text-center flex flex-col items-center">
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800">
             <button
               onClick={() => setCurrentView('store')}
               className="hover:underline flex items-center gap-1 text-slate-500 hover:text-emerald-700"
@@ -85,10 +85,10 @@ export const CarePage: React.FC = () => {
             <span className="text-emerald-900 font-bold">Cẩm Nang Dưỡng Hoa</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-black text-emerald-950 tracking-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight text-center">
             Bí Quyết Dưỡng Hoa Tươi Lâu & Ý Nghĩa Hoa
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          <p className="text-xs sm:text-base text-slate-600 leading-relaxed max-w-2xl text-center mx-auto">
             Tổng hợp những kinh nghiệm thực tế từ các Florist lành nghề tại V&V Florielle 105 Doãn Kế Thiện, giúp hoa của bạn luôn rạng rỡ và tỏa hương thơm mát suốt cả tuần.
           </p>
         </div>

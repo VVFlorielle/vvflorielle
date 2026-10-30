@@ -112,13 +112,11 @@ export const FloatingCartWidget: React.FC = () => {
       <div className="relative w-15 h-15 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white/95 shadow-[0_10px_28px_rgba(249,115,22,0.48),inset_0_2px_4px_rgba(255,255,255,0.85)] flex items-center justify-center group-hover:scale-108 active:scale-95 transition-all duration-200">
         <ShoppingCart className="w-7 h-7 sm:w-7.5 sm:h-7.5 text-white filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)] group-hover:scale-110 transition-transform" />
 
-        {/* Badge Count */}
-        {totalCartCount > 0 ? (
+        {/* Badge Count - Only display when items exist */}
+        {totalCartCount > 0 && (
           <span className="absolute -top-1.5 -right-1.5 min-w-[22px] h-[22px] px-1 rounded-full bg-rose-600 text-white text-[11px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
             {totalCartCount > 99 ? '99+' : totalCartCount}
           </span>
-        ) : (
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white shadow-sm" />
         )}
       </div>
 
