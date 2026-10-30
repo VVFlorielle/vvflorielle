@@ -13,15 +13,6 @@ import {
 
 export const INITIAL_CATEGORIES: FlowerCategory[] = [
   {
-    id: 'all',
-    name: 'Tất cả mẫu hoa',
-    icon: 'Sparkles',
-    description: 'Bộ sưu tập hoa tươi mới nhất hôm nay tại 105 Doãn Kế Thiện',
-    imageUrl: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1600&q=80',
-    tagline: 'Tuyển tập hơn 100+ thiết kế hoa tươi tinh xảo'
-  },
-  {
     id: 'khai-truong',
     name: 'Hoa Khai Trương',
     icon: 'Trophy',

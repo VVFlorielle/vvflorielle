@@ -343,7 +343,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [categories, setCategories] = useState<FlowerCategory[]>(() => {
     const saved = localStorage.getItem('vvf_categories');
-    return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((c: FlowerCategory) => c.id !== 'all');
+        }
+      } catch (e) {
+        // Fallback below
+      }
+    }
+    return INITIAL_CATEGORIES.filter((c) => c.id !== 'all');
   });
 
   const [contactChannels, setContactChannels] = useState<ContactChannel[]>(() => {

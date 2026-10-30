@@ -42,7 +42,8 @@ export const PublicStore: React.FC = () => {
     articles,
     selectedArticle,
     setSelectedArticle,
-    showToast
+    showToast,
+    setCurrentView
   } = useStore();
 
   const [sortOption, setSortOption] = useState<'popular' | 'price-asc' | 'price-desc' | 'newest'>('popular');
@@ -85,6 +86,9 @@ export const PublicStore: React.FC = () => {
     if (sortOption === 'newest') return (b.tag === 'Mới' ? 1 : 0) - (a.tag === 'Mới' ? 1 : 0);
     return b.rating * b.reviewCount - a.rating * a.reviewCount;
   });
+
+  // Limit displayed flowers on homepage to maximum 8
+  const homepageProducts = sortedProducts.slice(0, 8);
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -293,41 +297,53 @@ export const PublicStore: React.FC = () => {
           3. SCROLLABLE CATEGORY PILLS BAR & FILTERS
           ========================================================================= */}
       <section id="categories-section" className="container scroll-mt-20">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-2">
           <div className="flex items-center gap-2">
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
-              {selectedCategory === 'all' ? 'Tất Cả Mẫu Hoa' : currentCategoryData.name}
+              {selectedCategory === 'all' ? 'Tất Cả Mẫu Hoa' : currentCategoryData?.name || 'Mẫu Hoa'}
             </h3>
             <span className="text-xs text-slate-400">
-              ({sortedProducts.length} mẫu hiển thị)
+              ({homepageProducts.length} mẫu hiển thị{sortedProducts.length > 8 ? ` / ${sortedProducts.length} mẫu` : ''})
             </span>
           </div>
 
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="text-xs text-rose-600 hover:underline self-start sm:self-auto"
+              className="text-xs text-rose-600 hover:underline self-start sm:self-auto cursor-pointer"
             >
               Xóa tìm kiếm "{searchQuery}"
             </button>
           )}
         </div>
 
-        {/* Scrollable Category Filter Pills */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-3 scrollbar-none">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-2xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
-                selectedCategory === cat.id
-                  ? 'glass-btn-emerald-jewel scale-[1.02] shadow-md'
-                  : 'glass-btn-base text-slate-700'
-              }`}
-            >
-              <span>{cat.name}</span>
-            </button>
-          ))}
+        {/* Scrollable Category Filter Pills: Đảm bảo không bị viền vuông và không bị cắt mép trên */}
+        <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-3.5 px-1 -mt-1 scrollbar-none">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+              selectedCategory === 'all'
+                ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/25 ring-2 ring-emerald-600/20'
+                : 'bg-white/90 text-slate-700 border border-emerald-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 shadow-xs'
+            }`}
+          >
+            🌸 Tất Cả Mẫu Hoa
+          </button>
+          {categories
+            .filter((c) => c.id !== 'all')
+            .map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                  selectedCategory === cat.id
+                    ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/25 ring-2 ring-emerald-600/20'
+                    : 'bg-white/90 text-slate-700 border border-emerald-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 shadow-xs'
+                }`}
+              >
+                <span>{cat.name}</span>
+              </button>
+            ))}
         </div>
 
         {/* Filter and Sorting Control Bar */}
@@ -416,11 +432,29 @@ export const PublicStore: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {sortedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {homepageProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* Nút Xem Thêm Mẫu Hoa Chuyển Sang Bộ Sưu Tập Khi Có Nhiều Hơn 8 Mẫu */}
+            {sortedProducts.length > 8 && (
+              <div className="text-center pt-8 pb-2">
+                <button
+                  onClick={() => {
+                    setCurrentView('catalog');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:from-emerald-800 hover:to-teal-900 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
+                >
+                  <span>Xem thêm tất cả {sortedProducts.length} mẫu hoa trên trang Bộ Sưu Tập</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
 

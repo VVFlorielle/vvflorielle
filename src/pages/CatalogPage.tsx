@@ -86,33 +86,35 @@ export const CatalogPage: React.FC = () => {
       {/* Filter & Search Bar */}
       <div className="glass-panel p-4 rounded-3xl border border-emerald-200/60 shadow-sm space-y-3">
         {/* Category Pills Slider */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pt-1 pb-2.5 px-0.5 scrollbar-none">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
               selectedCategory === 'all'
                 ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
-                : 'bg-white/80 text-slate-700 hover:bg-emerald-50'
+                : 'bg-white/80 text-slate-700 hover:bg-emerald-50 hover:text-emerald-900'
             }`}
           >
             🌸 Tất Cả ({products.length})
           </button>
-          {categories.map((cat) => {
-            const count = products.filter((p) => p.categoryId === cat.id).length;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${
-                  selectedCategory === cat.id
-                    ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
-                    : 'bg-white/80 text-slate-700 hover:bg-emerald-50'
-                }`}
-              >
-                {cat.name} ({count})
-              </button>
-            );
-          })}
+          {categories
+            .filter((cat) => cat.id !== 'all')
+            .map((cat) => {
+              const count = products.filter((p) => p.categoryId === cat.id).length;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    selectedCategory === cat.id
+                      ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
+                      : 'bg-white/80 text-slate-700 hover:bg-emerald-50 hover:text-emerald-900'
+                  }`}
+                >
+                  {cat.name} ({count})
+                </button>
+              );
+            })}
         </div>
 
         {/* Search & Sort Controls */}

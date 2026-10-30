@@ -105,10 +105,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
 
   const handleSelectCategory = (catId: CategoryId) => {
     setSelectedCategory(catId);
-    if (currentView !== 'store') {
-      setCurrentView('store');
-    }
+    setCurrentView('catalog');
     setIsCategoryMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -368,21 +367,44 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
               Trang Chủ
             </button>
 
-            {/* 2. Mẫu Hoa Dropdown */}
+            {/* 2. Mẫu Hoa Button & Dropdown */}
             <div className="relative">
-              <button
-                onClick={() => {
-                  setIsCategoryMenuOpen(!isCategoryMenuOpen);
-                  setIsServiceMenuOpen(false);
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors ${
-                  isCategoryMenuOpen ? 'glass-btn-emerald-pill !border-emerald-500' : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+              <div
+                className={`inline-flex items-center rounded-xl text-xs font-semibold transition-all ${
+                  currentView === 'catalog'
+                    ? 'text-emerald-900 bg-emerald-100/90 font-bold border border-emerald-300/60 shadow-xs'
+                    : isCategoryMenuOpen
+                    ? 'glass-btn-emerald-pill !border-emerald-500'
+                    : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
                 }`}
               >
-                <Flower2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Mẫu Hoa</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
-              </button>
+                {/* Bấm vào chữ "Mẫu Hoa" mở trang Mẫu Hoa mặc định Tất Cả */}
+                <button
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setCurrentView('catalog');
+                    setIsCategoryMenuOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="px-2.5 py-1.5 flex items-center gap-1 cursor-pointer"
+                  title="Xem tất cả mẫu hoa nghệ thuật"
+                >
+                  <Flower2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Mẫu Hoa</span>
+                </button>
+                {/* Bấm mũi tên mở menu chọn các dòng hoa khác */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsCategoryMenuOpen(!isCategoryMenuOpen);
+                    setIsServiceMenuOpen(false);
+                  }}
+                  className="pr-2 pl-0.5 py-1.5 text-slate-500 hover:text-emerald-700 cursor-pointer"
+                  title="Danh mục các dòng hoa"
+                >
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
 
               {isCategoryMenuOpen && (
                 <>
@@ -390,51 +412,34 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                   <div className="absolute top-full left-0 mt-2.5 w-72 p-2.5 rounded-2xl bg-white/95 backdrop-blur-2xl border border-white/90 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1 flex items-center justify-between">
                       <span>Các Dòng Hoa Tươi</span>
-                      <span className="text-[10px] text-emerald-700 font-semibold">{categories.length} danh mục</span>
+                      <span className="text-[10px] text-emerald-700 font-semibold">{categories.filter((c) => c.id !== 'all').length} danh mục</span>
                     </div>
-                    {/* Nút Xem Tất Cả Mẫu Hoa (Mở Trang Riêng) */}
-                    <div
-                      onClick={() => {
-                        setIsCategoryMenuOpen(false);
-                        setSelectedCategory('all');
-                        setCurrentView('catalog');
-                      }}
-                      className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/90 hover:bg-emerald-100/90 cursor-pointer transition-colors group border border-emerald-200/60 mb-1"
-                    >
-                      <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                        <Sparkles className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-bold text-xs text-emerald-950 group-hover:text-emerald-800 flex items-center gap-1">
-                          <span>Tất Cả Mẫu Hoa</span>
-                          <span className="text-[9px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.2 rounded-full">Trang riêng</span>
-                        </div>
-                        <div className="text-[10px] text-emerald-700">Bộ lọc chi tiết, sắp xếp giá & tìm kiếm</div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 gap-1 max-h-72 overflow-y-auto">
-                      {categories.map((cat) => (
-                        <div
-                          key={cat.id}
-                          onClick={() => {
-                            handleSelectCategory(cat.id);
-                            setIsCategoryMenuOpen(false);
-                          }}
-                          className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer transition-colors group"
-                        >
-                          {cat.imageUrl ? (
-                            <img src={cat.imageUrl} alt={cat.name} className="w-9 h-9 rounded-lg object-cover shadow-xs group-hover:scale-105 transition-transform shrink-0" />
-                          ) : (
-                            <div className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                              <Flower2 className="w-4 h-4" />
+
+                    <div className="grid grid-cols-1 gap-1 max-h-72 overflow-y-auto mt-1">
+                      {categories
+                        .filter((cat) => cat.id !== 'all')
+                        .map((cat) => (
+                          <div
+                            key={cat.id}
+                            onClick={() => {
+                              handleSelectCategory(cat.id);
+                              setIsCategoryMenuOpen(false);
+                            }}
+                            className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer transition-colors group"
+                          >
+                            {cat.imageUrl ? (
+                              <img src={cat.imageUrl} alt={cat.name} className="w-9 h-9 rounded-lg object-cover shadow-xs group-hover:scale-105 transition-transform shrink-0" />
+                            ) : (
+                              <div className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                <Flower2 className="w-4 h-4" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-xs text-slate-800 group-hover:text-emerald-700 truncate">{cat.name}</div>
+                              <div className="text-[10px] text-slate-400 truncate">{cat.description}</div>
                             </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-xs text-slate-800 group-hover:text-emerald-700 truncate">{cat.name}</div>
-                            <div className="text-[10px] text-slate-400 truncate">{cat.description}</div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </div>
                 </>
