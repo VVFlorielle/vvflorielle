@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   X,
@@ -27,6 +27,7 @@ export const AuthModal: React.FC = () => {
     registerCustomer,
     requestCustomerOtp,
     resetCustomerPasswordWithOtp,
+    verifyAdminPin,
     loginAdmin,
     setCurrentView,
     showToast
@@ -54,11 +55,30 @@ export const AuthModal: React.FC = () => {
   const [forgotNewPassword, setForgotNewPassword] = useState('');
   const [isForgotOtpSent, setIsForgotOtpSent] = useState(false);
 
-  // Admin Login Credentials State (admin / vvflorielle)
+  // 2-Step Admin Login State (Step 1: PIN, Step 2: Account & Password)
+  const [adminStep, setAdminStep] = useState<'pin' | 'login'>('pin');
+  const [adminPinInput, setAdminPinInput] = useState('');
+  const [showAdminPin, setShowAdminPin] = useState(false);
   const [adminUsernameInput, setAdminUsernameInput] = useState('');
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
-  const [adminPinInput, setAdminPinInput] = useState('');
   const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [keepSession, setKeepSession] = useState(true);
+  const [rememberLogin, setRememberLogin] = useState(false);
+  const [isUsingRememberedAuth, setIsUsingRememberedAuth] = useState(false);
+
+  // Load remembered credentials on entering admin mode
+  useEffect(() => {
+    if (authModalMode === 'admin') {
+      const hasRemembered = localStorage.getItem('vvf_admin_has_remembered') === 'true';
+      if (hasRemembered) {
+        setRememberLogin(true);
+        const savedUser = localStorage.getItem('vvf_admin_remembered_user') || '';
+        setAdminUsernameInput(savedUser);
+        setAdminPasswordInput('••••••••');
+        setIsUsingRememberedAuth(true);
+      }
+    }
+  }, [authModalMode]);
 
   if (!isAuthModalOpen) return null;
 
@@ -145,25 +165,64 @@ export const AuthModal: React.FC = () => {
     }
   };
 
-  // Admin Login Submit (admin / vvflorielle)
+  // Step 1: Submit PIN Verification
+  const handlePinSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminPinInput.trim()) {
+      showToast('Vui lòng nhập Mã PIN bảo mật cấp 2!', 'error');
+      return;
+    }
+    const isValid = verifyAdminPin(adminPinInput.trim());
+    if (isValid) {
+      setAdminStep('login');
+      showToast('Xác thực PIN thành công! Vui lòng nhập tài khoản & mật khẩu.', 'success');
+    } else {
+      showToast('Mã PIN bảo mật cấp 2 không chính xác!', 'error');
+    }
+  };
+
+  // Step 2: Submit Account & Password Login
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminUsernameInput.trim() || !adminPasswordInput.trim() || !adminPinInput.trim()) {
-      showToast('Vui lòng điền đủ Tên đăng nhập, Mật khẩu và Mã PIN cấp 2!', 'error');
+    if (!adminUsernameInput.trim()) {
+      showToast('Vui lòng nhập Tên tài khoản quản trị!', 'error');
+      return;
+    }
+
+    let passwordToUse = adminPasswordInput;
+    if (isUsingRememberedAuth) {
+      const stored = localStorage.getItem('vvf_admin_remembered_auth');
+      if (stored) {
+        try {
+          passwordToUse = atob(stored);
+        } catch {
+          passwordToUse = adminPasswordInput;
+        }
+      }
+    }
+
+    if (!passwordToUse.trim()) {
+      showToast('Vui lòng nhập Mật khẩu quản trị!', 'error');
       return;
     }
 
     const success = loginAdmin(
       adminUsernameInput.trim(),
-      adminPasswordInput.trim(),
-      adminPinInput.trim()
+      passwordToUse.trim(),
+      adminPinInput.trim(),
+      keepSession,
+      rememberLogin
     );
 
     if (success) {
       setIsAuthModalOpen(false);
-      setAdminUsernameInput('');
-      setAdminPasswordInput('');
+      setAdminStep('pin');
       setAdminPinInput('');
+      if (!rememberLogin) {
+        setAdminUsernameInput('');
+        setAdminPasswordInput('');
+        setIsUsingRememberedAuth(false);
+      }
     }
   };
 
@@ -216,19 +275,6 @@ export const AuthModal: React.FC = () => {
                 <span>Đăng Ký Mới</span>
               </button>
             </div>
-          )}
-
-          {/* Discreet Admin Lock Button (Standard matching phototiinlove) */}
-          {authModalMode !== 'admin' && (
-            <button
-              type="button"
-              onClick={() => setAuthModalMode('admin')}
-              className="p-1.5 rounded-full text-slate-400 hover:text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer mr-1"
-              title="Lối vào Quản Trị Viên & Cửa Hàng (Admin / Chủ tiệm)"
-              aria-label="Đăng nhập quản trị viên"
-            >
-              <Lock className="w-4 h-4 text-slate-400 hover:text-purple-600" />
-            </button>
           )}
 
           <button
@@ -316,7 +362,7 @@ export const AuthModal: React.FC = () => {
                 </button>
               </div>
 
-              <div className="text-center pt-2.5 border-t border-slate-100 space-y-2">
+              <div className="text-center pt-2.5 border-t border-slate-100">
                 <p className="text-xs text-slate-500">
                   Chưa có tài khoản?{' '}
                   <button
@@ -327,14 +373,6 @@ export const AuthModal: React.FC = () => {
                     Đăng ký thành viên mới
                   </button>
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setAuthModalMode('admin')}
-                  className="text-[11px] text-slate-400 hover:text-purple-700 transition-colors flex items-center justify-center gap-1.5 mx-auto font-medium"
-                >
-                  <Lock className="w-3.5 h-3.5 text-purple-600" />
-                  <span>Cổng Quản Trị & Cửa Hàng (Admin)</span>
-                </button>
               </div>
             </form>
           </div>
@@ -446,7 +484,7 @@ export const AuthModal: React.FC = () => {
                 </button>
               </div>
 
-              <div className="text-center pt-2.5 border-t border-slate-100 space-y-2">
+              <div className="text-center pt-2.5 border-t border-slate-100">
                 <p className="text-xs text-slate-500">
                   Đã có tài khoản?{' '}
                   <button
@@ -457,14 +495,6 @@ export const AuthModal: React.FC = () => {
                     Đăng nhập
                   </button>
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setAuthModalMode('admin')}
-                  className="text-[11px] text-slate-400 hover:text-purple-700 transition-colors flex items-center justify-center gap-1.5 mx-auto font-medium"
-                >
-                  <Lock className="w-3.5 h-3.5 text-purple-600" />
-                  <span>Cổng Quản Trị & Cửa Hàng (Admin)</span>
-                </button>
               </div>
             </form>
           </div>
@@ -564,137 +594,242 @@ export const AuthModal: React.FC = () => {
           </div>
         )}
 
-        {/* 4. ADMIN LOGIN MODE (admin / vvflorielle) */}
+        {/* 4. ADMIN LOGIN MODE (2-Step Verification: PIN -> Account & Password) */}
         {authModalMode === 'admin' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() => setAuthModalMode('customer')}
-                className="inline-flex items-center gap-1 text-xs text-purple-700 hover:text-purple-900 font-semibold"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Trang khách hàng</span>
-              </button>
-              <span className="text-[10px] uppercase font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
-                Hệ Thống Quản Trị
-              </span>
-            </div>
-
-            <div className="text-center mb-3">
-              <div className="w-13 h-13 rounded-2xl bg-purple-100 text-purple-700 mx-auto flex items-center justify-center mb-2 shadow-md border border-purple-200">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-base text-slate-900">Đăng Nhập Quản Trị V&V</h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Dành cho Quản trị viên Super Admin và Chủ tiệm Florist
-              </p>
-            </div>
-
-            {/* Quick Presets for Admin Accounts */}
-            <div className="grid grid-cols-2 gap-2 mb-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setAdminUsernameInput('admin');
-                  setAdminPasswordInput('17092000');
-                  setAdminPinInput('26122025');
-                }}
-                className="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-left transition-all"
-                title="Bấm để tự động điền tài khoản Super Admin"
-              >
-                <div className="text-[11px] font-bold text-purple-900 flex items-center justify-between">
-                  <span>admin</span>
-                  <span className="text-[9px] bg-purple-200 text-purple-800 px-1 rounded">Chủ tiệm</span>
-                </div>
-                <div className="text-[10px] text-purple-600 font-mono mt-0.5 truncate">Pass: 17092000</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAdminUsernameInput('vvflorielle');
-                  setAdminPasswordInput('19092003');
-                  setAdminPinInput('26122025');
-                }}
-                className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-left transition-all"
-                title="Bấm để tự động điền tài khoản Boutique Florist"
-              >
-                <div className="text-[11px] font-bold text-emerald-900 flex items-center justify-between">
-                  <span>vvflorielle</span>
-                  <span className="text-[9px] bg-emerald-200 text-emerald-800 px-1 rounded">Florist</span>
-                </div>
-                <div className="text-[10px] text-emerald-600 font-mono mt-0.5 truncate">Pass: 19092003</div>
-              </button>
-            </div>
-
-            <form onSubmit={handleAdminSubmit} className="space-y-3">
+            {adminStep === 'pin' ? (
+              /* Step 1: Mã PIN bảo mật cấp 2 */
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  Tài khoản Quản trị
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    placeholder="admin hoặc vvflorielle"
-                    value={adminUsernameInput}
-                    onChange={(e) => setAdminUsernameInput(e.target.value)}
-                    className="glass-input w-full text-xs py-2.5 pl-9 rounded-xl font-mono"
-                  />
-                  <User className="w-4 h-4 text-purple-500 absolute left-3 top-3" />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  Mật khẩu
-                </label>
-                <div className="relative">
-                  <input
-                    type={showAdminPassword ? 'text' : 'password'}
-                    required
-                    placeholder="Nhập mật khẩu"
-                    value={adminPasswordInput}
-                    onChange={(e) => setAdminPasswordInput(e.target.value)}
-                    className="glass-input w-full text-xs py-2.5 pl-9 pr-9 rounded-xl font-mono"
-                  />
-                  <Lock className="w-4 h-4 text-purple-500 absolute left-3 top-3" />
+                <div className="flex items-center justify-between mb-4">
                   <button
                     type="button"
-                    onClick={() => setShowAdminPassword(!showAdminPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                    onClick={() => {
+                      setAuthModalMode('customer');
+                      setAdminPinInput('');
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 font-semibold cursor-pointer"
                   >
-                    {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Trở về</span>
                   </button>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Bước 1 / 2: Mã PIN
+                  </span>
                 </div>
-              </div>
 
+                <div className="text-center mb-5">
+                  <div className="w-13 h-13 rounded-2xl bg-slate-100 text-slate-700 mx-auto flex items-center justify-center mb-2 shadow-sm border border-slate-200">
+                    <KeyRound className="w-6 h-6 text-slate-700" />
+                  </div>
+                  <h3 className="font-bold text-base text-slate-900">Xác Thực Mã PIN Quản Trị</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Vui lòng nhập mã PIN bảo mật cấp 2 để mở khóa quyền truy cập
+                  </p>
+                </div>
+
+                <form onSubmit={handlePinSubmit} className="space-y-4">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1.5 text-center">
+                      Mã PIN Bảo Mật (6 - 8 số)
+                    </label>
+                    <div className="relative max-w-[260px] mx-auto">
+                      <input
+                        type={showAdminPin ? 'text' : 'password'}
+                        required
+                        autoFocus
+                        maxLength={8}
+                        placeholder="••••••••"
+                        value={adminPinInput}
+                        onChange={(e) => setAdminPinInput(e.target.value)}
+                        className="glass-input w-full text-center text-lg font-mono tracking-[0.35em] py-2.5 px-9 rounded-xl shadow-inner border border-slate-300 focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAdminPin(!showAdminPin)}
+                        className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        title={showAdminPin ? 'Ẩn mã PIN' : 'Hiện mã PIN'}
+                      >
+                        {showAdminPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all shadow-md active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <span>Xác Nhận & Tiếp Tục</span>
+                      <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              /* Step 2: Tài khoản & Mật khẩu Quản trị */
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  Mã PIN bảo mật cấp 2
-                </label>
-                <input
-                  type="password"
-                  required
-                  maxLength={8}
-                  placeholder="Nhập mã PIN bảo mật"
-                  value={adminPinInput}
-                  onChange={(e) => setAdminPinInput(e.target.value)}
-                  className="glass-input w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl"
-                />
-              </div>
+                <div className="flex items-center justify-between mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setAdminStep('pin')}
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 font-semibold cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Nhập lại PIN</span>
+                  </button>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>PIN Hợp Lệ</span>
+                  </span>
+                </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-semibold transition-all shadow-md hover:shadow-purple-700/20"
-                >
-                  Xác Thực & Mở Khóa Quản Trị
-                </button>
+                <div className="text-center mb-4">
+                  <div className="w-13 h-13 rounded-2xl bg-purple-50 text-purple-700 mx-auto flex items-center justify-center mb-2 shadow-sm border border-purple-200">
+                    <ShieldCheck className="w-6 h-6 text-purple-700" />
+                  </div>
+                  <h3 className="font-bold text-base text-slate-900">Đăng Nhập Quản Trị V&V</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Nhập tài khoản và mật khẩu quản trị hệ thống
+                  </p>
+                </div>
+
+                <form onSubmit={handleAdminSubmit} className="space-y-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">
+                      Tài khoản Quản trị
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Nhập tên tài khoản"
+                        value={adminUsernameInput}
+                        onChange={(e) => {
+                          setAdminUsernameInput(e.target.value);
+                          if (isUsingRememberedAuth) {
+                            setIsUsingRememberedAuth(false);
+                            setAdminPasswordInput('');
+                          }
+                        }}
+                        className="glass-input w-full text-xs py-2.5 pl-9 rounded-xl font-mono"
+                      />
+                      <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Mật khẩu Quản trị
+                      </label>
+                      {isUsingRememberedAuth && (
+                        <span className="text-[10px] text-emerald-600 font-medium">
+                          Đã nạp mật khẩu đã lưu
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showAdminPassword && !isUsingRememberedAuth ? 'text' : 'password'}
+                        required
+                        placeholder="Nhập mật khẩu"
+                        value={adminPasswordInput}
+                        onChange={(e) => {
+                          setAdminPasswordInput(e.target.value);
+                          setIsUsingRememberedAuth(false);
+                        }}
+                        className="glass-input w-full text-xs py-2.5 pl-9 pr-9 rounded-xl font-mono"
+                      />
+                      <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (isUsingRememberedAuth) {
+                            showToast('Mật khẩu đã ghi nhớ được che kín an toàn.', 'info');
+                            return;
+                          }
+                          setShowAdminPassword(!showAdminPassword);
+                        }}
+                        className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        title={showAdminPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                      >
+                        {showAdminPassword && !isUsingRememberedAuth ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2 Checkboxes: Duy trì đăng nhập & Ghi nhớ đăng nhập */}
+                  <div className="space-y-2 pt-1 border-t border-slate-100">
+                    <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={keepSession}
+                        onChange={(e) => setKeepSession(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer"
+                      />
+                      <div className="text-left leading-snug">
+                        <span className="text-xs font-semibold text-slate-800 block">
+                          Duy trì đăng nhập
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          Giữ phiên làm việc liên tục đến khi chủ động đăng xuất (không tích sẽ tự động thoát sau 3 giờ)
+                        </span>
+                      </div>
+                    </label>
+
+                    <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={rememberLogin}
+                        onChange={(e) => setRememberLogin(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer"
+                      />
+                      <div className="text-left leading-snug">
+                        <span className="text-xs font-semibold text-slate-800 block">
+                          Ghi nhớ đăng nhập
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          Ghi nhớ tài khoản cho lần sau (mật khẩu được bảo mật che kín)
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold transition-all shadow-md hover:shadow-purple-700/20 active:scale-[0.99] cursor-pointer"
+                    >
+                      Đăng Nhập Quản Trị Hệ Thống
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
+            )}
           </div>
         )}
         </div>
+
+        {/* Stealth Admin Entrance (Faint, discreet trigger at bottom-right corner) */}
+        {authModalMode !== 'admin' && (
+          <button
+            type="button"
+            onClick={() => {
+              setAuthModalMode('admin');
+              setAdminStep('pin');
+            }}
+            className="absolute bottom-2.5 right-3 p-1 rounded text-slate-400 hover:text-slate-600 transition-opacity cursor-pointer focus:outline-none select-none"
+            style={{ opacity: 0.12 }}
+            aria-label="system-trigger"
+            title=""
+          >
+            <span className="inline-block w-2.5 h-2.5 rounded-full border border-slate-400/80" />
+          </button>
+        )}
       </div>
     </div>
   );

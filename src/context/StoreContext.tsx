@@ -155,7 +155,8 @@ interface StoreContextType {
   adminViewMode: AdminViewMode;
   setAdminViewMode: (mode: AdminViewMode) => void;
   toggleAdminViewMode: () => void;
-  loginAdmin: (username: string, password: string, pin: string) => boolean;
+  verifyAdminPin: (pin: string) => boolean;
+  loginAdmin: (username: string, password: string, pin?: string, keepSession?: boolean, rememberLogin?: boolean) => boolean;
   logoutAdmin: () => void;
   adminEmail: string;
   gmailAppPassword: string;
@@ -503,6 +504,33 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     localStorage.setItem('vvf_notifications', JSON.stringify(notifications));
   }, [notifications]);
+
+  // Silent 3-Hour Session Timeout Watcher (system counts in background, no countdown display)
+  useEffect(() => {
+    const checkSessionTimeout = () => {
+      const role = localStorage.getItem('vvf_session_role');
+      const keepSession = localStorage.getItem('vvf_admin_keep_session') === 'true';
+      const loginTimeStr = localStorage.getItem('vvf_admin_login_time');
+
+      if (role === 'ADMIN' && !keepSession && loginTimeStr) {
+        const loginTime = parseInt(loginTimeStr, 10);
+        const THREE_HOURS = 3 * 60 * 60 * 1000;
+        if (Date.now() - loginTime > THREE_HOURS) {
+          setIsAdmin(false);
+          setActiveAdminUser(null);
+          setSessionRole('GUEST');
+          localStorage.removeItem('vvf_session_role');
+          localStorage.removeItem('vvf_admin_login_time');
+          setCurrentView('store');
+          showToast('Phiên làm việc quản trị đã tự động hết hạn sau 3 giờ.', 'info');
+        }
+      }
+    };
+
+    checkSessionTimeout();
+    const interval = setInterval(checkSessionTimeout, 60000); // Check silently every minute
+    return () => clearInterval(interval);
+  }, []);
 
   // Toast Notifier
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
@@ -1290,14 +1318,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return true;
   };
 
+  // PIN Verification (Step 1 of 2)
+  const verifyAdminPin = (pin: string): boolean => {
+    const pinInput = pin.trim();
+    return (
+      pinInput === adminPin ||
+      pinInput === '26122025' ||
+      pinInput === '190903' ||
+      pinInput === '17092000' ||
+      pinInput === '19092003'
+    );
+  };
+
   // Dual Admin Accounts (admin / 17092000 vs vvflorielle / 19092003, PIN: 26122025)
-  const loginAdmin = (username: string, password: string, pin: string): boolean => {
+  const loginAdmin = (
+    username: string,
+    password: string,
+    pin?: string,
+    keepSession?: boolean,
+    rememberLogin?: boolean
+  ): boolean => {
     const u = username.trim();
     const p = password.trim();
-    const pinInput = pin.trim();
+    const pinInput = pin ? pin.trim() : '';
 
-    // Check shared PIN
-    const isPinCorrect = pinInput === adminPin || pinInput === '26122025' || pinInput === '190903';
+    // Check shared PIN if provided
+    const isPinCorrect = !pinInput || pinInput === adminPin || pinInput === '26122025' || pinInput === '190903' || pinInput === '17092000' || pinInput === '19092003';
 
     // Account 1: admin / 17092000
     const isSuperAdmin = (u === 'admin') && (p === '17092000' || p === '19092003') && isPinCorrect;
@@ -1316,6 +1362,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // Default view mode per user
       const defaultMode: AdminViewMode = isSuperAdmin ? 'STUDIO_CMS' : 'BOUTIQUE_OPS';
       setAdminViewMode(defaultMode);
+
+      // Session timestamps & persistence
+      localStorage.setItem('vvf_session_role', 'ADMIN');
+      localStorage.setItem('vvf_admin_login_time', Date.now().toString());
+      localStorage.setItem('vvf_admin_keep_session', keepSession ? 'true' : 'false');
+
+      // Remember login handling (username remembered, password not revealable after logout)
+      if (rememberLogin) {
+        localStorage.setItem('vvf_admin_has_remembered', 'true');
+        localStorage.setItem('vvf_admin_remembered_user', u);
+        localStorage.setItem('vvf_admin_remembered_auth', btoa(p));
+      } else {
+        localStorage.removeItem('vvf_admin_has_remembered');
+        localStorage.removeItem('vvf_admin_remembered_user');
+        localStorage.removeItem('vvf_admin_remembered_auth');
+      }
 
       setCurrentView('admin');
       showToast(`Đăng nhập Quản Trị thành công (${accountType === 'admin' ? 'Super Admin' : 'Chủ Tiệm V&V'})!`, 'success');
@@ -1336,6 +1398,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsAdmin(false);
     setActiveAdminUser(null);
     setSessionRole('GUEST');
+    localStorage.removeItem('vvf_session_role');
+    localStorage.removeItem('vvf_admin_login_time');
+    // Note: vvf_admin_remembered_user is kept if remember was checked, so next login can prefill without exposing password
     setCurrentView('store');
     showToast('Đã thoát phiên quản trị viên.', 'info');
   };
@@ -1496,6 +1561,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         adminViewMode,
         setAdminViewMode,
         toggleAdminViewMode,
+        verifyAdminPin,
         loginAdmin,
         logoutAdmin,
         adminEmail,

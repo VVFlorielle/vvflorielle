@@ -10,7 +10,7 @@ export const FloralCornerTopLeft: React.FC<{ className?: string }> = ({ classNam
     <img
       src="/images/floral/floral-corner-rose-peony.webp"
       alt="Hoa góc trên trái"
-      className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(244,63,94,0.12)] opacity-85"
+      className="w-full h-full object-contain opacity-90"
     />
   </div>
 );
@@ -20,7 +20,7 @@ export const FloralCornerTopRight: React.FC<{ className?: string }> = ({ classNa
     <img
       src="/images/floral/floral-corner-rose-peony.webp"
       alt="Hoa góc trên phải"
-      className="w-full h-full object-contain -scale-x-100 filter drop-shadow-[0_4px_12px_rgba(244,63,94,0.12)] opacity-85"
+      className="w-full h-full object-contain -scale-x-100 opacity-90"
     />
   </div>
 );
@@ -30,7 +30,7 @@ export const FloralCornerBottomLeft: React.FC<{ className?: string }> = ({ class
     <img
       src="/images/floral/floral-corner-peach-lisianthus.webp"
       alt="Hoa góc dưới trái"
-      className="w-full h-full object-contain -scale-y-100 filter drop-shadow-[0_4px_12px_rgba(251,146,60,0.12)] opacity-80"
+      className="w-full h-full object-contain -scale-y-100 opacity-80"
     />
   </div>
 );
@@ -40,7 +40,7 @@ export const FloralCornerBottomRight: React.FC<{ className?: string }> = ({ clas
     <img
       src="/images/floral/floral-corner-peach-lisianthus.webp"
       alt="Hoa góc dưới phải"
-      className="w-full h-full object-contain -scale-x-100 -scale-y-100 filter drop-shadow-[0_4px_12px_rgba(251,146,60,0.12)] opacity-80"
+      className="w-full h-full object-contain -scale-x-100 -scale-y-100 opacity-80"
     />
   </div>
 );
