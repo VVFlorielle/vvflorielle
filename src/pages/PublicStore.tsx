@@ -112,8 +112,8 @@ export const PublicStore: React.FC = () => {
           {/* 2. GENTLE FLOATING FLOWER PETALS */}
           <FloatingPetals />
 
-          {/* 3. HERO CONTENT CONTAINER */}
-          <div className="relative z-10 max-w-3xl mx-auto space-y-4 sm:space-y-5">
+          {/* 3. HERO CONTENT CONTAINER (Spacious, Grand, No restrictive max-w) */}
+          <div className="relative z-10 max-w-4xl lg:max-w-5xl mx-auto space-y-4 sm:space-y-5">
             {/* Badge Centered */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/95 text-emerald-800 text-xs font-bold border border-emerald-300/80 shadow-xs mx-auto">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
@@ -128,11 +128,9 @@ export const PublicStore: React.FC = () => {
                 <span className="text-emerald-500/70 text-xs sm:text-sm">✦</span>
               </div>
 
-              <div className="overflow-x-auto no-scrollbar py-0.5">
-                <h1 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700 whitespace-nowrap inline-block drop-shadow-xs px-1">
-                  Tiệm Hoa V&V Florielle
-                </h1>
-              </div>
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-normal leading-normal sm:leading-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700 inline-block drop-shadow-xs px-2 py-1">
+                Tiệm Hoa V&V Florielle
+              </h1>
 
               {/* Subtitle / Slogan with delicate floral ornaments */}
               <div className="flex items-center justify-center gap-2 sm:gap-3 text-slate-700 font-semibold text-xs sm:text-base md:text-lg tracking-wide pt-0.5">
@@ -172,15 +170,15 @@ export const PublicStore: React.FC = () => {
             <div className="pt-3 border-t border-emerald-100/80 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[11px] sm:text-xs text-slate-600 font-medium">
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Hoa tươi loại 1 nhập mới mỗi sáng</span>
+                <span>Hoa tươi loại 1 nhập mới mỗi ngày</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Giao hỏa tốc 60 - 90P Hà Nội</span>
+                <span>Giao hỏa tốc từ 15P Hà Nội</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Heart className="w-4 h-4 text-rose-500 shrink-0" />
-                <span>Chụp ảnh gửi duyệt qua Zalo</span>
+                <span>Chụp ảnh gửi mẫu hoàn thiện qua Zalo</span>
               </div>
             </div>
           </div>

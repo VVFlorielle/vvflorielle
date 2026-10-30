@@ -170,7 +170,7 @@ interface StoreContextType {
   logoutAdmin: () => void;
   adminEmail: string;
   gmailAppPassword: string;
-  changeAdminCredentials: (oldPassword: string, oldPin: string, newPassword?: string, newPin?: string) => boolean;
+  changeAdminCredentials: (oldPassword: string, oldPin?: string, newPassword?: string, newPin?: string) => boolean;
   saveGmailConfig: (email: string, appPassword: string) => void;
   requestPinResetOtp: (email?: string) => boolean;
   verifyPinResetOtp: (otp: string, newPin: string) => boolean;
@@ -366,10 +366,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Automatically migrate if using older template title
-        if (!parsed.title || parsed.title.includes('Hoa Tươi Thiết Kế Nghệ Thuật - 105')) {
-          localStorage.setItem('vvf_hero', JSON.stringify(INITIAL_HERO_CONFIG));
-          return INITIAL_HERO_CONFIG;
+        // Automatically migrate if using older template title or older subtitle
+        if (
+          !parsed.title ||
+          parsed.title.includes('Hoa Tươi Thiết Kế Nghệ Thuật - 105') ||
+          !parsed.subtitle ||
+          parsed.subtitle.includes('105 Doãn Kế Thiện, Cầu Giấy, Hà Nội • 100% hoa tươi')
+        ) {
+          const updated = {
+            ...parsed,
+            subtitle: INITIAL_HERO_CONFIG.subtitle,
+            features: INITIAL_HERO_CONFIG.features
+          };
+          localStorage.setItem('vvf_hero', JSON.stringify(updated));
+          return updated;
         }
         return parsed;
       } catch {
@@ -1512,12 +1522,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const changeAdminCredentials = (
     oldPassword: string,
-    oldPin: string,
+    oldPin?: string,
     newPassword?: string,
     newPin?: string
   ): boolean => {
     const matchPass = oldPassword.trim() === '17092000' || oldPassword.trim() === '19092003';
-    const matchPin = oldPin.trim() === adminPin || oldPin.trim() === '26122025';
+    const matchPin = !oldPin || oldPin.trim() === adminPin || oldPin.trim() === '26122025';
 
     if (!matchPass || !matchPin) {
       showToast('Mật khẩu hoặc mã PIN hiện tại không chính xác!', 'error');

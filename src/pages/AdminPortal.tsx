@@ -302,7 +302,7 @@ export const AdminPortal: React.FC = () => {
           <div>
             <h2 className="text-xl font-bold text-slate-800 tracking-tight">Cổng Quản Trị V&amp;V Florielle</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Khu vực bảo mật dành cho Chủ tiệm (`admin`) và Florist điều hành (`vvflorielle`)
+              Khu vực bảo mật dành riêng cho Ban Điều Hành &amp; Chủ Tiệm
             </p>
           </div>
 
@@ -314,7 +314,7 @@ export const AdminPortal: React.FC = () => {
                   <input
                     type="text"
                     required
-                    placeholder="admin hoặc vvflorielle..."
+                    placeholder="Nhập tên tài khoản quản trị..."
                     value={loginUsername}
                     onChange={(e) => setLoginUsername(e.target.value)}
                     className="glass-input w-full text-xs py-2.5 pl-9 rounded-xl"
@@ -415,7 +415,7 @@ export const AdminPortal: React.FC = () => {
                     <input
                       type="text"
                       maxLength={6}
-                      placeholder="123456"
+                      placeholder="••••••"
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
                       className="glass-input w-full text-center font-mono text-sm py-2 rounded-xl"
@@ -1616,7 +1616,7 @@ export const AdminPortal: React.FC = () => {
                 showToast('Mật khẩu xác nhận không khớp!', 'error');
                 return;
               }
-              const success = changeAdminCredentials(currentPassForPass, '26122025', newPasswordInput);
+              const success = changeAdminCredentials(currentPassForPass, undefined, newPasswordInput);
               if (success) {
                 setCurrentPassForPass('');
                 setNewPasswordInput('');
@@ -1698,9 +1698,9 @@ export const AdminPortal: React.FC = () => {
             <div className="border-b border-slate-200 pb-3">
               <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
                 <KeyRound className="w-4 h-4 text-purple-700" />
-                <span>Đổi Mã PIN Bảo Mật Dùng Chung</span>
+                <span>Đổi Mã PIN Bảo Mật Cấp 2</span>
               </h3>
-              <p className="text-xs text-slate-500">Mã PIN dùng chung cho cả admin và vvflorielle</p>
+              <p className="text-xs text-slate-500">Mã PIN 6 số bảo mật cấp 2 dùng chung cho hệ thống</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">

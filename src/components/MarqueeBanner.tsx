@@ -5,9 +5,10 @@ import { PopupType } from './InfoPopups';
 
 interface MarqueeBannerProps {
   onOpenPopup?: (type: PopupType) => void;
+  isScrolled?: boolean;
 }
 
-export const MarqueeBanner: React.FC<MarqueeBannerProps> = ({ onOpenPopup }) => {
+export const MarqueeBanner: React.FC<MarqueeBannerProps> = ({ onOpenPopup, isScrolled }) => {
   const { marqueeAnnouncements } = useStore();
 
   const activeItems = marqueeAnnouncements.filter((item) => item.isEnabled);
@@ -16,7 +17,11 @@ export const MarqueeBanner: React.FC<MarqueeBannerProps> = ({ onOpenPopup }) => 
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 select-none transition-all duration-300">
-      <div className="rounded-2xl md:rounded-[22px] bg-white/80 hover:bg-white/90 backdrop-blur-2xl border border-white/95 shadow-[0_12px_32px_-4px_rgba(15,23,42,0.08),inset_0_1.5px_1px_rgba(255,255,255,1)] px-3.5 py-2 flex items-center gap-2.5 sm:gap-3.5 overflow-hidden transition-all group">
+      <div className={`rounded-2xl md:rounded-[22px] px-3.5 py-2 flex items-center gap-2.5 sm:gap-3.5 overflow-hidden transition-all duration-300 group ${
+        isScrolled
+          ? 'bg-white/40 backdrop-blur-md border border-white/45 shadow-none'
+          : 'glass-nav-luminous'
+      }`}>
         {/* Left Indicator Pill */}
         <div
           onClick={() => onOpenPopup && onOpenPopup('promotions')}

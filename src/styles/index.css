@@ -104,6 +104,20 @@ body {
   background: rgba(16, 185, 129, 0.5);
 }
 
+/* Utilities to completely hide scrollbars */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar,
+.scrollbar-none {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 /* Unified Universal Containers (Ensures 100% Edge-to-Edge Alignment with Navbar & Content) */
 .container {
   width: 100%;

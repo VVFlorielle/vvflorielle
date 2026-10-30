@@ -72,14 +72,12 @@ export const AppContent: React.FC = () => {
       </div>
 
       {/* Unified Floating Fixed Header & Announcement Banner (Always floating on top, never hidden) */}
-      <div className={`fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5 transition-opacity duration-300 ${
-        isHeaderScrolled ? 'opacity-30 backdrop-blur-md hover:opacity-100' : 'opacity-100'
-      }`}>
+      <div className="fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5">
         <div className="pointer-events-auto relative z-20">
-          <Header onOpenPopup={(type) => setActivePopup(type)} />
+          <Header isScrolled={isHeaderScrolled} onOpenPopup={(type) => setActivePopup(type)} />
         </div>
         <div className="pointer-events-auto relative z-10">
-          <MarqueeBanner onOpenPopup={(type) => setActivePopup(type)} />
+          <MarqueeBanner isScrolled={isHeaderScrolled} onOpenPopup={(type) => setActivePopup(type)} />
         </div>
       </div>
 

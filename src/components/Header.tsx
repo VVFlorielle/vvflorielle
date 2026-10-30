@@ -31,9 +31,10 @@ import { CategoryId } from '../types';
 
 interface HeaderProps {
   onOpenPopup?: (type: PopupType) => void;
+  isScrolled?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsScrolled }) => {
   const {
     currentView,
     setCurrentView,
@@ -94,6 +95,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
       if (timer) clearTimeout(timer);
     };
   }, []);
+
+  const isScrolledActive = propIsScrolled !== undefined ? propIsScrolled : isScrolled;
+  const clusterGlassClass = isScrolledActive
+    ? 'bg-white/40 backdrop-blur-md border border-white/45 shadow-none transition-all duration-300'
+    : 'glass-nav-luminous transition-all duration-300';
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,107 +210,116 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
 
       {/* 3. FLOATING ROUNDED HEADER NAVBAR (STREAMLINED MOBILE & LUXURY DESKTOP) */}
       <header className="w-full max-w-7xl mx-auto px-2 sm:px-6">
-        {/* === MOBILE HEADER (MD:HIDDEN): KHỐI TRÁI (THÔNG BÁO + TÌM KIẾM) | GIỮA (LOGO KHÔNG KHUNG & TO HƠN) | PHẢI (CỤM TÀI KHOẢN + ĐĂNG XUẤT) === */}
+        {/* === MOBILE HEADER (MD:HIDDEN): 3 CỤM ĐẢO BÓNG KÍNH ĐỘC LẬP (CHUẨN glass-nav-luminous, LOGO CĂN CHÍNH GIỮA MÀN HÌNH) === */}
         <div className="flex md:hidden flex-col w-full gap-2 transition-all duration-300">
-          <div className="flex items-center justify-between gap-1.5 w-full">
-            {/* Cụm 1 (Bên trái): Đảo chứa NÚT THÔNG BÁO và NÚT TÌM KIẾM */}
-            <div className="rounded-2xl glass-nav-luminous p-1 px-1.5 shadow-xs border border-white/90 shrink-0 flex items-center gap-1">
-              {/* Nút thông báo */}
-              <button
-                onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
-                className="relative w-8 h-8 rounded-xl glass-btn-base flex items-center justify-center text-slate-700 hover:text-emerald-700 shrink-0"
-                title="Trung tâm thông báo"
-              >
-                <Bell className="w-4 h-4" />
-                {unreadNotificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[8px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white">
-                    {unreadNotificationCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Nút tìm kiếm */}
-              <button
-                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-                  isMobileSearchOpen
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'glass-btn-base text-slate-700 hover:text-emerald-700'
-                }`}
-                title="Tìm kiếm mẫu hoa"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Cụm 2 (Chính giữa): Logo V&V Florielle KHÔNG CÓ KHUNG BAO QUANH & TO HƠN NỮA */}
-            <div
-              onClick={() => setCurrentView('store')}
-              className="flex-1 min-w-0 flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 px-1 py-0.5"
-              title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
-            >
-              <img
-                src="/logo-vvflorielle-horizontal.png"
-                alt="V&V Florielle"
-                className="h-11 sm:h-13 max-w-[190px] sm:max-w-[220px] w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
-              />
-            </div>
-
-            {/* Cụm 3 (Bên phải): Cụm 2 nút tài khoản và nút đăng xuất sau khi đăng nhập (hoặc nút Đăng nhập nếu chưa) */}
-            <div className="rounded-2xl glass-nav-luminous p-1 px-1.5 shadow-xs border border-white/90 shrink-0 flex items-center gap-1">
-              {customer && (
-                <>
-                  <button
-                    onClick={() => setCurrentView('customer')}
-                    className="h-8 px-2.5 rounded-xl glass-btn-emerald-pill text-[11px] font-bold flex items-center gap-1 text-emerald-800"
-                    title="Trang quản lý tài khoản"
-                  >
-                    <User className="w-3.5 h-3.5 text-emerald-700" />
-                    <span className="max-w-[48px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
-                  </button>
-                  <button
-                    onClick={logoutCustomer}
-                    title="Đăng xuất"
-                    className="w-8 h-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                  </button>
-                </>
-              )}
-
-              {isAdmin && (
-                <>
-                  <button
-                    onClick={() => setCurrentView('admin')}
-                    className="h-8 px-2.5 rounded-xl glass-btn-purple-pill text-[11px] font-bold flex items-center gap-1 text-purple-800"
-                    title="Trang quản trị"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
-                    <span>Admin</span>
-                  </button>
-                  <button
-                    onClick={logoutAdmin}
-                    title="Đăng xuất quản trị"
-                    className="w-7 h-7 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                  </button>
-                </>
-              )}
-
-              {!customer && !isAdmin && (
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 min-[375px]:gap-2.5 sm:gap-4 w-full">
+            {/* Cụm 1 (Bên trái): NÚT THÔNG BÁO & NÚT TÌM KIẾM (MÀN HẸP: XẾP DỌC 2 HÀNG 40PX; MÀN RỘNG: DÀI NGANG 108PX) */}
+            <div className="flex items-center justify-start">
+              <div className={`h-[56px] min-[375px]:h-10 w-10 min-[375px]:w-[108px] sm:min-[375px]:w-[114px] rounded-full py-1 min-[375px]:py-0 px-1 min-[375px]:px-2.5 shrink-0 flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between ${clusterGlassClass}`}>
+                {/* Nút thông báo */}
                 <button
-                  onClick={() => {
-                    setAuthModalMode('customer');
-                    setIsAuthModalOpen(true);
-                  }}
-                  className="h-8 px-3 rounded-xl glass-btn-base text-[11px] font-bold text-emerald-800 flex items-center gap-1.5 hover:border-emerald-300"
-                  title="Đăng nhập tài khoản"
+                  onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
+                  className="relative w-7 h-7 min-[375px]:w-8 min-[375px]:h-8 rounded-full hover:bg-white/70 text-slate-700 hover:text-emerald-700 flex items-center justify-center transition-colors shrink-0"
+                  title="Trung tâm thông báo"
                 >
-                  <User className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Đăng nhập</span>
+                  <Bell className="w-3.5 h-3.5 min-[375px]:w-4 min-[375px]:h-4" />
+                  {unreadNotificationCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[8px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white">
+                      {unreadNotificationCount}
+                    </span>
+                  )}
                 </button>
-              )}
+
+                {/* Nút tìm kiếm */}
+                <button
+                  onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+                  className={`w-7 h-7 min-[375px]:w-8 min-[375px]:h-8 rounded-full flex items-center justify-center transition-all shrink-0 ${
+                    isMobileSearchOpen
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'hover:bg-white/70 text-slate-700 hover:text-emerald-700'
+                  }`}
+                  title="Tìm kiếm mẫu hoa"
+                >
+                  <Search className="w-3.5 h-3.5 min-[375px]:w-4 min-[375px]:h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Cụm 2 (Chính giữa): KHUNG BÓNG KÍNH ÔM LOGO - CĂN CHÍNH GIỮA MÀN HÌNH, 4 PHÍA CÁCH MÉP ~2PX */}
+            <div className="flex items-center justify-center">
+              <div
+                onClick={() => {
+                  setCurrentView('store');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`h-[56px] min-w-[136px] w-[138px] px-2 py-0.5 rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 ${clusterGlassClass}`}
+                title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
+              >
+                <img
+                  src="/logo-vvflorielle-horizontal.png"
+                  alt="V&V Florielle"
+                  className="h-[52px] max-w-none w-auto object-contain scale-[1.28] filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]"
+                />
+              </div>
+            </div>
+
+            {/* Cụm 3 (Bên phải): Cụm tài khoản & Admin (MÀN HẸP: XẾP DỌC 2 HÀNG 40PX; MÀN RỘNG: DÀI NGANG 108PX) */}
+            <div className="flex items-center justify-end">
+              <div className={`h-[56px] min-[375px]:h-10 w-10 min-[375px]:w-[108px] sm:min-[375px]:w-[114px] rounded-full py-1 min-[375px]:py-0 px-1 min-[375px]:px-2 shrink-0 flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-center ${clusterGlassClass}`}>
+                {customer && (
+                  <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto">
+                    <button
+                      onClick={() => setCurrentView('customer')}
+                      className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-7.5 min-[375px]:px-2 rounded-full bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-emerald-800 shrink-0"
+                      title="Trang quản lý tài khoản"
+                    >
+                      <User className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <span className="hidden min-[375px]:inline max-w-[40px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
+                    </button>
+                    <button
+                      onClick={logoutCustomer}
+                      title="Đăng xuất"
+                      className="w-6.5 h-6.5 min-[375px]:w-7 min-[375px]:h-7 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50/80 flex items-center justify-center transition-colors shrink-0"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {isAdmin && (
+                  <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto">
+                    <button
+                      onClick={() => setCurrentView('admin')}
+                      className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-7.5 min-[375px]:px-2 rounded-full bg-purple-50/80 hover:bg-purple-100/90 border border-purple-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-purple-800 shrink-0"
+                      title="Trang quản trị"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+                      <span className="hidden min-[375px]:inline">Admin</span>
+                    </button>
+                    <button
+                      onClick={logoutAdmin}
+                      title="Đăng xuất quản trị"
+                      className="w-6.5 h-6.5 min-[375px]:w-7 min-[375px]:h-7 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50/80 flex items-center justify-center transition-colors shrink-0"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {!customer && !isAdmin && (
+                  <button
+                    onClick={() => {
+                      setAuthModalMode('customer');
+                      setIsAuthModalOpen(true);
+                    }}
+                    className="w-7 h-7 min-[375px]:w-full min-[375px]:h-7.5 min-[375px]:px-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center justify-center gap-1 shadow-sm transition-colors"
+                    title="Đăng nhập tài khoản"
+                  >
+                    <User className="w-3.5 h-3.5 shrink-0" />
+                    <span className="hidden min-[375px]:inline">Đăng nhập</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -341,7 +356,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
         <div className="hidden md:flex items-center justify-between gap-3 w-full">
           {/* === BRAND LOGO (FRAMELESS & PROMINENTLY ENLARGED) === */}
           <div
-            onClick={() => setCurrentView('store')}
+            onClick={() => {
+              setCurrentView('store');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className="flex items-center shrink-0 cursor-pointer select-none group py-0.5 px-1 transition-transform hover:scale-[1.03] active:scale-95"
             title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
           >
@@ -353,7 +371,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
           </div>
 
           {/* === ISLAND 2: ĐẦY ĐỦ CÁC MENU CHỨC NĂNG (TRANG CHỦ, MẪU HOA, DỊCH VỤ, GIỚI THIỆU, TIN TỨC, LIÊN HỆ & TÌM KIẾM) === */}
-          <div className="flex-1 rounded-2xl md:rounded-[24px] glass-nav-luminous px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2 min-w-0 transition-all duration-300 shadow-sm relative">
+          <div className={`flex-1 rounded-2xl md:rounded-[24px] px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2 min-w-0 transition-all duration-300 relative ${
+            isScrolledActive
+              ? 'bg-white/45 backdrop-blur-md border border-white/40 shadow-none'
+              : 'glass-nav-luminous shadow-sm'
+          }`}>
             {/* 1. Trang Chủ */}
             <button
               onClick={() => {
@@ -598,7 +620,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
 
 
           {/* === ISLAND 3: RIGHT USER ACTIONS (LOGIN / PROFILE & NOTIFICATIONS) === */}
-          <div className="rounded-2xl md:rounded-[24px] glass-nav-luminous px-2 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 shrink-0 transition-all duration-300 shadow-sm relative">
+          <div className={`rounded-2xl md:rounded-[24px] px-2 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 shrink-0 transition-all duration-300 relative ${
+            isScrolledActive
+              ? 'bg-white/45 backdrop-blur-md border border-white/40 shadow-none'
+              : 'glass-nav-luminous shadow-sm'
+          }`}>
               {/* Bell Hub (In-App Notification Center) */}
               <div className="relative">
                 <button

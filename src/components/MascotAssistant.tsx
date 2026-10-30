@@ -80,7 +80,10 @@ export const MascotAssistant: React.FC = () => {
   } = useStore();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [showBubble, setShowBubble] = useState(true);
+  // On mobile screens (< 768px), do not auto-show speech bubble to prevent covering hero content
+  const [showBubble, setShowBubble] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : false
+  );
   const [tipIndex, setTipIndex] = useState(0);
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState<MascotMessage[]>([
@@ -99,8 +102,13 @@ export const MascotAssistant: React.FC = () => {
   });
 
   const [pos, setPos] = useState(getDefaultPos);
+  const [dimensions, setDimensions] = useState(() => ({
+    width: typeof window !== 'undefined' ? window.innerWidth : 375,
+    height: typeof window !== 'undefined' ? window.innerHeight : 667,
+  }));
   const isDraggingRef = useRef(false);
   const hasMovedRef = useRef(false);
+  const lastToggleTimeRef = useRef(0);
   const dragStartRef = useRef({ mouseX: 0, mouseY: 0, initialX: 0, initialY: 0 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -114,9 +122,12 @@ export const MascotAssistant: React.FC = () => {
   // Keep mascot inside viewport on window resize
   useEffect(() => {
     const handleResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      setDimensions({ width: w, height: h });
       setPos((prev) => ({
-        x: Math.max(10, Math.min(prev.x, window.innerWidth - 75)),
-        y: Math.max(65, Math.min(prev.y, window.innerHeight - 85)),
+        x: Math.max(10, Math.min(prev.x, w - 75)),
+        y: Math.max(65, Math.min(prev.y, h - 85)),
       }));
     };
     window.addEventListener('resize', handleResize);
@@ -125,12 +136,18 @@ export const MascotAssistant: React.FC = () => {
 
   // Speech bubble cycling: rotates every 14s, visible for 4.5s, hides on page scroll
   useEffect(() => {
+    // Only auto-show tip bubble on desktop to prevent obscuring mobile content
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setShowBubble(false);
+      return;
+    }
+
     let hideTimer: any = setTimeout(() => {
       setShowBubble(false);
     }, 4500);
 
     const cycleInterval = setInterval(() => {
-      if (!isOpen) {
+      if (!isOpen && (typeof window === 'undefined' || window.innerWidth >= 768)) {
         setTipIndex((prev) => (prev + 1) % MASCOT_TIPS.length);
         setShowBubble(true);
         if (hideTimer) clearTimeout(hideTimer);
@@ -182,6 +199,10 @@ export const MascotAssistant: React.FC = () => {
 
     const handlePointerUp = () => {
       isDraggingRef.current = false;
+      // If dragged, set a small timestamp to suppress false click trigger
+      if (hasMovedRef.current) {
+        lastToggleTimeRef.current = Date.now();
+      }
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
       window.removeEventListener('pointercancel', handlePointerUp);
@@ -192,9 +213,19 @@ export const MascotAssistant: React.FC = () => {
     window.addEventListener('pointercancel', handlePointerUp);
   };
 
-  const handleMascotClick = () => {
-    // Only toggle if not dragging
+  const handleMascotClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const now = Date.now();
+    // Debounce guard: strictly prevent dual-fire / rapid double click within 350ms
+    if (now - lastToggleTimeRef.current < 350) {
+      return;
+    }
+
+    // Only toggle if not dragged
     if (!hasMovedRef.current) {
+      lastToggleTimeRef.current = now;
       setIsOpen((prev) => !prev);
       setShowBubble(false);
     }
@@ -258,22 +289,43 @@ export const MascotAssistant: React.FC = () => {
   // Determine if mascot is in the right half of the screen
   const isRightSide = pos.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 500);
 
+  // Check screen width
+  const isMobile = dimensions.width < 640;
+
+  // Comfortable chat card dimensions:
+  // Mobile: full-width feel with comfortable padding, max width 360px
+  const cardWidth = isMobile ? Math.min(dimensions.width - 32, 360) : 380;
+  // Mobile height: comfortable size (480px, capped at viewport height - 110 to ensure room for the flying mascot above)
+  const maxAvailableCardHeight = Math.max(340, dimensions.height - 110);
+  const cardHeight = isMobile ? Math.min(480, maxAvailableCardHeight) : 520;
+
+  // Center the card on mobile
+  const mobileCardLeft = Math.max(16, Math.round((dimensions.width - cardWidth) / 2));
+  // Place card vertically: centered if screen is tall enough, but top is at least 74px so the mascot sits cleanly above it
+  const mobileCardTop = Math.max(74, Math.round((dimensions.height - cardHeight) / 2));
+
+  // Mascot dynamic position:
+  // When chat opens on mobile, mascot smoothly flies to top-left OUTSIDE the chat frame!
+  // X: aligned with card's left edge
+  // Y: sits directly above the card's top edge (mobileCardTop - 68px)
+  const targetX = isMobile && isOpen ? mobileCardLeft : pos.x;
+  const targetY = isMobile && isOpen ? Math.max(6, mobileCardTop - 68) : pos.y;
+
   // Calculate smart desktop position for the chat window
-  const chatLeft = typeof window !== 'undefined'
-    ? Math.max(16, Math.min(window.innerWidth - 400, isRightSide ? pos.x - 390 : pos.x + 80))
-    : 24;
-  const chatTop = typeof window !== 'undefined'
-    ? Math.max(70, Math.min(window.innerHeight - 540, pos.y - 180))
-    : 160;
+  const chatLeft = Math.max(16, Math.min(dimensions.width - 400, isRightSide ? pos.x - 390 : pos.x + 80));
+  const chatTop = Math.max(70, Math.min(dimensions.height - 540, pos.y - 180));
 
   return (
     <>
       {/* 1. DRAGGABLE FLOATING AI MASCOT (Matching phototiinlove) */}
       <div
-        className="fixed z-[70] select-none touch-none cursor-grab active:cursor-grabbing flex items-center transition-shadow"
+        className="fixed z-[100] select-none touch-none flex items-center cursor-pointer group"
         style={{
-          left: `${pos.x}px`,
-          top: `${pos.y}px`,
+          left: `${targetX}px`,
+          top: `${targetY}px`,
+          transitionProperty: 'left, top, transform',
+          transitionDuration: '400ms',
+          transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
         }}
         onPointerDown={handlePointerDown}
       >
@@ -314,35 +366,31 @@ export const MascotAssistant: React.FC = () => {
           </div>
         )}
 
-        {/* Transparent Floating Mascot (NO Circular Container / NO Background Enclosure / NO Green Square Halo) */}
+        {/* Transparent Floating Mascot (NO Circular Container / Always shows brand logo) */}
         <div
           onClick={handleMascotClick}
           className="relative group cursor-pointer transition-transform duration-300 hover:scale-105 active:scale-95"
-          title="Trợ lý ảo V&V Florielle (Kéo rê tự do quanh màn hình / Bấm trò chuyện & hỏi đáp)"
+          title="Trợ lý ảo V&V Florielle (Bấm để mở hoặc ẩn khung trò chuyện)"
         >
-          {/* Transparent Logo / Mascot Image (Clean drop shadow, no glowing halo) */}
+          {/* Always display the transparent floral mascot logo (Never replaced or obscured by X) */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center select-none">
-            {isOpen ? (
-              <div className="w-12 h-12 rounded-2xl bg-slate-900/90 text-white backdrop-blur-md flex items-center justify-center shadow-xl border border-white/40">
-                <X className="w-6 h-6 text-white" />
-              </div>
-            ) : (
-              <div className="relative w-full h-full flex items-center justify-center">
-                <img
-                  src={settings.mascotImageUrl || '/logo-vvflorielle-square.png'}
-                  alt="Linh vật AI V&V Florielle"
-                  className="w-full h-full object-contain pointer-events-none filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
-                />
-              </div>
-            )}
+            <img
+              src={settings.mascotImageUrl || '/logo-vvflorielle-square.png'}
+              alt="Linh vật AI V&V Florielle"
+              className={`w-full h-full object-contain pointer-events-none filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-300 ${
+                isOpen ? 'scale-105 drop-shadow-[0_6px_16px_rgba(4,120,87,0.45)]' : ''
+              }`}
+            />
           </div>
 
-          {/* Online green indicator dot */}
-          {!isOpen && (
-            <span className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm flex items-center justify-center pointer-events-none">
-              <span className="w-1.5 h-1.5 rounded-full bg-white" />
-            </span>
-          )}
+          {/* Online status indicator dot (Emerald when idle, pulsing amber when chat is active) */}
+          <span
+            className={`absolute top-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm flex items-center justify-center pointer-events-none transition-colors duration-300 ${
+              isOpen ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+          </span>
         </div>
       </div>
 
@@ -351,21 +399,33 @@ export const MascotAssistant: React.FC = () => {
         <>
           {/* Backdrop on mobile for clean dismissal */}
           <div
-            className="fixed inset-0 z-[80] bg-black/25 backdrop-blur-2xs sm:hidden"
+            className="fixed inset-0 z-[80] bg-black/30 backdrop-blur-2xs sm:hidden"
             onClick={() => setIsOpen(false)}
           />
 
           <div
-            className="mascot-modal-card fixed inset-x-0 bottom-0 sm:inset-auto z-[90] flex flex-col w-full sm:w-[380px] h-[520px] max-h-[85vh] bg-white/95 backdrop-blur-2xl rounded-t-3xl sm:rounded-3xl border border-white/90 shadow-[0_24px_60px_rgba(0,0,0,0.22),inset_0_1.5px_1px_rgba(255,255,255,1)] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300"
-            style={{
-              left: window.innerWidth >= 640 ? `${chatLeft}px` : undefined,
-              top: window.innerWidth >= 640 ? `${chatTop}px` : undefined,
-            }}
+            className="mascot-modal-card fixed z-[90] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl border border-white/90 shadow-[0_24px_60px_rgba(0,0,0,0.22),inset_0_1.5px_1px_rgba(255,255,255,1)] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            style={
+              isMobile
+                ? {
+                    left: `${mobileCardLeft}px`,
+                    top: `${mobileCardTop}px`,
+                    width: `${cardWidth}px`,
+                    height: `${cardHeight}px`,
+                  }
+                : {
+                    left: `${chatLeft}px`,
+                    top: `${chatTop}px`,
+                    width: '380px',
+                    height: '520px',
+                    maxHeight: '85vh',
+                  }
+            }
           >
             {/* Header */}
             <div className="p-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xs border border-white/30 overflow-hidden">
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-md items-center justify-center shadow-xs border border-white/30 overflow-hidden">
                   <img src={settings.mascotImageUrl || '/logo-vvflorielle-square.png'} alt="Flori" className="w-7 h-7 object-contain" />
                 </div>
                 <div>
@@ -382,43 +442,43 @@ export const MascotAssistant: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => testCuteVoice('Chào bạn nha! Mình là trợ lý AI nữ của tiệm hoa V&V Florielle 105 Doãn Kế Thiện đây nè!')}
-                  className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-colors"
-                  title="Nghe thử giọng đọc AI nữ"
-                >
-                  <Volume2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-colors"
-                  title="Đóng trợ lý"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => testCuteVoice('Chào bạn nha! Mình là trợ lý AI nữ của tiệm hoa V&V Florielle 105 Doãn Kế Thiện đây nè!')}
+                    className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                    title="Nghe thử giọng đọc AI nữ"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                    title="Đóng trợ lý"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Quick FAQ Chips */}
-            <div className="px-3 py-2 bg-slate-50 border-b border-slate-200/80 overflow-x-auto flex items-center gap-1.5 text-xs no-scrollbar">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
-                <HelpCircle className="w-3 h-3 text-emerald-600" />
-                <span>Hỏi nhanh:</span>
-              </span>
-              {FAQ_CHIPS.map((chip, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSendQuestion(chip.q, chip.a)}
-                  className="py-1 px-2.5 rounded-xl bg-white hover:bg-emerald-50 text-[11px] font-semibold text-slate-700 hover:text-emerald-800 border border-slate-200/80 hover:border-emerald-300 whitespace-nowrap shadow-2xs transition-all shrink-0"
-                >
-                  {chip.q}
-                </button>
-              ))}
-            </div>
+              {/* Quick FAQ Chips */}
+              <div className="px-2.5 py-1.5 bg-slate-50 border-b border-slate-200/80 overflow-x-auto flex items-center gap-1 text-xs no-scrollbar">
+                <span className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
+                  <HelpCircle className="w-3 h-3 text-emerald-600" />
+                  <span>Hỏi nhanh:</span>
+                </span>
+                {FAQ_CHIPS.map((chip, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSendQuestion(chip.q, chip.a)}
+                    className="py-0.5 px-2 rounded-lg bg-white hover:bg-emerald-50 text-[10px] font-semibold text-slate-700 hover:text-emerald-800 border border-slate-200/80 hover:border-emerald-300 whitespace-nowrap shadow-2xs transition-all shrink-0"
+                  >
+                    {chip.q}
+                  </button>
+                ))}
+              </div>
 
-            {/* Chat Messages Body */}
-            <div className="flex-1 p-3.5 overflow-y-auto space-y-3 text-xs">
+              {/* Chat Messages Body */}
+              <div className="flex-1 p-3 overflow-y-auto space-y-2.5 text-xs">
               {messages.map((msg) => (
                 <div
                   key={msg.id}

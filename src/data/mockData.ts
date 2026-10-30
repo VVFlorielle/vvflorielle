@@ -703,11 +703,11 @@ export const INITIAL_ARTICLES: BlogArticle[] = [
 export const INITIAL_HERO_CONFIG: HeroBannerConfig = {
   badge: 'Tiệm Hoa Tươi Nghệ Thuật V&V Florielle',
   title: 'Chào Mừng Đến Với Tiệm Hoa V&V Florielle - Nghệ Thuật Trao Gửi Yêu Thương',
-  subtitle: '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội • 100% hoa tươi loại một nhập mới mỗi sáng từ Đà Lạt & hoa ngoại nhập khẩu cao cấp. Giao hỏa tốc 60 - 90 phút nội thành Hà Nội – Chụp ảnh gửi mẫu duyệt qua Zalo trước khi giao.',
+  subtitle: 'Hoa Tươi Giao Ngay Tại Hà Nội • 100% hoa tươi loại một nhập mới mỗi ngày từ đơn vị vườn hoa & hoa ngoại nhập khẩu cao cấp.  • Giao hỏa tốc chỉ từ 15 phút nội thành Hà Nội và 60 phút ngoại thành  •  Chụp ảnh gửi mẫu hoàn thiện qua Zalo trước khi giao.',
   ctaText: 'Khám Phá Mẫu Hoa Mới',
   ctaSecondaryText: 'Tư Vấn Thiết Kế Riêng',
   backgroundImage: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1600&q=80',
-  features: ['Giao hỏa tốc 60-90P Cầu Giấy & Hà Nội', 'Tặng thiệp viết tay & Ruy băng lụa', 'Chụp ảnh gửi duyệt trước khi giao']
+  features: ['Giao hỏa tốc chỉ từ 15 phút nội thành', 'Tặng thiệp viết tay & Ruy băng lụa', 'Chụp ảnh gửi mẫu hoàn thiện trước khi giao']
 };
 
 export const INITIAL_MARQUEE_ANNOUNCEMENTS: MarqueeItem[] = [
