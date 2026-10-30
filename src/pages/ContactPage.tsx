@@ -230,79 +230,114 @@ export const ContactPage: React.FC = () => {
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-3.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Họ tên khách hàng *</label>
-                  <input
-                    type="text"
-                    required
-                    value={senderName}
-                    onChange={(e) => setSenderName(e.target.value)}
-                    placeholder="VD: Thu Thảo"
-                    className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 text-slate-800"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Số điện thoại *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={senderPhone}
-                    onChange={(e) => setSenderPhone(e.target.value)}
-                    placeholder="VD: 0987654321"
-                    className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 text-slate-800"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Dịp tặng hoa</label>
-                  <select
-                    value={senderOccasion}
-                    onChange={(e) => setSenderOccasion(e.target.value)}
-                    className="w-full px-2.5 py-2 rounded-xl text-xs bg-slate-50 border border-slate-200 text-slate-700 font-semibold focus:outline-none cursor-pointer"
-                  >
-                    <option value="Sinh nhật">Hoa Sinh Nhật</option>
-                    <option value="Khai trương">Hoa Khai Trương</option>
-                    <option value="Tình yêu">Bó Hoa Kỷ Niệm</option>
-                    <option value="Chúc mừng">Hoa Chúc Mừng</option>
-                    <option value="Hoa cưới">Hoa Cưới / Sự Kiện</option>
-                    <option value="Chia buồn">Hoa Chia Buồn</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Ngân sách dự kiến</label>
-                  <select
-                    value={senderBudget}
-                    onChange={(e) => setSenderBudget(e.target.value)}
-                    className="w-full px-2.5 py-2 rounded-xl text-xs bg-slate-50 border border-slate-200 text-slate-700 font-semibold focus:outline-none cursor-pointer"
-                  >
-                    <option value="Dưới 500.000đ">Dưới 500.000đ</option>
-                    <option value="500.000đ - 1.000.000đ">500k - 1 triệu</option>
-                    <option value="1.000.000đ - 2.000.000đ">1 - 2 triệu</option>
-                    <option value="Trên 2.000.000đ">Trên 2 triệu</option>
-                  </select>
-                </div>
-              </div>
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
+                {/* Phần 1: Nhập thông tin khách hàng & yêu cầu cắm hoa (8 cột) */}
+                <div className="lg:col-span-8 space-y-3">
+                  {/* Hàng 1: Họ tên & SĐT */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Họ tên khách hàng *</label>
+                      <input
+                        type="text"
+                        required
+                        value={senderName}
+                        onChange={(e) => setSenderName(e.target.value)}
+                        placeholder="VD: Thu Thảo"
+                        className="w-full px-3 py-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 text-slate-800 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Số điện thoại *</label>
+                      <input
+                        type="tel"
+                        required
+                        value={senderPhone}
+                        onChange={(e) => setSenderPhone(e.target.value)}
+                        placeholder="VD: 0987654321"
+                        className="w-full px-3 py-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 text-slate-800 transition-all"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Lời nhắn / Tone màu / Yêu cầu loài hoa riêng</label>
-                <textarea
-                  rows={2}
-                  value={senderMessage}
-                  onChange={(e) => setSenderMessage(e.target.value)}
-                  placeholder="VD: Cần bó hoa tone màu hồng pastel tặng bạn gái chiều nay, ghi thiệp chúc mừng sinh nhật..."
-                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 text-slate-800"
-                />
-              </div>
+                  {/* Hàng 2: Dịp tặng hoa & Ngân sách dự kiến */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Dịp tặng hoa</label>
+                      <select
+                        value={senderOccasion}
+                        onChange={(e) => setSenderOccasion(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200 text-slate-700 font-semibold focus:outline-none cursor-pointer"
+                      >
+                        <option value="Sinh nhật">Hoa Sinh Nhật</option>
+                        <option value="Khai trương">Hoa Khai Trương</option>
+                        <option value="Tình yêu">Bó Hoa Kỷ Niệm</option>
+                        <option value="Chúc mừng">Hoa Chúc Mừng</option>
+                        <option value="Hoa cưới">Hoa Cưới / Sự Kiện</option>
+                        <option value="Chia buồn">Hoa Chia Buồn</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Ngân sách dự kiến</label>
+                      <select
+                        value={senderBudget}
+                        onChange={(e) => setSenderBudget(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200 text-slate-700 font-semibold focus:outline-none cursor-pointer"
+                      >
+                        <option value="Dưới 500.000đ">Dưới 500.000đ</option>
+                        <option value="500.000đ - 1.000.000đ">500k - 1 triệu</option>
+                        <option value="1.000.000đ - 2.000.000đ">1 - 2 triệu</option>
+                        <option value="Trên 2.000.000đ">Trên 2 triệu</option>
+                      </select>
+                    </div>
+                  </div>
 
-              <div className="flex justify-end pt-1">
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto px-8 py-2.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-bold text-xs shadow-md shadow-emerald-700/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Gửi Lời Nhắn Cho Tiệm</span>
-                </button>
+                  {/* Hàng 3: Lời nhắn & Yêu cầu loài hoa riêng */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Lời nhắn / Tone màu / Yêu cầu loài hoa riêng</label>
+                    <textarea
+                      rows={3}
+                      value={senderMessage}
+                      onChange={(e) => setSenderMessage(e.target.value)}
+                      placeholder="VD: Cần bó hoa tone màu hồng pastel tặng bạn gái chiều nay, ghi thiệp chúc mừng sinh nhật..."
+                      className="w-full px-3 py-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 text-slate-800 transition-all resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Phần 2: Logo V&V Florielle đặt phía trên nút gửi (4 cột) */}
+                <div className="lg:col-span-4 flex flex-col justify-between items-center text-center pt-2 lg:pt-0">
+                  {/* Khu vực Logo & Thông điệp tiệm */}
+                  <div className="flex-1 flex flex-col items-center justify-center space-y-2 py-2">
+                    <img
+                      src="/logo-vvflorielle-horizontal.png"
+                      alt="V&V Florielle"
+                      className="h-16 sm:h-20 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform hover:scale-105"
+                    />
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-slate-800">
+                        Tiệm Hoa Nghệ Thuật V&V Florielle
+                      </p>
+                      <p className="text-[11px] text-slate-400 max-w-[220px] leading-relaxed mx-auto">
+                        105 Doãn Kế Thiện, Cầu Giấy • Chụp ảnh gửi mẫu duyệt qua Zalo trước khi giao
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Nút gửi đặt ngay bên dưới Logo */}
+                  <div className="w-full pt-2">
+                    <button
+                      type="submit"
+                      className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-extrabold text-xs shadow-md shadow-emerald-700/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                    >
+                      <Send className="w-4 h-4" />
+                      <span>Gửi Lời Nhắn Cho Tiệm</span>
+                    </button>
+                    <p className="text-[10px] text-slate-400 text-center mt-1.5">
+                      ⚡ Florist sẽ gọi hoặc nhắn Zalo trong 5 phút
+                    </p>
+                  </div>
+                </div>
               </div>
             </form>
           )}
