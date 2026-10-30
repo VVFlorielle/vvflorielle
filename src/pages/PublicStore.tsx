@@ -98,200 +98,152 @@ export const PublicStore: React.FC = () => {
   };
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-8 sm:space-y-10 pb-4">
       {/* =========================================================================
-          1. HERO BANNER OR DEDICATED CATEGORY BANNER
+          1. HOME HERO BANNER (Welcoming, Centered & Lush Botanical Floral Borders)
+          Luôn giữ cố định trên trang chủ, không bị thay thế khi lọc danh mục hoa
           ========================================================================= */}
-      {selectedCategory === 'all' ? (
-        /* HOME HERO BANNER (Welcoming, Centered & Lush Botanical Floral Borders) */
-        <section className="container pt-4 sm:pt-6">
-          <div className="glass-panel p-6 sm:p-12 relative overflow-hidden bg-gradient-to-br from-white/95 via-emerald-50/50 to-rose-50/30 backdrop-blur-2xl rounded-[32px] sm:rounded-[40px] border border-emerald-200/80 shadow-[0_25px_60px_-15px_rgba(5,150,105,0.16),inset_0_1.5px_2px_rgba(255,255,255,1),inset_0_0_24px_rgba(16,185,129,0.05)] text-center transition-all duration-300">
-            {/* 1. ARTISTIC BOTANICAL CORNER FLOWERS (2 Top Corners: Roses, Peonies & Leaves) */}
-            <FloralCornerTopLeft className="absolute -top-1 -left-1 sm:top-0 sm:left-0 w-28 h-28 sm:w-44 sm:h-44 lg:w-52 lg:h-52 z-0 opacity-90 transition-transform duration-500 hover:scale-105" />
-            <FloralCornerTopRight className="absolute -top-1 -right-1 sm:top-0 sm:right-0 w-28 h-28 sm:w-44 sm:h-44 lg:w-52 lg:h-52 z-0 opacity-90 transition-transform duration-500 hover:scale-105" />
+      <section className="container pt-4 sm:pt-6">
+        <div className="glass-panel p-6 sm:p-12 relative overflow-hidden bg-gradient-to-br from-white/95 via-emerald-50/50 to-rose-50/30 backdrop-blur-2xl rounded-[32px] sm:rounded-[40px] border border-emerald-200/80 shadow-[0_25px_60px_-15px_rgba(5,150,105,0.16),inset_0_1.5px_2px_rgba(255,255,255,1),inset_0_0_24px_rgba(16,185,129,0.05)] text-center transition-all duration-300">
+          {/* 1. ARTISTIC BOTANICAL CORNER FLOWERS (2 Top Corners: Roses, Peonies & Leaves) */}
+          <FloralCornerTopLeft className="absolute -top-1 -left-1 sm:top-0 sm:left-0 w-28 h-28 sm:w-44 sm:h-44 lg:w-52 lg:h-52 z-0 opacity-90 transition-transform duration-500 hover:scale-105" />
+          <FloralCornerTopRight className="absolute -top-1 -right-1 sm:top-0 sm:right-0 w-28 h-28 sm:w-44 sm:h-44 lg:w-52 lg:h-52 z-0 opacity-90 transition-transform duration-500 hover:scale-105" />
 
-            {/* 2. GENTLE FLOATING FLOWER PETALS */}
-            <FloatingPetals />
+          {/* 2. GENTLE FLOATING FLOWER PETALS */}
+          <FloatingPetals />
 
-            {/* 3. HERO CONTENT CONTAINER */}
-            <div className="relative z-10 max-w-3xl mx-auto space-y-4 sm:space-y-5">
-              {/* Badge Centered */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/95 text-emerald-800 text-xs font-bold border border-emerald-300/80 shadow-xs mx-auto">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-                <span>{heroConfig.badge || 'Tiệm Hoa Tươi Nghệ Thuật V&V Florielle'}</span>
+          {/* 3. HERO CONTENT CONTAINER */}
+          <div className="relative z-10 max-w-3xl mx-auto space-y-4 sm:space-y-5">
+            {/* Badge Centered */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/95 text-emerald-800 text-xs font-bold border border-emerald-300/80 shadow-xs mx-auto">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+              <span>{heroConfig.badge || 'Tiệm Hoa Tươi Nghệ Thuật V&V Florielle'}</span>
+            </div>
+
+            {/* Welcome Title Centered - "Tiệm Hoa V&V Florielle" on its own single grand line */}
+            <div className="space-y-1.5 sm:space-y-2.5">
+              <div className="text-sm sm:text-lg md:text-xl font-bold text-slate-700 tracking-tight flex items-center justify-center gap-2">
+                <span className="text-emerald-500/70 text-xs sm:text-sm">✦</span>
+                <span>Chào Mừng Đến Với</span>
+                <span className="text-emerald-500/70 text-xs sm:text-sm">✦</span>
               </div>
 
-              {/* Welcome Title Centered - "Tiệm Hoa V&V Florielle" on its own single grand line */}
-              <div className="space-y-1.5 sm:space-y-2.5">
-                <div className="text-sm sm:text-lg md:text-xl font-bold text-slate-700 tracking-tight flex items-center justify-center gap-2">
-                  <span className="text-emerald-500/70 text-xs sm:text-sm">✦</span>
-                  <span>Chào Mừng Đến Với</span>
-                  <span className="text-emerald-500/70 text-xs sm:text-sm">✦</span>
-                </div>
-
-                <div className="overflow-x-auto no-scrollbar py-0.5">
-                  <h1 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700 whitespace-nowrap inline-block drop-shadow-xs px-1">
-                    Tiệm Hoa V&V Florielle
-                  </h1>
-                </div>
-
-                {/* Subtitle / Slogan with delicate floral ornaments */}
-                <div className="flex items-center justify-center gap-2 sm:gap-3 text-slate-700 font-semibold text-xs sm:text-base md:text-lg tracking-wide pt-0.5">
-                  <span className="text-emerald-500/80 text-xs sm:text-sm">✤ ✿ ✤</span>
-                  <span className="italic font-serif">Nghệ Thuật Trao Gửi Yêu Thương</span>
-                  <span className="text-emerald-500/80 text-xs sm:text-sm">✤ ✿ ✤</span>
-                </div>
+              <div className="overflow-x-auto no-scrollbar py-0.5">
+                <h1 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700 whitespace-nowrap inline-block drop-shadow-xs px-1">
+                  Tiệm Hoa V&V Florielle
+                </h1>
               </div>
 
-              {/* Subtitle Centered */}
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl mx-auto px-2">
-                {heroConfig.subtitle}
-              </p>
-
-              {/* Quick Hero Actions Centered */}
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                <button
-                  onClick={() => setSelectedCategory('khai-truong')}
-                  className="btn-primary text-xs py-3 px-6 rounded-2xl shadow-lg shadow-emerald-700/20 flex items-center gap-2 transition-transform hover:scale-105"
-                >
-                  <span>{heroConfig.ctaText}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-                <a
-                  href={`tel:${settings.hotline}`}
-                  className="btn-secondary text-xs py-3 px-6 rounded-2xl border border-slate-300/80 hover:bg-white flex items-center gap-2 transition-transform hover:scale-105"
-                >
-                  <PhoneCall className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{heroConfig.ctaSecondaryText}: {settings.hotline}</span>
-                </a>
-              </div>
-
-              {/* 3 Key Trust Markers Centered */}
-              <div className="pt-3 border-t border-emerald-100/80 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[11px] sm:text-xs text-slate-600 font-medium">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Hoa tươi loại 1 nhập mới mỗi sáng</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Giao hỏa tốc 60 - 90P Hà Nội</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Heart className="w-4 h-4 text-rose-500 shrink-0" />
-                  <span>Chụp ảnh gửi duyệt qua Zalo</span>
-                </div>
+              {/* Subtitle / Slogan with delicate floral ornaments */}
+              <div className="flex items-center justify-center gap-2 sm:gap-3 text-slate-700 font-semibold text-xs sm:text-base md:text-lg tracking-wide pt-0.5">
+                <span className="text-emerald-500/80 text-xs sm:text-sm">✤ ✿ ✤</span>
+                <span className="italic font-serif">Nghệ Thuật Trao Gửi Yêu Thương</span>
+                <span className="text-emerald-500/80 text-xs sm:text-sm">✤ ✿ ✤</span>
               </div>
             </div>
 
-            {/* Subtle background ambient graphic decoration */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-[550px] h-[320px] rounded-full bg-gradient-to-tr from-emerald-300/20 via-pink-200/15 to-transparent blur-3xl pointer-events-none" />
-          </div>
-        </section>
-      ) : (
-        /* DEDICATED CATEGORY LANDING BANNER (LUMINOUS FLORAL GLASS - NO DARK OVERLAY) */
-        <section className="container pt-4 sm:pt-6">
-          <div className="relative rounded-[32px] overflow-hidden shadow-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/80 text-slate-900 min-h-[200px] sm:min-h-[230px] flex items-center">
-            {/* Background Floral Accents */}
-            <img
-              src={currentCategoryData.bannerUrl || currentCategoryData.imageUrl}
-              alt={currentCategoryData.name}
-              className="absolute right-0 top-0 w-full sm:w-1/2 h-full object-cover opacity-25 filter blur-[0.4px]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-transparent sm:to-white/20" />
-            
-            {/* Luminous Glow Orbs */}
-            <div className="absolute top-0 right-1/4 w-60 h-60 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 right-10 w-48 h-48 bg-rose-400/10 rounded-full blur-2xl pointer-events-none" />
+            {/* Subtitle Centered */}
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl mx-auto px-2">
+              {heroConfig.subtitle}
+            </p>
 
-            <div className="relative z-10 p-6 sm:p-10 max-w-3xl mx-auto space-y-3 text-center flex flex-col items-center justify-center">
-              {/* Breadcrumbs */}
-              <div className="flex items-center justify-center gap-2 text-xs text-emerald-800 font-semibold">
-                <button
-                  onClick={() => setSelectedCategory('all')}
-                  className="hover:underline text-slate-500 hover:text-emerald-700"
-                >
-                  Trang chủ
-                </button>
-                <span className="text-slate-300">/</span>
-                <span className="text-emerald-900 font-bold">{currentCategoryData.name}</span>
+            {/* Quick Hero Actions Centered */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => {
+                  const el = document.getElementById('categories-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="btn-primary text-xs py-3 px-6 rounded-2xl shadow-lg shadow-emerald-700/20 flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer"
+              >
+                <span>{heroConfig.ctaText}</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <a
+                href={`tel:${settings.hotline}`}
+                className="btn-secondary text-xs py-3 px-6 rounded-2xl border border-slate-300/80 hover:bg-white flex items-center gap-2 transition-transform hover:scale-105"
+              >
+                <PhoneCall className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{heroConfig.ctaSecondaryText}: {settings.hotline}</span>
+              </a>
+            </div>
+
+            {/* 3 Key Trust Markers Centered */}
+            <div className="pt-3 border-t border-emerald-100/80 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[11px] sm:text-xs text-slate-600 font-medium">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Hoa tươi loại 1 nhập mới mỗi sáng</span>
               </div>
-
-              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight text-center">
-                {currentCategoryData.name}
-              </h1>
-
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl text-center mx-auto">
-                {currentCategoryData.description}. {currentCategoryData.tagline}
-              </p>
-
-              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 border border-emerald-300/80 shadow-xs">
-                  {filteredProducts.length} mẫu hoa tươi có sẵn
-                </span>
-                <button
-                  onClick={() => setSelectedCategory('all')}
-                  className="text-xs text-emerald-700 hover:text-emerald-900 font-bold underline"
-                >
-                  Xem tất cả danh mục
-                </button>
+              <div className="flex items-center gap-1.5">
+                <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Giao hỏa tốc 60 - 90P Hà Nội</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Heart className="w-4 h-4 text-rose-500 shrink-0" />
+                <span>Chụp ảnh gửi duyệt qua Zalo</span>
               </div>
             </div>
           </div>
-        </section>
-      )}
+
+          {/* Subtle background ambient graphic decoration */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-[550px] h-[320px] rounded-full bg-gradient-to-tr from-emerald-300/20 via-pink-200/15 to-transparent blur-3xl pointer-events-none" />
+        </div>
+      </section>
 
       {/* =========================================================================
           2. VISUAL CATEGORY CARDS ("KHÁM PHÁ THEO CHỦ ĐỀ & DỊP TẶNG")
           ========================================================================= */}
-      {selectedCategory === 'all' && (
-        <section className="container">
-          <div className="flex items-center justify-between pb-4">
-            <div>
-              <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                <Layers className="w-5 h-5 text-emerald-600" />
-                <span>Danh Mục Hoa Tươi Nghệ Thuật</span>
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Tuyển chọn theo từng sự kiện ý nghĩa, thiết kế sang trọng & hoa tươi mới mỗi sáng
-              </p>
-            </div>
+      <section className="container">
+        <div className="flex items-center justify-between pb-4">
+          <div>
+            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+              <Layers className="w-5 h-5 text-emerald-600" />
+              <span>Danh Mục Hoa Tươi Nghệ Thuật</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Tuyển chọn theo từng sự kiện ý nghĩa, thiết kế sang trọng &amp; hoa tươi mới mỗi sáng
+            </p>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-            {categories.filter((c) => c.id !== 'all').map((cat) => {
-              const count = products.filter((p) => p.categoryId === cat.id).length;
-              return (
-                <div
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className="glass-card rounded-[24px] overflow-hidden border border-white/80 p-2 cursor-pointer group hover:scale-[1.03] hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-                >
-                  <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-inner">
-                    <img
-                      src={cat.imageUrl}
-                      alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-2 right-2 bg-slate-900/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      {count} mẫu
-                    </div>
-                  </div>
-
-                  <div className="p-2 pt-2.5 text-center">
-                    <h3 className="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-700 transition-colors">
-                      {cat.name}
-                    </h3>
-                    <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">
-                      {cat.tagline || cat.description}
-                    </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          {categories.filter((c) => c.id !== 'all').map((cat) => {
+            const count = products.filter((p) => p.categoryId === cat.id).length;
+            return (
+              <div
+                key={cat.id}
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  const el = document.getElementById('categories-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="glass-card rounded-[24px] overflow-hidden border border-white/80 p-2 cursor-pointer group hover:scale-[1.03] hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+              >
+                <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-inner">
+                  <img
+                    src={cat.imageUrl}
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2 right-2 bg-slate-900/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {count} mẫu
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+
+                <div className="p-2 pt-2.5 text-center">
+                  <h3 className="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    {cat.name}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">
+                    {cat.tagline || cat.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* =========================================================================
           3. SCROLLABLE CATEGORY PILLS BAR & FILTERS

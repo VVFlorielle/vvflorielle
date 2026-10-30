@@ -20,7 +20,7 @@ export const AboutPage: React.FC = () => {
   const { settings, setCurrentView } = useStore();
 
   return (
-    <div className="container py-6 space-y-8 animate-in fade-in duration-300">
+    <div className="container pt-2 sm:pt-3 pb-3 space-y-6 sm:space-y-8 animate-in fade-in duration-300">
       {/* 1. HERO BANNER */}
       <div className="rounded-[36px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/80 border border-emerald-200/80 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />

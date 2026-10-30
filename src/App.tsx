@@ -78,7 +78,7 @@ export const AppContent: React.FC = () => {
       </div>
 
       {/* Active View (Proper top padding for fixed header & compact bottom spacing for footer) */}
-      <main className="flex-1 pt-24 sm:pt-32 pb-8 md:pb-4">
+      <main className="flex-1 pt-24 sm:pt-32 pb-2">
         {currentView === 'store' && <PublicStore />}
         {currentView === 'catalog' && <CatalogPage />}
         {currentView === 'about' && <AboutPage />}

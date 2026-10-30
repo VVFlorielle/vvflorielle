@@ -448,7 +448,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Shop Settings
   const [settings, setSettings] = useState<ShopSettings>(() => {
     const saved = localStorage.getItem('vvf_settings');
-    return saved ? JSON.parse(saved) : INITIAL_SHOP_SETTINGS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.address && parsed.address.includes('Đồng Nai')) {
+          parsed.address = INITIAL_SHOP_SETTINGS.address;
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return INITIAL_SHOP_SETTINGS;
   });
 
   // Running Marquee Announcements

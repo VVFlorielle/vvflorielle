@@ -55,7 +55,7 @@ export const CatalogPage: React.FC = () => {
   });
 
   return (
-    <div className="container py-6 space-y-6 animate-in fade-in duration-300">
+    <div className="container pt-2 sm:pt-3 pb-3 space-y-5 sm:space-y-6 animate-in fade-in duration-300">
       {/* Breadcrumb & Title Hero */}
       <div className="rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/70 border border-emerald-200/80 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />

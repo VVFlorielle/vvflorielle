@@ -24,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
   const { settings, setSelectedCategory, setCurrentView, setAuthModalMode, setIsAuthModalOpen } = useStore();
 
   return (
-    <footer className="mt-8 pb-20 md:pb-8 text-slate-600 select-none">
+    <footer className="mt-2 pb-20 md:pb-8 text-slate-600 select-none">
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-6">
         {/* =========================================================================
             MOBILE FOOTER (MD:HIDDEN): MỖI THÔNG TIN TRÊN 1 KHUNG NGANG (GIỐNG PHOTOTIINLOVE)
