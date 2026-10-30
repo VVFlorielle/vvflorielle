@@ -37,6 +37,8 @@ export type PopupType =
   | 'care'
   | 'promotions'
   | 'services'
+  | 'shipping'
+  | 'wedding-event'
   | 'about'
   | 'app-download'
   | 'custom-design'
@@ -117,6 +119,10 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
         return 'Thư Viện Cẩm Nang & Ý Nghĩa Hoa';
       case 'services':
         return 'Dịch Vụ Hoa Tươi Chuyên Nghiệp V&V';
+      case 'shipping':
+        return 'Chính Sách & Bảng Giá Cước Giao Hoa Cấp Tốc (60 - 90 Phút)';
+      case 'wedding-event':
+        return 'Dịch Vụ Hoa Cưới & Trang Trí Sự Kiện Doanh Nghiệp';
       case 'guarantee':
         return 'Cam Kết Chất Lượng Hoa Tươi 100%';
       case 'voucher':
@@ -138,7 +144,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
     <div className="glass-overlay z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200" onClick={onClose}>
       <div
         className={`glass-modal-content w-full relative transition-all duration-300 ${
-          activePopup === 'services' || activePopup === 'care' || activePopup === 'custom-design'
+          activePopup === 'services' || activePopup === 'care' || activePopup === 'custom-design' || activePopup === 'shipping' || activePopup === 'wedding-event'
             ? 'max-w-2xl sm:max-w-3xl'
             : activePopup === 'app-download'
             ? 'max-w-lg'
@@ -841,17 +847,32 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
                     <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 flex items-center justify-center">
                       <Truck className="w-5 h-5" />
                     </div>
-                    <h4 className="font-bold text-sm text-slate-900">Điện Hoa Hỏa Tốc 60 - 90 Phút</h4>
+                    <h4 className="font-bold text-sm text-slate-900">Giao Hoa Cấp Tốc 60 - 90 Phút</h4>
                     <p className="text-[11px] text-slate-500 leading-relaxed">
-                      Giao nhanh nội thành Hà Nội. Luôn chụp ảnh và gửi video thành phẩm qua Zalo cho bạn duyệt trước khi giao.
+                      Giao nhanh nội thành Hà Nội. Bảng giá cước minh bạch theo km, luôn chụp ảnh &amp; video 360° qua Zalo trước khi giao.
                     </p>
                   </div>
-                  <a
-                    href={`tel:${settings.hotline.replace(/[^0-9]/g, '')}`}
-                    className="w-full py-2 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-colors text-center block"
-                  >
-                    Gọi Hotline Giao Gấp ({settings.hotline})
-                  </a>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        setTimeout(() => {
+                          const event = new CustomEvent('open-shipping-modal');
+                          window.dispatchEvent(event);
+                        }, 50);
+                      }}
+                      className="flex-1 py-2 px-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-colors text-center cursor-pointer"
+                    >
+                      Bảng Giá Cước Ship →
+                    </button>
+                    <a
+                      href={`tel:${settings.hotline.replace(/[^0-9]/g, '')}`}
+                      className="py-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-colors text-center shrink-0"
+                    >
+                      Gọi Ngay
+                    </a>
+                  </div>
                 </div>
 
                 {/* Card 4: Hoa Cưới & Sự Kiện */}
@@ -862,17 +883,32 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
                     </div>
                     <h4 className="font-bold text-sm text-slate-900">Hoa Cưới &amp; Sự Kiện Doanh Nghiệp</h4>
                     <p className="text-[11px] text-slate-500 leading-relaxed">
-                      Thiết kế trọn gói hoa cưới cầm tay, trang trí lễ đường, backdrop hoa tươi và lẵng hoa chúc mừng đối tác lớn.
+                      Thiết kế trọn gói hoa cô dâu, trang trí xe hoa, backdrop lễ đường và lẵng hoa khai trương đại tiệc, xuất VAT điện tử.
                     </p>
                   </div>
-                  <a
-                    href={`https://zalo.me/${settings.hotline.replace(/[^0-9]/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-colors text-center block"
-                  >
-                    Tư Vấn Zalo Sự Kiện →
-                  </a>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        setTimeout(() => {
+                          const event = new CustomEvent('open-wedding-event-modal');
+                          window.dispatchEvent(event);
+                        }, 50);
+                      }}
+                      className="flex-1 py-2 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-colors text-center cursor-pointer"
+                    >
+                      Chi Tiết Gói Dịch Vụ →
+                    </button>
+                    <a
+                      href={`https://zalo.me/${settings.hotline.replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-colors text-center shrink-0"
+                    >
+                      Zalo
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -901,6 +937,287 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
                     <span>Tải File APK</span>
                   </a>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* =========================================================================
+              SHIPPING RATES & DELIVERY POLICY POPUP (GIAO HOA CẤP TỐC 60 - 90 PHÚT)
+              ========================================================================= */}
+          {activePopup === 'shipping' && (
+            <div className="space-y-4">
+              {/* Header Banner */}
+              <div className="text-center space-y-1">
+                <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center mx-auto mb-1.5 shadow-sm border border-sky-200 shrink-0">
+                  <Truck className="w-6 h-6" />
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-sky-100 text-sky-900 text-[10.5px] font-bold">
+                  <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+                  <span>Dịch Vụ Giao Hoa Cấp Tốc Hà Nội</span>
+                  <span className="text-slate-400">•</span>
+                  <span>60 - 90 Phút Tận Tay</span>
+                </div>
+                <h3 className="font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight">
+                  Chính Sách &amp; Bảng Giá Cước Giao Hoa Cấp Tốc
+                </h3>
+                <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  Xuất phát từ Showroom <strong className="text-slate-700">105 Doãn Kế Thiện, Mai Dịch, Cầu Giấy, Hà Nội</strong>
+                </p>
+              </div>
+
+              {/* Bảng Giá Cước Theo Bán Kính (4 Tiers) */}
+              <div className="space-y-2">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                  <span>Bảng Cước Phí Vận Chuyển Theo Bán Kính</span>
+                  <span className="text-[10px] text-emerald-700 font-semibold lowercase">*tính theo Google Maps</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Tier 1: Dưới 3km */}
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-50/90 to-teal-50/70 border border-emerald-200/90 shadow-xs flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-black text-emerald-950">Bán Kính &lt; 3km</span>
+                        <span className="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded-full">FREESHIP</span>
+                      </div>
+                      <p className="text-[10.5px] text-slate-600">
+                        Mai Dịch, Dịch Vọng, Nghĩa Tân, Mỹ Đình 2, Xuân Thủy
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-extrabold text-sm text-emerald-700">0đ / 20.000đ</div>
+                      <div className="text-[9.5px] text-slate-400">(Miễn phí đơn từ 400k)</div>
+                    </div>
+                  </div>
+
+                  {/* Tier 2: 3 - 7km */}
+                  <div className="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-bold text-slate-900">Bán Kính 3km - 7km</div>
+                      <p className="text-[10.5px] text-slate-500">
+                        Cầu Giấy, Ba Đình, Tây Hồ, Thanh Xuân, Nam Từ Liêm
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-extrabold text-sm text-slate-800">30.000đ - 40.000đ</div>
+                      <div className="text-[9.5px] text-emerald-600 font-medium">Trợ giá 30k đơn 800k</div>
+                    </div>
+                  </div>
+
+                  {/* Tier 3: 7 - 12km */}
+                  <div className="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-bold text-slate-900">Bán Kính 7km - 12km</div>
+                      <p className="text-[10.5px] text-slate-500">
+                        Đống Đa, Hoàn Kiếm, Hai Bà Trưng, Bắc Từ Liêm, Hà Đông
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-extrabold text-sm text-slate-800">45.000đ - 60.000đ</div>
+                      <div className="text-[9.5px] text-slate-400">Giao xe máy thùng giữ dáng</div>
+                    </div>
+                  </div>
+
+                  {/* Tier 4: > 12km & Ngoại thành */}
+                  <div className="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-bold text-slate-900">Trên 12km &amp; Ngoại Thành</div>
+                      <p className="text-[10.5px] text-slate-500">
+                        Long Biên, Hoàng Mai, Gia Lâm, Hoài Đức, Đông Anh...
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-extrabold text-sm text-slate-800">65.000đ - 85.000đ</div>
+                      <div className="text-[9.5px] text-slate-400">Tối ưu chi phí thực tế</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4 Tiêu Chuẩn Giao Hàng Cấp Tốc Của V&V */}
+              <div className="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200 space-y-2.5 text-xs text-slate-700">
+                <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5 pb-1 border-b border-slate-200">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Quy Trình &amp; Cam Kết Vận Chuyển An Toàn</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] leading-relaxed">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Duyệt ảnh trước khi giao:</strong> Florist gửi ảnh &amp; video 360° qua Zalo để bạn xem và duyệt ưng ý rồi mới cho shipper đi giao.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Đóng gói chống dập nát:</strong> Bọc màng bảo vệ, gắn túi dưỡng nước gốc hoa, cố định đế giỏ hoa vững chắc suốt quãng đường.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Tặng phụ kiện cao cấp:</strong> Miễn phí thiệp chúc mừng thiết kế riêng hoặc in băng rôn chữ nổi sang trọng theo yêu cầu.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Bảo hành đổi mới 100%:</strong> Nếu hoa bị dập gãy, héo úa do vận chuyển, tiệm sẽ cắm mới và giao lại ngay trong vòng 2 giờ.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                <a
+                  href={`tel:${settings.hotline.replace(/[^0-9]/g, '')}`}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                >
+                  <PhoneCall className="w-4 h-4" />
+                  <span>Gọi Giao Cấp Tốc Ngay: {settings.hotline}</span>
+                </a>
+                <a
+                  href={`https://zalo.me/${settings.hotline.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Chat Zalo Báo Địa Chỉ &amp; Xem Mẫu</span>
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* =========================================================================
+              WEDDING & CORPORATE EVENT FLORAL POPUP
+              ========================================================================= */}
+          {activePopup === 'wedding-event' && (
+            <div className="space-y-4">
+              {/* Header Banner */}
+              <div className="text-center space-y-1">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-1.5 shadow-sm border border-amber-200 shrink-0">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10.5px] font-bold">
+                  <Heart className="w-3 h-3 text-rose-500 fill-rose-500" />
+                  <span>Gói Dịch Vụ Hoa Cưới &amp; Sự Kiện Chuyên Nghiệp</span>
+                </div>
+                <h3 className="font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight">
+                  Hoa Cưới Nghệ Thuật &amp; Trang Trí Sự Kiện Doanh Nghiệp
+                </h3>
+                <p className="text-xs text-slate-500 max-w-lg mx-auto">
+                  Thiết kế theo tone màu nhận diện, hoa nhập khẩu cao cấp, có đầy đủ hợp đồng &amp; hóa đơn VAT
+                </p>
+              </div>
+
+              {/* 2 Main Sections: Wedding vs Corporate */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {/* Section 1: Hoa Cưới Hạnh Phúc */}
+                <div className="p-4 rounded-2xl bg-gradient-to-b from-rose-50/70 to-pink-50/40 border border-rose-200/80 shadow-xs space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b border-rose-200/60">
+                    <Heart className="w-4 h-4 text-rose-600 fill-rose-500" />
+                    <h4 className="font-extrabold text-xs sm:text-sm text-rose-950 uppercase tracking-wide">
+                      1. Gói Hoa Cưới Hạnh Phúc
+                    </h4>
+                  </div>
+
+                  <div className="space-y-2.5 text-xs text-slate-700">
+                    <div className="p-2.5 rounded-xl bg-white/90 border border-rose-100 space-y-1 shadow-2xs">
+                      <div className="font-bold text-xs text-slate-900 flex items-center justify-between">
+                        <span>💐 Hoa Cầm Tay Cô Dâu + Cài Áo Chú Rể</span>
+                        <span className="text-[11px] text-rose-700 font-extrabold">Từ 850k</span>
+                      </div>
+                      <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                        Phối hoa Tulip Hà Lan, Hồng Ohara, Calla Lily, Cúc Mẫu Đơn theo dáng tròn hoặc dáng rơi hiện đại. Tặng kèm 02 hoa cài áo chú rể tone-sur-tone.
+                      </p>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white/90 border border-rose-100 space-y-1 shadow-2xs">
+                      <div className="font-bold text-xs text-slate-900 flex items-center justify-between">
+                        <span>🚗 Trang Trí Xe Hoa Rước Dâu</span>
+                        <span className="text-[11px] text-rose-700 font-extrabold">Từ 1.800k</span>
+                      </div>
+                      <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                        Trang trí cụm hoa mui xe, nóc xe, gương và đuôi xe bằng hoa tươi 100%. Sử dụng đế hút chân không nam châm chuyên dụng bảo vệ tuyệt đối sơn xe.
+                      </p>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white/90 border border-rose-100 space-y-1 shadow-2xs">
+                      <div className="font-bold text-xs text-slate-900 flex items-center justify-between">
+                        <span>🎪 Cổng Hoa &amp; Backdrop Lễ Đường</span>
+                        <span className="text-[11px] text-rose-700 font-extrabold">Tư vấn theo quy mô</span>
+                      </div>
+                      <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                        Cổng hoa tươi sang trọng, lối đi sân khấu, trang trí bàn gallery ảnh cưới theo phong cách Minimalism, Vintage hoặc Luxury Bohemian.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Sự Kiện & Hội Nghị Doanh Nghiệp */}
+                <div className="p-4 rounded-2xl bg-gradient-to-b from-sky-50/70 to-blue-50/40 border border-sky-200/80 shadow-xs space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b border-sky-200/60">
+                    <Sparkles className="w-4 h-4 text-sky-600" />
+                    <h4 className="font-extrabold text-xs sm:text-sm text-sky-950 uppercase tracking-wide">
+                      2. Sự Kiện Doanh Nghiệp &amp; Hội Nghị
+                    </h4>
+                  </div>
+
+                  <div className="space-y-2.5 text-xs text-slate-700">
+                    <div className="p-2.5 rounded-xl bg-white/90 border border-sky-100 space-y-1 shadow-2xs">
+                      <div className="font-bold text-xs text-slate-900 flex items-center justify-between">
+                        <span>🏢 Kệ Hoa Khai Trương 2 - 3 Tầng</span>
+                        <span className="text-[11px] text-sky-700 font-extrabold">Từ 950k - 3.500k</span>
+                      </div>
+                      <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                        Thiết kế hoành tráng, phối hoa hồng ngoại, lan hồ điệp, thiên điểu, hồng môn mang ý nghĩa tài lộc, phát tài phát lộc cho đối tác.
+                      </p>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white/90 border border-sky-100 space-y-1 shadow-2xs">
+                      <div className="font-bold text-xs text-slate-900 flex items-center justify-between">
+                        <span>🎙️ Hoa Bục Phát Biểu &amp; Bàn Đại Biểu VIP</span>
+                        <span className="text-[11px] text-sky-700 font-extrabold">Từ 450k</span>
+                      </div>
+                      <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                        Cắm dáng dài hoặc dáng thuyền thanh lịch, phối theo màu sắc logo thương hiệu của công ty, trang trọng và không che khuất tầm nhìn.
+                      </p>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white/90 border border-sky-100 space-y-1 shadow-2xs">
+                      <div className="font-bold text-xs text-slate-900 flex items-center justify-between">
+                        <span>🧾 Đầy Đủ Hóa Đơn VAT &amp; Hợp Đồng</span>
+                        <span className="text-[11px] text-emerald-700 font-extrabold">Xuất trong ngày</span>
+                      </div>
+                      <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                        Cung cấp báo giá cạnh tranh, xuất hóa đơn điện tử hợp lệ đầy đủ cho doanh nghiệp, hỗ trợ thanh toán công nợ chuyển khoản công ty.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                <a
+                  href={`https://zalo.me/${settings.hotline.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Tư Vấn Concept &amp; Gửi Báo Giá Zalo ({settings.hotline})</span>
+                </a>
+                <a
+                  href={`tel:${settings.hotline.replace(/[^0-9]/g, '')}`}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                >
+                  <PhoneCall className="w-4 h-4" />
+                  <span>Gọi Hotline Khảo Sát Tận Nơi</span>
+                </a>
               </div>
             </div>
           )}

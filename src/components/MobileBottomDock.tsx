@@ -421,18 +421,35 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 <div
                   onClick={() => {
                     setIsCategorySheetOpen(false);
-                    if (onOpenPopup) onOpenPopup('guarantee');
+                    if (onOpenPopup) onOpenPopup('shipping');
                   }}
                   className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
                     <Truck className="w-4 h-4 text-sky-600" />
                     <div>
-                      <div className="text-xs font-bold text-slate-800">Điện Hoa Hỏa Tốc 60 - 90P Hà Nội</div>
-                      <div className="text-[10px] text-slate-400">Giao nhanh, gửi ảnh duyệt Zalo trước khi giao</div>
+                      <div className="text-xs font-bold text-slate-800">Giao Hoa Cấp Tốc (60 - 90P)</div>
+                      <div className="text-[10px] text-slate-400">Bảng giá cước &amp; giao hỏa tốc 105 Doãn Kế Thiện</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700">Chi tiết →</span>
+                  <span className="text-[10px] font-bold text-sky-700">Giá ship →</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    setIsCategorySheetOpen(false);
+                    if (onOpenPopup) onOpenPopup('wedding-event');
+                  }}
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">Hoa Cưới &amp; Sự Kiện Doanh Nghiệp</div>
+                      <div className="text-[10px] text-slate-400">Hoa cô dâu, trang trí xe hoa, hội nghị &amp; xuất VAT</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-amber-700">Chi tiết →</span>
                 </div>
               </div>
             </div>

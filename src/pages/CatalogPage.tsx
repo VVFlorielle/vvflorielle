@@ -54,14 +54,28 @@ export const CatalogPage: React.FC = () => {
     return 0;
   });
 
+  const currentCat = categories.find((c) => c.id === selectedCategory);
+
   return (
     <div className="container pt-2 sm:pt-3 pb-3 space-y-5 sm:space-y-6 animate-in fade-in duration-300">
-      {/* Breadcrumb & Title Hero */}
-      <div className="rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/70 border border-emerald-200/80 shadow-lg relative overflow-hidden">
+      {/* Dynamic Breadcrumb & Title Hero: Thay đổi linh hoạt theo từng danh mục hoa đang chọn */}
+      <div className="rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/70 border border-emerald-200/80 shadow-lg relative overflow-hidden transition-all duration-300">
+        {/* Background Floral Accents khi chọn danh mục cụ thể */}
+        {currentCat && selectedCategory !== 'all' && (
+          <>
+            <img
+              src={currentCat.bannerUrl || currentCat.imageUrl}
+              alt={currentCat.name}
+              className="absolute right-0 top-0 w-full sm:w-1/2 h-full object-cover opacity-25 filter blur-[0.4px] pointer-events-none"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-transparent sm:to-white/20 pointer-events-none" />
+          </>
+        )}
+
         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* 1. Breadcrumb: Sát gọn gần mép viền khung phía trên bên trái (Chuẩn Image 2) */}
-        <div className="relative z-10 flex items-center justify-start gap-2 text-xs font-semibold text-emerald-800 mb-4 sm:mb-6">
+        {/* 1. Breadcrumb: Sát gọn gần mép viền khung phía trên bên trái */}
+        <div className="relative z-10 flex items-center justify-start gap-2 text-xs font-semibold text-emerald-800 mb-3 sm:mb-5">
           <button
             onClick={() => setCurrentView('store')}
             className="hover:underline flex items-center gap-1.5 text-slate-500 hover:text-emerald-700 transition-colors cursor-pointer"
@@ -70,16 +84,46 @@ export const CatalogPage: React.FC = () => {
             <span>Trang chủ</span>
           </button>
           <span className="text-slate-300">/</span>
-          <span className="text-emerald-900 font-bold">Tất Cả Mẫu Hoa Nghệ Thuật</span>
+          {currentCat && selectedCategory !== 'all' ? (
+            <>
+              <button
+                onClick={() => setSelectedCategory('all')}
+                className="hover:underline text-slate-500 hover:text-emerald-700 transition-colors cursor-pointer"
+              >
+                Mẫu Hoa
+              </button>
+              <span className="text-slate-300">/</span>
+              <span className="text-emerald-900 font-bold">{currentCat.name}</span>
+            </>
+          ) : (
+            <span className="text-emerald-900 font-bold">Tất Cả Mẫu Hoa Nghệ Thuật</span>
+          )}
         </div>
 
+        {/* 2. Tiêu đề và mô tả danh mục linh hoạt */}
         <div className="relative z-10 space-y-3 max-w-3xl mx-auto text-center flex flex-col items-center">
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight text-center">
-            Bộ Sưu Tập Mẫu Hoa Tươi Nghệ Thuật
+            {currentCat && selectedCategory !== 'all' ? currentCat.name : 'Bộ Sưu Tập Mẫu Hoa Tươi Nghệ Thuật'}
           </h1>
           <p className="text-xs sm:text-base text-slate-600 leading-relaxed max-w-2xl text-center mx-auto">
-            Tuyển chọn các thiết kế hoa tươi loại 1 từ Đà Lạt &amp; hoa ngoại nhập khẩu Ecuador. Cắm hoa thủ công tinh tế, trao gửi trọn vẹn yêu thương và lời chúc tốt đẹp nhất.
+            {currentCat && selectedCategory !== 'all'
+              ? `${currentCat.description}. ${currentCat.tagline || ''}`
+              : 'Tuyển chọn các thiết kế hoa tươi loại 1 từ Đà Lạt & hoa ngoại nhập khẩu Ecuador. Cắm hoa thủ công tinh tế, trao gửi trọn vẹn yêu thương và lời chúc tốt đẹp nhất.'}
           </p>
+
+          <div className="pt-1 flex flex-wrap items-center justify-center gap-3">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 border border-emerald-300/80 shadow-xs">
+              {filteredProducts.length} mẫu hoa tươi có sẵn
+            </span>
+            {selectedCategory !== 'all' && (
+              <button
+                onClick={() => setSelectedCategory('all')}
+                className="text-xs text-emerald-700 hover:text-emerald-900 font-bold underline cursor-pointer"
+              >
+                Xem tất cả danh mục
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

@@ -499,27 +499,27 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                     <div
                       onClick={() => {
                         setIsServiceMenuOpen(false);
-                        if (onOpenPopup) onOpenPopup('guarantee');
+                        if (onOpenPopup) onOpenPopup('shipping');
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
                     >
                       <Truck className="w-4 h-4 text-sky-600" />
                       <div>
-                        <div className="font-bold text-xs text-slate-800">Điện Hoa Hỏa Tốc 60 - 90P</div>
-                        <div className="text-[10px] text-slate-400">Giao nhanh nội thành, duyệt ảnh qua Zalo</div>
+                        <div className="font-bold text-xs text-slate-800">Giao Hoa Cấp Tốc (60 - 90P)</div>
+                        <div className="text-[10px] text-slate-400">Bảng giá cước &amp; giao nhanh nội thành Hà Nội</div>
                       </div>
                     </div>
                     <div
                       onClick={() => {
                         setIsServiceMenuOpen(false);
-                        if (onOpenPopup) onOpenPopup('services');
+                        if (onOpenPopup) onOpenPopup('wedding-event');
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
                     >
                       <Sparkles className="w-4 h-4 text-amber-500" />
                       <div>
                         <div className="font-bold text-xs text-slate-800">Hoa Cưới &amp; Sự Kiện</div>
-                        <div className="text-[10px] text-slate-400">Trang trí lễ đường &amp; sự kiện doanh nghiệp</div>
+                        <div className="text-[10px] text-slate-400">Hoa cưới cầm tay, trang trí hội nghị &amp; xuất VAT</div>
                       </div>
                     </div>
                     <div

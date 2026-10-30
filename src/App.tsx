@@ -44,12 +44,18 @@ export const AppContent: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('touchstart', handleTouch, { passive: true });
     const handleOpenCustomDesign = () => setActivePopup('custom-design');
+    const handleOpenShipping = () => setActivePopup('shipping');
+    const handleOpenWeddingEvent = () => setActivePopup('wedding-event');
     window.addEventListener('open-custom-design-modal', handleOpenCustomDesign);
+    window.addEventListener('open-shipping-modal', handleOpenShipping);
+    window.addEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('touchstart', handleTouch);
       window.removeEventListener('open-custom-design-modal', handleOpenCustomDesign);
+      window.removeEventListener('open-shipping-modal', handleOpenShipping);
+      window.removeEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
       if (timer) clearTimeout(timer);
     };
   }, []);
