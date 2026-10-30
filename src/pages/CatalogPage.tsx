@@ -57,26 +57,28 @@ export const CatalogPage: React.FC = () => {
   return (
     <div className="container py-6 space-y-6 animate-in fade-in duration-300">
       {/* Breadcrumb & Title Hero */}
-      <div className="rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/70 border border-emerald-200/80 shadow-lg relative overflow-hidden text-center flex flex-col items-center justify-center">
+      <div className="rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/70 border border-emerald-200/80 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 space-y-3 max-w-3xl mx-auto text-center flex flex-col items-center">
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800">
-            <button
-              onClick={() => setCurrentView('store')}
-              className="hover:underline flex items-center gap-1 text-slate-500 hover:text-emerald-700"
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Trang chủ</span>
-            </button>
-            <span className="text-slate-300">/</span>
-            <span className="text-emerald-900 font-bold">Tất Cả Mẫu Hoa Nghệ Thuật</span>
-          </div>
 
+        {/* 1. Breadcrumb: Sát gọn gần mép viền khung phía trên bên trái (Chuẩn Image 2) */}
+        <div className="relative z-10 flex items-center justify-start gap-2 text-xs font-semibold text-emerald-800 mb-4 sm:mb-6">
+          <button
+            onClick={() => setCurrentView('store')}
+            className="hover:underline flex items-center gap-1.5 text-slate-500 hover:text-emerald-700 transition-colors cursor-pointer"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Trang chủ</span>
+          </button>
+          <span className="text-slate-300">/</span>
+          <span className="text-emerald-900 font-bold">Tất Cả Mẫu Hoa Nghệ Thuật</span>
+        </div>
+
+        <div className="relative z-10 space-y-3 max-w-3xl mx-auto text-center flex flex-col items-center">
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight text-center">
             Bộ Sưu Tập Mẫu Hoa Tươi Nghệ Thuật
           </h1>
           <p className="text-xs sm:text-base text-slate-600 leading-relaxed max-w-2xl text-center mx-auto">
-            Tuyển chọn các thiết kế hoa tươi loại 1 từ Đà Lạt & hoa ngoại nhập khẩu Ecuador. Cắm hoa thủ công tinh tế, trao gửi trọn vẹn yêu thương và lời chúc tốt đẹp nhất.
+            Tuyển chọn các thiết kế hoa tươi loại 1 từ Đà Lạt &amp; hoa ngoại nhập khẩu Ecuador. Cắm hoa thủ công tinh tế, trao gửi trọn vẹn yêu thương và lời chúc tốt đẹp nhất.
           </p>
         </div>
       </div>

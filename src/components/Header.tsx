@@ -467,10 +467,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                     <div
                       onClick={() => {
                         setIsServiceMenuOpen(false);
-                        setCurrentView('store');
-                        setTimeout(() => {
-                          document.getElementById('featured-flowers')?.scrollIntoView({ behavior: 'smooth' });
-                        }, 100);
+                        setSelectedCategory('all');
+                        setCurrentView('catalog');
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
                     >
@@ -483,10 +481,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
                     <div
                       onClick={() => {
                         setIsServiceMenuOpen(false);
-                        setCurrentView('store');
-                        setTimeout(() => {
-                          document.getElementById('custom-builder-section')?.scrollIntoView({ behavior: 'smooth' });
-                        }, 100);
+                        if (onOpenPopup) onOpenPopup('custom-design');
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
                     >
@@ -555,14 +550,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup }) => {
               Giới Thiệu
             </button>
 
-            {/* 5. Cẩm Nang / Tin Tức (Mở Trang Riêng) */}
+            {/* 5. Cẩm Nang / Tin Tức (Mở Popup Thư Viện Kiến Thức) */}
             <button
-              onClick={() => setCurrentView('care')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
-                currentView === 'care'
-                  ? 'text-emerald-900 bg-emerald-100/90 font-bold shadow-xs'
-                  : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
-              }`}
+              onClick={() => {
+                if (onOpenPopup) onOpenPopup('care');
+              }}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors cursor-pointer"
             >
               Cẩm Nang
             </button>

@@ -382,7 +382,7 @@ export const AuthModal: React.FC = () => {
         {authModalMode === 'register' && (
           <div>
             <div className="text-center mb-4">
-              <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white mx-auto flex items-center justify-center mb-2 shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white mx-auto flex items-center justify-center mb-2 shadow-md shrink-0">
                 <UserPlus className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-base text-slate-900">Đăng Ký Thành Viên V&V</h3>
@@ -512,7 +512,7 @@ export const AuthModal: React.FC = () => {
             </button>
 
             <div className="text-center mb-4">
-              <div className="w-13 h-13 rounded-2xl bg-sky-100 text-sky-700 mx-auto flex items-center justify-center mb-2 shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 mx-auto flex items-center justify-center mb-2 shadow-md shrink-0">
                 <KeyRound className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-base text-slate-900">Quên Mật Khẩu</h3>
@@ -618,7 +618,7 @@ export const AuthModal: React.FC = () => {
                 </div>
 
                 <div className="text-center mb-5">
-                  <div className="w-13 h-13 rounded-2xl bg-slate-100 text-slate-700 mx-auto flex items-center justify-center mb-2 shadow-sm border border-slate-200">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 mx-auto flex items-center justify-center mb-2 shadow-sm border border-slate-200 shrink-0">
                     <KeyRound className="w-6 h-6 text-slate-700" />
                   </div>
                   <h3 className="font-bold text-base text-slate-900">Xác Thực Mã PIN Quản Trị</h3>
@@ -684,7 +684,7 @@ export const AuthModal: React.FC = () => {
                 </div>
 
                 <div className="text-center mb-4">
-                  <div className="w-13 h-13 rounded-2xl bg-purple-50 text-purple-700 mx-auto flex items-center justify-center mb-2 shadow-sm border border-purple-200">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 mx-auto flex items-center justify-center mb-2 shadow-sm border border-purple-200 shrink-0">
                     <ShieldCheck className="w-6 h-6 text-purple-700" />
                   </div>
                   <h3 className="font-bold text-base text-slate-900">Đăng Nhập Quản Trị V&V</h3>

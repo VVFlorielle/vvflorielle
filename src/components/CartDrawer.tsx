@@ -947,7 +947,7 @@ export const CartDrawer: React.FC = () => {
           {/* STEP 3: SUCCESS & VIETQR SCAN & BILL UPLOAD */}
           {step === 'success' && createdOrder && (
             <div className="py-3 space-y-4 text-center">
-              <div className="w-13 h-13 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center shadow-md shrink-0">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
               <div>

@@ -22,23 +22,24 @@ export const AboutPage: React.FC = () => {
   return (
     <div className="container py-6 space-y-8 animate-in fade-in duration-300">
       {/* 1. HERO BANNER */}
-      <div className="rounded-[36px] p-6 sm:p-12 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/80 border border-emerald-200/80 shadow-xl relative overflow-hidden text-center flex flex-col items-center justify-center">
+      <div className="rounded-[36px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/80 border border-emerald-200/80 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-10 w-64 h-64 bg-rose-400/10 rounded-full blur-2xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-3xl mx-auto space-y-3.5 text-center flex flex-col items-center">
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800">
-            <button
-              onClick={() => setCurrentView('store')}
-              className="hover:underline flex items-center gap-1 text-slate-500 hover:text-emerald-700"
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Trang chủ</span>
-            </button>
-            <span className="text-slate-300">/</span>
-            <span className="text-emerald-900 font-bold">Về V&V Florielle</span>
-          </div>
+        {/* 1. Breadcrumb: Sát gọn gần mép viền khung phía trên bên trái (Chuẩn Image 2) */}
+        <div className="relative z-10 flex items-center justify-start gap-2 text-xs font-semibold text-emerald-800 mb-4 sm:mb-6">
+          <button
+            onClick={() => setCurrentView('store')}
+            className="hover:underline flex items-center gap-1.5 text-slate-500 hover:text-emerald-700 transition-colors cursor-pointer"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Trang chủ</span>
+          </button>
+          <span className="text-slate-300">/</span>
+          <span className="text-emerald-900 font-bold">Về V&V Florielle</span>
+        </div>
 
+        <div className="relative z-10 max-w-3xl mx-auto space-y-3.5 text-center flex flex-col items-center">
           <span className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black tracking-wider uppercase mx-auto">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
             Nghệ Thuật Trao Gửi Yêu Thương

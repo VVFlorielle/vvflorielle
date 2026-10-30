@@ -24,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
   const { settings, setSelectedCategory, setCurrentView, setAuthModalMode, setIsAuthModalOpen } = useStore();
 
   return (
-    <footer className="mt-16 pb-28 md:pb-12 text-slate-600 select-none">
+    <footer className="mt-8 pb-20 md:pb-8 text-slate-600 select-none">
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-6">
         {/* =========================================================================
             MOBILE FOOTER (MD:HIDDEN): MỖI THÔNG TIN TRÊN 1 KHUNG NGANG (GIỐNG PHOTOTIINLOVE)
@@ -287,7 +287,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
                   <span>Chậu hoa Lan Hồ Điệp đại sảnh cao cấp</span>
                 </li>
                 <li
-                  onClick={() => setCurrentView('care')}
+                  onClick={() => {
+                    if (onOpenPopup) onOpenPopup('care');
+                  }}
                   className="hover:text-emerald-700 cursor-pointer transition-colors text-emerald-700 font-semibold pt-1 flex items-center gap-1"
                 >
                   <Droplets className="w-3.5 h-3.5 text-emerald-600" />

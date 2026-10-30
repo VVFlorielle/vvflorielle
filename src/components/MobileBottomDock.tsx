@@ -404,18 +404,18 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 <div
                   onClick={() => {
                     setIsCategorySheetOpen(false);
-                    if (onOpenPopup) onOpenPopup('services');
+                    if (onOpenPopup) onOpenPopup('custom-design');
                   }}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer"
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer active:scale-95 transition-all"
                 >
                   <div className="flex items-center gap-2">
                     <Palette className="w-4 h-4 text-rose-600" />
                     <div>
                       <div className="text-xs font-bold text-slate-800">Hoa Thiết Kế Riêng Theo Yêu Cầu</div>
-                      <div className="text-[10px] text-slate-400">Tư vấn màu sắc phong thủy &amp; loài hoa yêu thích</div>
+                      <div className="text-[10px] text-slate-400">Gửi ảnh mẫu, chọn ngân sách &amp; duyệt mẫu</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700">Chi tiết →</span>
+                  <span className="text-[10px] font-bold text-emerald-700">Mở mẫu →</span>
                 </div>
 
                 <div
@@ -484,12 +484,11 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </div>
 
-            {/* 2. Cẩm Nang Dưỡng Hoa (Mở Trang Riêng) */}
+            {/* 2. Cẩm Nang Dưỡng Hoa (Mở Popup Thư Viện Kiến Thức) */}
             <div
               onClick={() => {
                 setIsUtilityMenuOpen(false);
-                setCurrentView('care');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (onOpenPopup) onOpenPopup('care');
               }}
               className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
             >
@@ -498,8 +497,8 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   <BookOpen className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <div className="font-bold text-xs text-slate-900">Cẩm Nang Dưỡng Hoa Tươi Lâu</div>
-                  <div className="text-[10px] text-slate-500">Bí quyết giữ hoa 7 ngày &amp; ý nghĩa loài hoa</div>
+                  <div className="font-bold text-xs text-slate-900">Cẩm Nang &amp; Ý Nghĩa Hoa</div>
+                  <div className="text-[10px] text-slate-500">Bí quyết giữ hoa 7 ngày &amp; ý nghĩa các loài hoa</div>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400" />

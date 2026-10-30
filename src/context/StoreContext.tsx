@@ -121,6 +121,16 @@ interface StoreContextType {
     revealSenderToRecipient?: boolean;
     senderAgreedOverDistance?: boolean;
   }) => Order;
+  createCustomDesignRequest: (data: {
+    senderName: string;
+    senderPhone: string;
+    occasion: string;
+    budget: string;
+    sampleImage?: string;
+    notes: string;
+    deliveryDate?: string;
+    deliveryAddress?: string;
+  }) => Order;
   uploadOrderBill: (orderId: string, billImageDataUrl: string) => void;
   approveOrderDeposit: (orderId: string, approvedBy?: 'ADMIN' | 'AUTO_ASSISTANT') => void;
   adjustOrderShippingFee: (orderId: string, newShippingFee: number) => void;
@@ -846,6 +856,77 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return newOrder;
   };
 
+  const createCustomDesignRequest = (data: {
+    senderName: string;
+    senderPhone: string;
+    occasion: string;
+    budget: string;
+    sampleImage?: string;
+    notes: string;
+    deliveryDate?: string;
+    deliveryAddress?: string;
+  }): Order => {
+    const newId = generateUniqueOrderId();
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+    let estBudget = 0;
+    const match = data.budget.replace(/[^0-9]/g, '');
+    if (match) {
+      estBudget = parseInt(match, 10);
+      if (estBudget < 1000) estBudget *= 1000;
+    }
+
+    const newOrder: Order = {
+      id: newId,
+      senderName: data.senderName.trim(),
+      senderPhone: data.senderPhone.trim(),
+      recipientName: data.senderName.trim(),
+      recipientPhone: data.senderPhone.trim(),
+      recipientAddress: data.deliveryAddress?.trim() || 'Nhận tại tiệm 105 Doãn Kế Thiện hoặc thỏa thuận khi duyệt',
+      deliveryDate: data.deliveryDate?.trim() || dateStr,
+      deliveryTimeSlot: 'Theo lịch hẹn tư vấn',
+      cardMessage: data.notes.trim() || 'Yêu cầu phối hoa theo mẫu riêng',
+      items: [
+        {
+          productId: 'custom-design-item',
+          productName: `Hoa Thiết Kế Theo Mẫu (${data.occasion})`,
+          price: estBudget || 500000,
+          quantity: 1,
+          ribbonColor: 'Tone màu theo mẫu',
+          cardMessage: data.notes
+        }
+      ],
+      totalAmount: estBudget || 500000,
+      flowerPrice: estBudget || 500000,
+      shippingDistanceKm: 1,
+      shippingFee: 0,
+      discountAmount: 0,
+      paymentMethod: 'BANK_TRANSFER',
+      paymentType: 'VIETQR_DEPOSIT_50',
+      depositAmount: Math.round((estBudget || 500000) * 0.5),
+      remainingAmount: Math.round((estBudget || 500000) * 0.5),
+      paymentStatus: 'UNPAID',
+      status: 'PENDING',
+      paymentBillImage: data.sampleImage,
+      note: `[Yêu cầu thiết kế riêng] Dịp: ${data.occasion} | Ngân sách: ${data.budget} | Lời dặn: ${data.notes}`,
+      createdAt: `${dateStr} ${timeStr}`
+    };
+
+    setOrders((prev) => [newOrder, ...prev]);
+
+    sendAppNotification({
+      recipientRole: 'ADMIN',
+      title: `🎨 Yêu cầu hoa thiết kế theo mẫu mới #${newId}!`,
+      message: `Khách ${newOrder.senderName} (${newOrder.senderPhone}) gửi yêu cầu cắm hoa dịp ${data.occasion}. Ngân sách: ${data.budget}. Vui lòng xem ảnh mẫu và duyệt khả thi.`,
+      type: 'ORDER_NEW',
+      orderId: newId
+    });
+
+    return newOrder;
+  };
+
   const uploadOrderBill = (orderId: string, billImageDataUrl: string) => {
     const nowIso = new Date().toISOString();
     setOrders((prev) =>
@@ -1531,6 +1612,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsCartOpen,
         orders,
         createOrder,
+        createCustomDesignRequest,
         uploadOrderBill,
         approveOrderDeposit,
         adjustOrderShippingFee,

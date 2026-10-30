@@ -43,9 +43,13 @@ export const AppContent: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('touchstart', handleTouch, { passive: true });
+    const handleOpenCustomDesign = () => setActivePopup('custom-design');
+    window.addEventListener('open-custom-design-modal', handleOpenCustomDesign);
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('touchstart', handleTouch);
+      window.removeEventListener('open-custom-design-modal', handleOpenCustomDesign);
       if (timer) clearTimeout(timer);
     };
   }, []);
@@ -73,8 +77,8 @@ export const AppContent: React.FC = () => {
         </div>
       </div>
 
-      {/* Active View (Proper top padding for fixed header & bottom padding for mobile dock) */}
-      <main className="flex-1 pt-24 sm:pt-32 pb-20 md:pb-8">
+      {/* Active View (Proper top padding for fixed header & compact bottom spacing for footer) */}
+      <main className="flex-1 pt-24 sm:pt-32 pb-8 md:pb-4">
         {currentView === 'store' && <PublicStore />}
         {currentView === 'catalog' && <CatalogPage />}
         {currentView === 'about' && <AboutPage />}
