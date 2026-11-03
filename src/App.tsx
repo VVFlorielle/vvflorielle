@@ -11,7 +11,7 @@ import { CarePage } from './pages/CarePage';
 import { CustomerPortal } from './pages/CustomerPortal';
 import { AdminPortal } from './pages/AdminPortal';
 import { OwnerPortal } from './pages/OwnerPortal';
-import { ManagementHeader } from './components/ManagementHeader';
+import { ManagementDock } from './components/management/ManagementDock';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
@@ -75,9 +75,9 @@ export const AppContent: React.FC = () => {
         <div className="ambient-blob-5" />
       </div>
 
-      {/* Top Navigation: ManagementHeader for Admin/Owner OR Public Floating Header for Customers */}
+      {/* Top Navigation: ManagementDock (Light Glass) for Admin/Owner OR Public Floating Header for Customers */}
       {isManagementView ? (
-        <ManagementHeader />
+        <ManagementDock role={currentView === 'owner' ? 'owner' : 'admin'} />
       ) : (
         <div className="fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5">
           <div className="pointer-events-auto relative z-20">
@@ -90,7 +90,7 @@ export const AppContent: React.FC = () => {
       )}
 
       {/* Active View (Clean dedicated layout for management, spacious top padding for public store) */}
-      <main className={`flex-1 ${isManagementView ? 'pt-20 sm:pt-22 pb-8' : 'pt-24 sm:pt-32 pb-2'}`}>
+      <main className={`flex-1 ${isManagementView ? 'pt-3 sm:pt-5 pb-8' : 'pt-24 sm:pt-32 pb-2'}`}>
         {currentView === 'store' && <PublicStore />}
         {currentView === 'catalog' && <CatalogPage />}
         {currentView === 'about' && <AboutPage />}

@@ -37,19 +37,10 @@ import {
   Volume2,
   Megaphone
 } from 'lucide-react';
-import {
-  OrderStatus,
-  CategoryId,
-  CustomerUser,
-  Order,
-  FlowerCategory,
-  FlowerProduct,
-  PromotionItem,
-  BlogArticle,
-  HeroBannerConfig,
-  ContactChannel
-} from '../types';
+import { OrderStatus, CategoryId, CustomerUser, Order, FlowerCategory, FlowerProduct, PromotionItem, BlogArticle, HeroBannerConfig, ContactChannel } from '../types';
 import { AVAILABLE_MASCOTS, AVAILABLE_FLORAL_CORNERS } from '../data/mockData';
+import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
+import { ManagementTabsBar } from '../components/management/ManagementTabsBar';
 
 export const AdminPortal: React.FC = () => {
   const {
@@ -294,8 +285,8 @@ export const AdminPortal: React.FC = () => {
   // If NOT ADMIN, render login form
   if (!isAdmin) {
     return (
-      <div className="container py-16 text-center max-w-md mx-auto space-y-4 px-4">
-        <div className="glass-modal-content p-8 space-y-5 rounded-[28px] shadow-2xl border border-white/80 bg-white/85 backdrop-blur-2xl">
+      <div className="w-full max-w-md mx-auto py-12 px-4 select-none">
+        <div className="p-6 sm:p-8 space-y-5 rounded-[28px] shadow-xl border border-emerald-100/90 bg-white/95 backdrop-blur-2xl text-center">
           <div className="w-16 h-16 rounded-2xl bg-purple-100 text-purple-700 mx-auto flex items-center justify-center shadow-md shadow-purple-600/10 border border-purple-200">
             <Lock className="w-8 h-8" />
           </div>
@@ -305,6 +296,29 @@ export const AdminPortal: React.FC = () => {
             <p className="text-xs text-slate-500 mt-1">
               Khu vực bảo mật dành riêng cho Ban Điều Hành &amp; Chủ Tiệm
             </p>
+          </div>
+
+          {/* Quick Credentials Hint */}
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 space-y-1.5 text-left">
+            <div className="font-bold text-slate-700 flex items-center justify-between">
+              <span>Gợi Ý Tài Khoản Quản Trị:</span>
+              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">Tự Nhận Biết Role</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10.5px]">
+              <div className="p-1.5 rounded-xl bg-purple-50/80 border border-purple-200/60">
+                <strong className="text-purple-900 block">1. Super Admin:</strong>
+                <span>User: <code className="font-mono text-purple-700 font-bold">admin</code></span><br/>
+                <span>Pass: <code className="font-mono text-purple-700 font-bold">17092000</code></span>
+              </div>
+              <div className="p-1.5 rounded-xl bg-emerald-50/80 border border-emerald-200/60">
+                <strong className="text-emerald-900 block">2. Chủ Quán (Ops):</strong>
+                <span>User: <code className="font-mono text-emerald-700 font-bold">chuquan</code></span><br/>
+                <span>Pass: <code className="font-mono text-emerald-700 font-bold">19092003</code></span>
+              </div>
+            </div>
+            <div className="text-[10px] text-slate-500 pt-0.5">
+              * Mã PIN bảo mật: <code className="font-mono font-bold text-slate-700">26122025</code>
+            </div>
           </div>
 
           {loginMode === 'login' ? (
@@ -448,194 +462,120 @@ export const AdminPortal: React.FC = () => {
   // LOGGED-IN ADMIN CONSOLE
   return (
     <div className="container py-8 space-y-8 px-4">
-      {/* Admin Top Glass Bar */}
-      <div className="glass-panel p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-[28px] border border-purple-200/80 bg-white/70 shadow-lg">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-purple-600/30">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Hệ Thống Quản Trị V&amp;V Florielle</h2>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200/60 font-mono">
-                {activeAdminUser === 'admin' ? 'Tài khoản: admin (Chủ Tiệm)' : 'Tài khoản: vvflorielle (Boutique Florist)'}
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                Quyền bình đẳng 100%
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Địa chỉ: 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội • Chế độ hiện tại:{' '}
-              <strong>
-                {adminViewMode === 'STUDIO_CMS'
-                  ? 'Studio Live CMS (V&V Florielle Studio)'
-                  : 'Vận Hành Tiệm Hoa Nhanh (Boutique Ops)'}
-              </strong>
-            </p>
-          </div>
-        </div>
+      {/* 1. TOP GREETING & 4 KPIS HERO (BRIGHT, ELEGANT PASTEL) */}
+      <ManagementOverviewHero
+        tag="Trung Tâm Quản Trị Hệ Thống • Studio System Admin"
+        tagIcon={<ShieldCheck className="w-3.5 h-3.5 text-purple-700" />}
+        title="Trung Tâm Quản Trị Hệ Thống V&V Florielle"
+        subtitle="Quản lý toàn diện đơn hàng, danh mục hoa tươi, khách hàng, voucher, cấu hình cước hỏa tốc và liveview CMS giao diện."
+        statusBadge="Hệ Thống Sẵn Sàng (Live 24/7)"
+        stats={[
+          {
+            id: 'revenue',
+            title: 'Tổng Doanh Thu',
+            value: formatPrice(totalRevenue),
+            subtext: `Theo ${orders.length} đơn hàng`,
+            icon: <TrendingUp className="w-4 h-4 text-emerald-700" />,
+            color: 'emerald'
+          },
+          {
+            id: 'arranging',
+            title: 'Cần Cắm & Duyệt',
+            value: arrangingCount,
+            subtext: 'Đơn hoa cần xử lý ngay',
+            icon: <Clock className="w-4 h-4 text-amber-700" />,
+            color: 'amber',
+            onClick: () => {
+              setActiveTab('orders');
+              setOrderStatusFilter('ARRANGING');
+            },
+            isActive: activeTab === 'orders' && orderStatusFilter === 'ARRANGING'
+          },
+          {
+            id: 'completed',
+            title: 'Đã Giao Thành Công',
+            value: completedCount,
+            subtext: 'Đơn hàng hoàn tất',
+            icon: <CheckCircle2 className="w-4 h-4 text-sky-700" />,
+            color: 'sky',
+            onClick: () => {
+              setActiveTab('orders');
+              setOrderStatusFilter('COMPLETED');
+            },
+            isActive: activeTab === 'orders' && orderStatusFilter === 'COMPLETED'
+          },
+          {
+            id: 'customers',
+            title: 'Khách Hàng Đã Lưu',
+            value: customers.length,
+            subtext: 'Thành viên thân thiết',
+            icon: <Users className="w-4 h-4 text-purple-700" />,
+            color: 'purple',
+            onClick: () => setActiveTab('customers'),
+            isActive: activeTab === 'customers'
+          }
+        ]}
+      />
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => testCuteVoice('Có đơn hàng mới cần cắm hoa gấp!')}
-            className="btn-secondary text-xs py-2 px-3 rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50 flex items-center gap-1 cursor-pointer"
-            title="Thử âm thanh giọng nữ dễ thương"
-          >
-            <Volume2 className="w-3.5 h-3.5 text-purple-600" />
-            <span>Thử Giọng Nữ AI</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Glass Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="glass-card p-4 space-y-1 rounded-[24px]">
-          <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Tổng Doanh Thu</span>
-          </div>
-          <div className="text-xl font-bold text-slate-900">{formatPrice(totalRevenue)}</div>
-          <div className="text-[11px] text-emerald-600 font-medium">Theo {orders.length} đơn hàng</div>
-        </div>
-
-        <div className="glass-card p-4 space-y-1 rounded-[24px]">
-          <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-amber-600" />
-            <span>Cần Cắm &amp; Duyệt</span>
-          </div>
-          <div className="text-xl font-bold text-amber-600">{arrangingCount}</div>
-          <div className="text-[11px] text-slate-400">Đơn hoa cần xử lý ngay</div>
-        </div>
-
-        <div className="glass-card p-4 space-y-1 rounded-[24px]">
-          <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-sky-600" />
-            <span>Đã Giao Thành Công</span>
-          </div>
-          <div className="text-xl font-bold text-sky-700">{completedCount}</div>
-          <div className="text-[11px] text-slate-400">Đơn hàng hoàn tất</div>
-        </div>
-
-        <div className="glass-card p-4 space-y-1 rounded-[24px]">
-          <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-purple-600" />
-            <span>Khách Hàng Đã Lưu</span>
-          </div>
-          <div className="text-xl font-bold text-purple-700">{customers.length}</div>
-          <div className="text-[11px] text-slate-400">Thành viên thân thiết</div>
-        </div>
-      </div>
-
-      {/* Tab Navigation Pill Bar */}
-      <div className="flex border-b border-slate-200/80 gap-2 overflow-x-auto text-xs pb-1">
-        <button
-          onClick={() => setActiveTab('orders')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'orders'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <ShoppingBag className="w-4 h-4" />
-          <span>Đơn Hàng ({orders.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('products')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'products'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <Flower2 className="w-4 h-4" />
-          <span>Danh Mục Mẫu Hoa ({products.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('customers')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'customers'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Khách Hàng ({customers.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('vouchers')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'vouchers'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <Gift className="w-4 h-4" />
-          <span>Voucher ({promotions.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('channels')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'channels'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <Share2 className="w-4 h-4" />
-          <span>Kênh Liên Hệ ({contactChannels.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'settings'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <Settings className="w-4 h-4" />
-          <span>Cấu Hình Shop</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('security')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'security'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <KeyRound className="w-4 h-4" />
-          <span>Bảo Mật &amp; PIN</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('cms')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'cms'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <LayoutTemplate className="w-4 h-4" />
-          <span>Giao Diện &amp; Webview Live</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('marquee')}
-          className={`pb-3 px-4 font-bold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
-            activeTab === 'marquee'
-              ? 'text-purple-700 border-purple-700'
-              : 'text-slate-500 border-transparent hover:text-slate-800'
-          }`}
-        >
-          <Megaphone className="w-4 h-4" />
-          <span>Bảng Tin Chạy ({marqueeAnnouncements.length})</span>
-        </button>
-      </div>
+      {/* 2. MANAGEMENT TABS DOCK (STYLE ẢNH 1 PHOTOTIINLOVE) */}
+      <ManagementTabsBar
+        tabs={[
+          {
+            id: 'orders',
+            label: 'Đơn Hàng',
+            count: orders.length,
+            icon: <ShoppingBag className="w-4 h-4" />
+          },
+          {
+            id: 'products',
+            label: 'Danh Mục Mẫu Hoa',
+            count: products.length,
+            icon: <Flower2 className="w-4 h-4" />
+          },
+          {
+            id: 'customers',
+            label: 'Khách Hàng',
+            count: customers.length,
+            icon: <Users className="w-4 h-4" />
+          },
+          {
+            id: 'vouchers',
+            label: 'Voucher',
+            count: promotions.length,
+            icon: <Gift className="w-4 h-4" />
+          },
+          {
+            id: 'channels',
+            label: 'Kênh Liên Hệ',
+            count: contactChannels.length,
+            icon: <Share2 className="w-4 h-4" />
+          },
+          {
+            id: 'settings',
+            label: 'Cấu Hình Shop',
+            icon: <Settings className="w-4 h-4" />
+          },
+          {
+            id: 'security',
+            label: 'Bảo Mật & PIN',
+            icon: <KeyRound className="w-4 h-4" />
+          },
+          {
+            id: 'cms',
+            label: 'Giao Diện & Webview Live',
+            icon: <LayoutTemplate className="w-4 h-4" />
+          },
+          {
+            id: 'marquee',
+            label: 'Bảng Tin Chạy',
+            count: marqueeAnnouncements.length,
+            icon: <Megaphone className="w-4 h-4" />
+          }
+        ]}
+        activeTab={activeTab}
+        onSelectTab={(tabId) => setActiveTab(tabId as any)}
+        accentColor="purple"
+      />
 
       {/* =========================================================================
           TAB 1: ORDERS MANAGEMENT (6-DIGIT RANDOM IDS, 50% DEPOSIT, SHIPPING ADJUST)

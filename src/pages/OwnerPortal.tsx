@@ -30,6 +30,8 @@ import {
   Camera
 } from 'lucide-react';
 import { OrderStatus, FlowerProduct, PromotionItem, CustomerUser } from '../types';
+import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
+import { ManagementTabsBar } from '../components/management/ManagementTabsBar';
 
 export const OwnerPortal: React.FC = () => {
   const {
@@ -158,158 +160,96 @@ export const OwnerPortal: React.FC = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-16 space-y-6 select-none">
-      {/* === TOP GREETING & STATS STRIP === */}
-      <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-white shadow-xl relative overflow-hidden border border-emerald-500/30">
-        <div className="absolute right-0 top-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold mb-2">
-              <Flower2 className="w-3.5 h-3.5" />
-              <span>Không Gian Điều Hành Tiệm Hoa • Florist Command Center</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">
-              Bảng Vận Hành Tiệm Hoa V&V Florielle
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-              105 Doãn Kế Thiện, Cầu Giấy • Duyệt đơn cọc VietQR 1-chạm, kiểm soát còn hoa tức thì và chăm sóc khách hàng thân thiết.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 self-stretch md:self-auto justify-end">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Tiệm đang mở cửa (06:30 - 21:30)</span>
-            </span>
-          </div>
-        </div>
-
-        {/* 4 Quick Stat Counters */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
-          <div
-            onClick={() => {
+      {/* 1. TOP GREETING & 4 KPIS HERO (BRIGHT, ELEGANT PASTEL) */}
+      <ManagementOverviewHero
+        tag="Không Gian Điều Hành Tiệm Hoa • Florist Command Center"
+        tagIcon={<Flower2 className="w-3.5 h-3.5 text-emerald-700" />}
+        title="Bảng Vận Hành Tiệm Hoa V&V Florielle"
+        subtitle="105 Doãn Kế Thiện, Cầu Giấy • Duyệt đơn cọc VietQR 1-chạm, kiểm soát còn hoa tức thì và chăm sóc khách hàng thân thiết."
+        statusBadge="Tiệm đang mở cửa (06:30 - 21:30)"
+        stats={[
+          {
+            id: 'deposit',
+            title: 'Đơn Cần Duyệt Cọc',
+            value: pendingDepositOrders.length,
+            subtext: pendingDepositOrders.length > 0 ? '⚡ Cần xác nhận bill cọc 50%' : 'Đã duyệt hết',
+            icon: <AlertCircle className="w-4 h-4 text-amber-700" />,
+            color: 'amber',
+            onClick: () => {
               setActiveTab('orders');
               setOrderStatusFilter('PENDING_DEPOSIT');
-            }}
-            className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer ${
-              pendingDepositOrders.length > 0
-                ? 'bg-amber-500/20 border-amber-500/50 hover:bg-amber-500/30 ring-2 ring-amber-500/20'
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
-            }`}
-          >
-            <div className="flex items-center justify-between text-xs text-amber-300 font-bold">
-              <span>Đơn Cần Duyệt Cọc</span>
-              <AlertCircle className="w-4 h-4" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-amber-200 mt-1">
-              {pendingDepositOrders.length}
-            </div>
-            <div className="text-[10px] text-amber-300/80 mt-0.5">
-              {pendingDepositOrders.length > 0 ? '⚡ Cần xác nhận bill cọc 50%' : 'Đã duyệt hết'}
-            </div>
-          </div>
-
-          <div
-            onClick={() => {
+            },
+            isActive: activeTab === 'orders' && orderStatusFilter === 'PENDING_DEPOSIT'
+          },
+          {
+            id: 'arranging',
+            title: 'Đang Cắm Hoa',
+            value: arrangingOrders.length,
+            subtext: 'Florist đang hoàn thiện',
+            icon: <Flower2 className="w-4 h-4 text-emerald-700" />,
+            color: 'emerald',
+            onClick: () => {
               setActiveTab('orders');
               setOrderStatusFilter('ARRANGING');
-            }}
-            className="p-3.5 sm:p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer"
-          >
-            <div className="flex items-center justify-between text-xs text-emerald-300 font-bold">
-              <span>Đang Cắm Hoa</span>
-              <Flower2 className="w-4 h-4" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1">
-              {arrangingOrders.length}
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Florist đang hoàn thiện</div>
-          </div>
-
-          <div
-            onClick={() => {
+            },
+            isActive: activeTab === 'orders' && orderStatusFilter === 'ARRANGING'
+          },
+          {
+            id: 'shipping',
+            title: 'Đang Giao Hỏa Tốc',
+            value: shippingOrders.length,
+            subtext: 'Shipper đang trên đường',
+            icon: <Truck className="w-4 h-4 text-sky-700" />,
+            color: 'sky',
+            onClick: () => {
               setActiveTab('orders');
               setOrderStatusFilter('SHIPPING');
-            }}
-            className="p-3.5 sm:p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer"
-          >
-            <div className="flex items-center justify-between text-xs text-sky-300 font-bold">
-              <span>Đang Giao Hỏa Tốc</span>
-              <Truck className="w-4 h-4" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1">
-              {shippingOrders.length}
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Shipper đang trên đường</div>
-          </div>
+            },
+            isActive: activeTab === 'orders' && orderStatusFilter === 'SHIPPING'
+          },
+          {
+            id: 'revenue',
+            title: 'Doanh Thu Hoàn Tất',
+            value: formatPrice(totalRevenue),
+            subtext: `${completedOrders.length} đơn hoàn thành`,
+            icon: <Sparkles className="w-4 h-4 text-purple-700" />,
+            color: 'purple'
+          }
+        ]}
+      />
 
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-white/5 border border-white/10">
-            <div className="flex items-center justify-between text-xs text-teal-300 font-bold">
-              <span>Doanh Thu Hoa Hoàn Tất</span>
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-emerald-300 mt-1 truncate">
-              {formatPrice(totalRevenue)}
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">{completedOrders.length} đơn hoàn thành</div>
-          </div>
-        </div>
-      </div>
-
-      {/* === NAVIGATION TABS FOR OWNER === */}
-      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto pb-2 text-xs sm:text-sm">
-        <button
-          onClick={() => setActiveTab('orders')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold whitespace-nowrap transition-all cursor-pointer ${
-            activeTab === 'orders'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-              : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'
-          }`}
-        >
-          <Flower2 className="w-4 h-4" />
-          <span>Duyệt Đơn & Vận Hành ({orders.length})</span>
-          {pendingDepositOrders.length > 0 && (
-            <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center font-black animate-pulse">
-              {pendingDepositOrders.length}
-            </span>
-          )}
-        </button>
-
-        <button
-          onClick={() => setActiveTab('stock')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold whitespace-nowrap transition-all cursor-pointer ${
-            activeTab === 'stock'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-              : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'
-          }`}
-        >
-          <ToggleRight className="w-4 h-4" />
-          <span>Bật/Tắt Còn Hoa 1-Chạm ({products.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('customers')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold whitespace-nowrap transition-all cursor-pointer ${
-            activeTab === 'customers'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-              : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Tra Cứu Khách VIP ({customers.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('vouchers')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold whitespace-nowrap transition-all cursor-pointer ${
-            activeTab === 'vouchers'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-              : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'
-          }`}
-        >
-          <Tag className="w-4 h-4" />
-          <span>Tạo Mã Dịp Lễ ({promotions.length})</span>
-        </button>
-      </div>
+      {/* 2. MANAGEMENT TABS DOCK (STYLE ẢNH 1 PHOTOTIINLOVE) */}
+      <ManagementTabsBar
+        tabs={[
+          {
+            id: 'orders',
+            label: 'Duyệt Đơn & Vận Hành',
+            count: orders.length,
+            icon: <Flower2 className="w-4 h-4" />
+          },
+          {
+            id: 'stock',
+            label: 'Bật/Tắt Còn Hoa 1-Chạm',
+            count: products.length,
+            icon: <ToggleRight className="w-4 h-4" />
+          },
+          {
+            id: 'customers',
+            label: 'Tra Cứu Khách VIP',
+            count: customers.length,
+            icon: <Users className="w-4 h-4" />
+          },
+          {
+            id: 'vouchers',
+            label: 'Tạo Mã Dịp Lễ',
+            count: promotions.length,
+            icon: <Tag className="w-4 h-4" />
+          }
+        ]}
+        activeTab={activeTab}
+        onSelectTab={(tabId) => setActiveTab(tabId as any)}
+        accentColor="emerald"
+      />
 
       {/* =========================================================================
           TAB 1: ORDERS & DEPOSIT MANAGEMENT WORKFLOW
@@ -334,7 +274,7 @@ export const OwnerPortal: React.FC = () => {
                 onClick={() => setOrderStatusFilter('ALL')}
                 className={`px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition-all ${
                   orderStatusFilter === 'ALL'
-                    ? 'bg-slate-900 text-white font-bold'
+                    ? 'bg-emerald-700 text-white font-bold shadow-2xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -870,7 +810,7 @@ export const OwnerPortal: React.FC = () => {
 
       {/* === BILL PREVIEW MODAL === */}
       {viewingBillOrder && (
-        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
             <button
               onClick={() => setViewingBillOrder(null)}
