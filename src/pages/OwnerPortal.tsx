@@ -27,11 +27,20 @@ import {
   Users,
   ShieldCheck,
   RefreshCw,
-  Camera
+  Camera,
+  ArrowLeft,
+  ChevronRight,
+  ShoppingBag
 } from 'lucide-react';
 import { OrderStatus, FlowerProduct, PromotionItem, CustomerUser } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
 import { ManagementTabsBar } from '../components/management/ManagementTabsBar';
+import { ManagementFunctionalGrid, ManagementActionGroup } from '../components/management/ManagementFunctionalGrid';
+import {
+  SecurityModal,
+  QuickVoucherModal,
+  BillPreviewModal
+} from '../components/management/ManagementModals';
 
 export const OwnerPortal: React.FC = () => {
   const {
@@ -45,10 +54,15 @@ export const OwnerPortal: React.FC = () => {
     promotions,
     updatePromotions,
     settings,
-    showToast
+    showToast,
+    changeAdminCredentials,
+    adminEmail,
+    saveGmailConfig
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'stock' | 'customers' | 'vouchers'>('orders');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'stock' | 'customers' | 'vouchers'>('dashboard');
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showQuickVoucherModal, setShowQuickVoucherModal] = useState(false);
 
   // Filter orders
   const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | 'PENDING_DEPOSIT' | 'ARRANGING' | 'SHIPPING' | 'COMPLETED'>('ALL');
@@ -158,6 +172,119 @@ export const OwnerPortal: React.FC = () => {
     showToast('Đã xóa mã ưu đãi!', 'info');
   };
 
+  // Action groups for Owner Functional Grid (phototiinlove style)
+  const ownerActionGroups: ManagementActionGroup[] = [
+    {
+      groupTitle: '1. Vận Hành Tiệm Hoa & Kiểm Soát Cốt Lõi',
+      groupIcon: <Flower2 className="w-4 h-4 text-emerald-700" />,
+      badge: 'Nghiệp Vụ Hằng Ngày',
+      items: [
+        {
+          id: 'owner-orders',
+          title: 'Duyệt Đơn Cọc 50% & Gửi Ảnh Zalo Duyệt Mẫu',
+          description: 'Xem bill VietQR chuyển khoản, duyệt cọc 1-chạm sang đang cắm, chụp ảnh hoa hoàn thiện gửi Zalo duyệt mẫu trước khi giao.',
+          icon: <ShoppingBag className="w-5 h-5" />,
+          iconBgColor: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+          badge: `${pendingDepositOrders.length > 0 ? `${pendingDepositOrders.length} Đơn Cần Duyệt` : 'Ổn Định'}`,
+          badgeColor: pendingDepositOrders.length > 0 ? 'amber' : 'emerald',
+          actionType: 'page',
+          actionLabel: 'Mở Xử Lý Đơn',
+          onClick: () => setActiveTab('orders')
+        },
+        {
+          id: 'owner-stock',
+          title: 'Kiểm Soát Còn Hoa 1-Chạm (Instant Stock)',
+          description: 'Bật/tắt trạng thái Còn hàng hoặc Tạm hết của các mẫu hoa trong ngày chỉ với một thao tác chạm tức thì.',
+          icon: <Flower2 className="w-5 h-5" />,
+          iconBgColor: 'bg-pink-100 text-pink-700 border border-pink-200',
+          badge: `${products.length} Mẫu Hoa`,
+          badgeColor: 'rose',
+          actionType: 'page',
+          actionLabel: 'Mở Kho Hoa',
+          onClick: () => setActiveTab('stock')
+        }
+      ]
+    },
+    {
+      groupTitle: '2. Khách Quen VIP & Khuyến Mãi Tiệm',
+      groupIcon: <Users className="w-4 h-4 text-purple-700" />,
+      badge: 'Chăm Sóc & Ưu Đãi',
+      items: [
+        {
+          id: 'owner-customers',
+          title: 'Tra Cứu Khách Hàng VIP & Lịch Sử Đặt Hoa',
+          description: 'Xem danh sách khách quen, hạng thành viên, thói quen đặt hoa, sở thích màu ruy băng và lịch sử đặt hàng.',
+          icon: <Users className="w-5 h-5" />,
+          iconBgColor: 'bg-purple-100 text-purple-700 border border-purple-200',
+          badge: `${customers.length} Khách Quen`,
+          badgeColor: 'purple',
+          actionType: 'page',
+          actionLabel: 'Tra Cứu Khách VIP',
+          onClick: () => setActiveTab('customers')
+        },
+        {
+          id: 'owner-vouchers',
+          title: 'Quản Lý Voucher & Mã Giảm Giá Tiệm',
+          description: 'Theo dõi các mã ưu đãi đang hoạt động, số lượt sử dụng và điều kiện giảm giá đơn hàng.',
+          icon: <Gift className="w-5 h-5" />,
+          iconBgColor: 'bg-amber-100 text-amber-700 border border-amber-200',
+          badge: `${promotions.length} Mã`,
+          badgeColor: 'amber',
+          actionType: 'page',
+          actionLabel: 'Xem Mã Voucher',
+          onClick: () => setActiveTab('vouchers')
+        },
+        {
+          id: 'owner-quick-voucher',
+          title: 'Tạo Nhanh Voucher Dịp Lễ (8/3, 20/10, Valentine)',
+          description: 'Bật popup tạo tức thì mã ưu đãi dịp lễ, cài đặt giảm giá VNĐ và đơn tối thiểu trong 30 giây.',
+          icon: <Sparkles className="w-5 h-5" />,
+          iconBgColor: 'bg-rose-100 text-rose-700 border border-rose-200',
+          badge: 'Tạo Nhanh 30s',
+          badgeColor: 'rose',
+          actionType: 'modal',
+          actionLabel: 'Mở Popup Tạo Mã',
+          onClick: () => setShowQuickVoucherModal(true)
+        }
+      ]
+    },
+    {
+      groupTitle: '3. Tài Khoản & Bảo Mật Chủ Quán',
+      groupIcon: <ShieldCheck className="w-4 h-4 text-slate-700" />,
+      badge: 'Bảo Mật',
+      items: [
+        {
+          id: 'owner-security-modal',
+          title: 'Đổi Mật Khẩu & Quản Lý PIN Chủ Tiệm',
+          description: 'Bật popup cập nhật mật khẩu đăng nhập chủ quán và mã PIN thao tác bảo mật.',
+          icon: <ShieldCheck className="w-5 h-5" />,
+          iconBgColor: 'bg-slate-100 text-slate-700 border border-slate-200',
+          badge: 'Chủ Quán',
+          badgeColor: 'slate',
+          actionType: 'modal',
+          actionLabel: 'Mở Popup Đổi Mật Khẩu',
+          onClick: () => setShowSecurityModal(true)
+        }
+      ]
+    }
+  ];
+
+  const renderBackHeader = (tabName: string) => (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-2 border-b border-slate-200/80">
+      <button
+        type="button"
+        onClick={() => setActiveTab('dashboard')}
+        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-semibold border border-slate-200 hover:border-emerald-300 shadow-xs transition-all text-xs w-fit cursor-pointer"
+      >
+        <ArrowLeft className="w-4 h-4 text-emerald-600" />
+        <span>Quay lại Bảng Điều Hành (Lưới Thẻ To)</span>
+      </button>
+      <div className="text-xs text-slate-500">
+        Đang xem: <strong className="text-slate-800">{tabName}</strong>
+      </div>
+    </div>
+  );
+
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-16 space-y-6 select-none">
       {/* 1. TOP GREETING & 4 KPIS HERO (BRIGHT, ELEGANT PASTEL) */}
@@ -222,6 +349,11 @@ export const OwnerPortal: React.FC = () => {
       <ManagementTabsBar
         tabs={[
           {
+            id: 'dashboard',
+            label: 'Tổng Quan & Thẻ To',
+            icon: <Sparkles className="w-4 h-4" />
+          },
+          {
             id: 'orders',
             label: 'Duyệt Đơn & Vận Hành',
             count: orders.length,
@@ -252,10 +384,145 @@ export const OwnerPortal: React.FC = () => {
       />
 
       {/* =========================================================================
+          TAB 0: DASHBOARD OVERVIEW & LARGE FUNCTIONAL CARDS (PHOTOTIINLOVE)
+          ========================================================================= */}
+      {activeTab === 'dashboard' && (
+        <div className="space-y-8 animate-in fade-in duration-200">
+          {/* Quick Florist Operations Box */}
+          <div className="p-5 sm:p-6 rounded-[28px] bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-xs">
+                  <Flower2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-800">
+                    Bảng Vận Hành Tiệm Hoa (Florist Ops)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    105 Doãn Kế Thiện • Duyệt đơn cọc VietQR 1-chạm, kiểm soát còn hoa tức thì và chăm sóc khách hàng thân thiết.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('orders')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-200 transition-colors w-fit cursor-pointer"
+              >
+                <span>Xem tất cả {orders.length} đơn hàng</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Quick Orders List */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-3">Mã Đơn</th>
+                    <th className="py-2.5 px-3">Khách Đặt</th>
+                    <th className="py-2.5 px-3">Mẫu Hoa</th>
+                    <th className="py-2.5 px-3">Cọc 50%</th>
+                    <th className="py-2.5 px-3">Trạng Thái</th>
+                    <th className="py-2.5 px-3 text-right">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {orders.slice(0, 4).map((ord) => (
+                    <tr key={ord.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-3 font-mono font-bold text-slate-800">
+                        #{ord.id}
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-semibold text-slate-800">{ord.senderName}</div>
+                        <div className="text-[11px] text-slate-500">{ord.senderPhone}</div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="line-clamp-1 font-medium text-slate-700">
+                          {ord.items.map((i) => i.productName).join(', ')}
+                        </div>
+                        <div className="text-[11px] text-slate-400">
+                          {ord.deliveryDate} • {ord.deliveryTimeSlot}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-emerald-700">
+                          {formatPrice(ord.depositAmount || Math.round(ord.totalAmount * 0.5))}
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          {ord.paymentStatus === 'PAID' ? 'Đã thu 100%' : ord.paymentStatus === 'PARTIAL_PAID' ? 'Đã cọc 50%' : 'Chờ cọc'}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            ord.status === 'PENDING'
+                              ? 'bg-amber-50 text-amber-800 border-amber-200'
+                              : ord.status === 'ARRANGING'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              : ord.status === 'SHIPPING'
+                              ? 'bg-sky-50 text-sky-800 border-sky-200'
+                              : 'bg-slate-50 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          {ord.status === 'PENDING' ? 'Chờ Duyệt Cọc' : ord.status === 'ARRANGING' ? 'Đang Cắm Hoa' : ord.status === 'SHIPPING' ? 'Đang Giao' : ord.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right space-x-1.5 whitespace-nowrap">
+                        {ord.paymentBillImage && (
+                          <button
+                            type="button"
+                            onClick={() => setViewingBillOrder(ord)}
+                            className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-[11px] font-semibold cursor-pointer"
+                          >
+                            Xem Bill
+                          </button>
+                        )}
+                        {ord.status === 'PENDING' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              approveOrderDeposit(ord.id);
+                              showToast(`Đã duyệt cọc đơn #${ord.id}!`);
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-xs cursor-pointer"
+                          >
+                            Duyệt Cọc
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveTab('orders');
+                            setOrderSearchQuery(ord.id);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold cursor-pointer"
+                        >
+                          Chi Tiết
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Large Functional Cards Grid phototiinlove style */}
+          <ManagementFunctionalGrid
+            title="Danh Mục Nghiệp Vụ Chủ Quán"
+            subtitle="Mô hình thẻ chức năng to như phototiinlove • Thao tác kiểm soát tiệm hoa 1-chạm"
+            groups={ownerActionGroups}
+          />
+        </div>
+      )}
+
+      {/* =========================================================================
           TAB 1: ORDERS & DEPOSIT MANAGEMENT WORKFLOW
           ========================================================================= */}
       {activeTab === 'orders' && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in duration-200">
+          {renderBackHeader('Duyệt Đơn Cọc 50% & Vận Hành Tiệm Hoa')}
           {/* Filter Bar */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
             <div className="relative flex-1 max-w-md">
@@ -514,7 +781,8 @@ export const OwnerPortal: React.FC = () => {
           TAB 2: QUICK STOCK TOGGLE (BẬT / TẮT CÒN HOA 1-CHẠM)
           ========================================================================= */}
       {activeTab === 'stock' && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in duration-200">
+          {renderBackHeader('Kiểm Soát Còn Hoa 1-Chạm (Instant Stock)')}
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-md">
               <input
@@ -605,7 +873,8 @@ export const OwnerPortal: React.FC = () => {
           TAB 3: VIP CUSTOMER LOOKUP & FLOWER PREFERENCES
           ========================================================================= */}
       {activeTab === 'customers' && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in duration-200">
+          {renderBackHeader('Tra Cứu Khách Hàng VIP & Lịch Sử Đặt Hoa')}
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
             <div className="relative flex-1 max-w-md">
               <input
@@ -681,7 +950,9 @@ export const OwnerPortal: React.FC = () => {
           TAB 4: HOLIDAY FLASH VOUCHERS CREATOR
           ========================================================================= */}
       {activeTab === 'vouchers' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-4 animate-in fade-in duration-200">
+          {renderBackHeader('Quản Lý & Tạo Mã Voucher Dịp Lễ')}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Form Creator */}
           <div className="lg:col-span-1 p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
@@ -806,6 +1077,7 @@ export const OwnerPortal: React.FC = () => {
             </div>
           </div>
         </div>
+        </div>
       )}
 
       {/* === BILL PREVIEW MODAL === */}
@@ -870,6 +1142,27 @@ export const OwnerPortal: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Popups & Modals */}
+      <SecurityModal
+        isOpen={showSecurityModal}
+        onClose={() => setShowSecurityModal(false)}
+        roleTitle="Chủ Tiệm Hoa"
+        onSaveCredentials={(oldPass, oldPin, newPass, newPin) => {
+          return changeAdminCredentials(oldPass, oldPin, newPass, newPin);
+        }}
+        adminEmail={adminEmail}
+        onSaveEmailConfig={(email, appPass) => saveGmailConfig(email, appPass)}
+      />
+
+      <QuickVoucherModal
+        isOpen={showQuickVoucherModal}
+        onClose={() => setShowQuickVoucherModal(false)}
+        onCreateVoucher={(newPromo) => {
+          updatePromotions([newPromo, ...promotions]);
+          showToast(`Đã phát hành mã ưu đãi ${newPromo.code}!`, 'success');
+        }}
+      />
     </div>
   );
 };

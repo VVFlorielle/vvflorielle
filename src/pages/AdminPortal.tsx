@@ -35,12 +35,22 @@ import {
   Copy,
   DollarSign,
   Volume2,
-  Megaphone
+  Megaphone,
+  ChevronRight,
+  Truck
 } from 'lucide-react';
 import { OrderStatus, CategoryId, CustomerUser, Order, FlowerCategory, FlowerProduct, PromotionItem, BlogArticle, HeroBannerConfig, ContactChannel } from '../types';
 import { AVAILABLE_MASCOTS, AVAILABLE_FLORAL_CORNERS } from '../data/mockData';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
 import { ManagementTabsBar } from '../components/management/ManagementTabsBar';
+import { ManagementFunctionalGrid, ManagementActionGroup } from '../components/management/ManagementFunctionalGrid';
+import {
+  SecurityModal,
+  ShippingConfigModal,
+  QuickVoucherModal,
+  MascotSelectorModal,
+  BillPreviewModal
+} from '../components/management/ManagementModals';
 
 export const AdminPortal: React.FC = () => {
   const {
@@ -107,10 +117,16 @@ export const AdminPortal: React.FC = () => {
   const [newOtpPin, setNewOtpPin] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
 
-  // Active Tab
+  // Active Tab (Default: 'dashboard' - Overview & Large Functional Cards grid phototiinlove style)
   const [activeTab, setActiveTab] = useState<
-    'orders' | 'products' | 'customers' | 'vouchers' | 'channels' | 'settings' | 'security' | 'cms' | 'marquee'
-  >('orders');
+    'dashboard' | 'orders' | 'products' | 'customers' | 'vouchers' | 'channels' | 'settings' | 'security' | 'cms' | 'marquee'
+  >('dashboard');
+
+  // Popups & Modals state (phototiinlove style action popups)
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showShippingModal, setShowShippingModal] = useState(false);
+  const [showQuickVoucherModal, setShowQuickVoucherModal] = useState(false);
+  const [showMascotModal, setShowMascotModal] = useState(false);
 
   // Marquee Announcement Editor States
   const [newMarqueeText, setNewMarqueeText] = useState('');
@@ -298,29 +314,6 @@ export const AdminPortal: React.FC = () => {
             </p>
           </div>
 
-          {/* Quick Credentials Hint */}
-          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 space-y-1.5 text-left">
-            <div className="font-bold text-slate-700 flex items-center justify-between">
-              <span>Gợi Ý Tài Khoản Quản Trị:</span>
-              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">Tự Nhận Biết Role</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10.5px]">
-              <div className="p-1.5 rounded-xl bg-purple-50/80 border border-purple-200/60">
-                <strong className="text-purple-900 block">1. Super Admin:</strong>
-                <span>User: <code className="font-mono text-purple-700 font-bold">admin</code></span><br/>
-                <span>Pass: <code className="font-mono text-purple-700 font-bold">17092000</code></span>
-              </div>
-              <div className="p-1.5 rounded-xl bg-emerald-50/80 border border-emerald-200/60">
-                <strong className="text-emerald-900 block">2. Chủ Quán (Ops):</strong>
-                <span>User: <code className="font-mono text-emerald-700 font-bold">chuquan</code></span><br/>
-                <span>Pass: <code className="font-mono text-emerald-700 font-bold">19092003</code></span>
-              </div>
-            </div>
-            <div className="text-[10px] text-slate-500 pt-0.5">
-              * Mã PIN bảo mật: <code className="font-mono font-bold text-slate-700">26122025</code>
-            </div>
-          </div>
-
           {loginMode === 'login' ? (
             <form onSubmit={handleAdminLoginSubmit} className="space-y-3.5 text-left text-xs">
               <div>
@@ -459,6 +452,206 @@ export const AdminPortal: React.FC = () => {
     );
   }
 
+  // Action Groups for Large Functional Grid (phototiinlove style)
+  const adminActionGroups: ManagementActionGroup[] = [
+    {
+      groupTitle: '1. Vận Hành Đơn Hàng & Mẫu Hoa Tươi',
+      groupIcon: <ShoppingBag className="w-4 h-4 text-emerald-700" />,
+      badge: 'Nghiệp Vụ Cốt Lõi',
+      items: [
+        {
+          id: 'action-orders',
+          title: 'Quản Lý Đơn Hàng & Vận Chuyển Hỏa Tốc',
+          description: 'Xem toàn bộ đơn, lọc theo trạng thái, duyệt cọc 50%, điều chỉnh cước km và hoàn tất đơn hoa.',
+          icon: <ShoppingBag className="w-5 h-5" />,
+          iconBgColor: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+          badge: `${orders.length} Đơn`,
+          badgeColor: 'emerald',
+          actionType: 'page',
+          actionLabel: 'Mở Quản Trị Đơn',
+          onClick: () => setActiveTab('orders')
+        },
+        {
+          id: 'action-products',
+          title: 'Quản Lý Danh Mục & Mẫu Hoa Tươi',
+          description: 'Thêm, sửa, xóa mẫu hoa tươi, cập nhật giá bán, tải ảnh hoa, phân loại danh mục và gán tag Best Seller.',
+          icon: <Flower2 className="w-5 h-5" />,
+          iconBgColor: 'bg-pink-100 text-pink-700 border border-pink-200',
+          badge: `${products.length} Mẫu`,
+          badgeColor: 'rose',
+          actionType: 'page',
+          actionLabel: 'Mở Danh Mục Hoa',
+          onClick: () => setActiveTab('products')
+        }
+      ]
+    },
+    {
+      groupTitle: '2. Khách Hàng & Dịch Vụ Khuyến Mãi',
+      groupIcon: <Users className="w-4 h-4 text-purple-700" />,
+      badge: 'Chăm Sóc & Ưu Đãi',
+      items: [
+        {
+          id: 'action-customers',
+          title: 'Quản Lý Khách Hàng & VIP Membership',
+          description: 'Tra cứu danh sách thành viên, số đơn, tổng chi tiêu, điều chỉnh điểm thưởng và cấp lại mật khẩu tạm.',
+          icon: <Users className="w-5 h-5" />,
+          iconBgColor: 'bg-purple-100 text-purple-700 border border-purple-200',
+          badge: `${customers.length} Thành Viên`,
+          badgeColor: 'purple',
+          actionType: 'page',
+          actionLabel: 'Mở Khách Hàng',
+          onClick: () => setActiveTab('customers')
+        },
+        {
+          id: 'action-vouchers',
+          title: 'Quản Lý Voucher & Mã Khuyến Mãi',
+          description: 'Danh mục mã giảm giá, voucher đổi điểm, giới hạn đơn tối thiểu và thời hạn áp dụng voucher.',
+          icon: <Gift className="w-5 h-5" />,
+          iconBgColor: 'bg-amber-100 text-amber-700 border border-amber-200',
+          badge: `${promotions.length} Mã`,
+          badgeColor: 'amber',
+          actionType: 'page',
+          actionLabel: 'Mở Quản Lý Voucher',
+          onClick: () => setActiveTab('vouchers')
+        },
+        {
+          id: 'action-quick-voucher',
+          title: 'Tạo Nhanh Voucher Dịp Lễ (8/3, 20/10...)',
+          description: 'Bật popup tạo tức thì mã ưu đãi ngày lễ, thiết lập mức giảm VNĐ và đơn tối thiểu chỉ trong 30 giây.',
+          icon: <Sparkles className="w-5 h-5" />,
+          iconBgColor: 'bg-rose-100 text-rose-700 border border-rose-200',
+          badge: 'Tạo Nhanh 30s',
+          badgeColor: 'rose',
+          actionType: 'modal',
+          actionLabel: 'Mở Popup Tạo Voucher',
+          onClick: () => setShowQuickVoucherModal(true)
+        }
+      ]
+    },
+    {
+      groupTitle: '3. Cấu Hình Cửa Hàng, Bảng Cước & Kênh CSKH',
+      groupIcon: <Settings className="w-4 h-4 text-slate-700" />,
+      badge: 'Vận Hành Tiệm',
+      items: [
+        {
+          id: 'action-settings',
+          title: 'Cấu Hình Tiệm Hoa, Địa Chỉ & Bản Đồ',
+          description: 'Thiết lập tên tiệm, địa chỉ 105 Doãn Kế Thiện, giờ mở cửa 06:30 - 21:30, số hotline chính và bán kính tối đa.',
+          icon: <Settings className="w-5 h-5" />,
+          iconBgColor: 'bg-slate-100 text-slate-700 border border-slate-200',
+          badge: 'Cửa Hàng',
+          badgeColor: 'slate',
+          actionType: 'page',
+          actionLabel: 'Mở Cấu Hình Tiệm',
+          onClick: () => setActiveTab('settings')
+        },
+        {
+          id: 'action-shipping-modal',
+          title: 'Cấu Hình Bảng Cước 4 Bậc & Freeship',
+          description: 'Bật popup chỉnh cước 4 bậc km (0-3km, 3-8km, 8-15km, 15-25km), ngưỡng freeship và cam kết hỏa tốc.',
+          icon: <Truck className="w-5 h-5" />,
+          iconBgColor: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+          badge: 'Hỏa Tốc 15p - 60p',
+          badgeColor: 'emerald',
+          actionType: 'modal',
+          actionLabel: 'Mở Popup Cước Phí',
+          onClick: () => setShowShippingModal(true)
+        },
+        {
+          id: 'action-channels',
+          title: 'Kênh Liên Hệ Hotline, Zalo & Messenger',
+          description: 'Quản lý các nút gọi điện, chat Zalo, Messenger, chỉ đường Google Maps hiển thị cho khách hàng.',
+          icon: <Share2 className="w-5 h-5" />,
+          iconBgColor: 'bg-sky-100 text-sky-700 border border-sky-200',
+          badge: `${contactChannels.length} Kênh`,
+          badgeColor: 'sky',
+          actionType: 'page',
+          actionLabel: 'Mở Kênh CSKH',
+          onClick: () => setActiveTab('channels')
+        },
+        {
+          id: 'action-marquee',
+          title: 'Bảng Tin Chạy Chữ Khuyến Mãi Đỉnh Trang',
+          description: 'Soạn thảo, bật/tắt các dòng thông báo khuyến mãi, cam kết hoa tươi chạy mượt trên đỉnh website.',
+          icon: <Megaphone className="w-5 h-5" />,
+          iconBgColor: 'bg-amber-100 text-amber-700 border border-amber-200',
+          badge: `${marqueeAnnouncements.length} Tin`,
+          badgeColor: 'amber',
+          actionType: 'page',
+          actionLabel: 'Mở Bảng Tin Chạy',
+          onClick: () => setActiveTab('marquee')
+        }
+      ]
+    },
+    {
+      groupTitle: '4. Giao Diện Webview Live & Mascot Linh Vật',
+      groupIcon: <LayoutTemplate className="w-4 h-4 text-purple-700" />,
+      badge: 'Thương Hiệu & CMS',
+      items: [
+        {
+          id: 'action-cms-liveview',
+          title: 'Liveview Webview CMS Song Song 50/50',
+          description: 'Xem trước giao diện khách hàng trên Desktop / Mobile và chỉnh sửa nội dung banner, danh mục theo thời gian thực.',
+          icon: <LayoutTemplate className="w-5 h-5" />,
+          iconBgColor: 'bg-purple-100 text-purple-700 border border-purple-200',
+          badge: 'Live 50/50',
+          badgeColor: 'purple',
+          actionType: 'page',
+          actionLabel: 'Mở CMS Liveview',
+          onClick: () => setActiveTab('cms')
+        },
+        {
+          id: 'action-mascot-modal',
+          title: 'Chọn & Thay Thế 6 Mascot Linh Vật',
+          description: 'Bật popup duyệt và chọn 1 trong 6 linh vật tiệm hoa mới cập nhật để hiển thị đại diện trên trang web.',
+          icon: <Sparkles className="w-5 h-5" />,
+          iconBgColor: 'bg-pink-100 text-pink-700 border border-pink-200',
+          badge: '6 Mascot Mới',
+          badgeColor: 'rose',
+          actionType: 'modal',
+          actionLabel: 'Mở Popup Linh Vật',
+          onClick: () => setShowMascotModal(true)
+        }
+      ]
+    },
+    {
+      groupTitle: '5. Bảo Mật & Quản Trị Hệ Thống',
+      groupIcon: <KeyRound className="w-4 h-4 text-purple-700" />,
+      badge: 'Bảo Mật Cấp 2',
+      items: [
+        {
+          id: 'action-security-modal',
+          title: 'Bảo Mật PIN & Đổi Mật Khẩu Super Admin',
+          description: 'Bật popup đổi mật khẩu đăng nhập, thiết lập mã PIN 6 số cấp 2 và liên kết Gmail nhận mã OTP bảo mật.',
+          icon: <Lock className="w-5 h-5" />,
+          iconBgColor: 'bg-purple-100 text-purple-700 border border-purple-200',
+          badge: 'Mã PIN Cấp 2',
+          badgeColor: 'purple',
+          actionType: 'modal',
+          actionLabel: 'Mở Popup Bảo Mật',
+          onClick: () => setShowSecurityModal(true)
+        }
+      ]
+    }
+  ];
+
+  // Helper to render back button to Dashboard (phototiinlove style BackLink)
+  const renderBackHeader = (tabName: string) => (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-2 border-b border-slate-200/80">
+      <button
+        type="button"
+        onClick={() => setActiveTab('dashboard')}
+        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-semibold border border-slate-200 hover:border-emerald-300 shadow-xs transition-all text-xs w-fit cursor-pointer"
+      >
+        <ArrowLeft className="w-4 h-4 text-emerald-600" />
+        <span>Quay lại Dashboard Tổng Quan (Lưới Thẻ To)</span>
+      </button>
+      <div className="text-xs text-slate-500">
+        Phân hệ quản trị: <strong className="text-slate-800">{tabName}</strong>
+      </div>
+    </div>
+  );
+
   // LOGGED-IN ADMIN CONSOLE
   return (
     <div className="container py-8 space-y-8 px-4">
@@ -521,6 +714,11 @@ export const AdminPortal: React.FC = () => {
       <ManagementTabsBar
         tabs={[
           {
+            id: 'dashboard',
+            label: 'Tổng Quan & Thẻ To',
+            icon: <Sparkles className="w-4 h-4" />
+          },
+          {
             id: 'orders',
             label: 'Đơn Hàng',
             count: orders.length,
@@ -578,10 +776,145 @@ export const AdminPortal: React.FC = () => {
       />
 
       {/* =========================================================================
+          TAB 0: DASHBOARD OVERVIEW & LARGE FUNCTIONAL CARDS GRID (PHOTOTIINLOVE)
+          ========================================================================= */}
+      {activeTab === 'dashboard' && (
+        <div className="space-y-8 animate-in fade-in duration-200">
+          {/* Florist Quick Operations Box */}
+          <div className="p-5 sm:p-6 rounded-[28px] bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-xs">
+                  <Flower2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-800">
+                    Bảng Vận Hành Tiệm Hoa V&amp;V Florielle
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    105 Doãn Kế Thiện • Duyệt đơn cọc VietQR 1-chạm, kiểm soát còn hoa tức thì và chăm sóc khách hàng thân thiết.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('orders')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-200 transition-colors w-fit cursor-pointer"
+              >
+                <span>Xem tất cả {orders.length} đơn hàng</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Quick Orders List (Pending Deposit or Arranging) */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-3">Mã Đơn</th>
+                    <th className="py-2.5 px-3">Khách Đặt</th>
+                    <th className="py-2.5 px-3">Mẫu Hoa</th>
+                    <th className="py-2.5 px-3">Cọc 50%</th>
+                    <th className="py-2.5 px-3">Trạng Thái</th>
+                    <th className="py-2.5 px-3 text-right">Thao Tác Nhanh</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {orders.slice(0, 4).map((ord) => (
+                    <tr key={ord.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-3 font-mono font-bold text-slate-800">
+                        #{ord.id}
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-semibold text-slate-800">{ord.senderName}</div>
+                        <div className="text-[11px] text-slate-500">{ord.senderPhone}</div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="line-clamp-1 font-medium text-slate-700">
+                          {ord.items.map((i) => i.productName).join(', ')}
+                        </div>
+                        <div className="text-[11px] text-slate-400">
+                          {ord.deliveryDate} • {ord.deliveryTimeSlot}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-emerald-700">
+                          {formatPrice(ord.depositAmount || Math.round(ord.totalAmount * 0.5))}
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          {ord.paymentStatus === 'PAID' ? 'Đã thu 100%' : ord.paymentStatus === 'PARTIAL_PAID' ? 'Đã cọc 50%' : 'Chưa cọc'}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            ord.status === 'PENDING'
+                              ? 'bg-amber-50 text-amber-800 border-amber-200'
+                              : ord.status === 'ARRANGING'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              : ord.status === 'SHIPPING'
+                              ? 'bg-sky-50 text-sky-800 border-sky-200'
+                              : 'bg-slate-50 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          {ord.status === 'PENDING' ? 'Chờ Duyệt Cọc' : ord.status === 'ARRANGING' ? 'Đang Cắm Hoa' : ord.status === 'SHIPPING' ? 'Đang Giao' : ord.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right space-x-1.5 whitespace-nowrap">
+                        {ord.paymentBillImage && (
+                          <button
+                            type="button"
+                            onClick={() => setViewingBillOrder(ord)}
+                            className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-[11px] font-semibold cursor-pointer"
+                          >
+                            Xem Bill
+                          </button>
+                        )}
+                        {ord.status === 'PENDING' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              approveOrderDeposit(ord.id);
+                              showToast(`Đã duyệt cọc đơn #${ord.id}!`);
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-xs cursor-pointer"
+                          >
+                            Duyệt Cọc
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveTab('orders');
+                            setOrderSearch(ord.id);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold cursor-pointer"
+                        >
+                          Chi Tiết
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Large Functional Cards Grid phototiinlove style */}
+          <ManagementFunctionalGrid
+            title="Danh Mục Chức Năng Quản Trị Hệ Thống"
+            subtitle="Mô hình thẻ chức năng to như phototiinlove • Nhấp để mở phân hệ quản trị hoặc popup thao tác nhanh"
+            groups={adminActionGroups}
+          />
+        </div>
+      )}
+
+      {/* =========================================================================
           TAB 1: ORDERS MANAGEMENT (6-DIGIT RANDOM IDS, 50% DEPOSIT, SHIPPING ADJUST)
           ========================================================================= */}
       {activeTab === 'orders' && (
-        <div className="glass-panel p-6 space-y-4 rounded-[28px]">
+        <div className="glass-panel p-6 space-y-4 rounded-[28px] animate-in fade-in duration-200">
+          {renderBackHeader('Quản Lý Đơn Hàng & Vận Chuyển Hỏa Tốc')}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
             {/* Search order */}
             <div className="relative flex-1 max-w-sm">
@@ -843,7 +1176,8 @@ export const AdminPortal: React.FC = () => {
           TAB 2: PRODUCTS CATALOG MANAGEMENT
           ========================================================================= */}
       {activeTab === 'products' && (
-        <div className="glass-panel p-6 space-y-4 rounded-[28px]">
+        <div className="glass-panel p-6 space-y-4 rounded-[28px] animate-in fade-in duration-200">
+          {renderBackHeader('Quản Lý Danh Mục & Mẫu Hoa Tươi')}
           <div className="flex items-center justify-between pb-3 border-b border-slate-200">
             <div>
               <h3 className="font-bold text-base text-slate-800">Kho Mẫu Hoa Tươi &amp; Danh Mục ({products.length})</h3>
@@ -914,7 +1248,8 @@ export const AdminPortal: React.FC = () => {
           TAB 3: CUSTOMERS MANAGEMENT CONSOLE
           ========================================================================= */}
       {activeTab === 'customers' && (
-        <div className="glass-panel p-6 space-y-5 rounded-[28px]">
+        <div className="glass-panel p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200">
+          {renderBackHeader('Quản Lý Khách Hàng & Hạng Thành Viên VIP')}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
             <div>
               <h3 className="font-bold text-base text-slate-800">
@@ -1122,7 +1457,8 @@ export const AdminPortal: React.FC = () => {
           TAB: VOUCHERS & PROMOTIONS MANAGEMENT
           ========================================================================= */}
       {activeTab === 'vouchers' && (
-        <div className="glass-panel p-6 space-y-5 rounded-[28px]">
+        <div className="glass-panel p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200">
+          {renderBackHeader('Quản Lý Voucher & Mã Ưu Đãi')}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
             <div>
               <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
@@ -1218,7 +1554,8 @@ export const AdminPortal: React.FC = () => {
           TAB: CONTACT CHANNELS (Zalo, Hotline, TikTok, Facebook, Messenger, Maps)
           ========================================================================= */}
       {activeTab === 'channels' && (
-        <div className="glass-panel p-6 space-y-5 rounded-[28px]">
+        <div className="glass-panel p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200">
+          {renderBackHeader('Quản Lý Kênh Liên Hệ Hotline, Zalo & Messenger')}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
             <div>
               <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
@@ -1306,7 +1643,8 @@ export const AdminPortal: React.FC = () => {
           TAB 4: STORE SETTINGS
           ========================================================================= */}
       {activeTab === 'settings' && (
-        <form onSubmit={handleSaveSettings} className="glass-panel p-6 space-y-6 rounded-[28px]">
+        <form onSubmit={handleSaveSettings} className="glass-panel p-6 space-y-6 rounded-[28px] animate-in fade-in duration-200">
+          {renderBackHeader('Cấu Hình Cửa Hàng, Bảng Cước & Bản Đồ')}
           <div className="border-b border-slate-200 pb-3">
             <h3 className="font-bold text-base text-slate-800">Cấu Hình Cửa Hàng V&amp;V Florielle</h3>
             <p className="text-xs text-slate-500">
@@ -1646,7 +1984,8 @@ export const AdminPortal: React.FC = () => {
           TAB 5: SECURITY & CREDENTIALS MANAGEMENT
           ========================================================================= */}
       {activeTab === 'security' && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {renderBackHeader('Bảo Mật PIN Cấp 2 & Đổi Mật Khẩu Admin')}
           {/* Card 1: Change Admin Password */}
           <form
             onSubmit={(e) => {
@@ -1852,7 +2191,8 @@ export const AdminPortal: React.FC = () => {
           TAB 6: CMS LIVE WEBVIEW EDITOR (V&V FLORIELLE STUDIO ARCHITECTURE)
           ========================================================================= */}
       {activeTab === 'cms' && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {renderBackHeader('Liveview Webview CMS Song Song 50/50')}
           <div className="glass-panel p-5 rounded-[28px] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-purple-200/80 bg-white/80">
             <div>
               <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
@@ -2214,7 +2554,8 @@ export const AdminPortal: React.FC = () => {
           TAB 7: MARQUEE ANNOUNCEMENTS (DÒNG CHỮ CHẠY DƯỚI MENU)
           ========================================================================= */}
       {activeTab === 'marquee' && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {renderBackHeader('Bảng Tin Chạy Chữ Khuyến Mãi Đỉnh Trang')}
           <div className="glass-panel p-6 rounded-[28px] space-y-6 border border-purple-200/80 bg-white/80">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80">
@@ -3398,6 +3739,56 @@ export const AdminPortal: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 3. POPUP MODALS (PHOTOTIINLOVE STYLE ACTION MODALS) */}
+      <SecurityModal
+        isOpen={showSecurityModal}
+        onClose={() => setShowSecurityModal(false)}
+        roleTitle="Super Admin"
+        onSaveCredentials={(oldPass, oldPin, newPass, newPin) => {
+          return changeAdminCredentials(oldPass, oldPin, newPass, newPin);
+        }}
+        adminEmail={adminEmail}
+        onSaveEmailConfig={(email, appPass) => saveGmailConfig(email, appPass)}
+      />
+
+      <ShippingConfigModal
+        isOpen={showShippingModal}
+        onClose={() => setShowShippingModal(false)}
+        settings={settings}
+        onSave={(newSettings) => {
+          updateSettings(newSettings);
+          showToast('Đã lưu cấu hình bảng cước vận chuyển!', 'success');
+        }}
+      />
+
+      <QuickVoucherModal
+        isOpen={showQuickVoucherModal}
+        onClose={() => setShowQuickVoucherModal(false)}
+        onCreateVoucher={(newPromo) => {
+          updatePromotions([newPromo, ...promotions]);
+          showToast(`Đã phát hành mã ưu đãi ${newPromo.code}!`, 'success');
+        }}
+      />
+
+      <MascotSelectorModal
+        isOpen={showMascotModal}
+        onClose={() => setShowMascotModal(false)}
+        currentMascotId={settings.mascotImageUrl}
+        onSelectMascot={(mascotUrl) => {
+          updateSettings({ ...settings, mascotImageUrl: mascotUrl });
+          showToast('Đã cập nhật linh vật tiệm hoa mới!', 'success');
+        }}
+      />
+
+      <BillPreviewModal
+        order={viewingBillOrder}
+        onClose={() => setViewingBillOrder(null)}
+        onApproveDeposit={(orderId) => {
+          approveOrderDeposit(orderId);
+          showToast(`Đã duyệt cọc đơn #${orderId}!`, 'success');
+        }}
+      />
     </div>
   );
 };
