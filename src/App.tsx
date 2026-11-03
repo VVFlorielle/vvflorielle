@@ -10,6 +10,8 @@ import { ContactPage } from './pages/ContactPage';
 import { CarePage } from './pages/CarePage';
 import { CustomerPortal } from './pages/CustomerPortal';
 import { AdminPortal } from './pages/AdminPortal';
+import { OwnerPortal } from './pages/OwnerPortal';
+import { ManagementHeader } from './components/ManagementHeader';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
@@ -60,6 +62,8 @@ export const AppContent: React.FC = () => {
     };
   }, []);
 
+  const isManagementView = currentView === 'admin' || currentView === 'owner';
+
   return (
     <div className="min-h-screen flex flex-col relative selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden w-full">
       {/* Background Decorative Ambient Blobs for Glass Effect */}
@@ -71,18 +75,22 @@ export const AppContent: React.FC = () => {
         <div className="ambient-blob-5" />
       </div>
 
-      {/* Unified Floating Fixed Header & Announcement Banner (Always floating on top, never hidden) */}
-      <div className="fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5">
-        <div className="pointer-events-auto relative z-20">
-          <Header isScrolled={isHeaderScrolled} onOpenPopup={(type) => setActivePopup(type)} />
+      {/* Top Navigation: ManagementHeader for Admin/Owner OR Public Floating Header for Customers */}
+      {isManagementView ? (
+        <ManagementHeader />
+      ) : (
+        <div className="fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5">
+          <div className="pointer-events-auto relative z-20">
+            <Header isScrolled={isHeaderScrolled} onOpenPopup={(type) => setActivePopup(type)} />
+          </div>
+          <div className="pointer-events-auto relative z-10">
+            <MarqueeBanner isScrolled={isHeaderScrolled} onOpenPopup={(type) => setActivePopup(type)} />
+          </div>
         </div>
-        <div className="pointer-events-auto relative z-10">
-          <MarqueeBanner isScrolled={isHeaderScrolled} onOpenPopup={(type) => setActivePopup(type)} />
-        </div>
-      </div>
+      )}
 
-      {/* Active View (Proper top padding for fixed header & compact bottom spacing for footer) */}
-      <main className="flex-1 pt-24 sm:pt-32 pb-2">
+      {/* Active View (Clean dedicated layout for management, spacious top padding for public store) */}
+      <main className={`flex-1 ${isManagementView ? 'pt-20 sm:pt-22 pb-8' : 'pt-24 sm:pt-32 pb-2'}`}>
         {currentView === 'store' && <PublicStore />}
         {currentView === 'catalog' && <CatalogPage />}
         {currentView === 'about' && <AboutPage />}
@@ -90,22 +98,28 @@ export const AppContent: React.FC = () => {
         {currentView === 'care' && <CarePage />}
         {currentView === 'customer' && <CustomerPortal />}
         {currentView === 'admin' && <AdminPortal />}
+        {currentView === 'owner' && <OwnerPortal />}
       </main>
 
-      {/* Main Footer */}
-      <Footer onOpenPopup={(type) => setActivePopup(type)} />
+      {/* Customer-Only Elements (Hidden during Management Mode for 100% focus and zero overlap) */}
+      {!isManagementView && (
+        <>
+          {/* Main Footer */}
+          <Footer onOpenPopup={(type) => setActivePopup(type)} />
 
-      {/* Mobile & Desktop Management Bottom Glass Dock */}
-      <MobileBottomDock onOpenPopup={(type) => setActivePopup(type)} />
+          {/* Mobile & Desktop Management Bottom Glass Dock */}
+          <MobileBottomDock onOpenPopup={(type) => setActivePopup(type)} />
 
-      {/* Floating Speed Dial & Contact Tooltip (Right Side) */}
-      <FloatingContactWidget />
+          {/* Floating Speed Dial & Contact Tooltip (Right Side) */}
+          <FloatingContactWidget />
 
-      {/* Floating Draggable Cart Widget (Bottom Right) */}
-      <FloatingCartWidget />
+          {/* Floating Draggable Cart Widget (Bottom Right) */}
+          <FloatingCartWidget />
 
-      {/* Floating AI Mascot Assistant (Left Side) */}
-      <MascotAssistant />
+          {/* Floating AI Mascot Assistant (Left Side) */}
+          <MascotAssistant />
+        </>
+      )}
 
       {/* Modals & Overlays */}
       <ProductDetailModal />

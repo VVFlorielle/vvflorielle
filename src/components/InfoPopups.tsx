@@ -120,7 +120,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
       case 'services':
         return 'Dịch Vụ Hoa Tươi Chuyên Nghiệp V&V';
       case 'shipping':
-        return 'Chính Sách & Bảng Giá Cước Giao Hoa Cấp Tốc (60 - 90 Phút)';
+        return 'Chính Sách & Bảng Giá Cước Giao Hoa Hỏa Tốc (Từ 15 Phút)';
       case 'wedding-event':
         return 'Dịch Vụ Hoa Cưới & Trang Trí Sự Kiện Doanh Nghiệp';
       case 'guarantee':
@@ -753,7 +753,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
                   </div>
                   <p className="text-slate-600 text-xs font-medium">{settings.address}</p>
                   <p className="text-slate-500 text-[11px]">Giờ phục vụ: {settings.openingHours}</p>
-                  <p className="text-slate-500 text-[11px]">Giao hỏa tốc nội thành Hà Nội trong 60 - 90 phút</p>
+                  <p className="text-slate-500 text-[11px]">Giao hỏa tốc chỉ từ 15 phút nội thành &amp; 60 phút ngoại thành Hà Nội</p>
                 </div>
                 <div className="flex items-center justify-between pt-1">
                   <span className="text-slate-500">Hotline / Zalo tư vấn 24/7:</span>
@@ -847,7 +847,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
                     <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 flex items-center justify-center">
                       <Truck className="w-5 h-5" />
                     </div>
-                    <h4 className="font-bold text-sm text-slate-900">Giao Hoa Cấp Tốc 60 - 90 Phút</h4>
+                    <h4 className="font-bold text-sm text-slate-900">Giao Hoa Hỏa Tốc Từ 15 Phút</h4>
                     <p className="text-[11px] text-slate-500 leading-relaxed">
                       Giao nhanh nội thành Hà Nội. Bảng giá cước minh bạch theo km, luôn chụp ảnh &amp; video 360° qua Zalo trước khi giao.
                     </p>
@@ -955,10 +955,10 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
                   <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
                   <span>Dịch Vụ Giao Hoa Cấp Tốc Hà Nội</span>
                   <span className="text-slate-400">•</span>
-                  <span>60 - 90 Phút Tận Tay</span>
+                  <span>Từ 15P nội thành &amp; 60P ngoại thành</span>
                 </div>
                 <h3 className="font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight">
-                  Chính Sách &amp; Bảng Giá Cước Giao Hoa Cấp Tốc
+                  Chính Sách &amp; Bảng Giá Cước Giao Hoa Hỏa Tốc
                 </h3>
                 <p className="text-xs text-slate-500 max-w-md mx-auto">
                   Xuất phát từ Showroom <strong className="text-slate-700">105 Doãn Kế Thiện, Mai Dịch, Cầu Giấy, Hà Nội</strong>

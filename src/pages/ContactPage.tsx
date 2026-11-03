@@ -125,7 +125,7 @@ export const ContactPage: React.FC = () => {
             <div className="space-y-2.5 pt-2 border-t border-slate-100">
               <div className="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200/60 text-[11px] text-emerald-900 flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Giao hoa hỏa tốc 60 - 90P nội thành Hà Nội. Chụp ảnh gửi duyệt Zalo trước khi giao.</span>
+                <span>Giao hoa hỏa tốc từ 15P nội thành &amp; 60P ngoại thành. Chụp ảnh gửi mẫu hoàn thiện qua Zalo.</span>
               </div>
 
               <div className="grid grid-cols-2 gap-2">

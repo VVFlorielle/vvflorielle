@@ -34,7 +34,7 @@ export const MarqueeBanner: React.FC<MarqueeBannerProps> = ({ onOpenPopup, isScr
         </div>
 
         {/* Marquee Ticker Track */}
-        <div className="relative flex-1 overflow-hidden whitespace-nowrap mask-marquee">
+        <div className="relative flex-1 overflow-hidden whitespace-nowrap mask-marquee pl-3 sm:pl-4">
           <div className="inline-flex items-center gap-8 animate-marquee group-hover:[animation-play-state:paused]">
             {activeItems.concat(activeItems).map((item, idx) => (
               <div

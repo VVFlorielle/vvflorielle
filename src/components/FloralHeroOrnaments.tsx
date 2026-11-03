@@ -1,49 +1,66 @@
 import React from 'react';
+import { useStore } from '../context/StoreContext';
 
 /**
  * Real Photographic Botanical Floral Corner Ornaments (No Vector SVGs)
  * Soft, pale, transparent background floral accents for the Hero header.
  */
 
-export const FloralCornerTopLeft: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
-    <img
-      src="/images/floral/floral-corner-rose-peony.webp"
-      alt="Hoa góc trên trái"
-      className="w-full h-full object-contain opacity-90"
-    />
-  </div>
-);
+export const FloralCornerTopLeft: React.FC<{ className?: string; src?: string }> = ({ className = '', src }) => {
+  const { settings } = useStore();
+  const imgSrc = src || settings.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp';
+  return (
+    <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
+      <img
+        src={imgSrc}
+        alt="Hoa góc trên trái"
+        className="w-full h-full object-contain opacity-90"
+      />
+    </div>
+  );
+};
 
-export const FloralCornerTopRight: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
-    <img
-      src="/images/floral/floral-corner-rose-peony.webp"
-      alt="Hoa góc trên phải"
-      className="w-full h-full object-contain -scale-x-100 opacity-90"
-    />
-  </div>
-);
+export const FloralCornerTopRight: React.FC<{ className?: string; src?: string }> = ({ className = '', src }) => {
+  const { settings } = useStore();
+  const imgSrc = src || settings.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp';
+  return (
+    <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
+      <img
+        src={imgSrc}
+        alt="Hoa góc trên phải"
+        className="w-full h-full object-contain -scale-x-100 opacity-90"
+      />
+    </div>
+  );
+};
 
-export const FloralCornerBottomLeft: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
-    <img
-      src="/images/floral/floral-corner-peach-lisianthus.webp"
-      alt="Hoa góc dưới trái"
-      className="w-full h-full object-contain -scale-y-100 opacity-80"
-    />
-  </div>
-);
+export const FloralCornerBottomLeft: React.FC<{ className?: string; src?: string }> = ({ className = '', src }) => {
+  const { settings } = useStore();
+  const imgSrc = src || settings.floralCornerBottomImage || '/images/floral/floral-corner-peach-lisianthus.webp';
+  return (
+    <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
+      <img
+        src={imgSrc}
+        alt="Hoa góc dưới trái"
+        className="w-full h-full object-contain -scale-y-100 opacity-80"
+      />
+    </div>
+  );
+};
 
-export const FloralCornerBottomRight: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
-    <img
-      src="/images/floral/floral-corner-peach-lisianthus.webp"
-      alt="Hoa góc dưới phải"
-      className="w-full h-full object-contain -scale-x-100 -scale-y-100 opacity-80"
-    />
-  </div>
-);
+export const FloralCornerBottomRight: React.FC<{ className?: string; src?: string }> = ({ className = '', src }) => {
+  const { settings } = useStore();
+  const imgSrc = src || settings.floralCornerBottomImage || '/images/floral/floral-corner-peach-lisianthus.webp';
+  return (
+    <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
+      <img
+        src={imgSrc}
+        alt="Hoa góc dưới phải"
+        className="w-full h-full object-contain -scale-x-100 -scale-y-100 opacity-80"
+      />
+    </div>
+  );
+};
 
 /**
  * Gentle floating rose & peach petals in hero background

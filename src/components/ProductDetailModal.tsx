@@ -116,7 +116,7 @@ export const ProductDetailModal: React.FC = () => {
             <div className="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 space-y-2 text-xs text-slate-600">
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Giao nhanh 60 - 90 phút nội thành Hà Nội</span>
+                <span>Giao hỏa tốc chỉ từ 15 phút nội thành &amp; 60 phút ngoại thành Hà Nội</span>
               </div>
               <div className="flex items-center gap-2">
                 <Camera className="w-4 h-4 text-emerald-600 shrink-0" />

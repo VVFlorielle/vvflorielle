@@ -155,11 +155,15 @@ export interface ShopSettings {
   bankAccount: string;
   bankHolder: string;
   freeShipThreshold: number;
+  freeShipRadiusKm?: number; // Bán kính áp dụng Freeship (mặc định 3km)
   standardShipFee: number;
   shippingFeePerKm: number; // 10.000đ/km
   warnDeliveryRadiusKm?: number; // Bán kính cảnh báo hoa giảm tươi (mặc định 20km)
   maxDeliveryRadiusKm?: number; // Bán kính giao tối đa (mặc định 50km)
+  deliveryTimeEstimate?: string; // Thời gian giao hàng cam kết (mặc định: 'Từ 15 phút nội thành, 60 phút ngoại thành')
   mascotImageUrl?: string; // URL ảnh/gif linh vật AI tùy chỉnh
+  floralCornerTopImage?: string; // URL ảnh hoa góc trên (Rose & Peony)
+  floralCornerBottomImage?: string; // URL ảnh hoa góc dưới (Peach Lisianthus)
   customDomain?: string; // https://vvflorielle.vn
   voiceAlertsEnabled: boolean;
   autoApproveWaitMinutes: number; // Mặc định 2 phút
@@ -227,8 +231,8 @@ export interface MarqueeItem {
   order: number;
 }
 
-export type AdminAccountType = 'admin' | 'vvflorielle';
+export type AdminAccountType = 'admin' | 'vvflorielle' | 'chuquan';
 export type AdminViewMode = 'STUDIO_CMS' | 'BOUTIQUE_OPS';
 export type SessionRole = 'ADMIN' | 'KHACHHANG' | 'GUEST';
-export type StoreView = 'store' | 'catalog' | 'about' | 'contact' | 'care' | 'customer' | 'admin';
+export type StoreView = 'store' | 'catalog' | 'about' | 'contact' | 'care' | 'customer' | 'admin' | 'owner';
 

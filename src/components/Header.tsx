@@ -107,6 +107,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
     if (currentView !== 'store') {
       setCurrentView('store');
     }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSelectCategory = (catId: CategoryId) => {
@@ -145,8 +146,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                   onClick={() => {
                     dismissBannerNotification();
                     if (activeBannerNotification.orderId) {
-                      if (isAdmin) setCurrentView('admin');
-                      else setCurrentView('customer');
+                      if (isAdmin) {
+                        const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
+                        setCurrentView(targetAdminView);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      } else {
+                        setCurrentView('customer');
+                      }
                     }
                   }}
                   className="text-[11px] font-bold text-emerald-700 hover:underline"
@@ -289,12 +295,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 {isAdmin && (
                   <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto">
                     <button
-                      onClick={() => setCurrentView('admin')}
+                      onClick={() => {
+                        const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
+                        setCurrentView(targetAdminView);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
                       className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-7.5 min-[375px]:px-2 rounded-full bg-purple-50/80 hover:bg-purple-100/90 border border-purple-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-purple-800 shrink-0"
                       title="Trang quản trị"
                     >
                       <ShieldCheck className="w-3.5 h-3.5 text-purple-700 shrink-0" />
-                      <span className="hidden min-[375px]:inline">Admin</span>
+                      <span className="hidden min-[375px]:inline">
+                        {activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan' ? 'Chủ Tiệm' : 'Admin'}
+                      </span>
                     </button>
                     <button
                       onClick={logoutAdmin}
@@ -339,8 +351,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                   placeholder="Tìm hoa khai trương, sinh nhật, lan hồ điệp..."
                   value={localSearch}
                   onChange={(e) => setLocalSearch(e.target.value)}
-                  className="glass-input w-full pr-10 pl-3.5 text-xs py-2 rounded-xl border border-emerald-300/80 shadow-md"
+                  className="glass-input w-full pr-16 pl-3.5 text-xs py-2 rounded-xl border border-emerald-300/80 shadow-md"
                 />
+                {localSearch && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLocalSearch('');
+                      setSearchQuery('');
+                    }}
+                    className="absolute right-8 p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                    title="Xóa tìm kiếm"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
                 <button
                   type="submit"
                   className="absolute right-2 p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg"
@@ -527,8 +552,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                     >
                       <Truck className="w-4 h-4 text-sky-600" />
                       <div>
-                        <div className="font-bold text-xs text-slate-800">Giao Hoa Cấp Tốc (60 - 90P)</div>
-                        <div className="text-[10px] text-slate-400">Bảng giá cước &amp; giao nhanh nội thành Hà Nội</div>
+                        <div className="font-bold text-xs text-slate-800">Giao Hoa Hỏa Tốc (Từ 15P)</div>
+                        <div className="text-[10px] text-slate-400">Từ 15P nội thành &amp; 60P ngoại thành Hà Nội</div>
                       </div>
                     </div>
                     <div
@@ -567,7 +592,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
 
             {/* 4. Giới Thiệu (Mở Trang Riêng) */}
             <button
-              onClick={() => setCurrentView('about')}
+              onClick={() => {
+                setCurrentView('about');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                 currentView === 'about'
                   ? 'text-emerald-900 bg-emerald-100/90 font-bold shadow-xs'
@@ -589,7 +617,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
 
             {/* 6. Liên Hệ (Mở Trang Riêng) */}
             <button
-              onClick={() => setCurrentView('contact')}
+              onClick={() => {
+                setCurrentView('contact');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                 currentView === 'contact'
                   ? 'text-emerald-900 bg-emerald-100/90 font-bold shadow-xs'
@@ -606,8 +637,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 placeholder="Tìm hoa tươi..."
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                className="glass-input w-full pr-7 pl-2.5 text-xs py-1.5 rounded-xl transition-all"
+                className="glass-input w-full pr-12 pl-2.5 text-xs py-1.5 rounded-xl transition-all"
               />
+              {localSearch && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocalSearch('');
+                    setSearchQuery('');
+                  }}
+                  className="absolute right-6 text-slate-400 hover:text-slate-600 p-0.5 rounded-md"
+                  title="Xóa tìm kiếm"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
               <button
                 type="submit"
                 className="absolute right-1.5 text-slate-400 hover:text-emerald-600 p-0.5 rounded-lg transition-colors"
@@ -699,8 +743,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                               onClick={() => {
                                 markNotificationAsRead(n.id);
                                 if (n.orderId) {
-                                  if (isAdmin) setCurrentView('admin');
-                                  else setCurrentView('customer');
+                                  if (isAdmin) {
+                                    const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
+                                    setCurrentView(targetAdminView);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  } else {
+                                    setCurrentView('customer');
+                                  }
                                 }
                               }}
                               className={`p-2.5 rounded-xl text-xs transition-colors cursor-pointer ${
@@ -768,19 +817,23 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 </button>
               )}
 
-              {/* Admin Portal Button (ONLY shown when Admin is logged in!) */}
+              {/* Admin / Owner Portal Button (ONLY shown when Admin is logged in!) */}
               {isAdmin && (
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => setCurrentView('admin')}
+                    onClick={() => {
+                      const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
+                      setCurrentView(targetAdminView);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                      currentView === 'admin'
+                      currentView === 'admin' || currentView === 'owner'
                         ? 'glass-btn-purple-pill ring-2 ring-purple-500/30'
                         : 'glass-btn-purple-pill'
                     }`}
                   >
                     <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
-                    <span>Quản Trị ({activeAdminUser === 'admin' ? 'Super' : 'Florist'})</span>
+                    <span>{activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan' ? 'Bảng Quản Lý Chủ Tiệm' : 'Admin Hub'}</span>
                   </button>
                   <button
                     onClick={logoutAdmin}

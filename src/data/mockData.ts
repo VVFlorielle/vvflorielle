@@ -26,8 +26,8 @@ export const INITIAL_CATEGORIES: FlowerCategory[] = [
     name: 'Hoa Sinh Nhật',
     icon: 'Gift',
     description: 'Mẫu bó hoa, giỏ hoa mây tươi tắn dành tặng người thân yêu',
-    imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1600&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80',
+    bannerUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=1600&q=80',
     tagline: 'Món Quà Ngọt Ngào • Miễn Phí Thiệp Viết Tay Ý Nghĩa'
   },
   {
@@ -139,7 +139,7 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     price: 680000,
     originalPrice: 790000,
     tag: 'Bán chạy',
-    imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80',
     flowerTypes: ['Hồng kem dâu', 'Cát tường trắng viền hồng', 'Hoa thanh liễu', 'Cúc calimero'],
     description: 'Tông màu pastel dịu dàng nữ tính cắm trong giỏ mây đan thủ công, thắt nơ ruy băng lụa mềm mại cực kỳ tôn dáng.',
     meaning: 'Chúc tuổi mới luôn tươi trẻ, bình an và rạng ngời hạnh phúc.',
@@ -304,15 +304,70 @@ export const INITIAL_SHOP_SETTINGS: ShopSettings = {
   bankName: 'Vietcombank (Ngân hàng Ngoại Thương)',
   bankAccount: '1029384756',
   bankHolder: 'V&V FLORIELLE',
-  freeShipThreshold: 500000,
-  standardShipFee: 20000,
+  freeShipThreshold: 400000,
+  freeShipRadiusKm: 3,
+  standardShipFee: 25000,
   shippingFeePerKm: 10000,
   warnDeliveryRadiusKm: 20,
   maxDeliveryRadiusKm: 50,
+  deliveryTimeEstimate: 'Từ 15 phút nội thành, 60 phút ngoại thành',
+  mascotImageUrl: '/images/mascot/mascot-1.png',
+  floralCornerTopImage: '/images/floral/floral-corner-rose-peony.webp',
+  floralCornerBottomImage: '/images/floral/floral-corner-peach-lisianthus.webp',
   customDomain: 'https://vvflorielle.vn',
   voiceAlertsEnabled: true,
   autoApproveWaitMinutes: 2
 };
+
+export const AVAILABLE_MASCOTS = [
+  { id: 'mascot-1', name: 'Flori Vui Vẻ (Linh vật 2)', url: '/images/mascot/mascot-1.png' },
+  { id: 'mascot-2', name: 'Flori Rạng Rỡ (Linh vật 3)', url: '/images/mascot/mascot-2.png' },
+  { id: 'mascot-3', name: 'Flori Năng Động (Linh vật 4)', url: '/images/mascot/mascot-3.png' },
+  { id: 'mascot-4', name: 'Flori Dịu Dàng (Linh vật 5)', url: '/images/mascot/mascot-4.png' },
+  { id: 'mascot-5', name: 'Flori Tinh Nghịch (Linh vật 6)', url: '/images/mascot/mascot-5.png' },
+  { id: 'mascot-6', name: 'Flori Yêu Thương (Linh vật 7)', url: '/images/mascot/mascot-6.png' },
+];
+
+export const AVAILABLE_FLORAL_CORNERS = [
+  { id: 'floral-rose-peony', name: 'Cụm Hoa Hồng & Mẫu Đơn (Rose & Peony)', webpUrl: '/images/floral/floral-corner-rose-peony.webp', pngUrl: '/images/floral/floral-corner-rose-peony.png' },
+  { id: 'floral-peach-lisianthus', name: 'Cụm Cát Tường Tone Đào (Peach Lisianthus)', webpUrl: '/images/floral/floral-corner-peach-lisianthus.webp', pngUrl: '/images/floral/floral-corner-peach-lisianthus.png' },
+];
+
+/**
+ * Tính cước phí giao hoa chuẩn theo bảng cước 4 bậc & chính sách Freeship:
+ * - Bán kính <= 3km: Đơn từ freeShipThreshold (400k) được FREESHIP (0đ). Đơn dưới 400k: standardShipFee (25k).
+ * - Bán kính 3km - 7km: 35.000đ.
+ * - Bán kính 7km - 12km: 50.000đ.
+ * - Bán kính > 12km: 70.000đ + (km - 12) * shippingFeePerKm (10.000đ/km).
+ */
+export function calculateTieredShippingFee(
+  shippingKm: number,
+  flowerSubtotal: number,
+  settings: Partial<ShopSettings>
+): number {
+  if (shippingKm <= 0) return 0;
+  const freeThreshold = settings.freeShipThreshold ?? 400000;
+  const freeRadius = settings.freeShipRadiusKm ?? 3;
+  const standardFee = settings.standardShipFee ?? 25000;
+  const feePerKm = settings.shippingFeePerKm ?? 10000;
+
+  // Bậc 1: Dưới hoặc bằng 3km
+  if (shippingKm <= freeRadius) {
+    if (flowerSubtotal >= freeThreshold) return 0;
+    return standardFee;
+  }
+  // Bậc 2: 3km đến 7km
+  if (shippingKm <= 7) {
+    return 35000;
+  }
+  // Bậc 3: 7km đến 12km
+  if (shippingKm <= 12) {
+    return 50000;
+  }
+  // Bậc 4: Trên 12km
+  const extraKm = Math.ceil(shippingKm - 12);
+  return 70000 + extraKm * feePerKm;
+}
 
 export const INITIAL_CONTACT_CHANNELS: ContactChannel[] = [
   {
@@ -663,7 +718,7 @@ export const INITIAL_ARTICLES: BlogArticle[] = [
     category: 'Mẹo Cắm Hoa',
     readTime: '3 phút đọc',
     publishedAt: '28/10/2026',
-    imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80',
     content: [
       'Để hoa tươi lâu, điều đầu tiên là dùng kéo sắc cắt vát 45 độ phần gốc cành hoa dưới vòi nước chảy để tránh bọt khí tràn vào mao mạch.',
       'Rửa sạch bình hoa trước khi cắm, thay nước mỗi ngày một lần và pha thêm 1/2 gói dưỡng hoa tặng kèm của V&V Florielle.',
@@ -713,7 +768,7 @@ export const INITIAL_HERO_CONFIG: HeroBannerConfig = {
 export const INITIAL_MARQUEE_ANNOUNCEMENTS: MarqueeItem[] = [
   {
     id: 'marq-01',
-    text: '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội • Giao hoa tươi hỏa tốc 60-90 phút • Tuyển chọn hoa mới mỗi sáng',
+    text: 'Hoa tươi giao ngay tại Hà Nội • Giao hỏa tốc từ 15 phút nội thành & 60 phút ngoại thành • Chụp ảnh gửi mẫu hoàn thiện',
     tag: 'CỬA HÀNG',
     isEnabled: true,
     order: 1

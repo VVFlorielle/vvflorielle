@@ -141,9 +141,9 @@ export const AboutPage: React.FC = () => {
             <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-800 mx-auto flex items-center justify-center shadow-xs">
               <Truck className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-sm text-slate-900">Giao Nhanh 60 - 90 Phút</h4>
+            <h4 className="font-bold text-sm text-slate-900">Giao Hỏa Tốc Từ 15 Phút</h4>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Điện hoa hỏa tốc tại nội thành Hà Nội, bảo quản chuyên dụng không dập nát.
+              Điện hoa hỏa tốc chỉ từ 15P nội thành &amp; 60P ngoại thành Hà Nội, bảo quản chuyên dụng không dập nát.
             </p>
           </div>
 

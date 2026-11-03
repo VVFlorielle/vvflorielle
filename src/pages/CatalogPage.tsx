@@ -101,8 +101,8 @@ export const CatalogPage: React.FC = () => {
         </div>
 
         {/* 2. Tiêu đề và mô tả danh mục linh hoạt */}
-        <div className="relative z-10 space-y-3 max-w-3xl mx-auto text-center flex flex-col items-center">
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight text-center">
+        <div className="relative z-10 space-y-3 max-w-4xl mx-auto text-center flex flex-col items-center">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-emerald-950 tracking-tight text-center leading-snug sm:leading-tight max-w-2xl mx-auto">
             {currentCat && selectedCategory !== 'all' ? currentCat.name : 'Bộ Sưu Tập Mẫu Hoa Tươi Nghệ Thuật'}
           </h1>
           <p className="text-xs sm:text-base text-slate-600 leading-relaxed max-w-2xl text-center mx-auto">

@@ -89,7 +89,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
             <div className="flex items-center gap-2 min-w-0">
               <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
               <span className="text-slate-800 text-[11.5px] font-medium truncate">
-                Giao hoả tốc 60 - 90P Hà Nội • Chụp ảnh duyệt qua Zalo
+                Giao hoả tốc từ 15P Hà Nội • Chụp ảnh gửi mẫu hoàn thiện qua Zalo
               </span>
             </div>
             <span className="text-[10.5px] font-bold text-emerald-700 shrink-0 flex items-center gap-0.5">
@@ -150,8 +150,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
                 <Truck className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-800 text-sm">Giao Hoả Tốc 60 - 90 Phút</h4>
-                <p className="text-xs text-slate-500 mt-0.5">Nội thành Hà Nội từ 105 Doãn Kế Thiện, Cầu Giấy.</p>
+                <h4 className="font-bold text-slate-800 text-sm">Giao Hoả Tốc Từ 15 Phút</h4>
+                <p className="text-xs text-slate-500 mt-0.5">Chỉ từ 15P nội thành &amp; 60P ngoại thành Hà Nội.</p>
               </div>
             </div>
 

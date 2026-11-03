@@ -103,19 +103,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.name}
           </h3>
 
-          {/* Flower Composition Pills */}
-          <div className="flex flex-wrap gap-1 mt-2">
-            {product.flowerTypes.slice(0, 2).map((flower, idx) => (
+          {/* Flower Composition Pills - Compact Single-Line Tag + Counter Badge (Chống dồn ứ làm méo thẻ) */}
+          <div className="flex items-center gap-1 mt-1.5 overflow-hidden">
+            {product.flowerTypes.slice(0, 1).map((flower, idx) => (
               <span
                 key={idx}
-                className="text-[10px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/60"
+                className="text-[10px] text-slate-600 bg-slate-100/90 px-1.5 py-0.5 rounded-md border border-slate-200/60 truncate max-w-[120px] whitespace-nowrap"
+                title={flower}
               >
                 {flower}
               </span>
             ))}
-            {product.flowerTypes.length > 2 && (
-              <span className="text-[10px] text-slate-400 bg-slate-50 px-1 py-0.5 rounded">
-                +{product.flowerTypes.length - 2}
+            {product.flowerTypes.length > 1 && (
+              <span className="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200/60 shrink-0">
+                +{product.flowerTypes.length - 1}
               </span>
             )}
           </div>

@@ -49,6 +49,7 @@ import {
   HeroBannerConfig,
   ContactChannel
 } from '../types';
+import { AVAILABLE_MASCOTS, AVAILABLE_FLORAL_CORNERS } from '../data/mockData';
 
 export const AdminPortal: React.FC = () => {
   const {
@@ -475,36 +476,13 @@ export const AdminPortal: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* View Switcher Button */}
-          <button
-            onClick={toggleAdminViewMode}
-            className={`btn-primary text-xs py-2 px-3.5 rounded-xl shadow-md flex items-center gap-1.5 transition-all ${
-              adminViewMode === 'STUDIO_CMS'
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800'
-                : 'bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800'
-            }`}
-            title="Chuyển đổi giao diện vận hành hoặc CMS"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>
-              {adminViewMode === 'STUDIO_CMS' ? 'Sang: Vận Hành Tiệm Hoa' : 'Sang: Studio Live CMS'}
-            </span>
-          </button>
-
           <button
             onClick={() => testCuteVoice('Có đơn hàng mới cần cắm hoa gấp!')}
-            className="btn-secondary text-xs py-2 px-3 rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50 flex items-center gap-1"
+            className="btn-secondary text-xs py-2 px-3 rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50 flex items-center gap-1 cursor-pointer"
             title="Thử âm thanh giọng nữ dễ thương"
           >
             <Volume2 className="w-3.5 h-3.5 text-purple-600" />
             <span>Thử Giọng Nữ AI</span>
-          </button>
-
-          <button
-            onClick={logoutAdmin}
-            className="btn-secondary text-xs py-2 px-3.5 rounded-xl border-purple-200 text-purple-800 hover:bg-purple-100/80 shadow-sm"
-          >
-            Đăng xuất
           </button>
         </div>
       </div>
@@ -1509,6 +1487,17 @@ export const AdminPortal: React.FC = () => {
                   />
                 </div>
                 <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Thời gian giao hoa cam kết</label>
+                  <input
+                    type="text"
+                    value={editSettings.deliveryTimeEstimate || 'Từ 15 phút nội thành, 60 phút ngoại thành'}
+                    onChange={(e) => setEditSettings({ ...editSettings, deliveryTimeEstimate: e.target.value })}
+                    placeholder="Từ 15 phút nội thành, 60 phút ngoại thành"
+                    className="glass-input w-full text-xs py-2 rounded-xl"
+                  />
+                  <span className="text-[10px] text-slate-400">Đồng bộ lên tiêu đề, popups và trợ lý ảo</span>
+                </div>
+                <div>
                   <label className="text-[11px] text-slate-500 block mb-1">Phí vận chuyển theo km (đ/km)</label>
                   <input
                     type="number"
@@ -1517,7 +1506,30 @@ export const AdminPortal: React.FC = () => {
                     onChange={(e) => setEditSettings({ ...editSettings, shippingFeePerKm: Number(e.target.value) })}
                     className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                   />
-                  <span className="text-[10px] text-slate-400">Mặc định 10.000đ/km từ 105 Doãn Kế Thiện</span>
+                  <span className="text-[10px] text-slate-400">Mặc định 10.000đ/km (tính ngoài 12km)</span>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Ngưỡng đơn Freeship (đ)</label>
+                  <input
+                    type="number"
+                    step={50000}
+                    value={editSettings.freeShipThreshold || 400000}
+                    onChange={(e) => setEditSettings({ ...editSettings, freeShipThreshold: Number(e.target.value) })}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  />
+                  <span className="text-[10px] text-slate-400">Đơn từ mức này được Freeship trong bán kính</span>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Bán kính áp dụng Freeship (km)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={15}
+                    value={editSettings.freeShipRadiusKm || 3}
+                    onChange={(e) => setEditSettings({ ...editSettings, freeShipRadiusKm: Number(e.target.value) })}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  />
+                  <span className="text-[10px] text-slate-400">Mặc định bán kính &le; 3km quanh 105 Doãn Kế Thiện</span>
                 </div>
                 <div>
                   <label className="text-[11px] text-slate-500 block mb-1">Thời gian AI tự duyệt bill (phút)</label>
@@ -1557,18 +1569,69 @@ export const AdminPortal: React.FC = () => {
                 </div>
               </div>
 
-              {/* AI Mascot Custom Image / GIF */}
-              <div className="pt-2">
-                <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Đường dẫn Ảnh / GIF Linh vật AI (PNG trong suốt hoặc GIF động)
-                </label>
-                <div className="flex gap-2 items-center">
+              {/* BỘ CHỌN 6 LINH VẬT HOẠT HỌA FLORI (MASCOT SELECTOR) */}
+              <div className="pt-3 border-t border-slate-200/60 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Chọn Linh Vật Trợ Lý Ảo Flori (Bộ 6 Mẫu Tách Nền)</span>
+                    </label>
+                    <p className="text-[11px] text-slate-500">
+                      Bấm vào bất kỳ linh vật nào bên dưới để đặt làm linh vật hiển thị chính thức của tiệm hoa.
+                    </p>
+                  </div>
+                  {editSettings.mascotImageUrl && (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <span>Đang chọn 1 mẫu</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+                  {AVAILABLE_MASCOTS.map((m) => {
+                    const isSelected = editSettings.mascotImageUrl === m.url;
+                    return (
+                      <div
+                        key={m.id}
+                        onClick={() => setEditSettings({ ...editSettings, mascotImageUrl: m.url })}
+                        className={`p-2.5 rounded-2xl border transition-all cursor-pointer text-center relative flex flex-col items-center justify-between ${
+                          isSelected
+                            ? 'bg-emerald-50/90 border-emerald-500 ring-2 ring-emerald-500/30 shadow-md'
+                            : 'bg-white/80 hover:bg-white border-slate-200 hover:border-emerald-300 hover:shadow-sm'
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-emerald-600 text-white text-[9px] flex items-center justify-center font-bold">
+                            ✓
+                          </span>
+                        )}
+                        <div className="w-16 h-16 flex items-center justify-center overflow-hidden mb-1">
+                          <img
+                            src={m.url}
+                            alt={m.name}
+                            className="w-full h-full object-contain filter drop-shadow-sm transition-transform hover:scale-110"
+                          />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-800 line-clamp-1">{m.name}</span>
+                        <span className={`text-[9px] mt-1 px-2 py-0.5 rounded-full font-bold ${
+                          isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {isSelected ? 'Đang dùng' : 'Chọn mẫu'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex gap-2 items-center pt-1">
                   <input
                     type="text"
-                    placeholder="Dán link ảnh PNG tách nền hoặc link GIF linh vật..."
+                    placeholder="Hoặc dán URL ảnh linh vật tùy chỉnh khác..."
                     value={editSettings.mascotImageUrl || ''}
                     onChange={(e) => setEditSettings({ ...editSettings, mascotImageUrl: e.target.value })}
-                    className="glass-input flex-1 text-xs py-2 rounded-xl"
+                    className="glass-input flex-1 text-xs py-2 rounded-xl font-mono"
                   />
                   {editSettings.mascotImageUrl && (
                     <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
@@ -1576,7 +1639,43 @@ export const AdminPortal: React.FC = () => {
                     </div>
                   )}
                 </div>
-                <span className="text-[10px] text-slate-400">Nếu để trống, hệ thống sẽ dùng linh vật hoạt họa 3D mặc định Flori 🧚‍♀️</span>
+              </div>
+
+              {/* KHU VỰC QUẢN LÝ 4 TỆP ẢNH HOA GÓC TRANG TRÍ (FLORAL CORNER ORNAMENTS) */}
+              <div className="pt-3 border-t border-slate-200/60 space-y-2">
+                <div>
+                  <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Flower2 className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Bộ 4 Tệp Ảnh Hoa Góc Trang Trí (E:\VVFlorielle\public\images\floral\)</span>
+                  </label>
+                  <p className="text-[11px] text-slate-500">
+                    Cụm hoa nghệ thuật chụp thực tế đã được tách nền trong suốt 100%, trang trí nhẹ nhàng quanh Hero Banner.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {AVAILABLE_FLORAL_CORNERS.map((fc) => (
+                    <div
+                      key={fc.id}
+                      className="p-3 rounded-2xl bg-white/80 border border-slate-200 flex items-center gap-3 shadow-2xs"
+                    >
+                      <div className="w-16 h-16 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                        <img src={fc.webpUrl} alt={fc.name} className="w-full h-full object-contain" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-bold text-xs text-slate-900 truncate">{fc.name}</h5>
+                        <p className="text-[10px] text-slate-500 font-mono truncate mt-0.5">{fc.webpUrl}</p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                            Đã tách nền sạch 100%
+                          </span>
+                          <span className="text-[9px] text-slate-400">WebP + PNG</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="pt-2 flex items-center gap-2">

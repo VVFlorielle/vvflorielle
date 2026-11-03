@@ -85,7 +85,7 @@ export const FloatingContactWidget: React.FC = () => {
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="fixed right-3 sm:right-5 top-[38%] -translate-y-1/2 z-50 flex flex-col items-end gap-2 select-none"
+      className="fixed right-3 sm:right-5 top-[38%] -translate-y-1/2 z-30 flex flex-col items-end gap-2 select-none"
     >
       {/* 1. MAIN TRIGGER BUTTON: RED GRADIENT PHONE BUTTON */}
       <div className="relative group">

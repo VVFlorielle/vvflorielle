@@ -31,11 +31,11 @@ interface MascotMessage {
 const FAQ_CHIPS = [
   {
     q: 'Giao hoa trong bao lâu?',
-    a: 'V&V Florielle giao hoa hỏa tốc chỉ trong 60 - 90 phút tại nội thành Hà Nội. Trước khi shipper giao đi, Florist luôn chụp ảnh thành phẩm thực tế gửi qua Zalo cho bạn duyệt ưng ý 100% mới xuất phát bạn nhé! 💕'
+    a: 'V&V Florielle giao hoa hỏa tốc chỉ từ 15 phút tại nội thành và 60 phút ngoại thành Hà Nội. Trước khi shipper giao đi, Florist luôn chụp ảnh gửi mẫu hoàn thiện thực tế qua Zalo cho bạn duyệt ưng ý 100% mới xuất phát bạn nhé! 💕'
   },
   {
     q: 'Khoảng cách ship & phí giao?',
-    a: 'Tiệm xuất phát từ 105 Doãn Kế Thiện, Cầu Giấy. Bán kính dưới 20km phí ship là 10.000đ/km đảm bảo hoa tươi tuyệt đối. Từ 20 - 50km có cảnh báo và cam kết chất lượng. Trên 50km vui lòng liên hệ Hotline tiệm để được tư vấn chuyến xe chuyên dụng!'
+    a: 'Tiệm xuất phát từ 105 Doãn Kế Thiện, Cầu Giấy. Bán kính dưới 3km đơn từ 400.000đ được Miễn Phí Vận Chuyển (Freeship). Từ 3 - 7km: 35k; 7 - 12km: 50k. Từ 20 - 50km có cảnh báo chất lượng hoa tươi. Trên 50km vui lòng liên hệ Hotline tiệm để được phục vụ chuyến xe chuyên dụng!'
   },
   {
     q: 'Hoa có tươi mới loại 1 không?',
@@ -61,9 +61,9 @@ const FAQ_CHIPS = [
 
 const MASCOT_TIPS = [
   '🌸 V&V Florielle 105 Doãn Kế Thiện chào bạn nha! 💕',
-  '⚡ Giao hoa hỏa tốc 60 - 90 phút nội thành Hà Nội nè!',
+  '⚡ Giao hoa hỏa tốc chỉ từ 15 phút nội thành & 60 phút ngoại thành nè!',
   '🎁 Tặng Voucher Freeship 100% khi tích đủ 100 điểm thưởng!',
-  '📸 Florist chụp ảnh gửi duyệt qua Zalo trước khi giao nha!',
+  '📸 Florist chụp ảnh gửi mẫu hoàn thiện qua Zalo trước khi giao nha!',
   '🎀 Tặng kèm thiệp chúc mừng viết tay & ruy băng lụa cao cấp!',
   '✨ Kéo rê tớ đi bất cứ đâu trên màn hình cũng được nha!',
   '🌷 Cậu cần tư vấn chọn hoa dịp gì? Chạm vào tớ nhé! 💬'
@@ -375,7 +375,7 @@ export const MascotAssistant: React.FC = () => {
           {/* Always display the transparent floral mascot logo (Never replaced or obscured by X) */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center select-none">
             <img
-              src={settings.mascotImageUrl || '/logo-vvflorielle-square.png'}
+              src={settings.mascotImageUrl || '/images/mascot/mascot-1.png'}
               alt="Linh vật AI V&V Florielle"
               className={`w-full h-full object-contain pointer-events-none filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-300 ${
                 isOpen ? 'scale-105 drop-shadow-[0_6px_16px_rgba(4,120,87,0.45)]' : ''
@@ -426,7 +426,7 @@ export const MascotAssistant: React.FC = () => {
             <div className="p-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="hidden sm:flex w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-md items-center justify-center shadow-xs border border-white/30 overflow-hidden">
-                  <img src={settings.mascotImageUrl || '/logo-vvflorielle-square.png'} alt="Flori" className="w-7 h-7 object-contain" />
+                  <img src={settings.mascotImageUrl || '/images/mascot/mascot-1.png'} alt="Flori" className="w-7 h-7 object-contain" />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
@@ -488,7 +488,7 @@ export const MascotAssistant: React.FC = () => {
                 >
                   {msg.sender === 'mascot' && (
                     <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 shadow-xs border border-emerald-200 overflow-hidden">
-                      <img src={settings.mascotImageUrl || '/logo-vvflorielle-square.png'} alt="Flori" className="w-5 h-5 object-contain" />
+                      <img src={settings.mascotImageUrl || '/images/mascot/mascot-1.png'} alt="Flori" className="w-5 h-5 object-contain" />
                     </div>
                   )}
 

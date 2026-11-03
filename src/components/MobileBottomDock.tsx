@@ -21,7 +21,8 @@ import {
   PhoneCall,
   Smartphone,
   Download,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 import { CategoryId } from '../types';
@@ -42,6 +43,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     setIsCartOpen,
     customer,
     isAdmin,
+    activeAdminUser,
     setIsAuthModalOpen,
     setAuthModalMode,
     setSelectedCategory,
@@ -182,7 +184,8 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     setIsCategorySheetOpen(false);
     setIsUtilityMenuOpen(false);
     if (isAdmin) {
-      setCurrentView('admin');
+      const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
+      setCurrentView(targetAdminView);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (customer) {
       setCurrentView('customer');
@@ -200,9 +203,12 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     setIsCategorySheetOpen(false);
     setIsUtilityMenuOpen(false);
     if (isAdmin) {
-      setCurrentView(currentView === 'admin' ? 'store' : 'admin');
+      const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
+      setCurrentView(currentView === targetAdminView ? 'store' : targetAdminView);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (customer) {
       setCurrentView(currentView === 'customer' ? 'store' : 'customer');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       setAuthModalMode('customer');
       setIsAuthModalOpen(true);
@@ -218,114 +224,120 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
           ================================================================ */}
       {isLoggedIn && (
         <div
-          className={`logged-in-nav-outer ${isExpanded ? 'is-expanded' : 'is-collapsed'}`}
+          className="fixed left-[calc(14px+env(safe-area-inset-left,0px))] bottom-[calc(76px+env(safe-area-inset-bottom,0px))] z-[9991] flex items-center pointer-events-auto"
           onTouchStart={resetAutoCollapse}
           onMouseEnter={resetAutoCollapse}
         >
-          {isExpanded ? (
-            <nav className="logged-in-public-dock-unfurl" aria-label="Menu chức năng mở rộng">
-              <button
-                type="button"
-                className="dock-unfurl-gear-toggle active"
-                onClick={() => setIsExpanded(false)}
-                aria-label="Thu gọn menu duyệt hoa"
-                title="Thu gọn"
-              >
-                <span className="gear-spin">⚙️</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => {
-                  setIsExpanded(false);
-                  handleCatalogClick();
-                }}
-                title="Mẫu hoa tươi"
-              >
-                <span className="dock-unfurl-icon">💐</span>
-                <span className="dock-unfurl-label">Mẫu Hoa</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => {
-                  setIsExpanded(false);
-                  setCurrentView('care');
-                }}
-                title="Cẩm nang dưỡng hoa"
-              >
-                <span className="dock-unfurl-icon">📖</span>
-                <span className="dock-unfurl-label">Cẩm Nang</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => {
-                  setIsExpanded(false);
-                  setCurrentView('about');
-                }}
-                title="Giới thiệu tiệm hoa"
-              >
-                <span className="dock-unfurl-icon">🌸</span>
-                <span className="dock-unfurl-label">Giới Thiệu</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => {
-                  setIsExpanded(false);
-                  setCurrentView('contact');
-                }}
-                title="Liên hệ & Chỉ đường"
-              >
-                <span className="dock-unfurl-icon">📞</span>
-                <span className="dock-unfurl-label">Liên Hệ</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => {
-                  setIsExpanded(false);
-                  if (onOpenPopup) onOpenPopup('app-download');
-                }}
-                title="Cài đặt & Tải App APK"
-              >
-                <span className="dock-unfurl-icon">📱</span>
-                <span className="dock-unfurl-label">Tải App</span>
-              </button>
-
-              <button
-                type="button"
-                className="dock-unfurl-item"
-                onClick={() => {
-                  setIsExpanded(false);
-                  if (onOpenPopup) onOpenPopup('voucher');
-                }}
-                title="Voucher & Tích điểm"
-              >
-                <span className="dock-unfurl-icon">🎁</span>
-                <span className="dock-unfurl-label">Ưu Đãi</span>
-              </button>
-            </nav>
-          ) : (
+          <div className="flex items-center gap-1.5 p-1 rounded-full bg-white/92 backdrop-blur-2xl border border-white/95 shadow-[0_12px_32px_rgba(5,150,105,0.18)] transition-all duration-300">
+            {/* Nút tròn bánh răng: Chạm để trượt mở hoặc trượt thu gọn */}
             <button
               type="button"
-              className="dock-unfurl-gear-toggle"
               onClick={() => {
                 handleUserInteract();
-                setIsExpanded(true);
+                setIsExpanded(!isExpanded);
               }}
-              aria-label="Mở menu chức năng phụ"
-              title="Khám phá tiện ích & danh mục"
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 cursor-pointer ${
+                isExpanded
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                  : 'bg-white/80 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700'
+              }`}
+              title={isExpanded ? 'Thu gọn menu' : 'Mở menu chức năng phụ'}
             >
-              <span className="gear-spin">⚙️</span>
+              <Settings className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
             </button>
-          )}
+
+            {/* Khay trượt Slide-out / Slide-in êm ái, thích ứng không tràn viền */}
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out flex items-center ${
+                isExpanded
+                  ? 'max-w-[calc(100vw-80px)] opacity-100 translate-x-0'
+                  : 'max-w-0 opacity-0 -translate-x-4 pointer-events-none'
+              }`}
+            >
+              <nav
+                className="flex items-center gap-1 px-1 py-0.5 whitespace-nowrap overflow-x-auto no-scrollbar"
+                aria-label="Menu chức năng mở rộng"
+              >
+                <button
+                  type="button"
+                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  onClick={() => {
+                    setIsExpanded(false);
+                    handleCatalogClick();
+                  }}
+                  title="Mẫu hoa tươi"
+                >
+                  <span className="text-sm">💐</span>
+                  <span className="text-[10px] font-bold">Mẫu Hoa</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  onClick={() => {
+                    setIsExpanded(false);
+                    setCurrentView('care');
+                  }}
+                  title="Cẩm nang dưỡng hoa"
+                >
+                  <span className="text-sm">📖</span>
+                  <span className="text-[10px] font-bold">Cẩm Nang</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  onClick={() => {
+                    setIsExpanded(false);
+                    setCurrentView('about');
+                  }}
+                  title="Giới thiệu tiệm hoa"
+                >
+                  <span className="text-sm">🌸</span>
+                  <span className="text-[10px] font-bold">Giới Thiệu</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  onClick={() => {
+                    setIsExpanded(false);
+                    setCurrentView('contact');
+                  }}
+                  title="Liên hệ & Chỉ đường"
+                >
+                  <span className="text-sm">📞</span>
+                  <span className="text-[10px] font-bold">Liên Hệ</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  onClick={() => {
+                    setIsExpanded(false);
+                    if (onOpenPopup) onOpenPopup('app-download');
+                  }}
+                  title="Cài đặt & Tải App APK"
+                >
+                  <span className="text-sm">📱</span>
+                  <span className="text-[10px] font-bold">Tải App</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  onClick={() => {
+                    setIsExpanded(false);
+                    if (onOpenPopup) onOpenPopup('voucher');
+                  }}
+                  title="Voucher & Tích điểm"
+                >
+                  <span className="text-sm">🎁</span>
+                  <span className="text-[10px] font-bold">Ưu Đãi</span>
+                </button>
+              </nav>
+            </div>
+          </div>
         </div>
       )}
 
@@ -338,7 +350,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsCategorySheetOpen(false)}
           />
-          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-8 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-3.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-28 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-3.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
             <div className="relative flex items-center justify-center pb-2 border-b border-slate-100 text-center">
               <div className="flex items-center justify-center gap-2 mx-auto">
                 <Sparkles className="w-4 h-4 text-emerald-600" />
@@ -428,8 +440,8 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   <div className="flex items-center gap-2">
                     <Truck className="w-4 h-4 text-sky-600" />
                     <div>
-                      <div className="text-xs font-bold text-slate-800">Giao Hoa Cấp Tốc (60 - 90P)</div>
-                      <div className="text-[10px] text-slate-400">Bảng giá cước &amp; giao hỏa tốc 105 Doãn Kế Thiện</div>
+                      <div className="text-xs font-bold text-slate-800">Giao Hoa Hỏa Tốc (Từ 15P)</div>
+                      <div className="text-[10px] text-slate-400">Từ 15P nội thành &amp; 60P ngoại thành Hà Nội</div>
                     </div>
                   </div>
                   <span className="text-[10px] font-bold text-sky-700">Giá ship →</span>
@@ -466,7 +478,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsUtilityMenuOpen(false)}
           />
-          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-8 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-2.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-28 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-2.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
             <div className="relative flex items-center justify-center pb-2 border-b border-slate-100 text-center">
               <div className="flex items-center justify-center gap-2 mx-auto">
                 <Compass className="w-4 h-4 text-emerald-600" />
@@ -649,7 +661,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               type="button"
               onClick={handleOrdersClick}
               className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
-                (currentView === 'customer' || currentView === 'admin') ? 'text-emerald-700 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
+                (currentView === 'customer' || currentView === 'admin' || currentView === 'owner') ? 'text-emerald-700 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
               }`}
               title="Quản lý & Theo dõi đơn hàng"
             >
@@ -663,13 +675,13 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               onClick={handleAccountSwitchClick}
               className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
                 isAdmin
-                  ? currentView === 'admin' ? 'text-purple-700 font-extrabold' : 'text-slate-600 hover:text-purple-700'
+                  ? (currentView === 'admin' || currentView === 'owner') ? 'text-purple-700 font-extrabold' : 'text-slate-600 hover:text-purple-700'
                   : currentView === 'customer' ? 'text-emerald-700 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
               }`}
-              title={isAdmin ? (currentView === 'admin' ? 'Chuyển sang Xem Web' : 'Vào Trang Quản Trị') : (currentView === 'customer' ? 'Chuyển sang Cửa Hàng' : 'Vào Trang Tài Khoản')}
+              title={isAdmin ? ((currentView === 'admin' || currentView === 'owner') ? 'Chuyển sang Xem Web' : 'Vào Trang Quản Trị') : (currentView === 'customer' ? 'Chuyển sang Cửa Hàng' : 'Vào Trang Tài Khoản')}
             >
               {isAdmin ? (
-                currentView === 'admin' ? (
+                (currentView === 'admin' || currentView === 'owner') ? (
                   <>
                     <Store className="w-4.5 h-4.5 stroke-[2.2] text-purple-700" />
                     <span className="text-[9.5px] font-bold mt-0.5 text-purple-900 leading-none truncate max-w-full text-center">Xem Web</span>

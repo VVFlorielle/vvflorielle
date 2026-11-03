@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
+import { calculateTieredShippingFee } from '../data/mockData';
 import {
   X,
   Trash2,
@@ -131,9 +132,9 @@ export const CartDrawer: React.FC = () => {
 
   if (!isCartOpen) return null;
 
-  // Pricing calculations
+  // Pricing calculations (tiered policy: < 3km free for orders >= 400k)
   const flowerPrice = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-  const shippingFee = shippingKm * (settings.shippingFeePerKm || 10000);
+  const shippingFee = calculateTieredShippingFee(shippingKm, flowerPrice, settings);
   const discountAmount = appliedVoucher ? appliedVoucher.discountAmount : 0;
   const totalAmount = Math.max(0, flowerPrice + shippingFee - discountAmount);
 
@@ -658,8 +659,13 @@ export const CartDrawer: React.FC = () => {
                     <label className="text-[10px] text-slate-600 font-semibold flex items-center gap-1">
                       <span>Khoảng cách từ 105 Doãn Kế Thiện:</span>
                     </label>
-                    <span className="text-[11px] font-bold text-emerald-700">
-                      {shippingKm} km = {formatPrice(shippingFee)}
+                    <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1.5">
+                      <span>{shippingKm} km = {shippingFee === 0 ? '0đ (Freeship)' : formatPrice(shippingFee)}</span>
+                      {shippingFee === 0 && (
+                        <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full font-bold">
+                          Freeship &lt; 3km
+                        </span>
+                      )}
                     </span>
                   </div>
 

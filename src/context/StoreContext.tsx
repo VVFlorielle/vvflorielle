@@ -32,7 +32,8 @@ import {
   INITIAL_ARTICLES,
   INITIAL_HERO_CONFIG,
   INITIAL_CONTACT_CHANNELS,
-  INITIAL_MARQUEE_ANNOUNCEMENTS
+  INITIAL_MARQUEE_ANNOUNCEMENTS,
+  calculateTieredShippingFee
 } from '../data/mockData';
 
 interface ToastNotice {
@@ -304,6 +305,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const hash = window.location.hash.toLowerCase();
       if (hash === '#customer') return 'customer';
       if (hash === '#admin') return 'admin';
+      if (hash === '#owner') return 'owner';
       if (hash === '#catalog' || hash === '#mau-hoa') return 'catalog';
       if (hash === '#about' || hash === '#gioi-thieu') return 'about';
       if (hash === '#contact' || hash === '#lien-he') return 'contact';
@@ -317,6 +319,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const hash = window.location.hash.toLowerCase();
       if (hash === '#customer') setCurrentView('customer');
       else if (hash === '#admin') setCurrentView('admin');
+      else if (hash === '#owner') setCurrentView('owner');
       else if (hash === '#catalog' || hash === '#mau-hoa') setCurrentView('catalog');
       else if (hash === '#about' || hash === '#gioi-thieu') setCurrentView('about');
       else if (hash === '#contact' || hash === '#lien-he') setCurrentView('contact');
@@ -338,7 +341,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Persistence Loaders
   const [products, setProducts] = useState<FlowerProduct[]>(() => {
     const saved = localStorage.getItem('vvf_products');
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Auto-migrate dim sum image if present in fl-04
+          const migrated = parsed.map((p: FlowerProduct) => {
+            if (p.id === 'fl-04' && p.imageUrl?.includes('photo-1563245372-f21724e3856d')) {
+              return { ...p, imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80' };
+            }
+            return p;
+          });
+          localStorage.setItem('vvf_products', JSON.stringify(migrated));
+          return migrated;
+        }
+      } catch (e) {}
+    }
+    return INITIAL_PRODUCTS;
   });
 
   const [categories, setCategories] = useState<FlowerCategory[]>(() => {
@@ -347,7 +366,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return parsed.filter((c: FlowerCategory) => c.id !== 'all');
+          const list = parsed.filter((c: FlowerCategory) => c.id !== 'all');
+          // Auto-migrate dim sum image if present in sinh-nhat
+          const migrated = list.map((c: FlowerCategory) => {
+            if (c.id === 'sinh-nhat' && c.imageUrl?.includes('photo-1563245372-f21724e3856d')) {
+              return {
+                ...c,
+                imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80',
+                bannerUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=1600&q=80'
+              };
+            }
+            return c;
+          });
+          localStorage.setItem('vvf_categories', JSON.stringify(migrated));
+          return migrated;
         }
       } catch (e) {
         // Fallback below
@@ -396,7 +428,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [articles, setArticles] = useState<BlogArticle[]>(() => {
     const saved = localStorage.getItem('vvf_articles');
-    return saved ? JSON.parse(saved) : INITIAL_ARTICLES;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const migrated = parsed.map((a: BlogArticle) => {
+            if (a.id === 'art-01' && a.imageUrl?.includes('photo-1563245372-f21724e3856d')) {
+              return { ...a, imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80' };
+            }
+            return a;
+          });
+          localStorage.setItem('vvf_articles', JSON.stringify(migrated));
+          return migrated;
+        }
+      } catch (e) {}
+    }
+    return INITIAL_ARTICLES;
   });
 
   const [activeInfoPopup, setActiveInfoPopup] = useState<'guarantee' | 'voucher' | 'locations' | 'care' | 'promotions' | 'articles' | null>(null);
@@ -464,7 +511,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (parsed.address && parsed.address.includes('Đồng Nai')) {
           parsed.address = INITIAL_SHOP_SETTINGS.address;
         }
-        return parsed;
+        const merged: ShopSettings = {
+          ...INITIAL_SHOP_SETTINGS,
+          ...parsed,
+          freeShipThreshold: parsed.freeShipThreshold === 500000 ? 400000 : (parsed.freeShipThreshold || 400000),
+          freeShipRadiusKm: parsed.freeShipRadiusKm || 3,
+          deliveryTimeEstimate: parsed.deliveryTimeEstimate || INITIAL_SHOP_SETTINGS.deliveryTimeEstimate,
+          mascotImageUrl: parsed.mascotImageUrl || INITIAL_SHOP_SETTINGS.mascotImageUrl,
+          floralCornerTopImage: parsed.floralCornerTopImage || INITIAL_SHOP_SETTINGS.floralCornerTopImage,
+          floralCornerBottomImage: parsed.floralCornerBottomImage || INITIAL_SHOP_SETTINGS.floralCornerBottomImage,
+        };
+        localStorage.setItem('vvf_settings', JSON.stringify(merged));
+        return merged;
       } catch (e) {}
     }
     return INITIAL_SHOP_SETTINGS;
@@ -473,7 +531,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Running Marquee Announcements
   const [marqueeAnnouncements, setMarqueeAnnouncements] = useState<MarqueeItem[]>(() => {
     const saved = localStorage.getItem('vvf_marquee_announcements');
-    return saved ? JSON.parse(saved) : INITIAL_MARQUEE_ANNOUNCEMENTS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const migrated = parsed.map((m: MarqueeItem) => {
+            if (m.id === 'marq-01' && m.text.includes('60-90')) {
+              return { ...m, text: INITIAL_MARQUEE_ANNOUNCEMENTS[0].text };
+            }
+            return m;
+          });
+          localStorage.setItem('vvf_marquee_announcements', JSON.stringify(migrated));
+          return migrated;
+        }
+      } catch (e) {}
+    }
+    return INITIAL_MARQUEE_ANNOUNCEMENTS;
   });
 
   // Notifications & Voice Alerts
@@ -846,9 +919,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const dateStr = now.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
     const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-    // Shipping fee: 10.000đ/km
+    // Shipping fee calculated according to tiered policy & freeship threshold
     const km = Math.max(1, orderData.shippingDistanceKm || 1);
-    const standardFee = km * (settings.shippingFeePerKm || 10000);
+    const standardFee = calculateTieredShippingFee(km, orderData.flowerPrice, settings);
 
     const totalBeforeDiscount = orderData.flowerPrice + standardFee;
     const finalTotal = Math.max(0, totalBeforeDiscount - (orderData.discountAmount || 0));
@@ -1458,15 +1531,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Account 1: admin / 17092000
     const isSuperAdmin = (u === 'admin') && (p === '17092000' || p === '19092003') && isPinCorrect;
 
-    // Account 2: vvflorielle / 19092003
-    const isFloristOps = (u === 'vvflorielle') && (p === '19092003') && isPinCorrect;
+    // Account 2: vvflorielle / 19092003 (or chuquan)
+    const isFloristOps = (u === 'vvflorielle' || u === 'chuquan') && (p === '19092003') && isPinCorrect;
 
     if (isSuperAdmin || isFloristOps) {
       setIsAdmin(true);
       setSessionRole('ADMIN');
       setCustomer(null); // Single Session Exclusivity!
 
-      const accountType: AdminAccountType = isSuperAdmin ? 'admin' : 'vvflorielle';
+      const accountType: AdminAccountType = isSuperAdmin ? 'admin' : (u === 'chuquan' ? 'chuquan' : 'vvflorielle');
       setActiveAdminUser(accountType);
 
       // Default view mode per user
@@ -1477,6 +1550,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.setItem('vvf_session_role', 'ADMIN');
       localStorage.setItem('vvf_admin_login_time', Date.now().toString());
       localStorage.setItem('vvf_admin_keep_session', keepSession ? 'true' : 'false');
+      localStorage.setItem('vvf_active_admin_user', accountType);
 
       // Remember login handling (username remembered, password not revealable after logout)
       if (rememberLogin) {
@@ -1489,12 +1563,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         localStorage.removeItem('vvf_admin_remembered_auth');
       }
 
-      setCurrentView('admin');
-      showToast(`Đăng nhập Quản Trị thành công (${accountType === 'admin' ? 'Super Admin' : 'Chủ Tiệm V&V'})!`, 'success');
+      if (isSuperAdmin) {
+        setCurrentView('admin');
+        showToast('Đăng nhập thành công: Trung Tâm Quản Trị Admin (Super Admin)!', 'success');
+      } else {
+        setCurrentView('owner');
+        showToast('Đăng nhập thành công: Bảng Quản Lý Chủ Tiệm (Florist Ops)!', 'success');
+      }
       return true;
     }
 
-    if (u !== 'admin' && u !== 'vvflorielle') {
+    if (u !== 'admin' && u !== 'vvflorielle' && u !== 'chuquan') {
       showToast('Tài khoản quản trị không chính xác!', 'error');
     } else if (p !== '17092000' && p !== '19092003') {
       showToast('Mật khẩu quản trị không chính xác!', 'error');
@@ -1510,9 +1589,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setSessionRole('GUEST');
     localStorage.removeItem('vvf_session_role');
     localStorage.removeItem('vvf_admin_login_time');
+    localStorage.removeItem('vvf_active_admin_user');
     // Note: vvf_admin_remembered_user is kept if remember was checked, so next login can prefill without exposing password
     setCurrentView('store');
-    showToast('Đã thoát phiên quản trị viên.', 'info');
+    showToast('Đã thoát phiên quản trị viên an toàn.', 'info');
   };
 
   const toggleAdminViewMode = () => {
