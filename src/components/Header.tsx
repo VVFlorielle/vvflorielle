@@ -527,7 +527,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       <Flower2 className="w-4 h-4 text-emerald-600" />
                       <div>
                         <div className="font-bold text-xs text-slate-800">Hoa Tươi Mẫu Sẵn</div>
-                        <div className="text-[10px] text-slate-400">Các mẫu hoa thiết kế sẵn mới mỗi sáng</div>
+                        <div className="text-[10px] text-slate-400">Các mẫu hoa thiết kế sẵn mới mỗi ngày</div>
                       </div>
                     </div>
                     <div

@@ -164,7 +164,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
               </div>
               <div>
                 <h4 className="font-bold text-slate-800 text-sm">Hoa Tươi Mới 100%</h4>
-                <p className="text-xs text-slate-500 mt-0.5">Nhập mới mỗi sáng, bảo hành đổi trả trong 2h.</p>
+                <p className="text-xs text-slate-500 mt-0.5">Nhập mới mỗi ngày, bảo hành đổi trả trong 2h.</p>
               </div>
             </div>
 

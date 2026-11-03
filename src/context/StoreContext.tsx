@@ -347,8 +347,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (Array.isArray(parsed)) {
           // Auto-migrate dim sum image if present in fl-04
           const migrated = parsed.map((p: FlowerProduct) => {
-            if (p.id === 'fl-04' && p.imageUrl?.includes('photo-1563245372-f21724e3856d')) {
-              return { ...p, imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80' };
+            if (p.id === 'fl-04' && (p.imageUrl?.includes('photo-1563245372-f21724e3856d') || p.imageUrl?.includes('photo-1587556930799'))) {
+              return { ...p, imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80' };
             }
             return p;
           });
@@ -369,11 +369,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const list = parsed.filter((c: FlowerCategory) => c.id !== 'all');
           // Auto-migrate dim sum image if present in sinh-nhat
           const migrated = list.map((c: FlowerCategory) => {
-            if (c.id === 'sinh-nhat' && c.imageUrl?.includes('photo-1563245372-f21724e3856d')) {
+            if (c.id === 'sinh-nhat' && (c.imageUrl?.includes('photo-1563245372-f21724e3856d') || c.imageUrl?.includes('photo-1587556930799'))) {
               return {
                 ...c,
-                imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80',
-                bannerUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=1600&q=80'
+                imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
+                bannerUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1600&q=80'
               };
             }
             return c;
@@ -433,8 +433,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
           const migrated = parsed.map((a: BlogArticle) => {
-            if (a.id === 'art-01' && a.imageUrl?.includes('photo-1563245372-f21724e3856d')) {
-              return { ...a, imageUrl: 'https://images.unsplash.com/photo-1587556930799-8dca6a7374b8?auto=format&fit=crop&w=800&q=80' };
+            if (a.id === 'art-01' && (a.imageUrl?.includes('photo-1563245372-f21724e3856d') || a.imageUrl?.includes('photo-1587556930799'))) {
+              return { ...a, imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80' };
             }
             return a;
           });

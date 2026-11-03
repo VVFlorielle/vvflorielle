@@ -199,7 +199,7 @@ export const PublicStore: React.FC = () => {
               <span>Danh Mục Hoa Tươi Nghệ Thuật</span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Tuyển chọn theo từng sự kiện ý nghĩa, thiết kế sang trọng &amp; hoa tươi mới mỗi sáng
+              Tuyển chọn theo từng sự kiện ý nghĩa, thiết kế sang trọng &amp; hoa tươi mới mỗi ngày
             </p>
           </div>
         </div>

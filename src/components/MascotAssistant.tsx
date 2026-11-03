@@ -39,7 +39,7 @@ const FAQ_CHIPS = [
   },
   {
     q: 'Hoa có tươi mới loại 1 không?',
-    a: '100% hoa tại V&V Florielle là hoa tuyển chọn loại 1 nhập mới mỗi sáng từ Đà Lạt & hoa ngoại nhập khẩu Ecuador cao cấp. Tiệm cam kết bảo hành đổi mới 100% trong 2H nếu hoa bị dập nát hoặc không đúng mẫu yêu cầu!'
+    a: '100% hoa tại V&V Florielle là hoa tuyển chọn loại 1 nhập mới mỗi ngày từ đơn vị vườn hoa & hoa ngoại nhập khẩu cao cấp. Tiệm cam kết bảo hành đổi mới 100% trong 2H nếu hoa bị dập nát hoặc không đúng mẫu yêu cầu!'
   },
   {
     q: 'Cách cọc đơn qua VietQR?',

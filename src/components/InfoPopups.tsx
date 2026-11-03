@@ -639,7 +639,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
               <div className="space-y-3 text-xs text-slate-600 bg-slate-50/90 p-4 rounded-2xl border border-slate-200/60 leading-relaxed">
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Tuyển chọn loại 1:</strong> Hoa nhập mới mỗi sáng từ vườn hoa tươi Đà Lạt & hoa ngoại nhập khẩu Ecuador cao cấp.</span>
+                  <span><strong>Tuyển chọn loại 1:</strong> Hoa tươi loại 1 nhập mới mỗi ngày từ đơn vị vườn hoa & hoa ngoại nhập khẩu cao cấp.</span>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -799,7 +799,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
                     </div>
                     <h4 className="font-bold text-sm text-slate-900">Hoa Tươi Thiết Kế Mẫu Sẵn</h4>
                     <p className="text-[11px] text-slate-500 leading-relaxed">
-                      Hàng trăm mẫu bó hoa Hàn Quốc, giỏ hoa khai trương, lan hồ điệp cắm mới mỗi sáng từ hoa loại 1 Đà Lạt.
+                      Hàng trăm mẫu bó hoa Hàn Quốc, giỏ hoa khai trương, lan hồ điệp cắm mới mỗi ngày từ hoa tuyển chọn loại 1.
                     </p>
                   </div>
                   <button
