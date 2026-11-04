@@ -28,6 +28,8 @@ body {
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .ambient-blob-1 {

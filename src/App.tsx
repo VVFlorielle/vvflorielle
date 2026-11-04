@@ -26,25 +26,22 @@ export const AppContent: React.FC = () => {
   const { currentView, toasts } = useStore();
   const [activePopup, setActivePopup] = useState<PopupType>(null);
 
-  // Synchronized scroll-dimming for sticky top navigation & announcement banner
+  // Synchronized scroll-dimming for sticky top navigation & announcement banner (60fps rAF throttled, zero jank)
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   useEffect(() => {
-    let timer: any = null;
+    let ticking = false;
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsHeaderScrolled(true);
-      } else {
-        setIsHeaderScrolled(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const shouldScroll = window.scrollY > 30;
+          setIsHeaderScrolled((prev) => (prev !== shouldScroll ? shouldScroll : prev));
+          ticking = false;
+        });
+        ticking = true;
       }
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        setIsHeaderScrolled(false);
-      }, 350);
     };
-    const handleTouch = () => setIsHeaderScrolled(false);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('touchstart', handleTouch, { passive: true });
     const handleOpenCustomDesign = () => setActivePopup('custom-design');
     const handleOpenShipping = () => setActivePopup('shipping');
     const handleOpenWeddingEvent = () => setActivePopup('wedding-event');
@@ -54,11 +51,9 @@ export const AppContent: React.FC = () => {
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('touchstart', handleTouch);
       window.removeEventListener('open-custom-design-modal', handleOpenCustomDesign);
       window.removeEventListener('open-shipping-modal', handleOpenShipping);
       window.removeEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
-      if (timer) clearTimeout(timer);
     };
   }, []);
 

@@ -70,29 +70,24 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
   const [isNotificationHubOpen, setIsNotificationHubOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
-  // Scroll Dimming / Reveal effect for mobile header clusters (matching phototiinlove)
+  // Scroll Dimming / Reveal effect for mobile header clusters (matching phototiinlove, 60fps rAF throttled)
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {
-    let timer: any = null;
+    let ticking = false;
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const shouldScroll = window.scrollY > 30;
+          setIsScrolled((prev) => (prev !== shouldScroll ? shouldScroll : prev));
+          ticking = false;
+        });
+        ticking = true;
       }
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        setIsScrolled(false);
-      }, 350);
     };
-    const handleTouch = () => setIsScrolled(false);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('touchstart', handleTouch, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('touchstart', handleTouch);
-      if (timer) clearTimeout(timer);
     };
   }, []);
 
