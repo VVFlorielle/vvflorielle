@@ -403,7 +403,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           !parsed.title ||
           parsed.title.includes('Hoa Tươi Thiết Kế Nghệ Thuật - 105') ||
           !parsed.subtitle ||
-          parsed.subtitle.includes('105 Doãn Kế Thiện, Cầu Giấy, Hà Nội • 100% hoa tươi')
+          !parsed.subtitle.startsWith('Hoa Tươi Giao Ngay Tại Hà Nội') ||
+          parsed.subtitle.includes('60 - 90 phút')
         ) {
           const updated = {
             ...parsed,
