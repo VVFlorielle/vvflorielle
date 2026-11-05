@@ -14,7 +14,8 @@ import { CustomerUser, Order } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
 import { ManagementFunctionalGrid, ManagementActionGroup } from '../components/management/ManagementFunctionalGrid';
 import { ManagementRecentOrders } from '../components/management/ManagementRecentOrders';
-import { ManagementDock } from '../components/management/ManagementDock';
+import { ManagementBottomDock } from '../components/management/ManagementBottomDock';
+import { AdminLoginForm } from '../components/management/AdminLoginForm';
 import {
   SecurityModal,
   QuickVoucherModal,
@@ -36,6 +37,8 @@ import { PromotionsSubpage } from '../components/management/subpages/PromotionsS
 
 export const OwnerPortal: React.FC = () => {
   const {
+    isAdmin,
+    setCurrentView,
     orders,
     products,
     addProduct,
@@ -186,6 +189,10 @@ export const OwnerPortal: React.FC = () => {
     }
   ];
 
+  if (!isAdmin) {
+    return <AdminLoginForm />;
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-20 space-y-6 select-none">
       {/* 1. TOP GREETING & 4 KPIS HERO (BRIGHT, ELEGANT PASTEL) */}
@@ -315,8 +322,22 @@ export const OwnerPortal: React.FC = () => {
         />
       )}
 
-      {/* 3. MANAGEMENT DOCK (DESKTOP & MOBILE) */}
-      <ManagementDock role="owner" />
+      {/* 3. MANAGEMENT BOTTOM DOCK (DESKTOP & MOBILE) */}
+      <ManagementBottomDock
+        role="owner"
+        activeTab={activeTab}
+        onSelectTab={(tab) => setActiveTab(tab)}
+        pendingOrdersCount={pendingDepositOrders.length}
+        productsCount={products.length}
+        onReturnToStore={() => {
+          setCurrentView('store');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onLogout={() => {
+          logoutAdmin();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
 
       {/* 4. MODALS & POPUPS */}
       <SecurityModal

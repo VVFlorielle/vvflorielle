@@ -214,9 +214,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
         {/* === MOBILE HEADER (MD:HIDDEN): 3 CỤM ĐẢO BÓNG KÍNH ĐỘC LẬP (CHUẨN glass-nav-luminous, LOGO CĂN CHÍNH GIỮA MÀN HÌNH) === */}
         <div className="flex md:hidden flex-col w-full gap-2 transition-all duration-300">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 min-[375px]:gap-2.5 sm:gap-4 w-full">
-            {/* Cụm 1 (Bên trái): NÚT THÔNG BÁO & NÚT TÌM KIẾM (MÀN HẸP: XẾP DỌC 2 HÀNG 40PX; MÀN RỘNG: DÀI NGANG 108PX) */}
+            {/* Cụm 1 (Bên trái): NÚT THÔNG BÁO & NÚT TÌM KIẾM (MÀN HẸP: XẾP DỌC 2 HÀNG 62PX; MÀN RỘNG: DÀI NGANG 124-130PX) */}
             <div className="flex items-center justify-start">
-              <div className={`h-[56px] min-[375px]:h-10 w-10 min-[375px]:w-[108px] sm:min-[375px]:w-[114px] rounded-full py-1 min-[375px]:py-0 px-1 min-[375px]:px-2.5 shrink-0 flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between ${clusterGlassClass}`}>
+              <div className={`h-[62px] min-[375px]:h-11 w-10 min-[375px]:w-[124px] sm:min-[375px]:w-[130px] rounded-full py-1 min-[375px]:py-0 px-1 min-[375px]:px-2.5 shrink-0 flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between ${clusterGlassClass}`}>
                 {/* Nút thông báo */}
                 <button
                   onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
@@ -253,29 +253,29 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                   setCurrentView('store');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`h-[56px] min-w-[136px] w-[138px] px-2 py-0.5 rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 ${clusterGlassClass}`}
+                className={`h-[62px] min-[375px]:h-[64px] min-w-[146px] w-[150px] p-[2px] rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 ${clusterGlassClass}`}
                 title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
               >
                 <img
                   src="/logo-vvflorielle-horizontal.png"
                   alt="V&V Florielle"
-                  className="h-[52px] max-w-none w-auto object-contain scale-[1.28] filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]"
+                  className="h-full w-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.1)] p-[2px]"
                 />
               </div>
             </div>
 
-            {/* Cụm 3 (Bên phải): Cụm tài khoản & Admin (MÀN HẸP: XẾP DỌC 2 HÀNG 40PX; MÀN RỘNG: DÀI NGANG 108PX) */}
+            {/* Cụm 3 (Bên phải): Cụm tài khoản & Admin (MÀN HẸP: XẾP DỌC 2 HÀNG 62PX; MÀN RỘNG: DÀI NGANG 124-130PX) */}
             <div className="flex items-center justify-end">
-              <div className={`h-[56px] min-[375px]:h-10 w-10 min-[375px]:w-[108px] sm:min-[375px]:w-[114px] rounded-full py-1 min-[375px]:py-0 px-1 min-[375px]:px-2 shrink-0 flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-center ${clusterGlassClass}`}>
+              <div className={`h-[62px] min-[375px]:h-11 w-10 min-[375px]:w-[124px] sm:min-[375px]:w-[130px] rounded-full py-1 min-[375px]:py-0 px-1 min-[375px]:px-2 shrink-0 flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-center ${clusterGlassClass}`}>
                 {customer && (
-                  <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto">
+                  <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto gap-1">
                     <button
                       onClick={() => setCurrentView('customer')}
-                      className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-7.5 min-[375px]:px-2 rounded-full bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-emerald-800 shrink-0"
+                      className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-8 min-[375px]:px-2 rounded-full bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-emerald-800 shrink-0"
                       title="Trang quản lý tài khoản"
                     >
                       <User className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                      <span className="hidden min-[375px]:inline max-w-[40px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
+                      <span className="hidden min-[375px]:inline max-w-[48px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
                     </button>
                     <button
                       onClick={logoutCustomer}
@@ -288,14 +288,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 )}
 
                 {isAdmin && (
-                  <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto">
+                  <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto gap-1">
                     <button
                       onClick={() => {
                         const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
                         setCurrentView(targetAdminView);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-7.5 min-[375px]:px-2 rounded-full bg-purple-50/80 hover:bg-purple-100/90 border border-purple-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-purple-800 shrink-0"
+                      className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-8 min-[375px]:px-2.5 rounded-full bg-purple-50/80 hover:bg-purple-100/90 border border-purple-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-purple-800 shrink-0"
                       title="Trang quản trị"
                     >
                       <ShieldCheck className="w-3.5 h-3.5 text-purple-700 shrink-0" />
@@ -319,7 +319,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       setAuthModalMode('customer');
                       setIsAuthModalOpen(true);
                     }}
-                    className="w-7 h-7 min-[375px]:w-full min-[375px]:h-7.5 min-[375px]:px-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center justify-center gap-1 shadow-sm transition-colors"
+                    className="w-7 h-7 min-[375px]:w-full min-[375px]:h-8 min-[375px]:px-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center justify-center gap-1 shadow-sm transition-colors"
                     title="Đăng nhập tài khoản"
                   >
                     <User className="w-3.5 h-3.5 shrink-0" />

@@ -11,7 +11,7 @@ import { CarePage } from './pages/CarePage';
 import { CustomerPortal } from './pages/CustomerPortal';
 import { AdminPortal } from './pages/AdminPortal';
 import { OwnerPortal } from './pages/OwnerPortal';
-import { ManagementDock } from './components/management/ManagementDock';
+import { ManagementHeader } from './components/management/ManagementHeader';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
@@ -70,9 +70,9 @@ export const AppContent: React.FC = () => {
         <div className="ambient-blob-5" />
       </div>
 
-      {/* Top Navigation: ManagementDock (Light Glass) for Admin/Owner OR Public Floating Header for Customers */}
+      {/* Top Navigation: ManagementHeader (Light Glass) for Admin/Owner OR Public Floating Header for Customers */}
       {isManagementView ? (
-        <ManagementDock role={currentView === 'owner' ? 'owner' : 'admin'} />
+        <ManagementHeader role={currentView === 'owner' ? 'owner' : 'admin'} />
       ) : (
         <div className="fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5">
           <div className="pointer-events-auto relative z-20">
