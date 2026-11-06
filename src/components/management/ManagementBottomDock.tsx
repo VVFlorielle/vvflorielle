@@ -51,6 +51,26 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
   const [isUnfurlExpanded, setIsUnfurlExpanded] = useState(false);
   const collapseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Hiệu ứng làm mờ nhẹ thanh dock khi lướt (Scroll-dimming effect)
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolling(true);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = setTimeout(() => {
+        setIsScrolling(false);
+      }, 450);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, []);
+
   const resetAutoCollapse = () => {
     if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
     if (isUnfurlExpanded) {
@@ -131,7 +151,9 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
           Khi bấm: Trượt êm ái mở ra các nút chức năng phụ không bị tràn màn hình
           ================================================================ */}
       <div
-        className="fixed left-2 bottom-[74px] sm:bottom-[80px] z-[75] flex items-center pointer-events-auto sm:hidden"
+        className={`fixed left-2 bottom-[74px] sm:bottom-[80px] z-[75] flex items-center pointer-events-auto sm:hidden transition-all duration-300 ${
+          isScrolling ? 'opacity-40 hover:opacity-100' : 'opacity-100'
+        }`}
         onTouchStart={resetAutoCollapse}
       >
         {!isUnfurlExpanded ? (
@@ -296,16 +318,20 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
           * Icon ở trên, chữ nhỏ ở dưới đồng bộ, gọn gàng, tinh tế
           * Không có nút Đăng Xuất để loại bỏ rủi ro bấm nhầm
           ================================================================ */}
-      <div className="fixed bottom-1.5 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[70] select-none pointer-events-auto">
+      <div
+        className={`fixed bottom-1.5 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[70] select-none pointer-events-auto transition-all duration-300 ${
+          isScrolling ? 'opacity-40 hover:opacity-100 scale-[0.98]' : 'opacity-100 scale-100'
+        }`}
+      >
         <nav
           className="flex items-center justify-between sm:justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl sm:rounded-full bg-white/94 backdrop-blur-2xl border border-emerald-200/90 shadow-[0_12px_40px_-8px_rgba(5,150,105,0.22),0_4px_16px_rgba(0,0,0,0.06)] ring-1 ring-emerald-500/10 w-full sm:w-auto"
           aria-label="Thanh dock điều hướng quản trị 7 nút"
         >
-          {/* NÚT 1: TRỞ LẠI (Có viền bao quanh) */}
+          {/* NÚT 1: TRỞ LẠI (Kích thước đều tăm tắp 100%) */}
           <button
             type="button"
             onClick={handleGoBack}
-            className="flex flex-col items-center justify-center p-1 sm:p-1.5 min-w-[38px] sm:min-w-[50px] rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 active:scale-95 transition-all cursor-pointer shadow-2xs"
+            className="w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0"
             title="Quay lại phân hệ hoặc trang trước"
           >
             <ArrowLeft className="w-4 h-4 text-slate-700" />
@@ -314,11 +340,11 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             </span>
           </button>
 
-          {/* NÚT 2: XEM SHOP / VÀO QUẢN TRỊ (Icon trên, chữ dưới, có viền bao quanh) */}
+          {/* NÚT 2: XEM SHOP / VÀO QUẢN TRỊ (Kích thước đều tăm tắp 100%) */}
           <button
             type="button"
             onClick={handleToggleStoreOrAdmin}
-            className={`flex flex-col items-center justify-center p-1 sm:p-1.5 min-w-[38px] sm:min-w-[50px] rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs ${
+            className={`w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               isStorefront
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
@@ -329,24 +355,26 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
               <>
                 <ShieldCheck className="w-4 h-4 text-emerald-700" />
                 <span className="text-[8.5px] sm:text-[10px] font-bold text-emerald-800 mt-0.5 leading-none whitespace-nowrap">
-                  Quản Trị
+                  <span className="sm:hidden">Q.Trị</span>
+                  <span className="hidden sm:inline">Quản Trị</span>
                 </span>
               </>
             ) : (
               <>
                 <Store className="w-4 h-4 text-emerald-700" />
                 <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
-                  Xem Shop
+                  <span className="sm:hidden">Shop</span>
+                  <span className="hidden sm:inline">Xem Shop</span>
                 </span>
               </>
             )}
           </button>
 
-          {/* NÚT 3: ĐƠN HÀNG (Kèm Badge Đơn Cọc Chờ Duyệt) */}
+          {/* NÚT 3: ĐƠN HÀNG (Kích thước đều tăm tắp 100%) */}
           <button
             type="button"
             onClick={handleNavigateOrders}
-            className={`relative flex flex-col items-center justify-center p-1 sm:p-1.5 min-w-[38px] sm:min-w-[50px] rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs ${
+            className={`relative w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               !isStorefront && activeTab === 'orders'
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
@@ -369,18 +397,18 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
           <button
             type="button"
             onClick={onOpenQrScanner}
-            className="relative -mt-2 sm:-mt-3 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 text-white shadow-[0_8px_20px_rgba(5,150,105,0.4)] ring-3 ring-white flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer group shrink-0 mx-0.5"
+            className="relative -mt-2 sm:-mt-3 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 text-white shadow-[0_8px_20px_rgba(5,150,105,0.4)] ring-3 ring-white flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer group shrink-0 mx-0.5"
             title="Quét mã QR đơn hàng giao hoa để xác nhận hoàn tất & cộng điểm ngay"
           >
             <ScanLine className="w-5 h-5 sm:w-5.5 sm:h-5.5 group-hover:animate-pulse" />
             <span className="sr-only">Quét QR Đơn Hàng</span>
           </button>
 
-          {/* NÚT 5: KHO HOA / MẪU HOA (Kèm Badge Mẫu Hoa) */}
+          {/* NÚT 5: KHO HOA / MẪU HOA (Kích thước đều tăm tắp 100%) */}
           <button
             type="button"
             onClick={handleNavigateProducts}
-            className={`relative flex flex-col items-center justify-center p-1 sm:p-1.5 min-w-[38px] sm:min-w-[50px] rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs ${
+            className={`relative w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               !isStorefront && activeTab === 'products'
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
@@ -399,11 +427,11 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             )}
           </button>
 
-          {/* NÚT 6: KHÁCH HÀNG (Có viền bao quanh) */}
+          {/* NÚT 6: KHÁCH HÀNG (K.Hàng - Kích thước đều tăm tắp 100%) */}
           <button
             type="button"
             onClick={handleNavigateCustomers}
-            className={`flex flex-col items-center justify-center p-1 sm:p-1.5 min-w-[38px] sm:min-w-[50px] rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs ${
+            className={`w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               !isStorefront && activeTab === 'customers'
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
@@ -412,15 +440,16 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
           >
             <Users className="w-4 h-4 text-slate-700" />
             <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
-              Khách Hàng
+              <span className="sm:hidden">K.Hàng</span>
+              <span className="hidden sm:inline">Khách Hàng</span>
             </span>
           </button>
 
-          {/* NÚT 7: VOUCHER & MÃ GIẢM GIÁ (Có viền bao quanh) */}
+          {/* NÚT 7: VOUCHER & MÃ GIẢM GIÁ (Kích thước đều tăm tắp 100%) */}
           <button
             type="button"
             onClick={handleNavigateVouchers}
-            className={`relative flex flex-col items-center justify-center p-1 sm:p-1.5 min-w-[38px] sm:min-w-[50px] rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs ${
+            className={`relative w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               !isStorefront && activeTab === 'vouchers'
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'

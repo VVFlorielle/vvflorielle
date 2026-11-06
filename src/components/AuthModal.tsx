@@ -317,9 +317,9 @@ export const AuthModal: React.FC = () => {
                     placeholder="VD: 0912345678 hoặc email@gmail.com"
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
-                    className="glass-input w-full text-xs py-2.5 pl-9 rounded-xl"
+                    className="glass-input w-full text-xs py-2.5 !pl-10 rounded-xl"
                   />
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
                 </div>
               </div>
 
@@ -340,9 +340,9 @@ export const AuthModal: React.FC = () => {
                     placeholder="Nhập mật khẩu của bạn"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    className="glass-input w-full text-xs py-2.5 pl-9 pr-9 rounded-xl"
+                    className="glass-input w-full text-xs py-2.5 !pl-10 !pr-10 rounded-xl"
                   />
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => setShowLoginPassword(!showLoginPassword)}
@@ -711,9 +711,9 @@ export const AuthModal: React.FC = () => {
                             setAdminPasswordInput('');
                           }
                         }}
-                        className="glass-input w-full text-xs py-2.5 pl-9 rounded-xl font-mono"
+                        className="glass-input w-full text-xs py-2.5 !pl-10 rounded-xl font-mono"
                       />
-                      <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                      <User className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
                     </div>
                   </div>
 
@@ -738,9 +738,9 @@ export const AuthModal: React.FC = () => {
                           setAdminPasswordInput(e.target.value);
                           setIsUsingRememberedAuth(false);
                         }}
-                        className="glass-input w-full text-xs py-2.5 pl-9 pr-9 rounded-xl font-mono"
+                        className="glass-input w-full text-xs py-2.5 !pl-10 !pr-10 rounded-xl font-mono"
                       />
-                      <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                      <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
                       <button
                         type="button"
                         onClick={() => {

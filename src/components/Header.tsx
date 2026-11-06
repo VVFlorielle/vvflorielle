@@ -210,13 +210,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
       )}
 
       {/* 3. FLOATING ROUNDED HEADER NAVBAR (STREAMLINED MOBILE & LUXURY DESKTOP) */}
-      <header className="w-full max-w-7xl mx-auto px-2 sm:px-6">
+      <header className="w-full max-w-7xl mx-auto px-2.5 sm:px-6">
         {/* === MOBILE HEADER (MD:HIDDEN): 3 CỤM ĐẢO BÓNG KÍNH ĐỘC LẬP (CHUẨN glass-nav-luminous, LOGO CĂN CHÍNH GIỮA MÀN HÌNH) === */}
         <div className="flex md:hidden flex-col w-full gap-2 transition-all duration-300">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 min-[375px]:gap-2.5 sm:gap-4 w-full">
-            {/* Cụm 1 (Bên trái): NÚT THÔNG BÁO & NÚT TÌM KIẾM (MÀN HẸP: XẾP DỌC 2 HÀNG 62PX; MÀN RỘNG: DÀI NGANG 124-130PX) */}
-            <div className="flex items-center justify-start">
-              <div className={`h-[62px] min-[375px]:h-11 w-10 min-[375px]:w-[124px] sm:min-[375px]:w-[130px] rounded-full py-1 min-[375px]:py-0 px-1 min-[375px]:px-2.5 shrink-0 flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between ${clusterGlassClass}`}>
+          <div className="flex items-center justify-between gap-1.5 min-[375px]:gap-2 sm:gap-4 w-full">
+            {/* Cụm 1 (Bên trái): NÚT THÔNG BÁO & NÚT TÌM KIẾM (Cân đối cách mép an toàn) */}
+            <div className="flex items-center justify-start shrink-0">
+              <div className={`h-10 min-[375px]:h-11 px-1.5 min-[375px]:px-2.5 rounded-full shrink-0 flex items-center justify-center gap-1 min-[375px]:gap-1.5 ${clusterGlassClass}`}>
                 {/* Nút thông báo */}
                 <button
                   onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
@@ -246,87 +246,87 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               </div>
             </div>
 
-            {/* Cụm 2 (Chính giữa): KHUNG BÓNG KÍNH ÔM LOGO - CĂN CHÍNH GIỮA MÀN HÌNH, 4 PHÍA CÁCH MÉP ~2PX */}
-            <div className="flex items-center justify-center">
+            {/* Cụm 2 (Chính giữa): KHUNG BÓNG KÍNH ÔM LOGO - CĂN CHÍNH GIỮA MÀN HÌNH, VIỀN CÁCH LOGO 1-2PX */}
+            <div className="flex items-center justify-center shrink-0 mx-auto px-1">
               <div
                 onClick={() => {
                   setCurrentView('store');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`h-[62px] min-[375px]:h-[64px] min-w-[146px] w-[150px] p-[2px] rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 ${clusterGlassClass}`}
+                className={`h-[58px] min-[375px]:h-[64px] w-[138px] min-[375px]:w-[148px] p-[1.5px] rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 ${clusterGlassClass}`}
                 title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
               >
                 <img
                   src="/logo-vvflorielle-horizontal.png"
                   alt="V&V Florielle"
-                  className="h-full w-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.1)] p-[2px]"
+                  className="h-full w-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.1)] p-[1px]"
                 />
               </div>
             </div>
 
-            {/* Cụm 3 (Bên phải): Cụm tài khoản & Admin (MÀN HẸP: XẾP DỌC 2 HÀNG 62PX; MÀN RỘNG: DÀI NGANG 124-130PX) */}
-            <div className="flex items-center justify-end">
-              <div className={`h-[62px] min-[375px]:h-11 w-10 min-[375px]:w-[124px] sm:min-[375px]:w-[130px] rounded-full py-1 min-[375px]:py-0 px-1 min-[375px]:px-2 shrink-0 flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-center ${clusterGlassClass}`}>
-                {customer && (
-                  <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto gap-1">
-                    <button
-                      onClick={() => setCurrentView('customer')}
-                      className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-8 min-[375px]:px-2 rounded-full bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-emerald-800 shrink-0"
-                      title="Trang quản lý tài khoản"
-                    >
-                      <User className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                      <span className="hidden min-[375px]:inline max-w-[48px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
-                    </button>
-                    <button
-                      onClick={logoutCustomer}
-                      title="Đăng xuất"
-                      className="w-6.5 h-6.5 min-[375px]:w-7 min-[375px]:h-7 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50/80 flex items-center justify-center transition-colors shrink-0"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
+            {/* Cụm 3 (Bên phải): Cụm tài khoản & Admin (Gọn gàng, cân đối, không chạm mép màn hình) */}
+            <div className="flex items-center justify-end shrink-0">
+              {customer && (
+                <div className={`h-10 min-[375px]:h-11 pl-2 min-[375px]:pl-2.5 pr-1 min-[375px]:pr-1.5 py-1 rounded-full shrink-0 flex items-center gap-1 min-[375px]:gap-1.5 ${clusterGlassClass}`}>
+                  <button
+                    onClick={() => setCurrentView('customer')}
+                    className="flex items-center gap-1 text-[10.5px] font-bold text-emerald-800 hover:text-emerald-950 shrink-0"
+                    title="Trang quản lý tài khoản"
+                  >
+                    <User className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                    <span className="max-w-[42px] min-[375px]:max-w-[48px] truncate">{customer.fullName.split(' ').slice(-1)[0]}</span>
+                  </button>
+                  <span className="w-px h-3 bg-emerald-200/80 shrink-0" />
+                  <button
+                    onClick={logoutCustomer}
+                    title="Đăng xuất"
+                    className="w-6 h-6 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50/80 flex items-center justify-center transition-colors shrink-0"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
 
-                {isAdmin && (
-                  <div className="flex flex-col min-[375px]:flex-row items-center justify-evenly min-[375px]:justify-between w-full h-full min-[375px]:h-auto gap-1">
-                    <button
-                      onClick={() => {
-                        const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
-                        setCurrentView(targetAdminView);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="w-7 h-7 min-[375px]:w-auto min-[375px]:h-8 min-[375px]:px-2.5 rounded-full bg-purple-50/80 hover:bg-purple-100/90 border border-purple-200/80 text-[10.5px] font-bold flex items-center justify-center gap-1 text-purple-800 shrink-0"
-                      title="Trang quản trị"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 text-purple-700 shrink-0" />
-                      <span className="hidden min-[375px]:inline">
-                        {activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan' ? 'Chủ Tiệm' : 'Admin'}
-                      </span>
-                    </button>
-                    <button
-                      onClick={logoutAdmin}
-                      title="Đăng xuất quản trị"
-                      className="w-6.5 h-6.5 min-[375px]:w-7 min-[375px]:h-7 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50/80 flex items-center justify-center transition-colors shrink-0"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-
-                {!customer && !isAdmin && (
+              {isAdmin && (
+                <div className={`h-10 min-[375px]:h-11 pl-2 min-[375px]:pl-2.5 pr-1 min-[375px]:pr-1.5 py-1 rounded-full shrink-0 flex items-center gap-1 min-[375px]:gap-1.5 ${clusterGlassClass}`}>
                   <button
                     onClick={() => {
-                      setAuthModalMode('customer');
-                      setIsAuthModalOpen(true);
+                      const targetAdminView = (activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan') ? 'owner' : 'admin';
+                      setCurrentView(targetAdminView);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="w-7 h-7 min-[375px]:w-full min-[375px]:h-8 min-[375px]:px-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center justify-center gap-1 shadow-sm transition-colors"
-                    title="Đăng nhập tài khoản"
+                    className="flex items-center gap-1 text-[10.5px] font-bold text-purple-800 hover:text-purple-950 shrink-0"
+                    title="Trang quản trị"
                   >
-                    <User className="w-3.5 h-3.5 shrink-0" />
-                    <span className="hidden min-[375px]:inline">Đăng nhập</span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+                    <span>
+                      {activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan' ? 'Chủ Quán' : 'Admin'}
+                    </span>
                   </button>
-                )}
-              </div>
+                  <span className="w-px h-3 bg-purple-200/80 shrink-0" />
+                  <button
+                    onClick={logoutAdmin}
+                    title="Đăng xuất quản trị"
+                    className="w-6 h-6 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50/80 flex items-center justify-center transition-colors shrink-0"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {!customer && !isAdmin && (
+                <button
+                  onClick={() => {
+                    setAuthModalMode('customer');
+                    setIsAuthModalOpen(true);
+                  }}
+                  className={`h-10 min-[375px]:h-11 px-2.5 min-[375px]:px-3.5 rounded-full shrink-0 flex items-center gap-1 text-[11px] font-bold text-emerald-800 hover:text-emerald-950 active:scale-95 transition-all ${clusterGlassClass}`}
+                  title="Đăng nhập tài khoản"
+                >
+                  <User className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <span>Đăng nhập</span>
+                </button>
+              )}
             </div>
           </div>
 

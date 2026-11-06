@@ -20,6 +20,7 @@ import { AuthModal } from './components/AuthModal';
 import { MobileBottomDock } from './components/MobileBottomDock';
 import { FloatingContactWidget } from './components/FloatingContactWidget';
 import { FloatingCartWidget } from './components/FloatingCartWidget';
+import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { MascotAssistant } from './components/MascotAssistant';
 import { InfoPopups, PopupType } from './components/InfoPopups';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
@@ -159,6 +160,9 @@ export const AppContent: React.FC = () => {
         orders={orders}
         onCompleteOrder={completeOrder}
       />
+
+      {/* Global Scroll-to-top Floating Button (Storefront & Management) */}
+      <ScrollToTopButton />
 
       {/* Global Toast Notifications */}
       <div className="toast-container">

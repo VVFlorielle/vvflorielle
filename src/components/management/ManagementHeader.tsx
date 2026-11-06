@@ -66,17 +66,17 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
           )}
         </div>
 
-        {/* === CENTER: KHỐI LOGO TO HƠN, VIỀN CÁCH KHUNG VỪA PHẢI, CĂN GIỮA TUYỆT ĐỐI === */}
+        {/* === CENTER: KHỐI LOGO TO CHUẨN TRANG CHỦ, VIỀN CÁCH KHUNG 1-2PX, CĂN GIỮA TUYỆT ĐỐI === */}
         <div className="flex items-center justify-center shrink-0 mx-auto px-1 min-[375px]:px-2">
           <div
             onClick={handleReturnToStore}
-            className="h-[50px] min-[375px]:h-[54px] sm:h-[66px] px-2.5 min-[375px]:px-3.5 sm:px-6 py-0.5 rounded-full bg-white/94 backdrop-blur-2xl border border-white/90 shadow-[0_4px_24px_rgba(5,150,105,0.15)] hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none group"
+            className="h-[60px] min-[375px]:h-[64px] sm:h-[72px] w-[142px] min-[375px]:w-[148px] sm:w-[175px] p-[1.5px] rounded-full bg-white/94 backdrop-blur-2xl border border-white/90 shadow-[0_4px_24px_rgba(5,150,105,0.15)] hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none group overflow-hidden"
             title="V&V Florielle - Bấm để chuyển nhanh ra xem giao diện cửa hàng"
           >
             <img
               src="/logo-vvflorielle-horizontal.png"
               alt="V&V Florielle"
-              className="h-[44px] min-[375px]:h-[48px] sm:h-[60px] w-auto max-w-[130px] min-[375px]:max-w-[145px] sm:max-w-none object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] p-0.5"
+              className="h-full w-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.1)] p-[1px]"
             />
           </div>
         </div>
