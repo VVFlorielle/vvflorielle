@@ -11,7 +11,9 @@ import {
   Settings,
   Phone,
   BookOpen,
-  Info
+  Info,
+  Home,
+  Sparkles
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
@@ -155,54 +157,130 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             </button>
 
             <nav className="flex items-center gap-1 px-1 py-0.5 overflow-x-auto no-scrollbar scroll-smooth">
+              {/* 1. Trang Chủ */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUnfurlExpanded(false);
+                  setCurrentView('store');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-bold border shrink-0 active:scale-95 transition-all cursor-pointer ${
+                  currentView === 'store'
+                    ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
+                    : 'bg-emerald-50/90 hover:bg-emerald-100 text-emerald-900 border-emerald-200/90'
+                }`}
+                title="Về Trang Chủ Cửa Hàng"
+              >
+                <Home className="w-3 h-3 text-current" />
+                <span>Trang Chủ</span>
+              </button>
+
+              {/* 2. Mẫu Hoa */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUnfurlExpanded(false);
+                  setCurrentView('catalog');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-bold border shrink-0 active:scale-95 transition-all cursor-pointer ${
+                  currentView === 'catalog'
+                    ? 'bg-teal-600 text-white border-teal-700 shadow-xs'
+                    : 'bg-teal-50/90 hover:bg-teal-100 text-teal-900 border-teal-200/90'
+                }`}
+                title="Khám phá bộ sưu tập mẫu hoa tươi nghệ thuật"
+              >
+                <Flower2 className="w-3 h-3 text-current" />
+                <span>Mẫu Hoa</span>
+              </button>
+
+              {/* 3. Dịch Vụ */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUnfurlExpanded(false);
+                  setCurrentView('catalog');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="flex items-center gap-1 py-1 px-2.5 rounded-xl bg-amber-50/90 hover:bg-amber-100 text-amber-900 text-[10px] font-bold border border-amber-200/90 shrink-0 active:scale-95 transition-all cursor-pointer"
+                title="Dịch vụ hoa tươi & thiết kế theo yêu cầu"
+              >
+                <Sparkles className="w-3 h-3 text-amber-600" />
+                <span>Dịch Vụ</span>
+              </button>
+
+              {/* 4. Giới Thiệu */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUnfurlExpanded(false);
+                  setCurrentView('about');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-bold border shrink-0 active:scale-95 transition-all cursor-pointer ${
+                  currentView === 'about'
+                    ? 'bg-purple-600 text-white border-purple-700 shadow-xs'
+                    : 'bg-purple-50/90 hover:bg-purple-100 text-purple-900 border-purple-200/90'
+                }`}
+                title="Giới thiệu về tiệm hoa V&V Florielle"
+              >
+                <Info className="w-3 h-3 text-current" />
+                <span>Giới Thiệu</span>
+              </button>
+
+              {/* 5. Cẩm Nang */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUnfurlExpanded(false);
+                  setCurrentView('care');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-bold border shrink-0 active:scale-95 transition-all cursor-pointer ${
+                  currentView === 'care'
+                    ? 'bg-rose-600 text-white border-rose-700 shadow-xs'
+                    : 'bg-rose-50/90 hover:bg-rose-100 text-rose-900 border-rose-200/90'
+                }`}
+                title="Cẩm nang chăm sóc hoa tươi 5-7 ngày"
+              >
+                <BookOpen className="w-3 h-3 text-current" />
+                <span>Cẩm Nang</span>
+              </button>
+
+              {/* 6. Liên Hệ */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUnfurlExpanded(false);
+                  setCurrentView('contact');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-bold border shrink-0 active:scale-95 transition-all cursor-pointer ${
+                  currentView === 'contact'
+                    ? 'bg-sky-600 text-white border-sky-700 shadow-xs'
+                    : 'bg-sky-50/90 hover:bg-sky-100 text-sky-900 border-sky-200/90'
+                }`}
+                title="Liên hệ & Chỉ đường showroom 105 Doãn Kế Thiện"
+              >
+                <Phone className="w-3 h-3 text-current" />
+                <span>Liên Hệ</span>
+              </button>
+
+              {/* 7. Cài Đặt Hệ Thống */}
               <button
                 type="button"
                 onClick={() => {
                   setIsUnfurlExpanded(false);
                   if (isStorefront) setCurrentView(targetAdminView);
                   onSelectTab?.('settings');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="flex items-center gap-1 py-1 px-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-[10px] font-bold border border-emerald-200/80 shrink-0 active:scale-95 transition-all"
+                className="flex items-center gap-1 py-1 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-[10px] font-bold border border-slate-300/90 shrink-0 active:scale-95 transition-all cursor-pointer"
+                title="Cài đặt thông tin tiệm hoa & hệ thống"
               >
-                <Settings className="w-3 h-3 text-emerald-600" />
+                <Settings className="w-3 h-3 text-slate-700" />
                 <span>Cài Đặt</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setIsUnfurlExpanded(false);
-                  if (isStorefront) setCurrentView(targetAdminView);
-                  onSelectTab?.('channels');
-                }}
-                className="flex items-center gap-1 py-1 px-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 text-[10px] font-bold border border-sky-200/80 shrink-0 active:scale-95 transition-all"
-              >
-                <Phone className="w-3 h-3 text-sky-600" />
-                <span>CSKH</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setIsUnfurlExpanded(false);
-                  setCurrentView('care');
-                }}
-                className="flex items-center gap-1 py-1 px-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-900 text-[10px] font-bold border border-rose-200/80 shrink-0 active:scale-95 transition-all"
-              >
-                <BookOpen className="w-3 h-3 text-rose-600" />
-                <span>Cẩm Nang</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setIsUnfurlExpanded(false);
-                  setCurrentView('about');
-                }}
-                className="flex items-center gap-1 py-1 px-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-900 text-[10px] font-bold border border-purple-200/80 shrink-0 active:scale-95 transition-all"
-              >
-                <Info className="w-3 h-3 text-purple-600" />
-                <span>Về Tiệm</span>
               </button>
             </nav>
           </div>
