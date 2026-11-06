@@ -12,6 +12,8 @@ import { CustomerPortal } from './pages/CustomerPortal';
 import { AdminPortal } from './pages/AdminPortal';
 import { OwnerPortal } from './pages/OwnerPortal';
 import { ManagementHeader } from './components/management/ManagementHeader';
+import { ManagementBottomDock } from './components/management/ManagementBottomDock';
+import { QrScannerModal } from './components/management/QrScannerModal';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
@@ -23,8 +25,21 @@ import { InfoPopups, PopupType } from './components/InfoPopups';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 export const AppContent: React.FC = () => {
-  const { currentView, toasts } = useStore();
+  const {
+    currentView,
+    toasts,
+    isAdmin,
+    activeAdminUser,
+    activeAdminTab,
+    setActiveAdminTab,
+    orders,
+    products,
+    completeOrder
+  } = useStore();
   const [activePopup, setActivePopup] = useState<PopupType>(null);
+  const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
+
+  const pendingDepositOrdersCount = orders.filter((o) => !o.isDepositPaid && o.status !== 'CANCELLED').length;
 
   // Synchronized scroll-dimming for sticky top navigation & announcement banner (60fps rAF throttled, zero jank)
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
@@ -70,9 +85,12 @@ export const AppContent: React.FC = () => {
         <div className="ambient-blob-5" />
       </div>
 
-      {/* Top Navigation: ManagementHeader (Light Glass) for Admin/Owner OR Public Floating Header for Customers */}
+      {/* Top Navigation: ManagementHeader for Admin/Owner OR Public Floating Header for Customers */}
       {isManagementView ? (
-        <ManagementHeader role={currentView === 'owner' ? 'owner' : 'admin'} />
+        <ManagementHeader
+          role={currentView === 'owner' ? 'owner' : 'admin'}
+          onNavigateTab={(tab) => setActiveAdminTab(tab)}
+        />
       ) : (
         <div className="fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5">
           <div className="pointer-events-auto relative z-20">
@@ -102,8 +120,8 @@ export const AppContent: React.FC = () => {
           {/* Main Footer */}
           <Footer onOpenPopup={(type) => setActivePopup(type)} />
 
-          {/* Mobile & Desktop Management Bottom Glass Dock */}
-          <MobileBottomDock onOpenPopup={(type) => setActivePopup(type)} />
+          {/* Mobile Glass Dock for Guests / Customers (Only when NOT logged in as Admin/Owner) */}
+          {!isAdmin && <MobileBottomDock onOpenPopup={(type) => setActivePopup(type)} />}
 
           {/* Floating Speed Dial & Contact Tooltip (Right Side) */}
           <FloatingContactWidget />
@@ -121,6 +139,26 @@ export const AppContent: React.FC = () => {
       <CartDrawer />
       <AuthModal />
       <InfoPopups activePopup={activePopup} onClose={() => setActivePopup(null)} />
+
+      {/* Management Bottom Dock (Always visible on Desktop & Mobile when logged in as Admin/Owner, even outside on Storefront) */}
+      {isAdmin && (
+        <ManagementBottomDock
+          role={activeAdminUser === 'admin' ? 'admin' : 'owner'}
+          activeTab={activeAdminTab}
+          onSelectTab={(tab) => setActiveAdminTab(tab)}
+          pendingOrdersCount={pendingDepositOrdersCount}
+          productsCount={products.length}
+          onOpenQrScanner={() => setIsQrScannerOpen(true)}
+        />
+      )}
+
+      {/* Global QR Scanner Modal for Admin & Owner */}
+      <QrScannerModal
+        isOpen={isQrScannerOpen}
+        onClose={() => setIsQrScannerOpen(false)}
+        orders={orders}
+        onCompleteOrder={completeOrder}
+      />
 
       {/* Global Toast Notifications */}
       <div className="toast-container">

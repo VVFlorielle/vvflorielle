@@ -657,7 +657,7 @@ export const AuthModal: React.FC = () => {
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all shadow-md active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white text-xs font-bold transition-all shadow-md shadow-emerald-700/20 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 border border-white/20"
                     >
                       <span>Xác Nhận & Tiếp Tục</span>
                       <ArrowLeft className="w-3.5 h-3.5 rotate-180" />

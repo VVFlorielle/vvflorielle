@@ -121,7 +121,7 @@ export const FloatingCartWidget: React.FC = () => {
       </div>
 
       {/* Hover pill hint */}
-      <div className="absolute -top-8 right-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap bg-slate-900/90 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-lg backdrop-blur-md border border-white/20">
+      <div className="absolute -top-8 right-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap bg-emerald-900/90 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-lg backdrop-blur-md border border-white/20">
         Giỏ hoa ({totalCartCount}) • Kéo thả
       </div>
     </div>

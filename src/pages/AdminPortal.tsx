@@ -92,13 +92,11 @@ export const AdminPortal: React.FC = () => {
     updateMarqueeItem,
     deleteMarqueeItem,
     toggleMarqueeItem,
+    activeAdminTab: activeTab,
+    setActiveAdminTab: setActiveTab,
     showToast
   } = useStore();
 
-  // Active view tab (Default: 'dashboard')
-  const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'products' | 'customers' | 'vouchers' | 'channels' | 'settings' | 'security' | 'cms' | 'marquee'
-  >('dashboard');
   const [orderSearchForSubpage, setOrderSearchForSubpage] = useState('');
 
   // Modals state
@@ -493,23 +491,6 @@ export const AdminPortal: React.FC = () => {
           showToast={showToast}
         />
       )}
-
-      {/* 3. MANAGEMENT BOTTOM DOCK (DESKTOP & MOBILE) */}
-      <ManagementBottomDock
-        role="admin"
-        activeTab={activeTab}
-        onSelectTab={(tab) => setActiveTab(tab)}
-        pendingOrdersCount={pendingDepositOrders}
-        productsCount={products.length}
-        onReturnToStore={() => {
-          setCurrentView('store');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onLogout={() => {
-          logoutAdmin();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-      />
 
       {/* 4. MODALS & POPUPS */}
       <SecurityModal

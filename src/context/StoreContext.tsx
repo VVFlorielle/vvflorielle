@@ -166,6 +166,8 @@ interface StoreContextType {
   adminViewMode: AdminViewMode;
   setAdminViewMode: (mode: AdminViewMode) => void;
   toggleAdminViewMode: () => void;
+  activeAdminTab: string;
+  setActiveAdminTab: (tab: string) => void;
   verifyAdminPin: (pin: string) => boolean;
   loginAdmin: (username: string, password: string, pin?: string, keepSession?: boolean, rememberLogin?: boolean) => boolean;
   logoutAdmin: () => void;
@@ -491,6 +493,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const saved = localStorage.getItem('vvf_admin_view_mode') as AdminViewMode;
     return saved || 'STUDIO_CMS';
   });
+  const [activeAdminTab, setActiveAdminTab] = useState<string>('dashboard');
 
   const [adminPin, setAdminPin] = useState<string>(() => {
     return localStorage.getItem('vvf_admin_pin') || '26122025';
@@ -1753,6 +1756,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         adminViewMode,
         setAdminViewMode,
         toggleAdminViewMode,
+        activeAdminTab,
+        setActiveAdminTab,
         verifyAdminPin,
         loginAdmin,
         logoutAdmin,

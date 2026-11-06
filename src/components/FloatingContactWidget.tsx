@@ -97,7 +97,7 @@ export const FloatingContactWidget: React.FC = () => {
           onClick={() => setIsOpen(!isOpen)}
           className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full flex flex-col items-center justify-center shadow-[0_8px_25px_rgba(225,29,72,0.45)] transition-all duration-300 relative border border-white/60 z-10 ${
             isOpen
-              ? 'bg-slate-900 text-white scale-105 shadow-slate-900/40'
+              ? 'bg-gradient-to-tr from-emerald-800 to-teal-700 text-white scale-105 shadow-emerald-900/30'
               : 'bg-gradient-to-tr from-red-600 via-rose-600 to-pink-500 text-white hover:scale-110 shadow-rose-600/50'
           }`}
           title={isOpen ? 'Đóng bớt kênh liên hệ' : 'Kênh liên hệ V&V Florielle'}
@@ -116,7 +116,7 @@ export const FloatingContactWidget: React.FC = () => {
 
         {/* Small badge count */}
         {!isOpen && (
-          <span className="absolute -top-1 -left-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-slate-900 text-white text-[9px] sm:text-[10px] font-bold flex items-center justify-center border-2 border-white shadow-md z-20">
+          <span className="absolute -top-1 -left-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-700 text-white text-[9px] sm:text-[10px] font-bold flex items-center justify-center border-2 border-white shadow-md z-20">
             {activeChannels.length}
           </span>
         )}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Order, OrderStatus } from '../../types';
 import {
   ShoppingBag,
@@ -8,8 +8,10 @@ import {
   CheckCircle2,
   MapPin,
   Upload,
-  RotateCcw
+  RotateCcw,
+  QrCode
 } from 'lucide-react';
+import { OrderQrModal } from '../popups/OrderQrModal';
 
 interface CustomerOrdersTabProps {
   orders: Order[];
@@ -30,6 +32,8 @@ export const CustomerOrdersTab: React.FC<CustomerOrdersTabProps> = ({
   onUploadBill,
   onGoToStore
 }) => {
+  const [selectedQrOrder, setSelectedQrOrder] = useState<Order | null>(null);
+
   return (
     <div className="space-y-4">
       {/* Order Status Filters */}
@@ -217,8 +221,18 @@ export const CustomerOrdersTab: React.FC<CustomerOrdersTabProps> = ({
                   </div>
                 )}
 
-                {/* Reorder Action */}
-                <div className="flex justify-end pt-1">
+                {/* Actions: Mã QR Nhận Hoa & Reorder */}
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100 flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedQrOrder(order)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition-colors cursor-pointer shadow-2xs"
+                    title="Bấm để hiển thị mã QR xuất trình cho Florist/Shipper nhận hoa và tích điểm"
+                  >
+                    <QrCode className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Mã QR Nhận Hoa</span>
+                  </button>
+
                   <button
                     onClick={() => onReorder(order.items[0]?.productId, order.items[0]?.ribbonColor, order.cardMessage)}
                     className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-900 cursor-pointer"
@@ -232,6 +246,14 @@ export const CustomerOrdersTab: React.FC<CustomerOrdersTabProps> = ({
           })}
         </div>
       )}
+
+      {/* Modal QR Code cho đơn hàng */}
+      <OrderQrModal
+        order={selectedQrOrder}
+        isOpen={Boolean(selectedQrOrder)}
+        onClose={() => setSelectedQrOrder(null)}
+        formatPrice={formatPrice}
+      />
     </div>
   );
 };

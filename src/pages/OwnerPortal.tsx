@@ -58,10 +58,11 @@ export const OwnerPortal: React.FC = () => {
     deleteCustomerByAdmin,
     adjustCustomerPoints,
     adminResetCustomerPassword,
-    logoutAdmin
+    logoutAdmin,
+    activeAdminTab: activeTab,
+    setActiveAdminTab: setActiveTab
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'products' | 'customers' | 'vouchers'>('dashboard');
   const [orderSearchForSubpage, setOrderSearchForSubpage] = useState('');
 
   // Modals state
@@ -321,23 +322,6 @@ export const OwnerPortal: React.FC = () => {
           title="Quản Lý Voucher & Mã Khuyến Mại Tiệm Hoa"
         />
       )}
-
-      {/* 3. MANAGEMENT BOTTOM DOCK (DESKTOP & MOBILE) */}
-      <ManagementBottomDock
-        role="owner"
-        activeTab={activeTab}
-        onSelectTab={(tab) => setActiveTab(tab)}
-        pendingOrdersCount={pendingDepositOrders.length}
-        productsCount={products.length}
-        onReturnToStore={() => {
-          setCurrentView('store');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onLogout={() => {
-          logoutAdmin();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-      />
 
       {/* 4. MODALS & POPUPS */}
       <SecurityModal

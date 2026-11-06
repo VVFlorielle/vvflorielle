@@ -169,30 +169,30 @@ export const AboutPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. WORKSHOP & ĐỊA CHỈ TIỆM */}
-      <div className="rounded-[32px] p-6 sm:p-8 bg-slate-900 text-white relative overflow-hidden shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+      {/* 4. WORKSHOP & ĐỊA CHỈ TIỆM - SÁNG PASTEL BÓNG KÍNH KHÔNG DÙNG NỀN TỐI */}
+      <div className="rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-emerald-50/90 via-white/95 to-teal-50/90 border border-emerald-200/90 shadow-xl backdrop-blur-xl relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="space-y-2 max-w-lg text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30">
-            <MapPin className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 text-xs font-bold border border-emerald-300/80 shadow-2xs">
+            <MapPin className="w-3.5 h-3.5 text-emerald-700" />
             <span>Ghé Thăm Tiệm Hoa Nghệ Thuật</span>
           </div>
-          <h3 className="text-xl sm:text-3xl font-black tracking-tight">Số 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội</h3>
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Tiệm hoa mở cửa đón khách từ <strong>06:30 đến 21:30</strong> hàng ngày. Kính mời bạn ghé thăm để tận mắt ngắm nhìn những đoá hoa thơm ngát và nhâm nhi tách trà cùng florist của tiệm!
+          <h3 className="text-xl sm:text-3xl font-black tracking-tight text-emerald-950 font-serif">Số 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Tiệm hoa mở cửa đón khách từ <strong className="text-emerald-900">06:30 đến 21:30</strong> hàng ngày. Kính mời bạn ghé thăm để tận mắt ngắm nhìn những đoá hoa thơm ngát và nhâm nhi tách trà cùng florist của tiệm!
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
           <a
             href={`tel:${settings.hotline}`}
-            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 hover:from-emerald-800 hover:to-teal-700 text-white font-extrabold text-xs shadow-md shadow-emerald-700/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 border border-white/40 backdrop-blur-md cursor-pointer"
           >
             <PhoneCall className="w-4 h-4" />
             <span>Gọi Hotline: {settings.hotline}</span>
           </a>
           <button
             onClick={() => setCurrentView('contact')}
-            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-all"
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white/90 hover:bg-white text-emerald-950 hover:text-emerald-800 font-bold text-xs border border-emerald-200 shadow-xs hover:shadow-md transition-all cursor-pointer"
           >
             Xem Bản Đồ Chỉ Đường →
           </button>
