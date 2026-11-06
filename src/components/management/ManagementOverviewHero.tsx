@@ -15,8 +15,8 @@ export interface ManagementStatCardItem {
 interface ManagementOverviewHeroProps {
   tag: string;
   tagIcon?: React.ReactNode;
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   statusBadge?: string;
   stats: ManagementStatCardItem[];
 }
@@ -26,7 +26,7 @@ export const ManagementOverviewHero: React.FC<ManagementOverviewHeroProps> = ({
   tagIcon,
   title,
   subtitle,
-  statusBadge = 'Tiệm đang mở cửa (06:30 - 21:30)',
+  statusBadge = 'Hệ thống vận hành ổn định',
   stats
 }) => {
   const getColorClasses = (color: 'amber' | 'emerald' | 'sky' | 'purple', isActive?: boolean) => {
@@ -80,31 +80,23 @@ export const ManagementOverviewHero: React.FC<ManagementOverviewHeroProps> = ({
       {/* Soft background petal glow */}
       <div className="absolute right-0 top-0 w-80 h-80 bg-emerald-200/20 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Top Banner Row */}
-      <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/80 border border-emerald-300/80 text-emerald-900 text-xs font-bold mb-2">
-            {tagIcon}
-            <span>{tag}</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-emerald-950">
-            {title}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
-            {subtitle}
-          </p>
+      {/* Top Bar Row: Tag Pill on Left & Status Badge on Right (Exact Same Row as requested) */}
+      <div className="relative z-10 flex flex-row items-center justify-between gap-3">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-300/90 text-emerald-900 text-xs sm:text-[13px] font-bold shadow-2xs">
+          {tagIcon}
+          <span>{tag}</span>
         </div>
 
-        <div className="flex items-center gap-2 self-stretch md:self-auto justify-end">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 border border-emerald-200 text-xs text-emerald-900 shadow-2xs font-semibold">
+        {statusBadge && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 border border-emerald-200 text-xs text-emerald-900 shadow-2xs font-semibold shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>{statusBadge}</span>
           </span>
-        </div>
+        )}
       </div>
 
       {/* 4 Quick Stat Counters (Bright, Clean, Elegant Glass Cards) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-5">
         {stats.map((stat) => {
           const classes = getColorClasses(stat.color, stat.isActive);
           return (

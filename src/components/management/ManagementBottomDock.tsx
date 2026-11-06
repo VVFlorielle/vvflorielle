@@ -324,27 +324,27 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
         }`}
       >
         <nav
-          className="flex items-center justify-between sm:justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl sm:rounded-full bg-white/94 backdrop-blur-2xl border border-emerald-200/90 shadow-[0_12px_40px_-8px_rgba(5,150,105,0.22),0_4px_16px_rgba(0,0,0,0.06)] ring-1 ring-emerald-500/10 w-full sm:w-auto"
+          className="flex items-center justify-between sm:justify-center gap-1 sm:gap-2 px-1.5 sm:px-4 py-1.5 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/94 backdrop-blur-2xl border border-emerald-200/90 shadow-[0_12px_40px_-8px_rgba(5,150,105,0.22),0_4px_16px_rgba(0,0,0,0.06)] ring-1 ring-emerald-500/10 w-full sm:w-auto"
           aria-label="Thanh dock điều hướng quản trị 7 nút"
         >
-          {/* NÚT 1: TRỞ LẠI (Kích thước đều tăm tắp 100%) */}
+          {/* NÚT 1: TRỞ LẠI (Desktop nới rộng 78px, Mobile 47px cân xứng không chạm viền) */}
           <button
             type="button"
             onClick={handleGoBack}
-            className="w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0"
+            className="w-[45px] min-[375px]:w-[47px] sm:w-[78px] sm:min-w-[78px] h-[46px] sm:h-[56px] p-1 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0"
             title="Quay lại phân hệ hoặc trang trước"
           >
-            <ArrowLeft className="w-4 h-4 text-slate-700" />
-            <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-600 mt-0.5 leading-none whitespace-nowrap">
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+            <span className="text-[8.5px] sm:text-[11px] font-bold text-slate-600 mt-0.5 sm:mt-1 leading-none whitespace-nowrap">
               Trở Lại
             </span>
           </button>
 
-          {/* NÚT 2: XEM SHOP / VÀO QUẢN TRỊ (Kích thước đều tăm tắp 100%) */}
+          {/* NÚT 2: XEM SHOP / VÀO QUẢN TRỊ (Desktop nới rộng 78px, Mobile 47px cân xứng không chạm viền) */}
           <button
             type="button"
             onClick={handleToggleStoreOrAdmin}
-            className={`w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
+            className={`w-[45px] min-[375px]:w-[47px] sm:w-[78px] sm:min-w-[78px] h-[46px] sm:h-[56px] p-1 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               isStorefront
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
@@ -353,16 +353,16 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
           >
             {isStorefront ? (
               <>
-                <ShieldCheck className="w-4 h-4 text-emerald-700" />
-                <span className="text-[8.5px] sm:text-[10px] font-bold text-emerald-800 mt-0.5 leading-none whitespace-nowrap">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
+                <span className="text-[8.5px] sm:text-[11px] font-bold text-emerald-800 mt-0.5 sm:mt-1 leading-none whitespace-nowrap">
                   <span className="sm:hidden">Q.Trị</span>
                   <span className="hidden sm:inline">Quản Trị</span>
                 </span>
               </>
             ) : (
               <>
-                <Store className="w-4 h-4 text-emerald-700" />
-                <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+                <Store className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
+                <span className="text-[8.5px] sm:text-[11px] font-bold text-slate-700 mt-0.5 sm:mt-1 leading-none whitespace-nowrap">
                   <span className="sm:hidden">Shop</span>
                   <span className="hidden sm:inline">Xem Shop</span>
                 </span>
@@ -370,99 +370,99 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             )}
           </button>
 
-          {/* NÚT 3: ĐƠN HÀNG (Kích thước đều tăm tắp 100%) */}
+          {/* NÚT 3: ĐƠN HÀNG (Desktop nới rộng 78px, Mobile 47px cân xứng không chạm viền) */}
           <button
             type="button"
             onClick={handleNavigateOrders}
-            className={`relative w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
+            className={`relative w-[45px] min-[375px]:w-[47px] sm:w-[78px] sm:min-w-[78px] h-[46px] sm:h-[56px] p-1 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               !isStorefront && activeTab === 'orders'
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
             }`}
             title="Quản lý đơn hàng & duyệt cọc 50%"
           >
-            <ShoppingBag className="w-4 h-4 text-slate-700" />
-            <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+            <span className="text-[8.5px] sm:text-[11px] font-bold text-slate-700 mt-0.5 sm:mt-1 leading-none whitespace-nowrap">
               Đơn Hàng
             </span>
 
             {pendingOrdersCount > 0 && (
-              <span className="absolute -top-1 -right-0.5 min-w-[15px] h-3.5 px-0.5 rounded-full text-[8px] font-black flex items-center justify-center shadow-xs border border-white bg-amber-500 text-white animate-pulse">
+              <span className="absolute -top-1 -right-0.5 min-w-[15px] sm:min-w-[17px] h-3.5 sm:h-4 px-0.5 sm:px-1 rounded-full text-[8px] sm:text-[9px] font-black flex items-center justify-center shadow-xs border border-white bg-amber-500 text-white animate-pulse">
                 {pendingOrdersCount}
               </span>
             )}
           </button>
 
-          {/* NÚT 4 (CHÍNH GIỮA): QUÉT MÃ QR ĐƠN HÀNG (Nổi bật nhất tâm dock) */}
+          {/* NÚT 4 (CHÍNH GIỮA): QUÉT MÃ QR ĐƠN HÀNG (Nổi bật nhất tâm dock, to hơn trên desktop) */}
           <button
             type="button"
             onClick={onOpenQrScanner}
-            className="relative -mt-2 sm:-mt-3 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 text-white shadow-[0_8px_20px_rgba(5,150,105,0.4)] ring-3 ring-white flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer group shrink-0 mx-0.5"
+            className="relative -mt-2 sm:-mt-3.5 w-11 sm:w-14 h-11 sm:h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 text-white shadow-[0_8px_22px_rgba(5,150,105,0.45)] ring-3 sm:ring-4 ring-white flex flex-col items-center justify-center hover:scale-108 active:scale-95 transition-transform duration-200 cursor-pointer group shrink-0 mx-0.5"
             title="Quét mã QR đơn hàng giao hoa để xác nhận hoàn tất & cộng điểm ngay"
           >
-            <ScanLine className="w-5 h-5 sm:w-5.5 sm:h-5.5 group-hover:animate-pulse" />
+            <ScanLine className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
             <span className="sr-only">Quét QR Đơn Hàng</span>
           </button>
 
-          {/* NÚT 5: KHO HOA / MẪU HOA (Kích thước đều tăm tắp 100%) */}
+          {/* NÚT 5: KHO HOA / MẪU HOA (Desktop nới rộng 78px, Mobile 47px cân xứng không chạm viền) */}
           <button
             type="button"
             onClick={handleNavigateProducts}
-            className={`relative w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
+            className={`relative w-[45px] min-[375px]:w-[47px] sm:w-[78px] sm:min-w-[78px] h-[46px] sm:h-[56px] p-1 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               !isStorefront && activeTab === 'products'
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
             }`}
             title="Quản lý kho mẫu hoa tươi & giá bán"
           >
-            <Flower2 className="w-4 h-4 text-slate-700" />
-            <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+            <Flower2 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+            <span className="text-[8.5px] sm:text-[11px] font-bold text-slate-700 mt-0.5 sm:mt-1 leading-none whitespace-nowrap">
               Kho Hoa
             </span>
 
             {productsCount > 0 && (
-              <span className="absolute -top-1 -right-0.5 min-w-[15px] h-3.5 px-0.5 rounded-full text-[8px] font-black flex items-center justify-center shadow-xs border border-white bg-emerald-600 text-white">
+              <span className="absolute -top-1 -right-0.5 min-w-[15px] sm:min-w-[17px] h-3.5 sm:h-4 px-0.5 sm:px-1 rounded-full text-[8px] sm:text-[9px] font-black flex items-center justify-center shadow-xs border border-white bg-emerald-600 text-white">
                 {productsCount}
               </span>
             )}
           </button>
 
-          {/* NÚT 6: KHÁCH HÀNG (K.Hàng - Kích thước đều tăm tắp 100%) */}
+          {/* NÚT 6: KHÁCH HÀNG (Desktop nới rộng 78px, Mobile 47px cân xứng không chạm viền) */}
           <button
             type="button"
             onClick={handleNavigateCustomers}
-            className={`w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
+            className={`w-[45px] min-[375px]:w-[47px] sm:w-[78px] sm:min-w-[78px] h-[46px] sm:h-[56px] p-1 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               !isStorefront && activeTab === 'customers'
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
             }`}
             title="Khách hàng & hội viên VIP"
           >
-            <Users className="w-4 h-4 text-slate-700" />
-            <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+            <span className="text-[8.5px] sm:text-[11px] font-bold text-slate-700 mt-0.5 sm:mt-1 leading-none whitespace-nowrap">
               <span className="sm:hidden">K.Hàng</span>
               <span className="hidden sm:inline">Khách Hàng</span>
             </span>
           </button>
 
-          {/* NÚT 7: VOUCHER & MÃ GIẢM GIÁ (Kích thước đều tăm tắp 100%) */}
+          {/* NÚT 7: VOUCHER & MÃ GIẢM GIÁ (Desktop nới rộng 78px, Mobile 47px cân xứng không chạm viền) */}
           <button
             type="button"
             onClick={handleNavigateVouchers}
-            className={`relative w-[43px] min-[375px]:w-[45px] sm:w-[54px] h-[46px] sm:h-[50px] p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
+            className={`relative w-[45px] min-[375px]:w-[47px] sm:w-[78px] sm:min-w-[78px] h-[46px] sm:h-[56px] p-1 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-2xl border active:scale-95 transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center shrink-0 ${
               !isStorefront && activeTab === 'vouchers'
                 ? 'border-emerald-500 bg-emerald-50/90 text-emerald-900 shadow-xs'
                 : 'border-slate-200/90 hover:border-emerald-300 bg-white/80 hover:bg-emerald-50/80 text-slate-700'
             }`}
             title="Quản lý mã giảm giá & voucher sự kiện"
           >
-            <Gift className="w-4 h-4 text-slate-700" />
-            <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+            <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+            <span className="text-[8.5px] sm:text-[11px] font-bold text-slate-700 mt-0.5 sm:mt-1 leading-none whitespace-nowrap">
               Voucher
             </span>
 
             {promotionsCount > 0 && (
-              <span className="absolute -top-1 -right-0.5 min-w-[15px] h-3.5 px-0.5 rounded-full text-[8px] font-black flex items-center justify-center shadow-xs border border-white bg-purple-600 text-white">
+              <span className="absolute -top-1 -right-0.5 min-w-[15px] sm:min-w-[17px] h-3.5 sm:h-4 px-0.5 sm:px-1 rounded-full text-[8px] sm:text-[9px] font-black flex items-center justify-center shadow-xs border border-white bg-purple-600 text-white">
                 {promotionsCount}
               </span>
             )}

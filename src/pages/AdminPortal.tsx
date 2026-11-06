@@ -227,7 +227,7 @@ export const AdminPortal: React.FC = () => {
         {
           id: 'action-settings',
           title: 'Cấu Hình Tiệm Hoa, Địa Chỉ & Bản Đồ',
-          description: 'Thiết lập tên tiệm, địa chỉ 105 Doãn Kế Thiện, giờ mở cửa 06:30 - 21:30, số hotline chính và bán kính tối đa.',
+          description: 'Thiết lập tên tiệm, địa chỉ showroom, giờ mở cửa 06:30 - 21:30, số hotline chính và bán kính tối đa.',
           icon: <Settings className="w-5 h-5" />,
           iconBgColor: 'bg-slate-100 text-slate-700 border border-slate-200',
           badge: 'Cửa Hàng',
@@ -325,8 +325,6 @@ export const AdminPortal: React.FC = () => {
       <ManagementOverviewHero
         tag="Bảng Quản Trị Hệ Thống • Super Admin Command Center"
         tagIcon={<ShieldCheck className="w-3.5 h-3.5 text-purple-700" />}
-        title="Trung Tâm Điều Hành Toàn Diện V&V Florielle"
-        subtitle="105 Doãn Kế Thiện, Cầu Giấy • Kiểm soát toàn bộ doanh thu, đơn hàng hỏa tốc, khách hàng VIP, bảng cước ship và giao diện website."
         statusBadge="Hệ thống vận hành ổn định"
         stats={[
           {

@@ -103,7 +103,7 @@ export const FloatingCartWidget: React.FC = () => {
       className="fixed z-[9980] hidden md:flex items-center justify-center select-none group cursor-grab active:cursor-grabbing transition-transform"
       onPointerDown={handlePointerDown}
       onClick={handleCartClick}
-      title="Giỏ hoa của bạn (Bấm để xem / Kéo rê tùy ý)"
+      title="Giỏ hoa của bạn (Bấm để xem)"
     >
       {/* Outer ambient glow animation */}
       <div className="absolute inset-[-4px] rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 blur-sm opacity-50 group-hover:opacity-80 transition-opacity animate-pulse" />
@@ -122,7 +122,7 @@ export const FloatingCartWidget: React.FC = () => {
 
       {/* Hover pill hint */}
       <div className="absolute -top-8 right-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap bg-emerald-900/90 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-lg backdrop-blur-md border border-white/20">
-        Giỏ hoa ({totalCartCount}) • Kéo thả
+        Giỏ hoa ({totalCartCount})
       </div>
     </div>
   );

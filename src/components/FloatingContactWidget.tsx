@@ -162,7 +162,7 @@ export const FloatingContactWidget: React.FC = () => {
         }`}
         onPointerDown={handlePointerDown}
         onClick={handleWidgetClick}
-        title="Liên hệ tiệm hoa V&V Florielle (Kéo rê sang mép trái/phải tùy ý)"
+        title="Liên hệ tiệm hoa V&V Florielle"
       >
         <div className="relative group">
           {/* Subtle pulse ring waves */}
@@ -199,7 +199,7 @@ export const FloatingContactWidget: React.FC = () => {
           {/* Desktop Hover Hint Pill */}
           <div className="hidden sm:group-hover:flex absolute right-full top-1/2 -translate-y-1/2 mr-2.5 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/20 shadow-xl text-[11px] font-bold text-white whitespace-nowrap pointer-events-none">
             <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-            <span>Kênh liên hệ 24/7 (Kéo rê tùy ý)</span>
+            <span>Kênh liên hệ 24/7</span>
           </div>
         </div>
       </div>
@@ -365,7 +365,7 @@ export const FloatingContactWidget: React.FC = () => {
 
             {/* Footer note */}
             <div className="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
-              <span>💡 Kéo nút liên hệ sang mép trái/phải tùy ý</span>
+              <span>🌸 Tiệm hoa V&V Florielle hân hạnh phục vụ bạn</span>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}

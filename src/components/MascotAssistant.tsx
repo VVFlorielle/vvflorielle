@@ -35,7 +35,7 @@ const FAQ_CHIPS = [
   },
   {
     q: 'Khoảng cách ship & phí giao?',
-    a: 'Tiệm xuất phát từ 105 Doãn Kế Thiện, Cầu Giấy. Bán kính dưới 3km đơn từ 400.000đ được Miễn Phí Vận Chuyển (Freeship). Từ 3 - 7km: 35k; 7 - 12km: 50k. Từ 20 - 50km có cảnh báo chất lượng hoa tươi. Trên 50km vui lòng liên hệ Hotline tiệm để được phục vụ chuyến xe chuyên dụng!'
+    a: 'Tiệm xuất phát từ cửa hàng trung tâm. Bán kính dưới 3km đơn từ 400.000đ được Miễn Phí Vận Chuyển (Freeship). Từ 3 - 7km: 35k; 7 - 12km: 50k. Từ 20 - 50km có cảnh báo chất lượng hoa tươi. Trên 50km vui lòng liên hệ Hotline tiệm để được phục vụ chuyến xe chuyên dụng!'
   },
   {
     q: 'Hoa có tươi mới loại 1 không?',
@@ -55,17 +55,17 @@ const FAQ_CHIPS = [
   },
   {
     q: 'Địa chỉ tiệm hoa ở đâu?',
-    a: 'Tiệm hoa tươi nghệ thuật V&V Florielle tọa lạc tại: Số 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội. Mở cửa đón khách từ 06:30 đến 21:30 tất cả các ngày trong tuần. Bạn ghé tiệm ngắm hoa nhé!'
+    a: 'Tiệm Hoa V&V Florielle mở cửa đón khách từ 06:30 đến 21:30 tất cả các ngày trong tuần. Bạn có thể ghé mục Liên Hệ để xem vị trí Showroom trên bản đồ chỉ đường nhé!'
   }
 ];
 
 const MASCOT_TIPS = [
-  '🌸 V&V Florielle 105 Doãn Kế Thiện chào bạn nha! 💕',
+  '🌸 Tiệm Hoa V&V Florielle chào bạn nha! 💕',
   '⚡ Giao hoa hỏa tốc chỉ từ 15 phút nội thành & 60 phút ngoại thành nè!',
   '🎁 Tặng Voucher Freeship 100% khi tích đủ 100 điểm thưởng!',
   '📸 Florist chụp ảnh gửi mẫu hoàn thiện qua Zalo trước khi giao nha!',
   '🎀 Tặng kèm thiệp chúc mừng viết tay & ruy băng lụa cao cấp!',
-  '✨ Kéo rê tớ đi bất cứ đâu trên màn hình cũng được nha!',
+  '✨ Cậu cần tư vấn chọn hoa tươi giao nhanh cứ nhắn tớ nhé! 💕',
   '🌷 Cậu cần tư vấn chọn hoa dịp gì? Chạm vào tớ nhé! 💬'
 ];
 
@@ -90,7 +90,7 @@ export const MascotAssistant: React.FC = () => {
     {
       id: 'msg-1',
       sender: 'mascot',
-      text: 'Chào bạn nha! Mình là Flori 🌸 - Trợ lý ảo của Tiệm hoa nghệ thuật V&V Florielle 105 Doãn Kế Thiện. Bạn cần mình tư vấn chọn mẫu hoa, thời gian giao hàng hay chính sách cọc đơn nè?',
+      text: 'Chào bạn nha! Mình là Flori 🌸 - Trợ lý ảo của Tiệm Hoa V&V Florielle. Bạn cần mình tư vấn chọn mẫu hoa, thời gian giao hàng hay chính sách cọc đơn nè?',
       time: 'Vừa xong'
     }
   ]);
@@ -267,7 +267,7 @@ export const MascotAssistant: React.FC = () => {
         } else if (lower.includes('hotline') || lower.includes('liên hệ') || lower.includes('sđt') || lower.includes('zalo')) {
           replyText = `Hotline và Zalo tư vấn 24/7 của tiệm là: ${settings.hotline}. Bạn có thể bấm gọi ngay hoặc nhắn tin để Florist hỗ trợ thiết kế mẫu riêng nha!`;
         } else {
-          replyText = `Cảm ơn bạn đã hỏi nè! Flori ghi nhận câu hỏi "${questionText}". Tiệm hoa tươi V&V Florielle 105 Doãn Kế Thiện luôn sẵn sàng hỗ trợ bạn giao hoa tươi 2H Hà Nội và tư vấn mẫu riêng qua Hotline: ${settings.hotline} nha! 💕`;
+          replyText = `Cảm ơn bạn đã hỏi nè! Flori ghi nhận câu hỏi "${questionText}". Tiệm Hoa V&V Florielle luôn sẵn sàng hỗ trợ bạn giao hoa tươi hỏa tốc và tư vấn mẫu riêng qua Hotline: ${settings.hotline} nha! 💕`;
         }
       }
 
@@ -349,7 +349,6 @@ export const MascotAssistant: React.FC = () => {
             <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-800 mb-0.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin-slow" />
               <span>Flori trợ lý ảo</span>
-              <span className="text-[9px] font-normal text-slate-400 ml-auto">Kéo rê tự do ⇄</span>
             </div>
             <p className="text-[11px] text-slate-700 leading-snug">
               {MASCOT_TIPS[tipIndex]}
@@ -370,17 +369,20 @@ export const MascotAssistant: React.FC = () => {
         <div
           onClick={handleMascotClick}
           className="relative group cursor-pointer transition-transform duration-300 hover:scale-105 active:scale-95"
-          title="Trợ lý ảo V&V Florielle (Bấm để mở hoặc ẩn khung trò chuyện)"
+          title="Trợ lý ảo V&V Florielle (Bấm để trò chuyện)"
         >
-          {/* Always display the transparent floral mascot logo (Never replaced or obscured by X) */}
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center select-none">
+          {/* Always display the transparent floral mascot logo with dynamic buoyant floating & swaying animation */}
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center select-none animate-mascot-float">
             <img
               src={settings.mascotImageUrl || '/images/mascot/mascot-1.png'}
               alt="Linh vật AI V&V Florielle"
-              className={`w-full h-full object-contain pointer-events-none filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-300 ${
-                isOpen ? 'scale-105 drop-shadow-[0_6px_16px_rgba(4,120,87,0.45)]' : ''
+              className={`w-full h-full object-contain pointer-events-none filter drop-shadow-[0_6px_16px_rgba(5,150,105,0.28)] transition-all duration-300 ${
+                isOpen ? 'scale-105 drop-shadow-[0_8px_20px_rgba(4,120,87,0.45)]' : ''
               }`}
             />
+
+            {/* Soft Ambient Floating Shadow beneath buoyant mascot */}
+            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-8 sm:w-10 h-2 bg-emerald-950/25 rounded-full blur-[2.5px] pointer-events-none animate-mascot-shadow" />
           </div>
 
           {/* Online status indicator dot (Emerald when idle, pulsing amber when chat is active) */}
@@ -444,7 +446,7 @@ export const MascotAssistant: React.FC = () => {
 
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => testCuteVoice('Chào bạn nha! Mình là trợ lý AI nữ của tiệm hoa V&V Florielle 105 Doãn Kế Thiện đây nè!')}
+                    onClick={() => testCuteVoice('Chào bạn nha! Mình là trợ lý AI nữ của Tiệm Hoa V&V Florielle đây nè!')}
                     className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-colors"
                     title="Nghe thử giọng đọc AI nữ"
                   >

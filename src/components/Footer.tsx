@@ -242,7 +242,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
           {/* 3. BOTTOM COPYRIGHT */}
           <div className="pt-3 sm:pt-4 border-t border-white/80 flex flex-col sm:flex-row items-center justify-between text-[10px] sm:text-xs text-slate-400 gap-2 text-center sm:text-left">
             <div>
-              © {new Date().getFullYear()} {settings.name}. Hệ thống đặt hoa trực tuyến cao cấp tại 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội.
+              © {new Date().getFullYear()} {settings.name}. Hệ thống đặt hoa tươi thiết kế trực tuyến cao cấp.
             </div>
             <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-slate-500 font-medium">
               <span>Boutique Florist &amp; Custom Design</span>

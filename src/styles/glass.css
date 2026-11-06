@@ -756,3 +756,48 @@
     display: none !important;
   }
 }
+
+/* AI Mascot Floating & Swaying Animation (Lắc lư kiểu bay bổng sinh động) */
+@keyframes mascot-float-sway {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-7px) rotate(2.8deg);
+  }
+  50% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(6px) rotate(-2.8deg);
+  }
+}
+
+@keyframes mascot-shadow-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  25% {
+    transform: scale(0.85);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  75% {
+    transform: scale(1.15);
+    opacity: 0.45;
+  }
+}
+
+.animate-mascot-float {
+  animation: mascot-float-sway 3.8s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.animate-mascot-shadow {
+  animation: mascot-shadow-breathe 3.8s ease-in-out infinite;
+}
+

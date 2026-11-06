@@ -69,7 +69,7 @@ export const ProductDetailModal: React.FC = () => {
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
               Chi Tiết Mẫu Hoa Nghệ Thuật
             </span>
-            <span className="text-xs text-slate-500 font-medium hidden sm:inline">105 Doãn Kế Thiện, Cầu Giấy</span>
+            <span className="text-xs text-slate-500 font-medium hidden sm:inline">Tiệm Hoa V&V Florielle</span>
           </div>
           <button
             onClick={() => setSelectedProduct(null)}

@@ -714,7 +714,7 @@ export const INITIAL_ARTICLES: BlogArticle[] = [
   {
     id: 'art-01',
     title: 'Bí Quyết Giữ Hoa Tươi Lâu 5 - 7 Ngày Không Bị Héo Rũ',
-    summary: 'Hướng dẫn chi tiết từ florist V&V Florielle 105 Doãn Kế Thiện: cách cắt vát gốc cành 45 độ, liều lượng nước dưỡng và chọn vị trí đặt hoa lý tưởng.',
+    summary: 'Hướng dẫn chi tiết từ florist Tiệm Hoa V&V Florielle: cách cắt vát gốc cành 45 độ, liều lượng nước dưỡng và chọn vị trí đặt hoa lý tưởng.',
     category: 'Mẹo Cắm Hoa',
     readTime: '3 phút đọc',
     publishedAt: '28/10/2026',
@@ -736,7 +736,7 @@ export const INITIAL_ARTICLES: BlogArticle[] = [
     content: [
       'Ngày khai trương đánh dấu sự khởi đầu của một hành trình kinh doanh. Kệ hoa 2 hoặc 3 tầng với tone Đỏ (may mắn) và Vàng (phát tài) luôn là lựa chọn hàng đầu.',
       'Hoa hướng dương tượng trưng cho sự vươn lên mạnh mẽ đón ánh bình minh, trong khi hoa lan vũ nữ mang lại năng lượng tiền tài suôn sẻ.',
-      'V&V Florielle 105 Doãn Kế Thiện luôn hỗ trợ in banner chúc mừng thiết kế đồng điệu với tone màu chủ đạo của kệ hoa.'
+      'Tiệm Hoa V&V Florielle luôn hỗ trợ in banner chúc mừng thiết kế đồng điệu với tone màu chủ đạo của kệ hoa.'
     ]
   },
   {

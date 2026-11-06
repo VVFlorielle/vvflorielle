@@ -89,7 +89,7 @@ export const CarePage: React.FC = () => {
             Bí Quyết Dưỡng Hoa Tươi Lâu & Ý Nghĩa Hoa
           </h1>
           <p className="text-xs sm:text-base text-slate-600 leading-relaxed max-w-2xl text-center mx-auto">
-            Tổng hợp những kinh nghiệm thực tế từ các Florist lành nghề tại V&V Florielle 105 Doãn Kế Thiện, giúp hoa của bạn luôn rạng rỡ và tỏa hương thơm mát suốt cả tuần.
+            Tổng hợp những kinh nghiệm thực tế từ các Florist lành nghề tại Tiệm Hoa V&V Florielle, giúp hoa của bạn luôn rạng rỡ và tỏa hương thơm mát suốt cả tuần.
           </p>
         </div>
       </div>

@@ -507,7 +507,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 </div>
                 <div>
                   <div className="font-bold text-xs text-slate-900">Giới Thiệu Tiệm Hoa V&V Florielle</div>
-                  <div className="text-[10px] text-slate-500">105 Doãn Kế Thiện • Câu chuyện nghệ thuật hoa</div>
+                  <div className="text-[10px] text-slate-500">Tiệm Hoa V&V Florielle • Câu chuyện nghệ thuật hoa</div>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400" />

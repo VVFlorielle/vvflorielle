@@ -208,9 +208,7 @@ export const OwnerPortal: React.FC = () => {
       <ManagementOverviewHero
         tag="Không Gian Điều Hành Tiệm Hoa • Florist Command Center"
         tagIcon={<Flower2 className="w-3.5 h-3.5 text-emerald-700" />}
-        title="Bảng Vận Hành Tiệm Hoa V&V Florielle"
-        subtitle="105 Doãn Kế Thiện, Cầu Giấy • Duyệt đơn cọc VietQR 1-chạm, kiểm soát còn hoa tức thì và chăm sóc khách hàng thân thiết."
-        statusBadge="Tiệm đang mở cửa (06:30 - 21:30)"
+        statusBadge="Hệ thống vận hành ổn định"
         stats={[
           {
             id: 'deposit',
