@@ -59,6 +59,8 @@ interface StoreContextType {
   addProduct: (product: Omit<FlowerProduct, 'id' | 'rating' | 'reviewCount'>) => void;
   updateProduct: (id: string, updates: Partial<FlowerProduct>) => void;
   deleteProduct: (id: string) => void;
+  applyBulkDiscount: (discountPercent: number, categoryId?: string, eventName?: string) => void;
+  restoreOriginalPrices: (categoryId?: string) => void;
 
   // Categories
   categories: FlowerCategory[];
@@ -863,6 +865,45 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const deleteProduct = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
     showToast('Đã xóa mẫu hoa khỏi danh mục', 'info');
+  };
+
+  const applyBulkDiscount = (discountPercent: number, categoryId?: string, eventName?: string) => {
+    setProducts((prev) =>
+      prev.map((p) => {
+        if (categoryId && categoryId !== 'all' && p.categoryId !== categoryId) {
+          return p;
+        }
+        // Save current price as originalPrice if not already set or if originalPrice is lower than price
+        const basePrice = p.originalPrice && p.originalPrice > p.price ? p.originalPrice : p.price;
+        const discountedPrice = Math.max(10000, Math.round((basePrice * (1 - discountPercent / 100)) / 1000) * 1000);
+        return {
+          ...p,
+          originalPrice: basePrice,
+          price: discountedPrice,
+          tag: eventName ? `-${discountPercent}%` : `-${discountPercent}%`
+        };
+      })
+    );
+    showToast(`Đã áp dụng giảm giá ${discountPercent}% đồng loạt!`, 'success');
+  };
+
+  const restoreOriginalPrices = (categoryId?: string) => {
+    setProducts((prev) =>
+      prev.map((p) => {
+        if (categoryId && categoryId !== 'all' && p.categoryId !== categoryId) {
+          return p;
+        }
+        if (p.originalPrice && p.originalPrice > p.price) {
+          return {
+            ...p,
+            price: p.originalPrice,
+            tag: p.tag?.startsWith('-') ? undefined : p.tag
+          };
+        }
+        return p;
+      })
+    );
+    showToast('Đã khôi phục giá gốc toàn bộ sản phẩm!', 'info');
   };
 
   // Category Operations
@@ -1694,6 +1735,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addProduct,
         updateProduct,
         deleteProduct,
+        applyBulkDiscount,
+        restoreOriginalPrices,
         categories,
         updateCategories,
         contactChannels,

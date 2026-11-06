@@ -17,7 +17,7 @@ import {
   Megaphone,
   LayoutTemplate
 } from 'lucide-react';
-import { CustomerUser, Order, OrderStatus } from '../types';
+import { CustomerUser, Order, OrderStatus, FlowerProduct } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
 import { ManagementTabsBar } from '../components/management/ManagementTabsBar';
 import { ManagementFunctionalGrid, ManagementActionGroup } from '../components/management/ManagementFunctionalGrid';
@@ -34,6 +34,8 @@ import {
   TempPasswordModal,
   AddContactChannelModal,
   AddVoucherModal,
+  ProductFormModal,
+  BulkDiscountModal,
   AddProductModal,
   CustomerDetailModal,
   AdjustPointsModal,
@@ -67,7 +69,10 @@ export const AdminPortal: React.FC = () => {
     completeOrder,
     products,
     addProduct,
+    updateProduct,
     deleteProduct,
+    applyBulkDiscount,
+    restoreOriginalPrices,
     categories,
     updateCategories,
     heroConfig,
@@ -109,7 +114,9 @@ export const AdminPortal: React.FC = () => {
   const [tempPassModal, setTempPassModal] = useState<{ customerName: string; pass: string } | null>(null);
   const [isAddingChannel, setIsAddingChannel] = useState(false);
   const [isAddVoucherOpen, setIsAddVoucherOpen] = useState(false);
-  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isProductFormOpen, setIsProductFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<FlowerProduct | null>(null);
+  const [isBulkDiscountOpen, setIsBulkDiscountOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerUser | null>(null);
   const [adjustingCustomer, setAdjustingCustomer] = useState<CustomerUser | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<CustomerUser | null>(null);
@@ -405,8 +412,17 @@ export const AdminPortal: React.FC = () => {
       {activeTab === 'products' && (
         <ProductsSubpage
           products={products}
+          categories={categories}
           onBackToDashboard={() => setActiveTab('dashboard')}
-          onOpenAddProduct={() => setIsAddProductOpen(true)}
+          onOpenAddProduct={() => {
+            setEditingProduct(null);
+            setIsProductFormOpen(true);
+          }}
+          onOpenEditProduct={(prod) => {
+            setEditingProduct(prod);
+            setIsProductFormOpen(true);
+          }}
+          onOpenBulkDiscount={() => setIsBulkDiscountOpen(true)}
           deleteProduct={deleteProduct}
           formatPrice={formatPrice}
         />
@@ -576,13 +592,31 @@ export const AdminPortal: React.FC = () => {
         showToast={showToast}
       />
 
-      <AddProductModal
-        isOpen={isAddProductOpen}
-        onClose={() => setIsAddProductOpen(false)}
-        onAddProduct={(prod) => {
-          addProduct(prod);
-          showToast(`Đã thêm mẫu hoa ${prod.name}!`, 'success');
+      <ProductFormModal
+        isOpen={isProductFormOpen}
+        onClose={() => {
+          setIsProductFormOpen(false);
+          setEditingProduct(null);
         }}
+        product={editingProduct}
+        onSaveProduct={(prod) => {
+          if (editingProduct) {
+            updateProduct(prod.id, prod);
+          } else {
+            addProduct(prod);
+          }
+        }}
+        showToast={showToast}
+        categories={categories}
+      />
+
+      <BulkDiscountModal
+        isOpen={isBulkDiscountOpen}
+        onClose={() => setIsBulkDiscountOpen(false)}
+        categories={categories}
+        products={products}
+        onApplyDiscount={(pct, cat, evt) => applyBulkDiscount(pct, cat, evt)}
+        onRestorePrices={(cat) => restoreOriginalPrices(cat)}
         showToast={showToast}
       />
 

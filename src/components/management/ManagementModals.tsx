@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   Lock,
@@ -16,9 +16,20 @@ import {
   Camera,
   Layers,
   Check,
-  Copy
+  Copy,
+  Upload,
+  Image as ImageIcon,
+  Link as LinkIcon,
+  Percent,
+  Trash2,
+  Pencil,
+  Tag,
+  AlertCircle,
+  RotateCcw,
+  Flower2,
+  Plus
 } from 'lucide-react';
-import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel } from '../../types';
+import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel, FlowerCategory } from '../../types';
 import { AVAILABLE_MASCOTS } from '../../data/mockData';
 
 // 1. ADMIN & OWNER SECURITY MODAL
@@ -1134,7 +1145,613 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
   );
 };
 
-// 10. ADD NEW FLOWER PRODUCT MODAL
+// 10. PRODUCT FORM MODAL (FULL CRUD: CREATE & EDIT WITH DUAL IMAGE UPLOAD & DISCOUNT ENGINE)
+export interface ProductFormModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  product?: FlowerProduct | null; // If passed, mode is EDIT; otherwise CREATE
+  onSaveProduct: (product: FlowerProduct) => void;
+  showToast: (msg: string, type?: 'success' | 'error' | 'info') => void;
+  categories?: FlowerCategory[];
+}
+
+export const ProductFormModal: React.FC<ProductFormModalProps> = ({
+  isOpen,
+  onClose,
+  product,
+  onSaveProduct,
+  showToast,
+  categories = []
+}) => {
+  const isEditMode = Boolean(product && product.id);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [name, setName] = useState('');
+  const [categoryId, setCategoryId] = useState<CategoryId>('khai-truong');
+  const [originalPrice, setOriginalPrice] = useState<number>(750000);
+  const [discountPercent, setDiscountPercent] = useState<number>(10);
+  const [price, setPrice] = useState<number>(675000);
+  const [imageMode, setImageMode] = useState<'file' | 'url'>('url');
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageError, setImageError] = useState(false);
+  const [flowers, setFlowers] = useState('Hồng Ecuador, Cẩm tú cầu, Baby trắng');
+  const [meaning, setMeaning] = useState('');
+  const [desc, setDesc] = useState('');
+  const [tag, setTag] = useState('Mới');
+  const [isAvailable, setIsAvailable] = useState(true);
+
+  // Sync state whenever product or modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (product) {
+      setName(product.name || '');
+      setCategoryId(product.categoryId || 'khai-truong');
+      const baseOrig = product.originalPrice && product.originalPrice > product.price ? product.originalPrice : product.price;
+      setOriginalPrice(baseOrig);
+      setPrice(product.price);
+      if (product.originalPrice && product.originalPrice > product.price) {
+        setDiscountPercent(Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100));
+      } else {
+        setDiscountPercent(0);
+      }
+      setImageUrl(product.imageUrl || '');
+      setImageError(false);
+      setImageMode(product.imageUrl?.startsWith('data:') ? 'file' : 'url');
+      setFlowers(product.flowerTypes?.join(', ') || '');
+      setMeaning(product.meaning || '');
+      setDesc(product.description || '');
+      setTag(product.tag || '');
+      setIsAvailable(product.isAvailable !== false);
+    } else {
+      // Default reset for new product
+      setName('');
+      setCategoryId('khai-truong');
+      setOriginalPrice(750000);
+      setDiscountPercent(10);
+      setPrice(675000);
+      setImageMode('url');
+      setImageUrl('');
+      setImageError(false);
+      setFlowers('Hồng Ecuador, Cẩm tú cầu, Baby trắng');
+      setMeaning('Mang lại may mắn, khởi đầu thịnh vượng và hanh thông tài lộc.');
+      setDesc('Thiết kế tuyển chọn từ hoa tươi nhập khẩu loại 1, cắm theo phong cách hiện đại sang trọng.');
+      setTag('Mới');
+      setIsAvailable(true);
+    }
+  }, [isOpen, product]);
+
+  // Recalculate price from originalPrice & discountPercent
+  const handleDiscountPercentChange = (percent: number) => {
+    const validPercent = Math.max(0, Math.min(90, percent));
+    setDiscountPercent(validPercent);
+    if (validPercent === 0) {
+      setPrice(originalPrice);
+    } else {
+      const discounted = Math.round((originalPrice * (1 - validPercent / 100)) / 1000) * 1000;
+      setPrice(Math.max(10000, discounted));
+    }
+  };
+
+  const handleOriginalPriceChange = (orig: number) => {
+    const validOrig = Math.max(0, orig);
+    setOriginalPrice(validOrig);
+    if (discountPercent > 0) {
+      const discounted = Math.round((validOrig * (1 - discountPercent / 100)) / 1000) * 1000;
+      setPrice(Math.max(10000, discounted));
+    } else {
+      setPrice(validOrig);
+    }
+  };
+
+  const handlePriceChange = (newPrice: number) => {
+    const validPrice = Math.max(0, newPrice);
+    setPrice(validPrice);
+    if (originalPrice > validPrice && validPrice > 0) {
+      setDiscountPercent(Math.round(((originalPrice - validPrice) / originalPrice) * 100));
+    } else {
+      setDiscountPercent(0);
+    }
+  };
+
+  // Handle local file upload (base64 data URL)
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Kích thước ảnh tối đa 5MB!', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (result) {
+        setImageUrl(result);
+        setImageError(false);
+        showToast('Đã tải ảnh thiết kế lên thành công!', 'success');
+      }
+    };
+    reader.onerror = () => {
+      showToast('Không thể đọc file ảnh, vui lòng thử lại!', 'error');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      showToast('Vui lòng nhập tên mẫu hoa!', 'error');
+      return;
+    }
+    if (price <= 0) {
+      showToast('Giá bán phải lớn hơn 0đ!', 'error');
+      return;
+    }
+
+    const finalOriginalPrice = discountPercent > 0 && originalPrice > price ? originalPrice : undefined;
+
+    const savedProduct: FlowerProduct = {
+      id: isEditMode && product ? product.id : `fl-${Date.now().toString().slice(-4)}`,
+      name: name.trim(),
+      categoryId,
+      price,
+      originalPrice: finalOriginalPrice,
+      imageUrl: imageUrl.trim() || 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
+      description: desc.trim(),
+      meaning: meaning.trim(),
+      flowerTypes: flowers.split(',').map((f) => f.trim()).filter(Boolean),
+      isAvailable,
+      tag: tag.trim() || (discountPercent > 0 ? `-${discountPercent}%` : undefined),
+      gradientTheme: product?.gradientTheme || {
+        bg: 'from-emerald-500/10 to-teal-500/10',
+        accent: '#059669',
+        tagBg: '#059669'
+      },
+      rating: isEditMode && product?.rating ? product.rating : 5.0,
+      reviewCount: isEditMode && product?.reviewCount ? product.reviewCount : 1
+    };
+
+    onSaveProduct(savedProduct);
+    onClose();
+    showToast(isEditMode ? `Đã lưu cập nhật mẫu hoa "${savedProduct.name}"!` : `Đã thêm mẫu hoa mới "${savedProduct.name}"!`, 'success');
+  };
+
+  return (
+    <div className="glass-overlay" onClick={onClose}>
+      <div
+        className="glass-modal-content max-w-3xl lg:max-w-4xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="glass-modal-header border-b border-slate-100 bg-gradient-to-r from-emerald-50/60 to-white px-5 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+              {isEditMode ? <Pencil className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+            </div>
+            <div>
+              <h3 className="font-bold text-base sm:text-lg text-slate-900">
+                {isEditMode ? `Chỉnh Sửa Mẫu Hoa: ${product?.name}` : 'Thêm Mẫu Hoa Thiết Kế Mới'}
+              </h3>
+              <p className="text-xs text-slate-500">
+                {isEditMode
+                  ? 'Cập nhật giá bán, mức giảm giá, ảnh chụp thật và hoa thành phần'
+                  : 'Cập nhật mẫu hoa tươi mới vào catalog bán lẻ & bảng vận hành tiệm'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Đóng modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-y-auto">
+          <div className="p-5 sm:p-6 space-y-5 text-xs">
+            {/* Top row: Name & Category */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2 space-y-1">
+                <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                  <span>Tên Mẫu Hoa Thiết Kế *</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ví dụ: Bó Hoa Hồng Ecuador Đỏ Say Đắm..."
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="glass-input w-full text-xs py-2.5 px-3 rounded-xl font-bold border border-slate-200 focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-slate-700">Dịp / Danh Mục Hoa *</label>
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value as CategoryId)}
+                  className="glass-input w-full text-xs py-2.5 px-3 rounded-xl font-medium border border-slate-200"
+                >
+                  <option value="khai-truong">Hoa Khai Trương</option>
+                  <option value="sinh-nhat">Hoa Sinh Nhật</option>
+                  <option value="tinh-yeu">Hoa Tình Yêu</option>
+                  <option value="lan-ho-diep">Lan Hồ Điệp</option>
+                  <option value="cam-on">Hoa Cảm Ơn &amp; Chúc Mừng</option>
+                  <option value="chia-buon">Hoa Chia Buồn</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Price & Discount Frame (Feature Highlight) */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-teal-50/40 to-slate-50 border border-emerald-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-emerald-600 text-white">
+                    <Percent className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xs sm:text-sm text-emerald-950">Giá Bán &amp; Thiết Lập Giảm Giá</h4>
+                    <p className="text-[11px] text-slate-500">Tự động tính giá bán từ % giảm giá hoặc giá gốc niêm yết</p>
+                  </div>
+                </div>
+
+                {discountPercent > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500 text-white text-[11px] font-extrabold shadow-sm">
+                    <Sparkles className="w-3 h-3" />
+                    Đang Giảm {discountPercent}%
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                {/* Original Price */}
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700 block">Giá Gốc Niêm Yết (VNĐ) *</label>
+                  <input
+                    type="number"
+                    step={10000}
+                    min={10000}
+                    required
+                    value={originalPrice}
+                    onChange={(e) => handleOriginalPriceChange(Number(e.target.value))}
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl font-mono font-bold border border-slate-200"
+                  />
+                  <p className="text-[10px] text-slate-400">Giá gốc trước khi giảm</p>
+                </div>
+
+                {/* Discount % with quick presets */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="font-semibold text-slate-700">% Giảm Giá</label>
+                    <span className="text-[11px] font-bold text-rose-600">{discountPercent}%</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min={0}
+                      max={90}
+                      value={discountPercent}
+                      onChange={(e) => handleDiscountPercentChange(Number(e.target.value))}
+                      className="glass-input w-20 text-xs py-2 px-2.5 rounded-xl font-mono font-bold text-center border border-slate-200"
+                    />
+                    <div className="flex items-center gap-1 flex-1 overflow-x-auto">
+                      {[0, 10, 15, 20, 30].map((pct) => (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => handleDiscountPercentChange(pct)}
+                          className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                            discountPercent === pct
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          {pct === 0 ? 'Gốc' : `-${pct}%`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Final Selling Price */}
+                <div className="space-y-1">
+                  <label className="font-semibold text-emerald-900 block">Giá Bán Thực Tế (VNĐ) *</label>
+                  <input
+                    type="number"
+                    step={10000}
+                    min={10000}
+                    required
+                    value={price}
+                    onChange={(e) => handlePriceChange(Number(e.target.value))}
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl font-mono font-black text-emerald-700 bg-white border-2 border-emerald-400/80 shadow-xs"
+                  />
+                  <p className="text-[10px] text-emerald-700 font-medium">
+                    {discountPercent > 0
+                      ? `Tiết kiệm ${(originalPrice - price).toLocaleString('vi-VN')} đ`
+                      : 'Bán theo đúng giá gốc'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* DUAL IMAGE UPLOAD (FILE OR URL) */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-xs sm:text-sm text-slate-800 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-emerald-600" />
+                    <span>Ảnh Chụp Thực Tế Mẫu Hoa (Đầy đủ cả 2 cách)</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-500">Tải file từ thiết bị hoặc dán link ảnh trực tuyến</p>
+                </div>
+
+                {/* Mode Selector */}
+                <div className="inline-flex p-0.5 rounded-xl bg-slate-200/80 border border-slate-300">
+                  <button
+                    type="button"
+                    onClick={() => setImageMode('file')}
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                      imageMode === 'file' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>Tải file ảnh</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageMode('url')}
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                      imageMode === 'url' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <LinkIcon className="w-3 h-3" />
+                    <span>Dán link ảnh</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Upload Input Area */}
+              {imageMode === 'file' ? (
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-2xl p-4 bg-emerald-50/50 hover:bg-emerald-50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-white shadow-xs flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform mb-1.5">
+                      <Upload className="w-5 h-5" />
+                    </div>
+                    <p className="font-bold text-xs text-emerald-950">Nhấp để chọn file ảnh từ máy tính / điện thoại</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">Hỗ trợ JPG, PNG, WEBP (Tối đa 5MB) • Xem trước tức thì</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="relative">
+                    <input
+                      type="url"
+                      placeholder="https://images.unsplash.com/... hoặc link ảnh bất kỳ"
+                      value={imageUrl}
+                      onChange={(e) => {
+                        setImageUrl(e.target.value);
+                        setImageError(false);
+                      }}
+                      className="glass-input w-full text-xs py-2.5 px-3 rounded-xl font-mono text-[11px] border border-slate-200"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-slate-400">Gợi ý mẫu ảnh đẹp:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageUrl('https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80');
+                        setImageError(false);
+                      }}
+                      className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md hover:bg-emerald-100 cursor-pointer font-medium"
+                    >
+                      Khai Trương Vàng
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageUrl('https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80');
+                        setImageError(false);
+                      }}
+                      className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md hover:bg-emerald-100 cursor-pointer font-medium"
+                    >
+                      Hồng Đỏ Ecuador
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageUrl('https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80');
+                        setImageError(false);
+                      }}
+                      className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md hover:bg-emerald-100 cursor-pointer font-medium"
+                    >
+                      Pastel Sinh Nhật
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Preview Box */}
+              {imageUrl && (
+                <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0 relative">
+                    {!imageError ? (
+                      <img
+                        src={imageUrl}
+                        alt="Xem trước"
+                        className="w-full h-full object-cover"
+                        onError={() => setImageError(true)}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-rose-50 text-rose-500 p-1 text-center">
+                        <AlertCircle className="w-4 h-4 mb-0.5" />
+                        <span className="text-[8px] font-bold">Lỗi ảnh</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-xs text-slate-800 truncate">
+                      {imageMode === 'file' ? 'Ảnh tải lên từ file thiết bị' : 'Ảnh từ link trực tuyến'}
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate max-w-md">{imageUrl.slice(0, 70)}...</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">
+                        ✓ Đã sẵn sàng hiển thị
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageUrl('');
+                          if (fileInputRef.current) fileInputRef.current.value = '';
+                        }}
+                        className="text-[10px] text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Gỡ ảnh này
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom details: Tag, Flowers, Meaning, Description */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                {/* Tag Presets */}
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700 block">Huy Hiệu Nổi Bật (Tag)</label>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {['Mới', 'Bán chạy', 'Hot', 'Giảm giá', 'VIP', 'Thiết kế riêng'].map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setTag(t)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                          tag === t
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Hoặc nhập tag riêng..."
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                    className="glass-input w-full text-xs py-1.5 px-3 rounded-xl border border-slate-200 mt-1"
+                  />
+                </div>
+
+                {/* Flowers Component */}
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700 block">Hoa Thành Phần (phân cách bằng dấu phẩy)</label>
+                  <input
+                    type="text"
+                    placeholder="Hồng Ecuador, Cẩm tú cầu, Baby trắng..."
+                    value={flowers}
+                    onChange={(e) => setFlowers(e.target.value)}
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl border border-slate-200"
+                  />
+                </div>
+
+                {/* In Stock Toggle */}
+                <div className="pt-1 flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div>
+                    <span className="font-bold text-xs text-slate-800 block">Tình Trạng Hoa Sẵn Sàng</span>
+                    <span className="text-[10px] text-slate-500">Mẫu hoa có đủ nguyên liệu để cắm giao ngay</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAvailable(!isAvailable)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      isAvailable ? 'bg-emerald-600' : 'bg-slate-300'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        isAvailable ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Meaning */}
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700 block">Ý Nghĩa &amp; Thông Điệp Thiết Kế</label>
+                  <input
+                    type="text"
+                    placeholder="Ví dụ: Mang lại may mắn, phát tài phát lộc..."
+                    value={meaning}
+                    onChange={(e) => setMeaning(e.target.value)}
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl border border-slate-200"
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700 block">Mô Tả Chi Tiết Mẫu Hoa</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Mô tả kích thước hoa, xuất xứ hoa tươi nhập khẩu..."
+                    value={desc}
+                    onChange={(e) => setDesc(e.target.value)}
+                    className="glass-input w-full text-xs py-2 px-3 rounded-xl border border-slate-200 leading-relaxed"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="glass-modal-footer border-t border-slate-100 bg-slate-50/80 px-5 sm:px-6 py-3.5 flex items-center justify-between">
+            <span className="text-[11px] text-slate-500">
+              * Mẫu hoa sẽ được đồng bộ ngay tức thì lên website bán lẻ và thanh dock.
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="btn-primary text-xs py-2 px-5 rounded-xl cursor-pointer shadow-md flex items-center gap-1.5"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isEditMode ? 'Lưu Thay Đổi' : 'Thêm Mẫu Hoa'}</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Backward Compatibility Wrapper for AddProductModal
 export interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -1148,193 +1765,242 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
   onAddProduct,
   showToast
 }) => {
-  const [newProdName, setNewProdName] = useState('');
-  const [newProdCategory, setNewProdCategory] = useState<CategoryId>('khai-truong');
-  const [newProdPrice, setNewProdPrice] = useState(650000);
-  const [newProdOriginalPrice, setNewProdOriginalPrice] = useState<number | undefined>(750000);
-  const [newProdImageUrl, setNewProdImageUrl] = useState('');
-  const [newProdDesc, setNewProdDesc] = useState('');
-  const [newProdMeaning, setNewProdMeaning] = useState('');
-  const [newProdFlowers, setNewProdFlowers] = useState('Hồng Ecuador, Cẩm tú cầu, Baby trắng');
+  return (
+    <ProductFormModal
+      isOpen={isOpen}
+      onClose={onClose}
+      product={null}
+      onSaveProduct={onAddProduct}
+      showToast={showToast}
+    />
+  );
+};
+
+// 10B. BULK DISCOUNT EVENT MODAL (STORE-WIDE OR CATEGORY-WIDE SALES CAMPAIGN)
+export interface BulkDiscountModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categories: FlowerCategory[];
+  products: FlowerProduct[];
+  onApplyDiscount: (percent: number, categoryId?: string, eventName?: string) => void;
+  onRestorePrices: (categoryId?: string) => void;
+  showToast: (msg: string, type?: 'success' | 'error' | 'info') => void;
+}
+
+export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
+  isOpen,
+  onClose,
+  categories,
+  products,
+  onApplyDiscount,
+  onRestorePrices,
+  showToast
+}) => {
+  const [eventName, setEventName] = useState('Đại Lễ Quốc Tế Phụ Nữ 8/3');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [discountPercent, setDiscountPercent] = useState<number>(15);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProdName.trim()) {
-      showToast('Vui lòng nhập tên mẫu hoa!', 'error');
+  // Count products in selected scope
+  const targetProducts = selectedCategory === 'all'
+    ? products
+    : products.filter((p) => p.categoryId === selectedCategory);
+
+  const discountedCount = targetProducts.filter((p) => p.originalPrice && p.originalPrice > p.price).length;
+
+  const eventPresets = [
+    { name: 'Đại Lễ Quốc Tế Phụ Nữ 8/3', percent: 15, tag: '8/3' },
+    { name: 'Lễ Tình Nhân Valentine 14/2', percent: 10, tag: 'Valentine' },
+    { name: 'Ngày Phụ Nữ Việt Nam 20/10', percent: 20, tag: '20/10' },
+    { name: 'Tri Ân Ngày Nhà Giáo 20/11', percent: 15, tag: '20/11' },
+    { name: 'Flash Sale Cuối Tuần Rực Rỡ', percent: 25, tag: 'Flash Sale' }
+  ];
+
+  const handleApply = () => {
+    if (discountPercent <= 0) {
+      showToast('Vui lòng chọn mức giảm giá lớn hơn 0%!', 'error');
       return;
     }
-    const newProd: FlowerProduct = {
-      id: `flower_${Date.now()}`,
-      name: newProdName.trim(),
-      categoryId: newProdCategory,
-      price: newProdPrice,
-      originalPrice: newProdOriginalPrice,
-      imageUrl: newProdImageUrl.trim() || 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
-      description: newProdDesc.trim(),
-      meaning: newProdMeaning.trim(),
-      flowerTypes: newProdFlowers.split(',').map((f) => f.trim()).filter(Boolean),
-      isAvailable: true,
-      tag: 'Mới',
-      gradientTheme: {
-        bg: 'from-emerald-500/10 to-teal-500/10',
-        accent: '#059669',
-        tagBg: '#059669'
-      },
-      rating: 5.0,
-      reviewCount: 1
-    };
-    onAddProduct(newProd);
+    onApplyDiscount(discountPercent, selectedCategory, eventName);
     onClose();
-    setNewProdName('');
-    showToast('Đã thêm mẫu hoa mới vào catalog!', 'success');
+  };
+
+  const handleRestore = () => {
+    if (confirm(`Bạn có chắc muốn khôi phục giá gốc cho ${selectedCategory === 'all' ? 'toàn bộ kho hoa' : 'danh mục đã chọn'}?`)) {
+      onRestorePrices(selectedCategory);
+      onClose();
+    }
   };
 
   return (
     <div className="glass-overlay" onClick={onClose}>
       <div
-        className="glass-modal-content max-w-2xl lg:max-w-3xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
+        className="glass-modal-content max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="glass-modal-header">
-          <div>
-            <h3 className="font-bold text-base sm:text-lg text-slate-900">Thêm Mẫu Hoa Thiết Kế Mới</h3>
-            <p className="text-xs text-slate-500">Cập nhật sản phẩm trực tiếp vào catalog V&amp;V Florielle</p>
+        {/* Header */}
+        <div className="glass-modal-header border-b border-slate-100 bg-gradient-to-r from-rose-50/70 via-amber-50/40 to-white px-5 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold">
+              <Percent className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base sm:text-lg text-slate-900">Sự Kiện Giảm Giá Đồng Loạt</h3>
+              <p className="text-xs text-slate-500">Giảm giá % theo dịp lễ cho toàn tiệm hoặc từng danh mục</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="glass-modal-body space-y-4 text-xs">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Left Column */}
-              <div className="space-y-3">
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Tên mẫu hoa *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ví dụ: Lẵng Khai Trương Thịnh Vượng Vàng Gold..."
-                    value={newProdName}
-                    onChange={(e) => setNewProdName(e.target.value)}
-                    className="glass-input w-full text-xs py-2 rounded-xl font-bold"
-                  />
-                </div>
+        {/* Body */}
+        <div className="p-5 sm:p-6 space-y-4 text-xs">
+          {/* Quick Event Presets */}
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Dịp Lễ &amp; Sự Kiện Phổ Biến</span>
+            </label>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {eventPresets.map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => {
+                    setEventName(preset.name);
+                    setDiscountPercent(preset.percent);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                    eventName === preset.name
+                      ? 'bg-rose-500 text-white shadow-xs'
+                      : 'bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700'
+                  }`}
+                >
+                  {preset.name} (-{preset.percent}%)
+                </button>
+              ))}
+            </div>
+          </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Dịp tặng</label>
-                    <select
-                      value={newProdCategory}
-                      onChange={(e) => setNewProdCategory(e.target.value as CategoryId)}
-                      className="glass-input w-full text-xs py-2 rounded-xl"
+          {/* Event Name Input */}
+          <div className="space-y-1">
+            <label className="font-semibold text-slate-700 block">Tên Sự Kiện / Chiến Dịch</label>
+            <input
+              type="text"
+              value={eventName}
+              onChange={(e) => setEventName(e.target.value)}
+              placeholder="Ví dụ: Tuần Lễ Hoa Tươi Yêu Thương..."
+              className="glass-input w-full text-xs py-2 px-3 rounded-xl font-bold border border-slate-200"
+            />
+          </div>
+
+          {/* Scope Select & Discount % */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="font-semibold text-slate-700 block">Phạm Vi Áp Dụng</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="glass-input w-full text-xs py-2 px-3 rounded-xl font-medium border border-slate-200"
+              >
+                <option value="all">🌸 Toàn bộ kho hoa tươi ({products.length} mẫu)</option>
+                <option value="khai-truong">Hoa Khai Trương</option>
+                <option value="sinh-nhat">Hoa Sinh Nhật</option>
+                <option value="tinh-yeu">Hoa Tình Yêu</option>
+                <option value="lan-ho-diep">Lan Hồ Điệp</option>
+                <option value="cam-on">Hoa Cảm Ơn &amp; Chúc Mừng</option>
+                <option value="chia-buon">Hoa Chia Buồn</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-semibold text-slate-700 block">Mức Giảm Giá (%)</label>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number"
+                  min={1}
+                  max={90}
+                  value={discountPercent}
+                  onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                  className="glass-input w-24 text-xs py-2 px-3 rounded-xl font-mono font-bold text-center border border-slate-200"
+                />
+                <div className="flex items-center gap-1 flex-1">
+                  {[5, 10, 15, 20, 25, 30].map((pct) => (
+                    <button
+                      key={pct}
+                      type="button"
+                      onClick={() => setDiscountPercent(pct)}
+                      className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                        discountPercent === pct
+                          ? 'bg-rose-600 text-white shadow-xs'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                      }`}
                     >
-                      <option value="khai-truong">Hoa Khai Trương</option>
-                      <option value="sinh-nhat">Hoa Sinh Nhật</option>
-                      <option value="tinh-yeu">Hoa Tình Yêu</option>
-                      <option value="lan-ho-diep">Lan Hồ Điệp</option>
-                      <option value="cam-on">Hoa Cảm Ơn &amp; Chúc Mừng</option>
-                      <option value="chia-buon">Hoa Chia Buồn</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Giá bán (VNĐ) *</label>
-                    <input
-                      type="number"
-                      step={10000}
-                      required
-                      value={newProdPrice}
-                      onChange={(e) => setNewProdPrice(Number(e.target.value))}
-                      className="glass-input w-full text-xs py-2 rounded-xl font-mono font-bold"
-                    />
-                  </div>
+                      -{pct}%
+                    </button>
+                  ))}
                 </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">URL Ảnh Chụp Thật Sản Phẩm *</label>
-                  <input
-                    type="url"
-                    required
-                    placeholder="https://images.unsplash.com/..."
-                    value={newProdImageUrl}
-                    onChange={(e) => setNewProdImageUrl(e.target.value)}
-                    className="glass-input w-full text-xs py-2 rounded-xl font-mono text-[11px]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Hoa thành phần (phân cách bằng dấu phẩy)</label>
-                  <input
-                    type="text"
-                    placeholder="Hồng Ecuador, Cẩm tú cầu, Baby trắng..."
-                    value={newProdFlowers}
-                    onChange={(e) => setNewProdFlowers(e.target.value)}
-                    className="glass-input w-full text-xs py-2 rounded-xl"
-                  />
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-3">
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Ý nghĩa &amp; Thông điệp thiết kế</label>
-                  <input
-                    type="text"
-                    placeholder="Thông điệp gửi gắm chúc mừng tài lộc..."
-                    value={newProdMeaning}
-                    onChange={(e) => setNewProdMeaning(e.target.value)}
-                    className="glass-input w-full text-xs py-2 rounded-xl"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Mô tả chi tiết</label>
-                  <textarea
-                    rows={3}
-                    placeholder="Mô tả kích thước hoa, xuất xứ hoa tươi..."
-                    value={newProdDesc}
-                    onChange={(e) => setNewProdDesc(e.target.value)}
-                    className="glass-input w-full text-xs py-2 rounded-xl"
-                  />
-                </div>
-
-                {/* Image Preview Box */}
-                {newProdImageUrl && (
-                  <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 h-28 flex items-center justify-center">
-                    <img
-                      src={newProdImageUrl}
-                      alt="Xem trước ảnh"
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          <div className="glass-modal-footer">
+          {/* Impact preview info box */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50/80 to-teal-50/50 border border-emerald-200/80 space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-emerald-950">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Xem Trước Tác Động Sự Kiện</span>
+              </span>
+              <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[11px]">
+                {targetProducts.length} mẫu hoa áp dụng
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              Hệ thống sẽ tự động lưu giá gốc hiện tại vào mục giá niêm yết, tính giá bán mới giảm <strong>{discountPercent}%</strong> và gắn huy hiệu <strong>-{discountPercent}%</strong> cho tất cả mẫu hoa được chọn.
+            </p>
+            {discountedCount > 0 && (
+              <p className="text-[10px] text-amber-700 font-medium">
+                ⚡ Hiện có {discountedCount} mẫu đang có giá giảm, sẽ được cập nhật theo tỷ lệ mới.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="glass-modal-footer border-t border-slate-100 bg-slate-50/80 px-5 sm:px-6 py-3.5 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleRestore}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-200/80 hover:bg-amber-100 text-slate-700 hover:text-amber-800 text-xs font-bold transition-colors cursor-pointer"
+            title="Khôi phục về giá niêm yết ban đầu"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Khôi Phục Giá Gốc</span>
+          </button>
+
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
               className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer"
             >
-              Hủy
+              Đóng
             </button>
-            <button type="submit" className="btn-primary text-xs py-2 px-4 rounded-xl cursor-pointer">
-              Lưu Sản Phẩm
+            <button
+              type="button"
+              onClick={handleApply}
+              className="btn-primary text-xs py-2 px-4 rounded-xl cursor-pointer shadow-md flex items-center gap-1.5 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Áp Dụng Sự Kiện Giảm Giá</span>
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
