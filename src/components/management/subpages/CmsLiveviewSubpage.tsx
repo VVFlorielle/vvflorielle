@@ -24,8 +24,10 @@ import {
   Tag,
   Gift,
   ShieldCheck,
-  Check
+  Check,
+  Pencil
 } from 'lucide-react';
+import { useBodyScrollLock } from '../../../utils/scrollLock';
 import { HeroBannerConfig, FlowerCategory, PromotionItem, BlogArticle } from '../../../types';
 
 export interface CmsPreviewEditor {
@@ -133,9 +135,14 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
   const [desktopWorkspaceOpen, setDesktopWorkspaceOpen] = useState(false);
   const [workspaceItem, setWorkspaceItem] = useState<string>('hero');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  const [mobileInspectorOpen, setMobileInspectorOpen] = useState(false);
+  const [mobileActiveView, setMobileActiveView] = useState<'preview' | 'inspector'>('preview');
 
   // Discard Confirmation Modal State (No window.confirm)
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  // Lock body scroll when workspace or modals are active
+  useBodyScrollLock(desktopWorkspaceOpen || showDiscardConfirm || mobileInspectorOpen);
 
   // Draft States
   const [draftHero, setDraftHero] = useState<HeroBannerConfig>(heroConfig);
@@ -359,6 +366,10 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
     selected: workspaceItem,
     select: (target: string) => {
       setWorkspaceItem(target);
+      // On mobile screens, automatically open the inspector drawer when a section is clicked
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        setMobileInspectorOpen(true);
+      }
     }
   };
 
@@ -1343,35 +1354,35 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
       )}
 
       {/* ========================================================
-          2. WORKSPACE MODAL (When desktopWorkspaceOpen)
+          2. WORKSPACE MODAL (CHUẨN PHOTOTIINLOVE)
          ======================================================== */}
       {desktopWorkspaceOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[9995] flex flex-col bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
           <div className="w-full h-full max-w-[1550px] mx-auto bg-slate-50 flex flex-col shadow-2xl overflow-hidden">
-            {/* Top Bar */}
-            <div className="px-4 py-3 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            {/* Top Bar (Responsive for Desktop & Mobile) */}
+            <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-slate-200 flex items-center justify-between gap-2 shrink-0">
               {/* Breadcrumb & Title */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <button
                   type="button"
                   onClick={handleCloseWorkspace}
-                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer shrink-0"
                   title="Quay lại danh mục trang"
                 >
-                  <ArrowLeft className="w-5 h-5" />
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
-                    CHỈNH SỬA GIAO DIỆN WEBSITE • WORKSPACE
+                <div className="truncate">
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-700 block truncate">
+                    CHỈNH SỬA GIAO DIỆN • {selectedPage.toUpperCase()}
                   </span>
-                  <h3 className="text-sm font-extrabold text-slate-800">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-800 truncate">
                     {cmsWelcomePages.find((p) => p.key === selectedPage)?.label || 'Biên Tập Giao Diện'}
                   </h3>
                 </div>
               </div>
 
-              {/* Viewport Device Switcher */}
-              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200/80">
+              {/* Viewport Device Switcher (Desktop Only) */}
+              <div className="hidden md:flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200/80 shrink-0">
                 <button
                   type="button"
                   onClick={() => setPreviewDevice('desktop')}
@@ -1382,7 +1393,7 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                   }`}
                 >
                   <Monitor className="w-3.5 h-3.5" />
-                  Màn Hình Lớn
+                  <span>Desktop</span>
                 </button>
                 <button
                   type="button"
@@ -1394,12 +1405,12 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                   }`}
                 >
                   <Smartphone className="w-3.5 h-3.5" />
-                  Điện Thoại
+                  <span>Mobile</span>
                 </button>
               </div>
 
               {/* Top Actions */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -1409,34 +1420,60 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                       setDesktopWorkspaceOpen(false);
                     }
                   }}
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                  className="hidden sm:inline-block px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
                 >
-                  Hủy thay đổi
+                  Hủy
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveAndApply}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  Lưu & Áp Dụng
+                  <span>Lưu & Áp Dụng</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleCloseWorkspace}
-                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors ml-1 cursor-pointer"
+                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                  title="Đóng cửa sổ"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
 
-            {/* 3-Column Workspace Grid */}
-            <div className="flex-1 flex overflow-hidden">
+            {/* Mobile-Only Horizontal Component Chips (Chuẩn Phototiinlove) */}
+            <div className="lg:hidden overflow-x-auto flex items-center gap-1.5 p-2 bg-slate-50 border-b border-slate-200 no-scrollbar shrink-0">
+              {currentTree.map((item) => {
+                const isSelected = workspaceItem === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setWorkspaceItem(item.id);
+                      setMobileInspectorOpen(true);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Workspace Content Grid */}
+            <div className="flex-1 flex overflow-hidden relative">
               {/* ========================================================
-                  COLUMN 1: COMPONENT TREE (Left ~ 260px)
+                  COLUMN 1: COMPONENT TREE (Desktop Only ~ 260px)
                  ======================================================== */}
-              <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto">
+              <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200 flex-col shrink-0 overflow-y-auto">
                 <div className="p-3 border-b border-slate-100 bg-slate-50/70">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                     THÀNH PHẦN TRANG
@@ -1485,14 +1522,14 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
               </aside>
 
               {/* ========================================================
-                  COLUMN 2: PREVIEW CANVAS (Center - Flex 1)
+                  COLUMN 2: PREVIEW CANVAS (Full-width on Mobile, Flex 1 on Desktop)
                  ======================================================== */}
-              <main className="flex-1 bg-slate-100 overflow-y-auto p-4 sm:p-6 flex flex-col items-center">
-                {/* Visual Guide Hint */}
-                <div className="w-full max-w-4xl mb-3 flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-xs text-slate-600 shadow-xs">
+              <main className="flex-1 bg-slate-100 overflow-y-auto p-2 sm:p-4 md:p-6 flex flex-col items-center relative w-full">
+                {/* Visual Guide Hint (Desktop) */}
+                <div className="w-full max-w-4xl mb-3 hidden sm:flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-xs text-slate-600 shadow-xs">
                   <span className="flex items-center gap-1.5">
                     <span className="text-emerald-600 font-bold">✎ Thao tác:</span>
-                    Rê chuột vào bất kỳ mục nào trên bản xem trước để hiện khung viền nét đứt, nhấp trực tiếp để chọn và chỉnh sửa tức thì!
+                    Nhấp trực tiếp vào bất kỳ mục nào trên bản xem trước để chọn và mở bảng chỉnh sửa tức thì!
                   </span>
                   <span className="text-[11px] text-slate-400">Chuẩn Phototiinlove</span>
                 </div>
@@ -1501,21 +1538,33 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                 <div
                   className={`w-full transition-all duration-200 ${
                     previewDevice === 'mobile'
-                      ? 'max-w-[400px] bg-white rounded-3xl p-4 shadow-xl border-4 border-slate-800 min-h-[700px]'
-                      : 'max-w-4xl bg-white rounded-2xl p-6 shadow-sm border border-slate-200'
+                      ? 'max-w-[420px] bg-white rounded-3xl p-3 sm:p-4 shadow-xl border-2 sm:border-4 border-slate-800 min-h-[700px]'
+                      : 'max-w-4xl bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200'
                   }`}
                 >
                   {previewDevice === 'mobile' && (
-                    <div className="w-24 h-4 bg-slate-800 rounded-full mx-auto mb-4" />
+                    <div className="w-24 h-4 bg-slate-800 rounded-full mx-auto mb-4 hidden sm:block" />
                   )}
                   {renderCanvasPreview()}
+                </div>
+
+                {/* Mobile Floating Trigger Pill to open Inspector (Chuẩn Phototiinlove Mobile) */}
+                <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+                  <button
+                    type="button"
+                    onClick={() => setMobileInspectorOpen(true)}
+                    className="px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-2xl flex items-center gap-2 border border-white/40 active:scale-95 transition-all cursor-pointer"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Sửa: {currentTree.find((t) => t.id === workspaceItem)?.label || 'Khối này'}</span>
+                  </button>
                 </div>
               </main>
 
               {/* ========================================================
-                  COLUMN 3: INSPECTOR PANEL (Right ~ 340px)
+                  COLUMN 3: INSPECTOR PANEL (Desktop Only ~ 340-380px)
                  ======================================================== */}
-              <aside className="w-80 sm:w-96 bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto">
+              <aside className="hidden lg:flex w-80 sm:w-96 bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto">
                 <div className="p-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
@@ -1556,6 +1605,76 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                 </div>
               </aside>
             </div>
+
+            {/* ========================================================
+                MOBILE BOTTOM SHEET INSPECTOR DRAWER (CHUẨN PHOTOTIINLOVE)
+               ======================================================== */}
+            {mobileInspectorOpen && (
+              <div className="lg:hidden fixed inset-0 z-[9995] flex flex-col justify-end">
+                <div
+                  className="fixed inset-0 w-full h-[100dvh] bg-slate-950/70 backdrop-blur-md transition-opacity pointer-events-auto"
+                  onClick={() => setMobileInspectorOpen(false)}
+                />
+                <aside className="relative z-10 w-full max-w-lg mx-auto bg-white rounded-t-[32px] shadow-2xl border-t border-slate-200 flex flex-col max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom duration-200">
+                  {/* Top Drag Handle */}
+                  <div className="w-12 h-1.5 rounded-full bg-slate-300 mx-auto mt-2.5 mb-1.5 shrink-0" />
+
+                  <div className="p-3.5 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between shrink-0">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+                        BẢNG CHỈNH SỬA CHI TIẾT
+                      </span>
+                      <h4 className="text-xs font-bold text-slate-800">
+                        {currentTree.find((t) => t.id === workspaceItem)?.label || 'Thành Phần'}
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                        Live Sync
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setMobileInspectorOpen(false)}
+                        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Đóng bảng chỉnh sửa"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Scrollable Form Body */}
+                  <div className="p-4 flex-1 overflow-y-auto">{renderInspector()}</div>
+
+                  {/* Mobile Drawer Actions */}
+                  <div className="p-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraftHero(heroConfig);
+                        setDraftCategories(categories);
+                        setDraftPromotions(promotions);
+                        setDraftArticles(articles);
+                        showToast('Đã khôi phục dữ liệu ban đầu!', 'info');
+                      }}
+                      className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer"
+                    >
+                      Khôi phục
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSaveAndApply();
+                        setMobileInspectorOpen(false);
+                      }}
+                      className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                    >
+                      Áp Dụng Thay Đổi
+                    </button>
+                  </div>
+                </aside>
+              </div>
+            )}
           </div>
         </div>
       )}

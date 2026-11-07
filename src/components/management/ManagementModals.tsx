@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel, FlowerCategory, CustomerTier } from '../../types';
 import { AVAILABLE_MASCOTS } from '../../data/mockData';
+import { useBodyScrollLock } from '../../utils/scrollLock';
 
 // 0. UNIVERSAL IN-APP ACTION CONFIRM MODAL (NO BROWSER DIALOGS!)
 export interface ActionConfirmModalProps {
@@ -59,6 +60,7 @@ export const ActionConfirmModal: React.FC<ActionConfirmModalProps> = ({
   cancelText = 'Hủy Bỏ',
   type = 'danger'
 }) => {
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   return (
@@ -141,6 +143,7 @@ export const SecurityModal: React.FC<SecurityModalProps> = ({
   const [email, setEmail] = useState(adminEmail);
   const [appPassword, setAppPassword] = useState('');
 
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -155,7 +158,7 @@ export const SecurityModal: React.FC<SecurityModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-6 sm:p-7 space-y-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
@@ -301,6 +304,7 @@ export const ShippingConfigModal: React.FC<ShippingConfigModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<ShopSettings>(settings);
 
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -310,7 +314,7 @@ export const ShippingConfigModal: React.FC<ShippingConfigModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-6 sm:p-7 space-y-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
@@ -441,6 +445,7 @@ export const QuickVoucherModal: React.FC<QuickVoucherModalProps> = ({
   const [minOrder, setMinOrder] = useState(400000);
   const [badge, setBadge] = useState('DỊP LỄ');
 
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -471,7 +476,7 @@ export const QuickVoucherModal: React.FC<QuickVoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
@@ -601,7 +606,7 @@ export const MascotSelectorModal: React.FC<MascotSelectorModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-2xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
@@ -684,10 +689,11 @@ export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
   onClose,
   onApproveDeposit
 }) => {
+  useBodyScrollLock(Boolean(order));
   if (!order) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
@@ -796,7 +802,7 @@ export const EditShippingFeeModal: React.FC<EditShippingFeeModalProps> = ({ orde
   if (!order) return null;
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -866,7 +872,7 @@ export const TempPasswordModal: React.FC<TempPasswordModalProps> = ({ data, onCl
   if (!data) return null;
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -997,7 +1003,7 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
   };
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -1187,7 +1193,7 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
   };
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-lg md:max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -1326,6 +1332,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   showToast,
   categories = []
 }) => {
+  useBodyScrollLock(isOpen);
   const isEditMode = Boolean(product && product.id);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -1484,7 +1491,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   };
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-3xl lg:max-w-4xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
@@ -2001,7 +2008,7 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
   };
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -2200,7 +2207,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   if (!customer) return null;
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-2xl lg:max-w-4xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -2337,6 +2344,7 @@ export interface AdjustPointsModalProps {
 }
 
 export const AdjustPointsModal: React.FC<AdjustPointsModalProps> = ({ customer, onClose, onConfirm }) => {
+  useBodyScrollLock(Boolean(customer));
   const [delta, setDelta] = useState(50);
   const [reason, setReason] = useState('Tích lũy điểm thưởng đơn hoa tại quầy');
   const [selectedPreset, setSelectedPreset] = useState<string>('order-50');
@@ -2370,7 +2378,7 @@ export const AdjustPointsModal: React.FC<AdjustPointsModalProps> = ({ customer, 
   const nextPoints = Math.max(0, customer.points + delta);
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -2523,7 +2531,7 @@ export const EditCustomerNotesModal: React.FC<EditCustomerNotesModalProps> = ({
   if (!customer) return null;
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -2612,6 +2620,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   onSave,
   showToast
 }) => {
+  useBodyScrollLock(isOpen);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -2680,7 +2689,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   };
 
   return (
-    <div className="glass-overlay" onClick={onClose}>
+    <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-lg md:max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}

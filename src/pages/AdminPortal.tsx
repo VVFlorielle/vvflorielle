@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useStore } from '../context/StoreContext';
+import { restoreScrollPosition } from '../utils/scrollRestoration';
 import {
   Lock,
   KeyRound,
@@ -107,6 +108,24 @@ export const AdminPortal: React.FC = () => {
     showToast
   } = useStore();
 
+  // Scroll Restoration Reference (Phototiinlove battle-tested navigation)
+  const lastDashboardScrollYRef = useRef(0);
+
+  const navigateToTab = (tab: any) => {
+    if (activeTab === 'dashboard') {
+      lastDashboardScrollYRef.current = window.scrollY || document.documentElement.scrollTop || 0;
+    }
+    setActiveTab(tab);
+    if (tab !== 'dashboard') {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  };
+
+  const handleBackToDashboard = () => {
+    setActiveTab('dashboard');
+    restoreScrollPosition(lastDashboardScrollYRef.current);
+  };
+
   const [orderSearchForSubpage, setOrderSearchForSubpage] = useState('');
 
   // Modals state
@@ -168,7 +187,7 @@ export const AdminPortal: React.FC = () => {
           badgeColor: 'emerald',
           actionType: 'page',
           actionLabel: 'Mở Quản Trị Đơn',
-          onClick: () => setActiveTab('orders')
+          onClick: () => navigateToTab('orders')
         },
         {
           id: 'action-revenue',
@@ -180,7 +199,7 @@ export const AdminPortal: React.FC = () => {
           badgeColor: 'emerald',
           actionType: 'page',
           actionLabel: 'Xem Doanh Thu',
-          onClick: () => setActiveTab('revenue')
+          onClick: () => navigateToTab('revenue')
         },
         {
           id: 'action-products',
@@ -192,7 +211,7 @@ export const AdminPortal: React.FC = () => {
           badgeColor: 'rose',
           actionType: 'page',
           actionLabel: 'Mở Danh Mục Hoa',
-          onClick: () => setActiveTab('products')
+          onClick: () => navigateToTab('products')
         }
       ]
     },
@@ -211,7 +230,7 @@ export const AdminPortal: React.FC = () => {
           badgeColor: 'purple',
           actionType: 'page',
           actionLabel: 'Mở Khách Hàng',
-          onClick: () => setActiveTab('customers')
+          onClick: () => navigateToTab('customers')
         },
         {
           id: 'action-vouchers',
@@ -223,7 +242,7 @@ export const AdminPortal: React.FC = () => {
           badgeColor: 'amber',
           actionType: 'page',
           actionLabel: 'Mở Quản Lý Voucher',
-          onClick: () => setActiveTab('vouchers')
+          onClick: () => navigateToTab('vouchers')
         },
         {
           id: 'action-quick-voucher',
@@ -254,7 +273,7 @@ export const AdminPortal: React.FC = () => {
           badgeColor: 'slate',
           actionType: 'page',
           actionLabel: 'Mở Cấu Hình Tiệm',
-          onClick: () => setActiveTab('settings')
+          onClick: () => navigateToTab('settings')
         },
         {
           id: 'action-shipping-modal',
@@ -278,7 +297,7 @@ export const AdminPortal: React.FC = () => {
           badgeColor: 'sky',
           actionType: 'page',
           actionLabel: 'Mở Kênh CSKH',
-          onClick: () => setActiveTab('channels')
+          onClick: () => navigateToTab('channels')
         },
         {
           id: 'action-marquee',
@@ -290,7 +309,7 @@ export const AdminPortal: React.FC = () => {
           badgeColor: 'amber',
           actionType: 'page',
           actionLabel: 'Mở Bảng Tin Chạy',
-          onClick: () => setActiveTab('marquee')
+          onClick: () => navigateToTab('marquee')
         }
       ]
     },
@@ -301,15 +320,15 @@ export const AdminPortal: React.FC = () => {
       items: [
         {
           id: 'action-cms-liveview',
-          title: 'Liveview Webview CMS Song Song 50/50',
-          description: 'Xem trước giao diện khách hàng trên Desktop / Mobile và chỉnh sửa nội dung banner, danh mục theo thời gian thực.',
+          title: 'Trình Quản Lý Giao Diện Website (CMS Chuẩn Phototiinlove)',
+          description: 'Chọn khu vực muốn chỉnh sửa, nhấp trực tiếp trên preview để chọn thành phần và cập nhật nội dung tức thì.',
           icon: <LayoutTemplate className="w-5 h-5" />,
           iconBgColor: 'bg-purple-100 text-purple-700 border border-purple-200',
-          badge: 'Live 50/50',
+          badge: 'CMS Chuẩn Phototiinlove',
           badgeColor: 'purple',
           actionType: 'page',
-          actionLabel: 'Mở CMS Liveview',
-          onClick: () => setActiveTab('cms')
+          actionLabel: 'Mở CMS Giao Diện',
+          onClick: () => navigateToTab('cms')
         },
         {
           id: 'action-mascot-modal',
@@ -354,7 +373,7 @@ export const AdminPortal: React.FC = () => {
             subtext: `${completedCount} đơn hoàn thành`,
             icon: <TrendingUp className="w-3.5 h-3.5 text-purple-700" />,
             color: 'purple',
-            onClick: () => setActiveTab('revenue')
+            onClick: () => navigateToTab('revenue')
           },
           {
             id: 'arranging',
@@ -363,7 +382,7 @@ export const AdminPortal: React.FC = () => {
             subtext: 'Đang cắm & chờ duyệt',
             icon: <Flower2 className="w-3.5 h-3.5" />,
             color: 'emerald',
-            onClick: () => setActiveTab('orders')
+            onClick: () => navigateToTab('orders')
           },
           {
             id: 'customers',
@@ -372,7 +391,7 @@ export const AdminPortal: React.FC = () => {
             subtext: 'Hội viên thân thiết',
             icon: <Users className="w-3.5 h-3.5" />,
             color: 'sky',
-            onClick: () => setActiveTab('customers')
+            onClick: () => navigateToTab('customers')
           },
           {
             id: 'products',
@@ -381,7 +400,7 @@ export const AdminPortal: React.FC = () => {
             subtext: 'Mẫu hoa đang bán',
             icon: <Gift className="w-3.5 h-3.5" />,
             color: 'amber',
-            onClick: () => setActiveTab('products')
+            onClick: () => navigateToTab('products')
           }
         ]}
       />
@@ -391,10 +410,10 @@ export const AdminPortal: React.FC = () => {
         <div className="space-y-8 animate-in fade-in duration-200">
           <ManagementRecentOrders
             orders={orders}
-            onViewAllOrders={() => setActiveTab('orders')}
+            onViewAllOrders={() => navigateToTab('orders')}
             onViewOrderDetail={(id) => {
               setOrderSearchForSubpage(id);
-              setActiveTab('orders');
+              navigateToTab('orders');
             }}
             onViewBill={(ord) => setViewingBillOrder(ord)}
             onApproveDeposit={(id) => {
@@ -415,7 +434,7 @@ export const AdminPortal: React.FC = () => {
       {activeTab === 'orders' && (
         <OrdersSubpage
           orders={orders}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           role="ADMIN"
           formatPrice={formatPrice}
           updateOrderStatus={updateOrderStatus}
@@ -431,7 +450,7 @@ export const AdminPortal: React.FC = () => {
         <ProductsSubpage
           products={products}
           categories={categories}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           onOpenAddProduct={() => {
             setEditingProduct(null);
             setIsProductFormOpen(true);
@@ -450,7 +469,7 @@ export const AdminPortal: React.FC = () => {
         <RevenueSubpage
           orders={orders}
           customers={customers}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           formatPrice={formatPrice}
           showToast={showToast}
         />
@@ -459,7 +478,7 @@ export const AdminPortal: React.FC = () => {
       {activeTab === 'customers' && (
         <CustomersSubpage
           customers={customers}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           formatPrice={formatPrice}
           getCustomerOrderHistory={getCustomerOrderHistory}
           onSelectCustomer={(cust) => setSelectedCustomer(cust)}
@@ -487,7 +506,7 @@ export const AdminPortal: React.FC = () => {
       {activeTab === 'vouchers' && (
         <PromotionsSubpage
           promotions={promotions}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           onOpenAddVoucher={() => {
             setEditingVoucher(null);
             setIsAddVoucherOpen(true);
@@ -505,7 +524,7 @@ export const AdminPortal: React.FC = () => {
         <StoreConfigSubpage
           settings={settings}
           contactChannels={contactChannels}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           onSaveSettings={(s) => {
             updateSettings(s);
             showToast('Đã lưu cấu hình cửa hàng!', 'success');
@@ -525,7 +544,7 @@ export const AdminPortal: React.FC = () => {
 
       {activeTab === 'security' && (
         <SecuritySubpage
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           adminEmail={adminEmail}
           changeAdminCredentials={changeAdminCredentials}
           saveGmailConfig={saveGmailConfig}
@@ -536,7 +555,7 @@ export const AdminPortal: React.FC = () => {
 
       {activeTab === 'cms' && (
         <CmsLiveviewSubpage
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           heroConfig={heroConfig}
           categories={categories}
           promotions={promotions}
@@ -552,7 +571,7 @@ export const AdminPortal: React.FC = () => {
       {activeTab === 'marquee' && (
         <MarqueeSubpage
           marqueeAnnouncements={marqueeAnnouncements}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           addMarqueeItem={addMarqueeItem}
           updateMarqueeItem={updateMarqueeItem}
           toggleMarqueeItem={toggleMarqueeItem}

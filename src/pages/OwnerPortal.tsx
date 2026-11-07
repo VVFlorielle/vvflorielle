@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useStore } from '../context/StoreContext';
+import { restoreScrollPosition } from '../utils/scrollRestoration';
 import {
   Flower2,
   AlertCircle,
@@ -101,6 +102,24 @@ export const OwnerPortal: React.FC = () => {
     setActiveAdminTab: setActiveTab
   } = useStore();
 
+  // Scroll Restoration Reference (Phototiinlove battle-tested navigation)
+  const lastDashboardScrollYRef = useRef(0);
+
+  const navigateToTab = (tab: any) => {
+    if (activeTab === 'dashboard') {
+      lastDashboardScrollYRef.current = window.scrollY || document.documentElement.scrollTop || 0;
+    }
+    setActiveTab(tab);
+    if (tab !== 'dashboard') {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  };
+
+  const handleBackToDashboard = () => {
+    setActiveTab('dashboard');
+    restoreScrollPosition(lastDashboardScrollYRef.current);
+  };
+
   const [orderSearchForSubpage, setOrderSearchForSubpage] = useState('');
 
   // Modals state
@@ -156,7 +175,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: pendingDepositOrders.length > 0 ? 'amber' : 'emerald',
           actionType: 'page',
           actionLabel: 'Mở Xử Lý Đơn',
-          onClick: () => setActiveTab('orders')
+          onClick: () => navigateToTab('orders')
         },
         {
           id: 'owner-revenue',
@@ -168,7 +187,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: 'emerald',
           actionType: 'page',
           actionLabel: 'Xem Doanh Thu',
-          onClick: () => setActiveTab('revenue')
+          onClick: () => navigateToTab('revenue')
         },
         {
           id: 'owner-stock',
@@ -180,7 +199,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: 'rose',
           actionType: 'page',
           actionLabel: 'Mở Kho Hoa',
-          onClick: () => setActiveTab('products')
+          onClick: () => navigateToTab('products')
         }
       ]
     },
@@ -199,7 +218,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: 'purple',
           actionType: 'page',
           actionLabel: 'Tra Cứu Khách VIP',
-          onClick: () => setActiveTab('customers')
+          onClick: () => navigateToTab('customers')
         },
         {
           id: 'owner-vouchers',
@@ -211,7 +230,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: 'amber',
           actionType: 'page',
           actionLabel: 'Xem Mã Voucher',
-          onClick: () => setActiveTab('vouchers')
+          onClick: () => navigateToTab('vouchers')
         },
         {
           id: 'owner-quick-voucher',
@@ -246,7 +265,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: 'slate',
           actionType: 'page',
           actionLabel: 'Mở Cấu Hình Tiệm',
-          onClick: () => setActiveTab('settings')
+          onClick: () => navigateToTab('settings')
         },
         {
           id: 'owner-shipping',
@@ -270,7 +289,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: 'sky',
           actionType: 'page',
           actionLabel: 'Mở Kênh CSKH',
-          onClick: () => setActiveTab('channels')
+          onClick: () => navigateToTab('channels')
         },
         {
           id: 'owner-marquee',
@@ -282,7 +301,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: 'amber',
           actionType: 'page',
           actionLabel: 'Mở Bảng Tin Chạy',
-          onClick: () => setActiveTab('marquee')
+          onClick: () => navigateToTab('marquee')
         }
       ]
     },
@@ -301,7 +320,7 @@ export const OwnerPortal: React.FC = () => {
           badgeColor: 'purple',
           actionType: 'page',
           actionLabel: 'Mở CMS Giao Diện',
-          onClick: () => setActiveTab('cms')
+          onClick: () => navigateToTab('cms')
         },
         {
           id: 'owner-mascot',
@@ -350,7 +369,7 @@ export const OwnerPortal: React.FC = () => {
             subtext: pendingDepositOrders.length > 0 ? '⚡ Cần xác nhận bill cọc 50%' : 'Đã duyệt hết',
             icon: <AlertCircle className="w-4 h-4 text-amber-700" />,
             color: 'amber',
-            onClick: () => setActiveTab('orders')
+            onClick: () => navigateToTab('orders')
           },
           {
             id: 'arranging',
@@ -359,7 +378,7 @@ export const OwnerPortal: React.FC = () => {
             subtext: 'Florist đang hoàn thiện',
             icon: <Flower2 className="w-4 h-4 text-emerald-700" />,
             color: 'emerald',
-            onClick: () => setActiveTab('orders')
+            onClick: () => navigateToTab('orders')
           },
           {
             id: 'shipping',
@@ -368,7 +387,7 @@ export const OwnerPortal: React.FC = () => {
             subtext: 'Shipper đang trên đường',
             icon: <Truck className="w-4 h-4 text-sky-700" />,
             color: 'sky',
-            onClick: () => setActiveTab('orders')
+            onClick: () => navigateToTab('orders')
           },
           {
             id: 'revenue',
@@ -377,7 +396,7 @@ export const OwnerPortal: React.FC = () => {
             subtext: `${completedOrders.length} đơn hoàn thành`,
             icon: <TrendingUp className="w-4 h-4 text-purple-700" />,
             color: 'purple',
-            onClick: () => setActiveTab('revenue')
+            onClick: () => navigateToTab('revenue')
           }
         ]}
       />
@@ -387,10 +406,10 @@ export const OwnerPortal: React.FC = () => {
         <div className="space-y-8 animate-in fade-in duration-200">
           <ManagementRecentOrders
             orders={orders}
-            onViewAllOrders={() => setActiveTab('orders')}
+            onViewAllOrders={() => navigateToTab('orders')}
             onViewOrderDetail={(id) => {
               setOrderSearchForSubpage(id);
-              setActiveTab('orders');
+              navigateToTab('orders');
             }}
             onViewBill={(ord) => setViewingBillOrder(ord)}
             onApproveDeposit={(id) => {
@@ -423,7 +442,7 @@ export const OwnerPortal: React.FC = () => {
       {activeTab === 'orders' && (
         <OrdersSubpage
           orders={orders}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           role="OWNER"
           formatPrice={formatPrice}
           updateOrderStatus={updateOrderStatus}
@@ -439,7 +458,7 @@ export const OwnerPortal: React.FC = () => {
         <RevenueSubpage
           orders={orders}
           customers={customers}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           formatPrice={formatPrice}
           showToast={showToast}
         />
@@ -449,7 +468,7 @@ export const OwnerPortal: React.FC = () => {
         <ProductsSubpage
           products={products}
           categories={categories}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           onOpenAddProduct={() => {
             setEditingProduct(null);
             setIsProductFormOpen(true);
@@ -468,7 +487,7 @@ export const OwnerPortal: React.FC = () => {
       {activeTab === 'customers' && (
         <CustomersSubpage
           customers={customers}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           formatPrice={formatPrice}
           getCustomerOrderHistory={getCustomerOrderHistory}
           onSelectCustomer={(cust) => setSelectedCustomer(cust)}
@@ -497,7 +516,7 @@ export const OwnerPortal: React.FC = () => {
       {activeTab === 'vouchers' && (
         <PromotionsSubpage
           promotions={promotions}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           onOpenAddVoucher={() => {
             setEditingVoucher(null);
             setIsAddVoucherOpen(true);
@@ -516,7 +535,7 @@ export const OwnerPortal: React.FC = () => {
         <StoreConfigSubpage
           settings={settings}
           contactChannels={contactChannels}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           onSaveSettings={(s) => {
             updateSettings(s);
             showToast('Đã lưu cấu hình cửa hàng!', 'success');
@@ -536,7 +555,7 @@ export const OwnerPortal: React.FC = () => {
 
       {activeTab === 'security' && (
         <SecuritySubpage
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           adminEmail={adminEmail}
           changeAdminCredentials={changeAdminCredentials}
           saveGmailConfig={saveGmailConfig}
@@ -547,7 +566,7 @@ export const OwnerPortal: React.FC = () => {
 
       {activeTab === 'cms' && (
         <CmsLiveviewSubpage
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           heroConfig={heroConfig}
           categories={categories}
           promotions={promotions}
@@ -564,7 +583,7 @@ export const OwnerPortal: React.FC = () => {
       {activeTab === 'marquee' && (
         <MarqueeSubpage
           marqueeAnnouncements={marqueeAnnouncements}
-          onBackToDashboard={() => setActiveTab('dashboard')}
+          onBackToDashboard={handleBackToDashboard}
           addMarqueeItem={addMarqueeItem}
           updateMarqueeItem={updateMarqueeItem}
           toggleMarqueeItem={toggleMarqueeItem}

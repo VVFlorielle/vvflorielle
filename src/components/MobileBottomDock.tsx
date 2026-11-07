@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 import { CategoryId } from '../types';
+import { useBodyScrollLock } from '../utils/scrollLock';
 
 interface MobileBottomDockProps {
   onOpenCategories?: () => void;
@@ -61,6 +62,9 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
   // Mobile Drawer Sheets (when guest)
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [isUtilityMenuOpen, setIsUtilityMenuOpen] = useState(false);
+
+  // Lock background scroll when drawer is open
+  useBodyScrollLock(isCategorySheetOpen || isUtilityMenuOpen);
 
   // Scroll Hide / Reveal state (matching phototiinlove)
   const [hidden, setHidden] = useState(false);
@@ -345,12 +349,15 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
           DRAWER 1: MẪU HOA & DỊCH VỤ (MOBILE POPUP KHI BẤM NÚT DANH MỤC)
           ================================================================ */}
       {isCategorySheetOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+        <div className="fixed inset-0 z-[9995] flex flex-col justify-end md:hidden">
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 w-full h-[100dvh] bg-slate-950/70 backdrop-blur-md transition-opacity pointer-events-auto"
             onClick={() => setIsCategorySheetOpen(false)}
           />
-          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-28 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-3.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-28 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-3 max-h-[88vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+            {/* iOS/Android Style Drag Handle */}
+            <div className="w-12 h-1.5 rounded-full bg-slate-300 mx-auto -mt-1 mb-2 shrink-0" />
+
             <div className="relative flex items-center justify-center pb-2 border-b border-slate-100 text-center">
               <div className="flex items-center justify-center gap-2 mx-auto">
                 <Sparkles className="w-4 h-4 text-emerald-600" />
@@ -473,12 +480,15 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
           DRAWER 2: TIỆN ÍCH & TRA CỨU (GIỚI THIỆU, CẨM NANG, LIÊN HỆ, TRA CỨU, APP)
           ================================================================ */}
       {isUtilityMenuOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+        <div className="fixed inset-0 z-[9995] flex flex-col justify-end md:hidden">
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 w-full h-[100dvh] bg-slate-950/70 backdrop-blur-md transition-opacity pointer-events-auto"
             onClick={() => setIsUtilityMenuOpen(false)}
           />
-          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-28 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-2.5 max-h-[82vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-28 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-2.5 max-h-[88vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+            {/* iOS/Android Style Drag Handle */}
+            <div className="w-12 h-1.5 rounded-full bg-slate-300 mx-auto -mt-1 mb-2 shrink-0" />
+
             <div className="relative flex items-center justify-center pb-2 border-b border-slate-100 text-center">
               <div className="flex items-center justify-center gap-2 mx-auto">
                 <Compass className="w-4 h-4 text-emerald-600" />

@@ -27,6 +27,7 @@ import {
   BookmarkCheck
 } from 'lucide-react';
 import { PaymentType } from '../types';
+import { useBodyScrollLock } from '../utils/scrollLock';
 
 const DELIVERY_TIME_SLOTS = [
   '07:00 - 09:00 (Sáng sớm)',
@@ -54,6 +55,8 @@ export const CartDrawer: React.FC = () => {
     showToast,
     setCurrentView
   } = useStore();
+
+  useBodyScrollLock(isCartOpen);
 
   const [step, setStep] = useState<'cart' | 'checkout' | 'success'>('cart');
 

@@ -13,6 +13,7 @@ import {
   Sparkles,
   ImageOff
 } from 'lucide-react';
+import { useBodyScrollLock } from '../utils/scrollLock';
 
 const RIBBON_OPTIONS = [
   { name: 'Đỏ Ruby', hex: '#be123c' },
@@ -32,6 +33,7 @@ const QUICK_MESSAGES = [
 
 export const ProductDetailModal: React.FC = () => {
   const { selectedProduct, setSelectedProduct, addToCart, setIsCartOpen, products } = useStore();
+  useBodyScrollLock(Boolean(selectedProduct));
 
   const [quantity, setQuantity] = useState(1);
   const [selectedRibbon, setSelectedRibbon] = useState(RIBBON_OPTIONS[0].name);
@@ -58,7 +60,7 @@ export const ProductDetailModal: React.FC = () => {
   };
 
   return (
-    <div className="glass-overlay" onClick={() => setSelectedProduct(null)}>
+    <div className="glass-overlay z-[9995]" onClick={() => setSelectedProduct(null)}>
       <div
         className="glass-modal-content max-w-2xl lg:max-w-3xl relative"
         onClick={(e) => e.stopPropagation()}

@@ -210,6 +210,7 @@ interface StoreContextType {
   // Toasts
   toasts: ToastNotice[];
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
+  dismissToast: (id?: string) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -658,6 +659,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3200);
+  };
+
+  const dismissToast = (id?: string) => {
+    if (id) {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    } else {
+      setToasts([]);
+    }
   };
 
   // Notification Engine with Vietnamese Cute Voice
@@ -1857,7 +1866,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         authModalMode,
         setAuthModalMode,
         toasts,
-        showToast
+        showToast,
+        dismissToast
       }}
     >
       {children}

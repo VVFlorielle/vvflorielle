@@ -15,6 +15,7 @@ import {
   PromotionsModalContent,
   AppDownloadModalContent
 } from './popups/PromotionsAndAppModals';
+import { useBodyScrollLock } from '../utils/scrollLock';
 
 export type PopupType =
   | 'guarantee'
@@ -36,6 +37,7 @@ interface InfoPopupsProps {
 }
 
 export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) => {
+  useBodyScrollLock(Boolean(activePopup));
   if (!activePopup) return null;
 
   const isWideModal =
@@ -47,7 +49,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
 
   return (
     <div
-      className="glass-overlay z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
+      className="glass-overlay z-[9995] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div

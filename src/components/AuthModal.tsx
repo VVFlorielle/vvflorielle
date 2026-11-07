@@ -16,6 +16,7 @@ import {
   UserPlus,
   KeyRound
 } from 'lucide-react';
+import { useBodyScrollLock } from '../utils/scrollLock';
 
 export const AuthModal: React.FC = () => {
   const {
@@ -32,6 +33,8 @@ export const AuthModal: React.FC = () => {
     setCurrentView,
     showToast
   } = useStore();
+
+  useBodyScrollLock(isAuthModalOpen);
 
   // Logo secret trigger for Admin
   const [logoClicks, setLogoClicks] = useState(0);
@@ -227,7 +230,7 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="glass-overlay" onClick={() => setIsAuthModalOpen(false)}>
+    <div className="glass-overlay z-[9995]" onClick={() => setIsAuthModalOpen(false)}>
       <div
         className="glass-modal-content max-w-sm sm:max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}

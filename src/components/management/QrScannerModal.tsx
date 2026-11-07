@@ -14,6 +14,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { Order } from '../../types';
+import { useBodyScrollLock } from '../../utils/scrollLock';
 
 interface QrScannerModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
   onCompleteOrder,
   formatPrice = (p) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
 }) => {
+  useBodyScrollLock(isOpen);
   const [activeTab, setActiveTab] = useState<'scan' | 'quick_list'>('scan');
   const [manualInput, setManualInput] = useState('');
   const [scannedOrder, setScannedOrder] = useState<Order | null>(null);
@@ -79,7 +81,7 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
     : 0;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-md animate-in fade-in duration-200 select-none">
+    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200 select-none">
       <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/60 p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
         {/* Close Button */}
         <button

@@ -23,6 +23,8 @@ import { FloatingCartWidget } from './components/FloatingCartWidget';
 import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { MascotAssistant } from './components/MascotAssistant';
 import { InfoPopups, PopupType } from './components/InfoPopups';
+import { GlobalInAppToast } from './components/GlobalInAppToast';
+import { useBodyScrollLock } from './utils/scrollLock';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 export const AppContent: React.FC = () => {
@@ -35,10 +37,23 @@ export const AppContent: React.FC = () => {
     setActiveAdminTab,
     orders,
     products,
-    completeOrder
+    completeOrder,
+    selectedProduct,
+    isCartOpen,
+    isAuthModalOpen
   } = useStore();
   const [activePopup, setActivePopup] = useState<PopupType>(null);
   const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
+
+  // Lock body scroll whenever any global modal is open
+  const isAnyModalOpen = Boolean(
+    selectedProduct ||
+    isCartOpen ||
+    isAuthModalOpen ||
+    activePopup ||
+    isQrScannerOpen
+  );
+  useBodyScrollLock(isAnyModalOpen);
 
   const pendingDepositOrdersCount = orders.filter((o) => !o.isDepositPaid && o.status !== 'CANCELLED').length;
 
@@ -93,7 +108,9 @@ export const AppContent: React.FC = () => {
           onNavigateTab={(tab) => setActiveAdminTab(tab)}
         />
       ) : (
-        <div className="fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5">
+        <div className={`fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5 transition-all duration-200 ${
+          isAnyModalOpen ? 'opacity-0 pointer-events-none -translate-y-2' : 'opacity-100'
+        }`}>
           <div className="pointer-events-auto relative z-20">
             <Header isScrolled={isHeaderScrolled} onOpenPopup={(type) => setActivePopup(type)} />
           </div>
@@ -164,17 +181,8 @@ export const AppContent: React.FC = () => {
       {/* Global Scroll-to-top Floating Button (Storefront & Management) */}
       <ScrollToTopButton />
 
-      {/* Global Toast Notifications */}
-      <div className="toast-container">
-        {toasts.map((toast) => (
-          <div key={toast.id} className={`toast-item ${toast.type}`}>
-            {toast.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />}
-            {toast.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-300 shrink-0" />}
-            {toast.type === 'info' && <Info className="w-4 h-4 text-sky-300 shrink-0" />}
-            <span>{toast.message}</span>
-          </div>
-        ))}
-      </div>
+      {/* Global In-App Center Toast & Alert Notification (Fixed Center, Frosted Glass Backdrop) */}
+      <GlobalInAppToast />
     </div>
   );
 };
