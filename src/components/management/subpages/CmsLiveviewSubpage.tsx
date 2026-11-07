@@ -52,10 +52,11 @@ export function CmsPreviewTarget({
   const isSelected = editor.selected === target;
   return (
     <div
+      data-cms-target={target}
       className={`group/target relative cursor-pointer transition-all duration-200 rounded-xl ${
         isSelected
           ? 'ring-2 ring-emerald-600 bg-emerald-500/10 shadow-lg shadow-emerald-500/10'
-          : 'hover:ring-2 hover:ring-dashed hover:ring-emerald-400 hover:bg-emerald-50/20'
+          : 'hover:ring-2 hover:ring-dashed hover:ring-emerald-400 hover:bg-emerald-50/20 active:ring-2 active:ring-emerald-500'
       } ${className}`}
       onClick={(e) => {
         e.preventDefault();
@@ -73,13 +74,13 @@ export function CmsPreviewTarget({
     >
       {children}
       <span
-        className={`absolute top-2 right-2 px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide transition-all z-20 pointer-events-none shadow-sm flex items-center gap-1 ${
+        className={`absolute top-2 right-2 max-w-[calc(100%-1rem)] px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold tracking-wide transition-all z-20 pointer-events-none shadow-sm flex items-center gap-1 truncate ${
           isSelected
-            ? 'bg-emerald-700 text-white opacity-100 scale-100'
-            : 'bg-slate-900/80 text-white backdrop-blur-xs opacity-0 group-hover/target:opacity-100 scale-95 group-hover/target:scale-100'
+            ? 'bg-emerald-700 text-white opacity-100 scale-100 ring-2 ring-white/80'
+            : 'bg-slate-900/85 text-white backdrop-blur-xs opacity-0 group-hover/target:opacity-100 scale-95 group-hover/target:scale-100'
         }`}
       >
-        <span>✎</span> {label}
+        <span className="shrink-0">✎</span> <span className="truncate">{label}</span>
       </span>
     </div>
   );
@@ -135,14 +136,13 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
   const [desktopWorkspaceOpen, setDesktopWorkspaceOpen] = useState(false);
   const [workspaceItem, setWorkspaceItem] = useState<string>('hero');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
-  const [mobileInspectorOpen, setMobileInspectorOpen] = useState(false);
-  const [mobileActiveView, setMobileActiveView] = useState<'preview' | 'inspector'>('preview');
+  const [mobileActiveView, setMobileActiveView] = useState<'preview' | 'editor' | 'tree'>('preview');
 
   // Discard Confirmation Modal State (No window.confirm)
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   // Lock body scroll when workspace or modals are active
-  useBodyScrollLock(desktopWorkspaceOpen || showDiscardConfirm || mobileInspectorOpen);
+  useBodyScrollLock(desktopWorkspaceOpen || showDiscardConfirm);
 
   // Draft States
   const [draftHero, setDraftHero] = useState<HeroBannerConfig>(heroConfig);
@@ -366,9 +366,11 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
     selected: workspaceItem,
     select: (target: string) => {
       setWorkspaceItem(target);
-      // On mobile screens, automatically open the inspector drawer when a section is clicked
+      // On mobile viewports (< 1024px), switch to editor tab smoothly with feedback
       if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-        setMobileInspectorOpen(true);
+        setMobileActiveView('editor');
+        const targetLabel = currentTree.find((t) => t.id === target)?.label || target;
+        showToast(`Đang chỉnh sửa: ${targetLabel}`, 'info');
       }
     }
   };
@@ -1443,54 +1445,76 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
               </div>
             </div>
 
-            {/* Mobile-Only Horizontal Component Chips (Chuẩn Phototiinlove) */}
-            <div className="lg:hidden overflow-x-auto flex items-center gap-1.5 p-2 bg-slate-50 border-b border-slate-200 no-scrollbar shrink-0">
-              {currentTree.map((item) => {
-                const isSelected = workspaceItem === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setWorkspaceItem(item.id);
-                      setMobileInspectorOpen(true);
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span>{item.icon}</span>
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
+            {/* Mobile 3-View Segmented Control Bar (Chuẩn Phototiinlove Mobile) */}
+            <div className="lg:hidden p-1.5 bg-slate-100 border-b border-slate-200 shrink-0 select-none">
+              <div className="grid grid-cols-3 gap-1 bg-slate-200/90 p-0.5 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setMobileActiveView('preview')}
+                  className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                    mobileActiveView === 'preview'
+                      ? 'bg-white text-emerald-800 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Eye className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Xem Trước</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileActiveView('editor')}
+                  className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                    mobileActiveView === 'editor'
+                      ? 'bg-white text-emerald-800 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Pencil className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Chỉnh Sửa</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileActiveView('tree')}
+                  className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                    mobileActiveView === 'tree'
+                      ? 'bg-white text-emerald-800 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Các Khối ({currentTree.length})</span>
+                </button>
+              </div>
             </div>
 
-            {/* Workspace Content Grid */}
+            {/* Workspace Content Area: 3-column on Desktop (lg:flex), Single View on Mobile based on mobileActiveView */}
             <div className="flex-1 flex overflow-hidden relative">
               {/* ========================================================
-                  COLUMN 1: COMPONENT TREE (Desktop Only ~ 260px)
+                  COLUMN 1: COMPONENT TREE
+                  (Desktop: Left sidebar ~ 260px | Mobile: View 'tree')
                  ======================================================== */}
-              <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200 flex-col shrink-0 overflow-y-auto">
+              <aside
+                className={`w-full lg:w-64 bg-white border-r border-slate-200 flex-col shrink-0 overflow-y-auto ${
+                  mobileActiveView === 'tree' ? 'flex' : 'hidden lg:flex'
+                }`}
+              >
                 <div className="p-3 border-b border-slate-100 bg-slate-50/70">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    THÀNH PHẦN TRANG
+                    THÀNH PHẦN TRANG ({currentTree.length})
                   </span>
-                  <p className="text-[11px] text-slate-400">Bấm mắt để ẩn/hiện trên web</p>
+                  <p className="text-[11px] text-slate-400">Bấm mắt để ẩn/hiện, bấm tên để chỉnh sửa</p>
                 </div>
-                <div className="p-2 space-y-1">
+                <div className="p-2 space-y-1.5 flex-1">
                   {currentTree.map((item) => {
                     const isSelected = workspaceItem === item.id;
                     const isVisible = sectionsVisibility[item.id] !== false;
                     return (
                       <div
                         key={item.id}
-                        className={`flex items-center gap-1.5 p-1.5 rounded-xl text-xs font-medium transition-all ${
+                        className={`flex items-center gap-2 p-2 rounded-xl text-xs font-medium transition-all ${
                           isSelected
-                            ? 'bg-emerald-50 text-emerald-900 font-bold border border-emerald-200 shadow-xs'
-                            : 'hover:bg-slate-100 text-slate-700'
+                            ? 'bg-emerald-50 text-emerald-950 font-bold border border-emerald-300 shadow-xs'
+                            : 'hover:bg-slate-100 text-slate-700 border border-transparent'
                         }`}
                       >
                         <button
@@ -1499,8 +1523,10 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                             e.stopPropagation();
                             toggleSection(item.id);
                           }}
-                          className={`p-1 rounded-lg transition-colors cursor-pointer ${
-                            isVisible ? 'text-emerald-700 hover:bg-emerald-100' : 'text-slate-300 hover:bg-slate-200'
+                          className={`p-1.5 rounded-lg transition-colors cursor-pointer shrink-0 ${
+                            isVisible
+                              ? 'text-emerald-700 bg-emerald-100/70 hover:bg-emerald-200/70'
+                              : 'text-slate-400 bg-slate-100 hover:bg-slate-200'
                           }`}
                           title={isVisible ? 'Đang hiển thị - Bấm để ẩn' : 'Đang ẩn - Bấm để hiển thị'}
                         >
@@ -1509,11 +1535,19 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
 
                         <button
                           type="button"
-                          onClick={() => setWorkspaceItem(item.id)}
-                          className="flex-1 text-left flex items-center gap-2 py-1 truncate cursor-pointer"
+                          onClick={() => {
+                            setWorkspaceItem(item.id);
+                            if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                              setMobileActiveView('editor');
+                            }
+                          }}
+                          className="flex-1 text-left flex items-center justify-between min-w-0 py-1 truncate cursor-pointer"
                         >
-                          <span className="text-sm shrink-0">{item.icon}</span>
-                          <span className="truncate">{item.label}</span>
+                          <div className="flex items-center gap-2 truncate">
+                            <span className="text-sm shrink-0">{item.icon}</span>
+                            <span className="truncate">{item.label}</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 lg:hidden" />
                         </button>
                       </div>
                     );
@@ -1522,9 +1556,14 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
               </aside>
 
               {/* ========================================================
-                  COLUMN 2: PREVIEW CANVAS (Full-width on Mobile, Flex 1 on Desktop)
+                  COLUMN 2: PREVIEW CANVAS
+                  (Desktop: Middle column | Mobile: View 'preview')
                  ======================================================== */}
-              <main className="flex-1 bg-slate-100 overflow-y-auto p-2 sm:p-4 md:p-6 flex flex-col items-center relative w-full">
+              <main
+                className={`flex-1 bg-slate-100 overflow-y-auto p-2 sm:p-4 md:p-6 flex-col items-center relative w-full ${
+                  mobileActiveView === 'preview' ? 'flex' : 'hidden lg:flex'
+                }`}
+              >
                 {/* Visual Guide Hint (Desktop) */}
                 <div className="w-full max-w-4xl mb-3 hidden sm:flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-xs text-slate-600 shadow-xs">
                   <span className="flex items-center gap-1.5">
@@ -1534,43 +1573,66 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                   <span className="text-[11px] text-slate-400">Chuẩn Phototiinlove</span>
                 </div>
 
-                {/* Viewport Frame */}
+                {/* Mobile Guide Banner (Mobile Only) */}
+                <div className="lg:hidden w-full mb-2.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 font-medium flex items-center justify-between shadow-2xs">
+                  <span className="flex items-center gap-1 truncate">
+                    <span className="font-bold text-emerald-700">💡 Chạm khối:</span>
+                    <span className="truncate">Chạm vào bất kỳ khối nào dưới đây để sửa</span>
+                  </span>
+                  <span className="text-[10px] text-emerald-700 font-bold shrink-0 ml-1">Live Sync</span>
+                </div>
+
+                {/* Viewport Frame (No fake chassis on mobile, full width touch canvas) */}
                 <div
                   className={`w-full transition-all duration-200 ${
                     previewDevice === 'mobile'
-                      ? 'max-w-[420px] bg-white rounded-3xl p-3 sm:p-4 shadow-xl border-2 sm:border-4 border-slate-800 min-h-[700px]'
+                      ? 'lg:max-w-[420px] lg:border-4 lg:border-slate-800 lg:rounded-3xl lg:shadow-xl lg:min-h-[700px] bg-white rounded-xl p-2.5 sm:p-4 shadow-xs border border-slate-200'
                       : 'max-w-4xl bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200'
                   }`}
                 >
                   {previewDevice === 'mobile' && (
-                    <div className="w-24 h-4 bg-slate-800 rounded-full mx-auto mb-4 hidden sm:block" />
+                    <div className="w-24 h-4 bg-slate-800 rounded-full mx-auto mb-4 hidden lg:block" />
                   )}
                   {renderCanvasPreview()}
                 </div>
 
-                {/* Mobile Floating Trigger Pill to open Inspector (Chuẩn Phototiinlove Mobile) */}
-                <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+                {/* Mobile Floating Bottom Action Bar (Mobile Only) */}
+                <div className="lg:hidden sticky bottom-2 w-full mt-4 z-20 pointer-events-auto flex items-center gap-2 px-1">
                   <button
                     type="button"
-                    onClick={() => setMobileInspectorOpen(true)}
-                    className="px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-2xl flex items-center gap-2 border border-white/40 active:scale-95 transition-all cursor-pointer"
+                    onClick={() => setMobileActiveView('editor')}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-1.5 border border-white/30 cursor-pointer"
                   >
-                    <Pencil className="w-3.5 h-3.5" />
-                    <span>Sửa: {currentTree.find((t) => t.id === workspaceItem)?.label || 'Khối này'}</span>
+                    <Pencil className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">Sửa: {currentTree.find((t) => t.id === workspaceItem)?.label || 'Khối này'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveAndApply}
+                    className="py-2.5 px-4 rounded-xl bg-slate-900 active:bg-slate-800 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-1.5 border border-white/20 shrink-0 cursor-pointer"
+                  >
+                    <Save className="w-3.5 h-3.5 shrink-0" />
+                    <span>Lưu Web</span>
                   </button>
                 </div>
               </main>
 
               {/* ========================================================
-                  COLUMN 3: INSPECTOR PANEL (Desktop Only ~ 340-380px)
+                  COLUMN 3: INSPECTOR / EDITOR PANEL
+                  (Desktop: Right sidebar ~ 380px | Mobile: View 'editor')
                  ======================================================== */}
-              <aside className="hidden lg:flex w-80 sm:w-96 bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto">
-                <div className="p-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+              <aside
+                className={`w-full lg:w-80 xl:w-96 bg-white border-l border-slate-200 flex-col shrink-0 overflow-y-auto ${
+                  mobileActiveView === 'editor' ? 'flex' : 'hidden lg:flex'
+                }`}
+              >
+                {/* Header (Desktop) */}
+                <div className="hidden lg:flex p-3.5 border-b border-slate-100 bg-slate-50/70 items-center justify-between shrink-0">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
                       BẢNG CHỈNH SỬA CHI TIẾT
                     </span>
-                    <h4 className="text-xs font-bold text-slate-800">
+                    <h4 className="text-xs font-bold text-slate-800 truncate">
                       {currentTree.find((t) => t.id === workspaceItem)?.label || 'Thành Phần Đang Chọn'}
                     </h4>
                   </div>
@@ -1579,9 +1641,53 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                   </span>
                 </div>
 
-                <div className="p-4 flex-1">{renderInspector()}</div>
+                {/* Mobile Section Selector + Eye Toggle (Mobile Only) */}
+                <div className="lg:hidden p-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2 shrink-0">
+                  <div className="flex-1 min-w-0">
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">
+                      Khối đang sửa:
+                    </label>
+                    <select
+                      value={workspaceItem}
+                      onChange={(e) => setWorkspaceItem(e.target.value)}
+                      className="w-full text-xs font-bold text-slate-800 bg-white border border-slate-300 rounded-lg px-2 py-1.5 focus:outline-emerald-600"
+                    >
+                      {currentTree.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.icon} {item.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(workspaceItem)}
+                    className={`p-2 rounded-xl border flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer ${
+                      sectionsVisibility[workspaceItem] !== false
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        : 'bg-rose-50 text-rose-800 border-rose-200'
+                    }`}
+                    title="Ẩn/hiện khối này trên web"
+                  >
+                    {sectionsVisibility[workspaceItem] !== false ? (
+                      <>
+                        <Eye className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span className="text-[11px] hidden min-[375px]:inline">Hiện</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="w-4 h-4 text-rose-600 shrink-0" />
+                        <span className="text-[11px] hidden min-[375px]:inline">Ẩn</span>
+                      </>
+                    )}
+                  </button>
+                </div>
 
-                <div className="p-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-2">
+                {/* Scrollable Form Body */}
+                <div className="p-3 sm:p-4 flex-1 overflow-y-auto">{renderInspector()}</div>
+
+                {/* Desktop Actions Footer */}
+                <div className="hidden lg:flex p-3.5 border-t border-slate-100 bg-slate-50 items-center justify-between gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => {
@@ -1603,78 +1709,28 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                     Áp Dụng Thay Đổi
                   </button>
                 </div>
+
+                {/* Mobile Actions Footer (Mobile Only) */}
+                <div className="lg:hidden p-2.5 sm:p-3 bg-slate-50 border-t border-slate-200 flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setMobileActiveView('preview')}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Eye className="w-4 h-4 shrink-0" />
+                    <span>Xem Thử</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveAndApply}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Save className="w-4 h-4 shrink-0" />
+                    <span>Lưu & Áp Dụng</span>
+                  </button>
+                </div>
               </aside>
             </div>
-
-            {/* ========================================================
-                MOBILE BOTTOM SHEET INSPECTOR DRAWER (CHUẨN PHOTOTIINLOVE)
-               ======================================================== */}
-            {mobileInspectorOpen && (
-              <div className="lg:hidden fixed inset-0 z-[9995] flex flex-col justify-end">
-                <div
-                  className="fixed inset-0 w-full h-[100dvh] bg-slate-950/70 backdrop-blur-md transition-opacity pointer-events-auto"
-                  onClick={() => setMobileInspectorOpen(false)}
-                />
-                <aside className="relative z-10 w-full max-w-lg mx-auto bg-white rounded-t-[32px] shadow-2xl border-t border-slate-200 flex flex-col max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom duration-200">
-                  {/* Top Drag Handle */}
-                  <div className="w-12 h-1.5 rounded-full bg-slate-300 mx-auto mt-2.5 mb-1.5 shrink-0" />
-
-                  <div className="p-3.5 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between shrink-0">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
-                        BẢNG CHỈNH SỬA CHI TIẾT
-                      </span>
-                      <h4 className="text-xs font-bold text-slate-800">
-                        {currentTree.find((t) => t.id === workspaceItem)?.label || 'Thành Phần'}
-                      </h4>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                        Live Sync
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setMobileInspectorOpen(false)}
-                        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                        title="Đóng bảng chỉnh sửa"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Scrollable Form Body */}
-                  <div className="p-4 flex-1 overflow-y-auto">{renderInspector()}</div>
-
-                  {/* Mobile Drawer Actions */}
-                  <div className="p-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-2 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDraftHero(heroConfig);
-                        setDraftCategories(categories);
-                        setDraftPromotions(promotions);
-                        setDraftArticles(articles);
-                        showToast('Đã khôi phục dữ liệu ban đầu!', 'info');
-                      }}
-                      className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer"
-                    >
-                      Khôi phục
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleSaveAndApply();
-                        setMobileInspectorOpen(false);
-                      }}
-                      className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
-                    >
-                      Áp Dụng Thay Đổi
-                    </button>
-                  </div>
-                </aside>
-              </div>
-            )}
           </div>
         </div>
       )}

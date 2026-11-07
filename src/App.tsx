@@ -158,8 +158,8 @@ export const AppContent: React.FC = () => {
       <AuthModal />
       <InfoPopups activePopup={activePopup} onClose={() => setActivePopup(null)} />
 
-      {/* Management Bottom Dock (Always visible on Desktop & Mobile when logged in as Admin/Owner, even outside on Storefront) */}
-      {isAdmin && (
+      {/* Management Bottom Dock (Visible on Desktop & Mobile when logged in as Admin/Owner, automatically hidden during CMS visual editing to prevent blocking editor actions) */}
+      {isAdmin && activeAdminTab !== 'cms' && (
         <ManagementBottomDock
           role={activeAdminUser === 'admin' ? 'admin' : 'owner'}
           activeTab={activeAdminTab}
