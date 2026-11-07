@@ -126,7 +126,7 @@ export const AdminPortal: React.FC = () => {
   const [isBulkDiscountOpen, setIsBulkDiscountOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerUser | null>(null);
   const [adjustingCustomer, setAdjustingCustomer] = useState<CustomerUser | null>(null);
-  const [editingCustomer, setEditingCustomer] = useState<CustomerUser | null>(null);
+  const [customerForEditForm, setCustomerForEditForm] = useState<CustomerUser | null>(null);
   const [isCustomerFormOpen, setIsCustomerFormOpen] = useState(false);
 
   const formatPrice = (amount: number) => {
@@ -469,15 +469,15 @@ export const AdminPortal: React.FC = () => {
             setTempPassModal({ customerName: cust.fullName, pass });
           }}
           onEditNotes={(cust) => {
-            setEditingCustomer(cust);
+            setCustomerForEditForm(cust);
             setIsCustomerFormOpen(true);
           }}
           onEditCustomer={(cust) => {
-            setEditingCustomer(cust);
+            setCustomerForEditForm(cust);
             setIsCustomerFormOpen(true);
           }}
           onOpenAddCustomer={() => {
-            setEditingCustomer(null);
+            setCustomerForEditForm(null);
             setIsCustomerFormOpen(true);
           }}
           onDeleteCustomer={(id) => deleteCustomerByAdmin(id)}
@@ -692,16 +692,16 @@ export const AdminPortal: React.FC = () => {
         isOpen={isCustomerFormOpen}
         onClose={() => {
           setIsCustomerFormOpen(false);
-          setEditingCustomer(null);
+          setCustomerForEditForm(null);
         }}
-        customerToEdit={editingCustomer}
+        customerToEdit={customerForEditForm}
         onSave={(data) => {
-          if (editingCustomer) {
-            updateCustomerByAdmin(editingCustomer.id, data);
-            showToast(`Đã cập nhật thông tin khách hàng ${data.fullName}!`, 'success');
+          if (customerForEditForm) {
+            updateCustomerByAdmin(customerForEditForm.id, data);
+            showToast(`Đã cập nhật thông tin khách hàng ${data.fullName || ''}!`, 'success');
           } else {
             addCustomerByAdmin(data);
-            showToast(`Đã thêm khách hàng mới ${data.fullName}!`, 'success');
+            showToast(`Đã thêm khách hàng mới ${data.fullName || ''}!`, 'success');
           }
         }}
         showToast={showToast}
@@ -720,15 +720,6 @@ export const AdminPortal: React.FC = () => {
         onConfirm={(id, delta, reason) => {
           adjustCustomerPoints(id, delta, reason);
           showToast(`Đã điều chỉnh điểm cho khách hàng!`, 'success');
-        }}
-      />
-
-      <EditCustomerNotesModal
-        customer={editingCustomer}
-        onClose={() => setEditingCustomer(null)}
-        onSave={(id, favFlowers, notes) => {
-          updateCustomerByAdmin(id, { favoriteFlowers: favFlowers, notes });
-          showToast('Đã lưu ghi chú khách hàng!', 'success');
         }}
       />
     </div>

@@ -9,9 +9,14 @@ import {
   Users,
   Gift,
   ShieldCheck,
-  TrendingUp
+  TrendingUp,
+  Settings,
+  Share2,
+  Megaphone,
+  LayoutTemplate,
+  KeyRound
 } from 'lucide-react';
-import { CustomerUser, Order, FlowerProduct, PromotionItem } from '../types';
+import { CustomerUser, Order, FlowerProduct, PromotionItem, ContactChannel } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
 import { ManagementFunctionalGrid, ManagementActionGroup } from '../components/management/ManagementFunctionalGrid';
 import { ManagementRecentOrders } from '../components/management/ManagementRecentOrders';
@@ -19,17 +24,18 @@ import { ManagementBottomDock } from '../components/management/ManagementBottomD
 import { AdminLoginForm } from '../components/management/AdminLoginForm';
 import {
   SecurityModal,
+  ShippingConfigModal,
   QuickVoucherModal,
+  MascotSelectorModal,
   BillPreviewModal,
   EditShippingFeeModal,
   TempPasswordModal,
+  AddContactChannelModal,
   AddVoucherModal,
   ProductFormModal,
   BulkDiscountModal,
-  AddProductModal,
   CustomerDetailModal,
   AdjustPointsModal,
-  EditCustomerNotesModal,
   CustomerFormModal
 } from '../components/management/ManagementModals';
 
@@ -39,6 +45,10 @@ import { ProductsSubpage } from '../components/management/subpages/ProductsSubpa
 import { CustomersSubpage } from '../components/management/subpages/CustomersSubpage';
 import { PromotionsSubpage } from '../components/management/subpages/PromotionsSubpage';
 import { RevenueSubpage } from '../components/management/subpages/RevenueSubpage';
+import { StoreConfigSubpage } from '../components/management/subpages/StoreConfigSubpage';
+import { SecuritySubpage } from '../components/management/subpages/SecuritySubpage';
+import { CmsLiveviewSubpage } from '../components/management/subpages/CmsLiveviewSubpage';
+import { MarqueeSubpage } from '../components/management/subpages/MarqueeSubpage';
 
 export const OwnerPortal: React.FC = () => {
   const {
@@ -64,6 +74,24 @@ export const OwnerPortal: React.FC = () => {
     changeAdminCredentials,
     adminEmail,
     saveGmailConfig,
+    requestPinResetOtp,
+    contactChannels,
+    toggleContactChannel,
+    deleteContactChannel,
+    addContactChannel,
+    updateContactChannel,
+    marqueeAnnouncements,
+    addMarqueeItem,
+    updateMarqueeItem,
+    toggleMarqueeItem,
+    deleteMarqueeItem,
+    heroConfig,
+    updateHeroConfig,
+    updateCategories,
+    updateArticles,
+    articles,
+    settings,
+    updateSettings,
     updateCustomerByAdmin,
     deleteCustomerByAdmin,
     adjustCustomerPoints,
@@ -77,10 +105,14 @@ export const OwnerPortal: React.FC = () => {
 
   // Modals state
   const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showShippingModal, setShowShippingModal] = useState(false);
   const [showQuickVoucherModal, setShowQuickVoucherModal] = useState(false);
+  const [showMascotModal, setShowMascotModal] = useState(false);
   const [viewingBillOrder, setViewingBillOrder] = useState<Order | null>(null);
   const [editShippingOrder, setEditShippingOrder] = useState<{ id: string; fee: number } | null>(null);
   const [tempPassModal, setTempPassModal] = useState<{ customerName: string; pass: string } | null>(null);
+  const [isAddingChannel, setIsAddingChannel] = useState(false);
+  const [editingChannel, setEditingChannel] = useState<ContactChannel | null>(null);
   const [isAddVoucherOpen, setIsAddVoucherOpen] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<PromotionItem | null>(null);
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
@@ -88,7 +120,7 @@ export const OwnerPortal: React.FC = () => {
   const [isBulkDiscountOpen, setIsBulkDiscountOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerUser | null>(null);
   const [adjustingCustomer, setAdjustingCustomer] = useState<CustomerUser | null>(null);
-  const [editingCustomer, setEditingCustomer] = useState<CustomerUser | null>(null);
+  const [customerForEditForm, setCustomerForEditForm] = useState<CustomerUser | null>(null);
   const [isCustomerFormOpen, setIsCustomerFormOpen] = useState(false);
 
   // Helper formatting
@@ -107,10 +139,10 @@ export const OwnerPortal: React.FC = () => {
     return orders.filter((o) => o.senderPhone === custPhone || o.recipientPhone === custPhone);
   };
 
-  // Action groups for Owner Functional Grid (phototiinlove style)
-  const ownerActionGroups: ManagementActionGroup[] = [
+  // KHUNG 1: VẬN HÀNH TIỆM HOA & NGHIỆP VỤ CỐT LÕI (6 chức năng)
+  const floristCoreGroups: ManagementActionGroup[] = [
     {
-      groupTitle: '1. Vận Hành Tiệm Hoa & Kiểm Soát Cốt Lõi',
+      groupTitle: '1. Vận Hành Đơn Hàng & Doanh Thu Thực Tế',
       groupIcon: <Flower2 className="w-4 h-4 text-emerald-700" />,
       badge: 'Nghiệp Vụ Hằng Ngày',
       items: [
@@ -194,22 +226,105 @@ export const OwnerPortal: React.FC = () => {
           onClick: () => setShowQuickVoucherModal(true)
         }
       ]
-    },
+    }
+  ];
+
+  // KHUNG 2: QUẢN TRỊ HỆ THỐNG & GIAO DIỆN WEBSITE (7 chức năng)
+  const webSystemGroups: ManagementActionGroup[] = [
     {
-      groupTitle: '3. Tài Khoản & Bảo Mật Chủ Quán',
-      groupIcon: <ShieldCheck className="w-4 h-4 text-slate-700" />,
-      badge: 'Bảo Mật',
+      groupTitle: '3. Cấu Hình Cửa Hàng, Bảng Cước & Kênh CSKH',
+      groupIcon: <Settings className="w-4 h-4 text-slate-700" />,
+      badge: 'Vận Hành Tiệm',
       items: [
         {
-          id: 'owner-security-modal',
-          title: 'Đổi Mật Khẩu & Quản Lý PIN Chủ Tiệm',
-          description: 'Bật popup cập nhật mật khẩu đăng nhập chủ quán và mã PIN thao tác bảo mật.',
-          icon: <ShieldCheck className="w-5 h-5" />,
+          id: 'owner-settings',
+          title: 'Cấu Hình Tiệm Hoa, Địa Chỉ & Bản Đồ',
+          description: 'Thiết lập tên tiệm, địa chỉ showroom, giờ mở cửa 06:30 - 21:30, số hotline chính và bán kính tối đa.',
+          icon: <Settings className="w-5 h-5" />,
           iconBgColor: 'bg-slate-100 text-slate-700 border border-slate-200',
-          badge: 'Chủ Quán',
+          badge: 'Cửa Hàng',
+          badgeColor: 'slate',
+          actionType: 'page',
+          actionLabel: 'Mở Cấu Hình Tiệm',
+          onClick: () => setActiveTab('settings')
+        },
+        {
+          id: 'owner-shipping',
+          title: 'Cấu Hình Bảng Cước 4 Bậc & Freeship',
+          description: 'Bật popup chỉnh cước 4 bậc km (0-3km, 3-8km, 8-15km, 15-25km), ngưỡng freeship và cam kết hỏa tốc.',
+          icon: <Truck className="w-5 h-5" />,
+          iconBgColor: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+          badge: 'Hỏa Tốc 15p - 60p',
+          badgeColor: 'emerald',
+          actionType: 'modal',
+          actionLabel: 'Mở Popup Cước Phí',
+          onClick: () => setShowShippingModal(true)
+        },
+        {
+          id: 'owner-channels',
+          title: 'Kênh Liên Hệ Hotline, Zalo & Messenger',
+          description: 'Quản lý các nút gọi điện, chat Zalo, Messenger, chỉ đường Google Maps hiển thị cho khách hàng.',
+          icon: <Share2 className="w-5 h-5" />,
+          iconBgColor: 'bg-sky-100 text-sky-700 border border-sky-200',
+          badge: `${contactChannels.length} Kênh`,
+          badgeColor: 'sky',
+          actionType: 'page',
+          actionLabel: 'Mở Kênh CSKH',
+          onClick: () => setActiveTab('channels')
+        },
+        {
+          id: 'owner-marquee',
+          title: 'Bảng Tin Chạy Chữ Khuyến Mãi Đỉnh Trang',
+          description: 'Soạn thảo, bật/tắt các dòng thông báo khuyến mãi, cam kết hoa tươi chạy mượt trên đỉnh website.',
+          icon: <Megaphone className="w-5 h-5" />,
+          iconBgColor: 'bg-amber-100 text-amber-700 border border-amber-200',
+          badge: `${marqueeAnnouncements.length} Tin`,
+          badgeColor: 'amber',
+          actionType: 'page',
+          actionLabel: 'Mở Bảng Tin Chạy',
+          onClick: () => setActiveTab('marquee')
+        }
+      ]
+    },
+    {
+      groupTitle: '4. Giao Diện Website CMS & Mascot Linh Vật Tiệm',
+      groupIcon: <LayoutTemplate className="w-4 h-4 text-purple-700" />,
+      badge: 'Thương Hiệu & CMS',
+      items: [
+        {
+          id: 'owner-cms',
+          title: 'Trình Quản Lý Giao Diện Website (CMS Chuẩn Phototiinlove)',
+          description: 'Chọn khu vực muốn chỉnh sửa, nhấp trực tiếp trên preview để chọn thành phần và cập nhật nội dung tức thì.',
+          icon: <LayoutTemplate className="w-5 h-5" />,
+          iconBgColor: 'bg-purple-100 text-purple-700 border border-purple-200',
+          badge: 'CMS Chuẩn Phototiinlove',
+          badgeColor: 'purple',
+          actionType: 'page',
+          actionLabel: 'Mở CMS Giao Diện',
+          onClick: () => setActiveTab('cms')
+        },
+        {
+          id: 'owner-mascot',
+          title: 'Bộ Chọn Linh Vật Trợ Lý Ảo Flori',
+          description: 'Bật popup xem và đổi tức thì linh vật hoạt họa trong bộ 6 mẫu tách nền chính thức của tiệm.',
+          icon: <Sparkles className="w-5 h-5" />,
+          iconBgColor: 'bg-amber-100 text-amber-700 border border-amber-200',
+          badge: '6 Linh Vật Tách Nền',
+          badgeColor: 'amber',
+          actionType: 'modal',
+          actionLabel: 'Mở Popup Chọn Mascot',
+          onClick: () => setShowMascotModal(true)
+        },
+        {
+          id: 'owner-security',
+          title: 'Đổi Mật Khẩu, Mã PIN & Bảo Mật Chủ Tiệm',
+          description: 'Bật popup cập nhật mật khẩu đăng nhập chủ quán và mã PIN thao tác bảo mật an toàn.',
+          icon: <KeyRound className="w-5 h-5" />,
+          iconBgColor: 'bg-slate-100 text-slate-700 border border-slate-200',
+          badge: 'Bảo Mật Chủ Quán',
           badgeColor: 'slate',
           actionType: 'modal',
-          actionLabel: 'Mở Popup Đổi Mật Khẩu',
+          actionLabel: 'Mở Popup Đổi PIN',
           onClick: () => setShowSecurityModal(true)
         }
       ]
@@ -222,7 +337,7 @@ export const OwnerPortal: React.FC = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-20 space-y-6 select-none">
-      {/* 1. TOP GREETING & 4 KPIS HERO (BRIGHT, ELEGANT PASTEL) */}
+      {/* 1. TOP GREETING & 4 KPIS HERO */}
       <ManagementOverviewHero
         tag="Thông Tin Quản Trị"
         tagIcon={<Flower2 className="w-3.5 h-3.5 text-emerald-700" />}
@@ -267,7 +382,7 @@ export const OwnerPortal: React.FC = () => {
         ]}
       />
 
-      {/* 2. SUBPAGE ROUTING */}
+      {/* 2. SUBPAGE ROUTING & DASHBOARD */}
       {activeTab === 'dashboard' && (
         <div className="space-y-8 animate-in fade-in duration-200">
           <ManagementRecentOrders
@@ -280,16 +395,28 @@ export const OwnerPortal: React.FC = () => {
             onViewBill={(ord) => setViewingBillOrder(ord)}
             onApproveDeposit={(id) => {
               approveOrderDeposit(id);
-              showToast(`Đã duyệt cọc đơn #${id}!`);
+              showToast(`Đã duyệt cọc đơn #${id}!`, 'success');
             }}
             formatPrice={formatPrice}
           />
 
-          <ManagementFunctionalGrid
-            title="Danh Mục Chức Năng Chủ Quán"
-            subtitle="Mô hình thẻ chức năng to như phototiinlove • Nhấp để mở phân hệ hoặc popup thao tác nhanh"
-            groups={ownerActionGroups}
-          />
+          {/* KHUNG 1: QUẢN LÝ TIỆM HOA & NGHIỆP VỤ CỐT LÕI */}
+          <div className="bg-gradient-to-br from-emerald-50/40 via-white to-pink-50/20 p-4 sm:p-6 rounded-3xl border border-emerald-100/80 shadow-sm space-y-4">
+            <ManagementFunctionalGrid
+              title="Quản Lý Tiệm Hoa & Nghiệp Vụ Cốt Lõi"
+              subtitle="Các nghiệp vụ điều hành hàng ngày: duyệt đơn cọc, doanh thu thực tế, kiểm soát kho hoa và khách quen VIP"
+              groups={floristCoreGroups}
+            />
+          </div>
+
+          {/* KHUNG 2: QUẢN TRỊ HỆ THỐNG & GIAO DIỆN WEBSITE */}
+          <div className="bg-gradient-to-br from-purple-50/30 via-white to-sky-50/20 p-4 sm:p-6 rounded-3xl border border-purple-100/80 shadow-sm space-y-4">
+            <ManagementFunctionalGrid
+              title="Quản Trị Hệ Thống & Giao Diện Website"
+              subtitle="Tùy biến giao diện CMS chuẩn phototiinlove, bảng cước hỏa tốc, kênh liên hệ CSKH, linh vật và bảo mật"
+              groups={webSystemGroups}
+            />
+          </div>
         </div>
       )}
 
@@ -351,15 +478,15 @@ export const OwnerPortal: React.FC = () => {
             setTempPassModal({ customerName: cust.fullName, pass });
           }}
           onEditNotes={(cust) => {
-            setEditingCustomer(cust);
+            setCustomerForEditForm(cust);
             setIsCustomerFormOpen(true);
           }}
           onEditCustomer={(cust) => {
-            setEditingCustomer(cust);
+            setCustomerForEditForm(cust);
             setIsCustomerFormOpen(true);
           }}
           onOpenAddCustomer={() => {
-            setEditingCustomer(null);
+            setCustomerForEditForm(null);
             setIsCustomerFormOpen(true);
           }}
           onDeleteCustomer={(id) => deleteCustomerByAdmin(id)}
@@ -385,7 +512,68 @@ export const OwnerPortal: React.FC = () => {
         />
       )}
 
-      {/* 4. MODALS & POPUPS */}
+      {(activeTab === 'channels' || activeTab === 'settings') && (
+        <StoreConfigSubpage
+          settings={settings}
+          contactChannels={contactChannels}
+          onBackToDashboard={() => setActiveTab('dashboard')}
+          onSaveSettings={(s) => {
+            updateSettings(s);
+            showToast('Đã lưu cấu hình cửa hàng!', 'success');
+          }}
+          onToggleContactChannel={toggleContactChannel}
+          onDeleteContactChannel={deleteContactChannel}
+          onOpenAddChannel={() => {
+            setEditingChannel(null);
+            setIsAddingChannel(true);
+          }}
+          onOpenEditChannel={(channel) => {
+            setEditingChannel(channel);
+            setIsAddingChannel(true);
+          }}
+        />
+      )}
+
+      {activeTab === 'security' && (
+        <SecuritySubpage
+          onBackToDashboard={() => setActiveTab('dashboard')}
+          adminEmail={adminEmail}
+          changeAdminCredentials={changeAdminCredentials}
+          saveGmailConfig={saveGmailConfig}
+          requestPinResetOtp={requestPinResetOtp}
+          showToast={showToast}
+        />
+      )}
+
+      {activeTab === 'cms' && (
+        <CmsLiveviewSubpage
+          onBackToDashboard={() => setActiveTab('dashboard')}
+          heroConfig={heroConfig}
+          categories={categories}
+          promotions={promotions}
+          articles={articles}
+          updateHeroConfig={updateHeroConfig}
+          updateCategories={updateCategories}
+          updatePromotions={updatePromotions}
+          updateArticles={updateArticles}
+          showToast={showToast}
+          title="Trình Quản Lý Giao Diện Website (CMS Chuẩn Phototiinlove)"
+        />
+      )}
+
+      {activeTab === 'marquee' && (
+        <MarqueeSubpage
+          marqueeAnnouncements={marqueeAnnouncements}
+          onBackToDashboard={() => setActiveTab('dashboard')}
+          addMarqueeItem={addMarqueeItem}
+          updateMarqueeItem={updateMarqueeItem}
+          toggleMarqueeItem={toggleMarqueeItem}
+          deleteMarqueeItem={deleteMarqueeItem}
+          showToast={showToast}
+        />
+      )}
+
+      {/* 3. MODALS & POPUPS */}
       <SecurityModal
         isOpen={showSecurityModal}
         onClose={() => setShowSecurityModal(false)}
@@ -395,12 +583,32 @@ export const OwnerPortal: React.FC = () => {
         onSaveEmailConfig={saveGmailConfig}
       />
 
+      <ShippingConfigModal
+        isOpen={showShippingModal}
+        onClose={() => setShowShippingModal(false)}
+        settings={settings}
+        onSave={(newSettings) => {
+          updateSettings(newSettings);
+          showToast('Đã lưu cấu hình bảng cước vận chuyển!', 'success');
+        }}
+      />
+
       <QuickVoucherModal
         isOpen={showQuickVoucherModal}
         onClose={() => setShowQuickVoucherModal(false)}
         onCreateVoucher={(newPromo) => {
           updatePromotions([newPromo, ...promotions]);
           showToast(`Đã phát hành mã ưu đãi ${newPromo.code}!`, 'success');
+        }}
+      />
+
+      <MascotSelectorModal
+        isOpen={showMascotModal}
+        onClose={() => setShowMascotModal(false)}
+        currentMascotId={settings.mascotImageUrl}
+        onSelectMascot={(mascotUrl) => {
+          updateSettings({ ...settings, mascotImageUrl: mascotUrl });
+          showToast('Đã cập nhật linh vật tiệm hoa mới!', 'success');
         }}
       />
 
@@ -428,6 +636,23 @@ export const OwnerPortal: React.FC = () => {
         showToast={showToast}
       />
 
+      <AddContactChannelModal
+        isOpen={isAddingChannel}
+        channelToEdit={editingChannel}
+        onClose={() => {
+          setIsAddingChannel(false);
+          setEditingChannel(null);
+        }}
+        onAddChannel={(channel) => {
+          addContactChannel(channel);
+          showToast(`Đã thêm kênh liên hệ ${channel.label}!`, 'success');
+        }}
+        onUpdateChannel={(id, updates) => {
+          updateContactChannel(id, updates);
+        }}
+        showToast={showToast}
+      />
+
       <AddVoucherModal
         isOpen={isAddVoucherOpen}
         voucherToEdit={editingVoucher}
@@ -451,16 +676,16 @@ export const OwnerPortal: React.FC = () => {
         isOpen={isCustomerFormOpen}
         onClose={() => {
           setIsCustomerFormOpen(false);
-          setEditingCustomer(null);
+          setCustomerForEditForm(null);
         }}
-        customerToEdit={editingCustomer}
+        customerToEdit={customerForEditForm}
         onSave={(data) => {
-          if (editingCustomer) {
-            updateCustomerByAdmin(editingCustomer.id, data);
-            showToast(`Đã cập nhật thông tin khách hàng ${data.fullName}!`, 'success');
+          if (customerForEditForm) {
+            updateCustomerByAdmin(customerForEditForm.id, data);
+            showToast(`Đã cập nhật thông tin khách hàng ${data.fullName || ''}!`, 'success');
           } else {
             addCustomerByAdmin(data);
-            showToast(`Đã thêm khách hàng mới ${data.fullName}!`, 'success');
+            showToast(`Đã thêm khách hàng mới ${data.fullName || ''}!`, 'success');
           }
         }}
         showToast={showToast}
@@ -507,15 +732,6 @@ export const OwnerPortal: React.FC = () => {
         onConfirm={(id, delta, reason) => {
           adjustCustomerPoints(id, delta, reason);
           showToast(`Đã điều chỉnh điểm cho khách hàng!`, 'success');
-        }}
-      />
-
-      <EditCustomerNotesModal
-        customer={editingCustomer}
-        onClose={() => setEditingCustomer(null)}
-        onSave={(id, favFlowers, notes) => {
-          updateCustomerByAdmin(id, { favoriteFlowers: favFlowers, notes });
-          showToast('Đã lưu ghi chú khách hàng!', 'success');
         }}
       />
     </div>
