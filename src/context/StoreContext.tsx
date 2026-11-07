@@ -156,6 +156,7 @@ interface StoreContextType {
   updateSavedAddress: (id: string, updates: Partial<SavedAddress>) => boolean;
   deleteSavedAddress: (id: string) => boolean;
   setDefaultSavedAddress: (id: string) => void;
+  addCustomerByAdmin: (custData: Partial<CustomerUser>) => CustomerUser;
   updateCustomerByAdmin: (id: string, updates: Partial<CustomerUser>) => void;
   deleteCustomerByAdmin: (id: string) => void;
   adjustCustomerPoints: (id: string, deltaPoints: number, reason?: string) => void;
@@ -1483,6 +1484,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Đã đặt làm địa chỉ giao hàng mặc định!');
   };
 
+  const addCustomerByAdmin = (custData: Partial<CustomerUser>): CustomerUser => {
+    const newCust: CustomerUser = {
+      id: `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      fullName: custData.fullName || 'Khách Hàng Mới',
+      phone: custData.phone || '0900000000',
+      email: custData.email || '',
+      address: custData.address || '',
+      registeredAt: custData.registeredAt || new Date().toISOString().split('T')[0],
+      totalSpent: custData.totalSpent ?? 0,
+      ordersCount: custData.ordersCount ?? 0,
+      status: custData.status || 'ACTIVE',
+      points: custData.points ?? 0,
+      tier: custData.tier || 'Thành viên mới',
+      isVerified: custData.isVerified ?? false,
+      favoriteFlowers: Array.isArray(custData.favoriteFlowers)
+        ? custData.favoriteFlowers
+        : typeof custData.favoriteFlowers === 'string' && custData.favoriteFlowers
+        ? (custData.favoriteFlowers as string).split(',').map((s) => s.trim()).filter(Boolean)
+        : [],
+      notes: custData.notes || ''
+    };
+    setCustomers((prev) => [newCust, ...prev]);
+    showToast(`Đã thêm khách hàng "${newCust.fullName}" thành công!`, 'success');
+    return newCust;
+  };
+
   const updateCustomerByAdmin = (id: string, updates: Partial<CustomerUser>) => {
     setCustomers((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
     if (customer && customer.id === id) {
@@ -1789,6 +1816,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateSavedAddress,
         deleteSavedAddress,
         setDefaultSavedAddress,
+        addCustomerByAdmin,
         updateCustomerByAdmin,
         deleteCustomerByAdmin,
         adjustCustomerPoints,

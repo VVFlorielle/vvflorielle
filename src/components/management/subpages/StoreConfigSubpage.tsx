@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { ShopSettings, ContactChannel } from '../../../types';
 import { AVAILABLE_MASCOTS, AVAILABLE_FLORAL_CORNERS } from '../../../data/mockData';
+import { ActionConfirmModal } from '../ManagementModals';
 
 interface StoreConfigSubpageProps {
   settings: ShopSettings;
@@ -38,6 +39,7 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
   title = 'Cấu Hình Cửa Hàng, Bảng Cước & Bản Đồ'
 }) => {
   const [editSettings, setEditSettings] = useState<ShopSettings>(settings);
+  const [channelToDelete, setChannelToDelete] = useState<ContactChannel | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -482,11 +484,7 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => {
-                      if (confirm(`Bạn có chắc muốn xóa kênh liên hệ "${channel.title || channel.label}"?`)) {
-                        onDeleteContactChannel(channel.id);
-                      }
-                    }}
+                    onClick={() => setChannelToDelete(channel)}
                     className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
                     title="Xóa kênh"
                   >
@@ -498,6 +496,22 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
           ))}
         </div>
       </div>
+
+      {/* In-App Action Confirm Modal: No Browser Dialogs! */}
+      <ActionConfirmModal
+        isOpen={Boolean(channelToDelete)}
+        onClose={() => setChannelToDelete(null)}
+        onConfirm={() => {
+          if (channelToDelete) {
+            onDeleteContactChannel(channelToDelete.id);
+            setChannelToDelete(null);
+          }
+        }}
+        title="Xóa Kênh Liên Hệ"
+        message={`Bạn có chắc muốn xóa kênh liên hệ "${channelToDelete?.title || channelToDelete?.label}"? Biểu tượng này sẽ không còn hiển thị trong widget liên hệ nổi.`}
+        confirmText="Xóa Kênh"
+        type="danger"
+      />
     </div>
   );
 };

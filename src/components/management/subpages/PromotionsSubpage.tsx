@@ -1,11 +1,13 @@
-import React from 'react';
-import { Gift, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { Gift, Plus, Trash2, ArrowLeft, Pencil } from 'lucide-react';
 import { PromotionItem } from '../../../types';
+import { ActionConfirmModal } from '../ManagementModals';
 
 interface PromotionsSubpageProps {
   promotions: PromotionItem[];
   onBackToDashboard: () => void;
   onOpenAddVoucher: () => void;
+  onOpenEditVoucher?: (promo: PromotionItem) => void;
   updatePromotions: (promos: PromotionItem[]) => void;
   formatPrice: (p: number) => string;
   title?: string;
@@ -15,10 +17,13 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
   promotions,
   onBackToDashboard,
   onOpenAddVoucher,
+  onOpenEditVoucher,
   updatePromotions,
   formatPrice,
   title = 'Quản Lý Voucher & Mã Ưu Đãi'
 }) => {
+  const [voucherToDelete, setVoucherToDelete] = useState<PromotionItem | null>(null);
+
   return (
     <div className="glass-panel p-5 sm:p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200">
       {/* Header and Back Button */}
@@ -48,7 +53,7 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
         <button
           type="button"
           onClick={onOpenAddVoucher}
-          className="btn-primary text-xs py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 shadow-md flex items-center gap-1.5 cursor-pointer"
+          className="btn-primary text-xs py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Tạo Voucher Mới</span>
@@ -105,23 +110,49 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
                 {promo.isActive ? 'Tạm dừng mã' : 'Kích hoạt lại'}
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm(`Bạn có chắc muốn xóa mã voucher "${promo.code}"?`)) {
-                    const updated = promotions.filter((p) => p.id !== promo.id);
-                    updatePromotions(updated);
-                  }
-                }}
-                className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
-                title="Xóa voucher"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-1">
+                {onOpenEditVoucher && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenEditVoucher(promo)}
+                    className="p-1 rounded-lg text-slate-500 hover:text-purple-700 hover:bg-purple-50 cursor-pointer flex items-center gap-1 font-semibold text-[11px]"
+                    title="Chỉnh sửa voucher"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Sửa</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setVoucherToDelete(promo)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                  title="Xóa voucher"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* In-App Action Confirm Modal: No Browser Dialogs! */}
+      <ActionConfirmModal
+        isOpen={Boolean(voucherToDelete)}
+        onClose={() => setVoucherToDelete(null)}
+        onConfirm={() => {
+          if (voucherToDelete) {
+            const updated = promotions.filter((p) => p.id !== voucherToDelete.id);
+            updatePromotions(updated);
+            setVoucherToDelete(null);
+          }
+        }}
+        title="Xóa Mã Giảm Giá / Voucher"
+        message={`Bạn có chắc muốn xóa mã voucher "${voucherToDelete?.code}" (${voucherToDelete?.title}) khỏi hệ thống? Khách hàng sẽ không thể nhập hoặc đổi mã này nữa.`}
+        confirmText="Xóa Voucher"
+        type="danger"
+      />
     </div>
   );
 };

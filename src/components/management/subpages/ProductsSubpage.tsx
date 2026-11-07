@@ -12,6 +12,7 @@ import {
   Tag as TagIcon
 } from 'lucide-react';
 import { FlowerProduct, FlowerCategory, CategoryId } from '../../../types';
+import { ActionConfirmModal } from '../ManagementModals';
 
 interface ProductsSubpageProps {
   products: FlowerProduct[];
@@ -94,6 +95,7 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [productToDelete, setProductToDelete] = useState<FlowerProduct | null>(null);
 
   // Filter products by search and category
   const filteredProducts = products.filter((p) => {
@@ -320,11 +322,7 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
                   {/* Xóa Button */}
                   <button
                     type="button"
-                    onClick={() => {
-                      if (confirm(`Bạn có chắc muốn xóa mẫu hoa "${product.name}" khỏi kho?`)) {
-                        deleteProduct(product.id);
-                      }
-                    }}
+                    onClick={() => setProductToDelete(product)}
                     className="inline-flex items-center gap-1 p-1 sm:px-2 sm:py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200/80 hover:border-rose-200 text-[11px] font-bold transition-all cursor-pointer"
                     title={`Xóa mẫu hoa "${product.name}"`}
                   >
@@ -348,6 +346,22 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
           </p>
         </div>
       )}
+
+      {/* In-App Action Confirm Modal: No Browser Dialogs! */}
+      <ActionConfirmModal
+        isOpen={Boolean(productToDelete)}
+        onClose={() => setProductToDelete(null)}
+        onConfirm={() => {
+          if (productToDelete) {
+            deleteProduct(productToDelete.id);
+            setProductToDelete(null);
+          }
+        }}
+        title="Xóa Mẫu Hoa Khỏi Kho"
+        message={`Bạn có chắc muốn xóa mẫu hoa "${productToDelete?.name}" khỏi kho? Mẫu hoa này sẽ không còn hiển thị trên website.`}
+        confirmText="Xóa Mẫu Hoa"
+        type="danger"
+      />
     </div>
   );
 };

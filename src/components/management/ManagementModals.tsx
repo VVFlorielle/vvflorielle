@@ -27,10 +27,94 @@ import {
   AlertCircle,
   RotateCcw,
   Flower2,
-  Plus
+  Plus,
+  AlertTriangle,
+  UserPlus,
+  Award,
+  HelpCircle,
+  Edit3
 } from 'lucide-react';
-import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel, FlowerCategory } from '../../types';
+import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel, FlowerCategory, CustomerTier } from '../../types';
 import { AVAILABLE_MASCOTS } from '../../data/mockData';
+
+// 0. UNIVERSAL IN-APP ACTION CONFIRM MODAL (NO BROWSER DIALOGS!)
+export interface ActionConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title?: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  type?: 'danger' | 'warning' | 'info';
+}
+
+export const ActionConfirmModal: React.FC<ActionConfirmModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title = 'Xác Nhận Hành Động',
+  message,
+  confirmText = 'Xác Nhận',
+  cancelText = 'Hủy Bỏ',
+  type = 'danger'
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="glass-overlay z-[9999]" onClick={onClose}>
+      <div
+        className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[32px] border border-white/80 bg-white/95 shadow-2xl p-6 text-center animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className={`w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 ${
+            type === 'danger'
+              ? 'bg-rose-100 text-rose-600 border border-rose-200 shadow-sm shadow-rose-200/50'
+              : type === 'warning'
+              ? 'bg-amber-100 text-amber-700 border border-amber-200 shadow-sm shadow-amber-200/50'
+              : 'bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm shadow-emerald-200/50'
+          }`}
+        >
+          {type === 'danger' ? (
+            <Trash2 className="w-7 h-7" />
+          ) : type === 'warning' ? (
+            <AlertTriangle className="w-7 h-7" />
+          ) : (
+            <CheckCircle2 className="w-7 h-7" />
+          )}
+        </div>
+
+        <h3 className="font-bold text-base sm:text-lg text-slate-900 mb-2">{title}</h3>
+        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6 px-1">{message}</p>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+          >
+            {cancelText}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+            className={`w-full py-2.5 px-4 rounded-xl text-white font-bold text-xs shadow-md transition-all cursor-pointer ${
+              type === 'danger'
+                ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/30'
+                : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'
+            }`}
+          >
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // 1. ADMIN & OWNER SECURITY MODAL
 export interface SecurityModalProps {
@@ -1003,11 +1087,13 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
   );
 };
 
-// 9. ADD NEW VOUCHER MODAL
+// 9. ADD / EDIT VOUCHER MODAL
 export interface AddVoucherModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddVoucher: (promo: PromotionItem) => void;
+  voucherToEdit?: PromotionItem | null;
+  onSaveVoucher?: (promo: PromotionItem) => void;
   formatPrice: (p: number) => string;
   showToast: (msg: string, type?: 'success' | 'error' | 'info') => void;
 }
@@ -1016,6 +1102,8 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
   isOpen,
   onClose,
   onAddVoucher,
+  voucherToEdit,
+  onSaveVoucher,
   formatPrice,
   showToast
 }) => {
@@ -1027,6 +1115,26 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
   const [newVoucherBadge, setNewVoucherBadge] = useState('ƯU ĐÃI');
   const [newVoucherPoints, setNewVoucherPoints] = useState(0);
 
+  useEffect(() => {
+    if (voucherToEdit) {
+      setNewVoucherCode(voucherToEdit.code);
+      setNewVoucherTitle(voucherToEdit.title);
+      setNewVoucherDesc(voucherToEdit.description);
+      setNewVoucherDiscount(voucherToEdit.discountAmount);
+      setNewVoucherMinOrder(voucherToEdit.minOrder);
+      setNewVoucherBadge(voucherToEdit.badge || 'ƯU ĐÃI');
+      setNewVoucherPoints(voucherToEdit.pointsToRedeem || 0);
+    } else {
+      setNewVoucherCode('');
+      setNewVoucherTitle('');
+      setNewVoucherDesc('');
+      setNewVoucherDiscount(30000);
+      setNewVoucherMinOrder(300000);
+      setNewVoucherBadge('ƯU ĐÃI');
+      setNewVoucherPoints(0);
+    }
+  }, [voucherToEdit, isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1035,6 +1143,26 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
       showToast('Vui lòng nhập mã và tiêu đề voucher!', 'error');
       return;
     }
+
+    if (voucherToEdit && onSaveVoucher) {
+      const updatedPromo: PromotionItem = {
+        ...voucherToEdit,
+        code: newVoucherCode.trim().toUpperCase(),
+        title: newVoucherTitle.trim(),
+        description:
+          newVoucherDesc.trim() ||
+          `Giảm ${formatPrice(newVoucherDiscount)} cho đơn từ ${formatPrice(newVoucherMinOrder)}`,
+        discountAmount: newVoucherDiscount,
+        minOrder: newVoucherMinOrder,
+        badge: newVoucherBadge.trim() || 'ƯU ĐÃI',
+        pointsToRedeem: newVoucherPoints > 0 ? newVoucherPoints : undefined
+      };
+      onSaveVoucher(updatedPromo);
+      showToast(`Đã lưu thay đổi voucher ${updatedPromo.code}!`, 'success');
+      onClose();
+      return;
+    }
+
     const newPromo: PromotionItem = {
       id: `promo_${Date.now()}`,
       code: newVoucherCode.trim().toUpperCase(),
@@ -1051,6 +1179,7 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
       pointsToRedeem: newVoucherPoints > 0 ? newVoucherPoints : undefined
     };
     onAddVoucher(newPromo);
+    showToast(`Đã tạo mới voucher ${newPromo.code}!`, 'success');
     onClose();
     setNewVoucherCode('');
     setNewVoucherTitle('');
@@ -1064,7 +1193,9 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="glass-modal-header">
-          <h3 className="font-bold text-base sm:text-lg text-slate-900">Tạo Mã Giảm Giá / Voucher Mới</h3>
+          <h3 className="font-bold text-base sm:text-lg text-slate-900">
+            {voucherToEdit ? 'Chỉnh Sửa Mã Giảm Giá / Voucher' : 'Tạo Mã Giảm Giá / Voucher Mới'}
+          </h3>
           <button
             onClick={onClose}
             className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
@@ -1168,7 +1299,7 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
               type="submit"
               className="btn-primary text-xs py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 cursor-pointer"
             >
-              Tạo Voucher
+              {voucherToEdit ? 'Lưu Thay Đổi' : 'Tạo Voucher'}
             </button>
           </div>
         </form>
@@ -1849,6 +1980,8 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
     { name: 'Flash Sale Cuối Tuần Rực Rỡ', percent: 25, tag: 'Flash Sale' }
   ];
 
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+
   const handleApply = () => {
     if (discountPercent <= 0) {
       showToast('Vui lòng chọn mức giảm giá lớn hơn 0%!', 'error');
@@ -1859,10 +1992,12 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
   };
 
   const handleRestore = () => {
-    if (confirm(`Bạn có chắc muốn khôi phục giá gốc cho ${selectedCategory === 'all' ? 'toàn bộ kho hoa' : 'danh mục đã chọn'}?`)) {
-      onRestorePrices(selectedCategory);
-      onClose();
-    }
+    setShowRestoreConfirm(true);
+  };
+
+  const executeRestore = () => {
+    onRestorePrices(selectedCategory);
+    onClose();
   };
 
   return (
@@ -2034,6 +2169,16 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
           </div>
         </div>
       </div>
+
+      <ActionConfirmModal
+        isOpen={showRestoreConfirm}
+        onClose={() => setShowRestoreConfirm(false)}
+        onConfirm={executeRestore}
+        title="Khôi Phục Giá Niêm Yết"
+        message={`Bạn có chắc muốn khôi phục giá gốc cho ${selectedCategory === 'all' ? 'toàn bộ kho hoa' : 'danh mục đã chọn'}? Toàn bộ mức giảm giá sự kiện sẽ được gỡ bỏ.`}
+        confirmText="Khôi Phục Ngay"
+        type="warning"
+      />
     </div>
   );
 };
@@ -2184,7 +2329,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   );
 };
 
-// 12. ADJUST CUSTOMER POINTS MODAL
+// 12. ADJUST CUSTOMER POINTS MODAL (WITH EVENT PRESETS & IN-APP CONFIRMATION)
 export interface AdjustPointsModalProps {
   customer: CustomerUser | null;
   onClose: () => void;
@@ -2193,18 +2338,53 @@ export interface AdjustPointsModalProps {
 
 export const AdjustPointsModal: React.FC<AdjustPointsModalProps> = ({ customer, onClose, onConfirm }) => {
   const [delta, setDelta] = useState(50);
-  const [reason, setReason] = useState('Thưởng thành viên tích cực');
+  const [reason, setReason] = useState('Tích lũy điểm thưởng đơn hoa tại quầy');
+  const [selectedPreset, setSelectedPreset] = useState<string>('order-50');
+
+  useEffect(() => {
+    if (customer) {
+      setDelta(50);
+      setReason('Tích lũy điểm thưởng đơn hoa tại quầy');
+      setSelectedPreset('order-50');
+    }
+  }, [customer]);
 
   if (!customer) return null;
+
+  const presets = [
+    { id: 'bday-100', label: '🎂 Sinh Nhật Khách', delta: 100, reason: 'Quà tặng sinh nhật khách hàng từ V&V Florielle' },
+    { id: 'bday-200', label: '👑 Sinh Nhật VIP', delta: 200, reason: 'Quà tặng sinh nhật Hội viên VIP từ V&V Florielle' },
+    { id: 'order-50', label: '📦 Đơn Hoa +50đ', delta: 50, reason: 'Tích lũy điểm thưởng đơn hoa tại quầy' },
+    { id: 'order-100', label: '📦 Đơn Hoa +100đ', delta: 100, reason: 'Tích lũy điểm thưởng đơn hoa giá trị cao' },
+    { id: 'welcome-30', label: '🌟 Hội Viên Mới', delta: 30, reason: 'Thưởng kích hoạt tài khoản hội viên mới' },
+    { id: 'vip-150', label: '💎 Tri Ân Nâng Hạng', delta: 150, reason: 'Thưởng tri ân thăng hạng thành viên VIP' },
+    { id: 'cs-50', label: '🌸 Bồi Hoàn Florist', delta: 50, reason: 'Điểm bồi hoàn chăm sóc dịch vụ hoa' },
+  ];
+
+  const handleSelectPreset = (p: typeof presets[0]) => {
+    setSelectedPreset(p.id);
+    setDelta(p.delta);
+    setReason(p.reason);
+  };
+
+  const nextPoints = Math.max(0, customer.points + delta);
 
   return (
     <div className="glass-overlay" onClick={onClose}>
       <div
-        className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
+        className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="glass-modal-header">
-          <h3 className="font-bold text-base text-slate-900">Điều Chỉnh Điểm Tích Lũy</h3>
+        <div className="glass-modal-header border-b border-slate-100 px-5 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+              <Award className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-slate-900">Cộng Điểm Thưởng / Sự Kiện</h3>
+              <p className="text-[11px] text-slate-500">Khách hàng: <strong>{customer.fullName}</strong> ({customer.phone})</p>
+            </div>
+          </div>
           <button
             onClick={onClose}
             className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
@@ -2213,45 +2393,94 @@ export const AdjustPointsModal: React.FC<AdjustPointsModalProps> = ({ customer, 
           </button>
         </div>
 
-        <div className="glass-modal-body space-y-3.5 text-xs">
-          <p className="text-slate-600">
-            Khách hàng: <strong>{customer.fullName}</strong>
-            <br />
-            Hiện có: <strong className="text-emerald-700">{customer.points} điểm</strong>
-          </p>
-
-          <div>
-            <label className="font-semibold text-slate-700 block mb-1">
-              Số điểm điều chỉnh (+ để cộng, - để trừ)
+        <div className="p-5 sm:p-6 space-y-4 text-xs">
+          {/* Quick Event Presets */}
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>Chọn nhanh theo Dịp &amp; Sự Kiện</span>
             </label>
-            <input
-              type="number"
-              step={10}
-              value={delta}
-              onChange={(e) => setDelta(Number(e.target.value))}
-              className="glass-input w-full text-sm font-bold font-mono py-2 rounded-xl"
-            />
+            <div className="grid grid-cols-2 gap-2">
+              {presets.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => handleSelectPreset(p)}
+                  className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                    selectedPreset === p.id
+                      ? 'border-purple-500 bg-purple-50/90 text-purple-900 font-bold ring-2 ring-purple-300/40 shadow-xs'
+                      : 'border-slate-200 hover:border-purple-200 bg-slate-50/60 hover:bg-slate-100/70 text-slate-700'
+                  }`}
+                >
+                  <div className="text-[11px] font-semibold">{p.label}</div>
+                  <div className="text-[10px] text-purple-700 font-bold mt-0.5">+{p.delta} điểm</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Points Delta Input */}
+          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+            <div>
+              <label className="font-semibold text-slate-700 block mb-1">
+                Số điểm điều chỉnh
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step={10}
+                  value={delta}
+                  onChange={(e) => {
+                    setDelta(Number(e.target.value));
+                    setSelectedPreset('custom');
+                  }}
+                  className="glass-input w-full text-base font-black font-mono py-2 rounded-xl text-purple-800"
+                />
+                <span className="absolute right-3 top-2.5 text-[11px] font-semibold text-slate-400">điểm</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="font-semibold text-slate-700 block mb-1">
+                Điểm sau thay đổi
+              </label>
+              <div className="h-10 px-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                <span className="text-[11px] text-emerald-700">{customer.points}đ ➔</span>
+                <span className="text-base font-black text-emerald-800 font-mono">{nextPoints}đ</span>
+              </div>
+            </div>
           </div>
 
           <div>
-            <label className="font-semibold text-slate-700 block mb-1">Lý do điều chỉnh</label>
+            <label className="font-semibold text-slate-700 block mb-1">Lý do điều chỉnh (Hiển thị cho khách)</label>
             <input
               type="text"
               value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              onChange={(e) => {
+                setReason(e.target.value);
+                setSelectedPreset('custom');
+              }}
               className="glass-input w-full text-xs py-2 rounded-xl"
-              placeholder="Ví dụ: Thưởng thành viên tích cực, hoàn điểm..."
+              placeholder="Nhập lý do cộng điểm..."
             />
+          </div>
+
+          {/* In-App Confirmation Card */}
+          <div className="p-3 rounded-2xl bg-amber-50/90 border border-amber-200/90 text-amber-900 text-[11px] flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              Xác nhận <strong>{delta >= 0 ? `cộng +${delta}` : `trừ ${delta}`} điểm</strong> cho khách hàng <strong>{customer.fullName}</strong>. Điểm số mới sẽ là <strong>{nextPoints} điểm</strong>.
+            </div>
           </div>
         </div>
 
-        <div className="glass-modal-footer">
+        <div className="glass-modal-footer bg-slate-50/70 border-t border-slate-100 px-5 py-3.5 flex items-center justify-between">
           <button
             type="button"
             onClick={onClose}
             className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer"
           >
-            Hủy
+            Hủy Bỏ
           </button>
           <button
             type="button"
@@ -2259,9 +2488,10 @@ export const AdjustPointsModal: React.FC<AdjustPointsModalProps> = ({ customer, 
               onConfirm(customer.id, delta, reason);
               onClose();
             }}
-            className="btn-primary text-xs py-2 px-4 rounded-xl cursor-pointer"
+            className="btn-primary text-xs py-2 px-5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold shadow-md cursor-pointer flex items-center gap-1.5"
           >
-            Xác Nhận
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Xác Nhận Cộng Điểm</span>
           </button>
         </div>
       </div>
@@ -2361,6 +2591,269 @@ export const EditCustomerNotesModal: React.FC<EditCustomerNotesModalProps> = ({
             Lưu Ghi Chú
           </button>
         </div>
+      </div>
+    </div>
+  );
+};
+
+// 14. CUSTOMER FULL CRUD FORM MODAL (ADD NEW & FULL PROFILE EDIT)
+export interface CustomerFormModalProps {
+  isOpen: boolean;
+  customerToEdit?: CustomerUser | null;
+  onClose: () => void;
+  onSave: (data: Partial<CustomerUser>, isNew?: boolean) => void;
+  showToast: (msg: string, type?: 'success' | 'error' | 'info') => void;
+}
+
+export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
+  isOpen,
+  customerToEdit,
+  onClose,
+  onSave,
+  showToast
+}) => {
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [tier, setTier] = useState<CustomerTier>('Thành viên mới');
+  const [points, setPoints] = useState<number>(0);
+  const [isVerified, setIsVerified] = useState<boolean>(true);
+  const [status, setStatus] = useState<'ACTIVE' | 'BLOCKED'>('ACTIVE');
+  const [notes, setNotes] = useState('');
+  const [favoriteFlowers, setFavoriteFlowers] = useState('');
+
+  useEffect(() => {
+    if (customerToEdit) {
+      setFullName(customerToEdit.fullName || '');
+      setPhone(customerToEdit.phone || '');
+      setEmail(customerToEdit.email || '');
+      setAddress(customerToEdit.address || '');
+      setTier(customerToEdit.tier || 'Thành viên mới');
+      setPoints(customerToEdit.points ?? 0);
+      setIsVerified(customerToEdit.isVerified ?? false);
+      setStatus(customerToEdit.status || 'ACTIVE');
+      setNotes(customerToEdit.notes || '');
+      setFavoriteFlowers(
+        Array.isArray(customerToEdit.favoriteFlowers)
+          ? customerToEdit.favoriteFlowers.join(', ')
+          : customerToEdit.favoriteFlowers || ''
+      );
+    } else {
+      setFullName('');
+      setPhone('');
+      setEmail('');
+      setAddress('');
+      setTier('Thành viên mới');
+      setPoints(0);
+      setIsVerified(true);
+      setStatus('ACTIVE');
+      setNotes('');
+      setFavoriteFlowers('');
+    }
+  }, [customerToEdit, isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName.trim() || !phone.trim()) {
+      showToast('Vui lòng nhập họ tên và số điện thoại!', 'error');
+      return;
+    }
+
+    const payload: Partial<CustomerUser> = {
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      email: email.trim() || undefined,
+      address: address.trim() || undefined,
+      tier,
+      points,
+      isVerified,
+      status,
+      notes: notes.trim() || undefined,
+      favoriteFlowers: favoriteFlowers.split(',').map((f) => f.trim()).filter(Boolean)
+    };
+
+    onSave(payload, !customerToEdit);
+    onClose();
+  };
+
+  return (
+    <div className="glass-overlay" onClick={onClose}>
+      <div
+        className="glass-modal-content max-w-lg md:max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="glass-modal-header border-b border-slate-100 px-5 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+              {customerToEdit ? <Pencil className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+            </div>
+            <div>
+              <h3 className="font-bold text-base sm:text-lg text-slate-900">
+                {customerToEdit ? 'Chỉnh Sửa Hồ Sơ Khách Hàng' : 'Thêm Khách Hàng Thân Thiết Mới'}
+              </h3>
+              <p className="text-xs text-slate-500">
+                {customerToEdit
+                  ? `Cập nhật thông tin chi tiết cho ${customerToEdit.fullName}`
+                  : 'Tạo tài khoản khách hàng mới phục vụ tại quầy hoặc qua điện thoại'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="p-5 sm:p-6 space-y-3.5 text-xs overflow-y-auto max-h-[70vh]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Họ và tên khách hàng *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ví dụ: Nguyễn Thảo Ly"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="glass-input w-full text-xs py-2 rounded-xl font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Số điện thoại *</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="0912345678"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="glass-input w-full text-xs py-2 rounded-xl font-mono font-bold"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Email</label>
+                <input
+                  type="email"
+                  placeholder="thaoly@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="glass-input w-full text-xs py-2 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Hạng thành viên</label>
+                <select
+                  value={tier}
+                  onChange={(e) => setTier(e.target.value as CustomerTier)}
+                  className="glass-input w-full text-xs py-2 rounded-xl font-semibold text-purple-800"
+                >
+                  <option value="Thành viên mới">Thành viên mới</option>
+                  <option value="Bạc">Hội viên Bạc</option>
+                  <option value="Vàng">Hội viên Vàng</option>
+                  <option value="Kim Cương">Hội viên Kim Cương</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="font-semibold text-slate-700 block mb-1">Địa chỉ nhận hoa mặc định</label>
+              <input
+                type="text"
+                placeholder="Số nhà, ngõ, tên đường, quận/huyện..."
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="glass-input w-full text-xs py-2 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Điểm tích lũy</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={points}
+                  onChange={(e) => setPoints(Math.max(0, Number(e.target.value)))}
+                  className="glass-input w-full text-xs py-2 rounded-xl font-mono font-bold text-emerald-800"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Xác thực hội viên</label>
+                <select
+                  value={isVerified ? 'true' : 'false'}
+                  onChange={(e) => setIsVerified(e.target.value === 'true')}
+                  className="glass-input w-full text-xs py-2 rounded-xl font-medium"
+                >
+                  <option value="true">Đã xác thực (100% điểm)</option>
+                  <option value="false">Thường (70% điểm)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Trạng thái tài khoản</label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as 'ACTIVE' | 'BLOCKED')}
+                  className={`glass-input w-full text-xs py-2 rounded-xl font-semibold ${
+                    status === 'ACTIVE' ? 'text-emerald-800' : 'text-rose-800'
+                  }`}
+                >
+                  <option value="ACTIVE">Hoạt động bình thường</option>
+                  <option value="BLOCKED">Tạm khóa tài khoản</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="font-semibold text-slate-700 block mb-1">Mẫu hoa / Tông màu yêu thích</label>
+              <input
+                type="text"
+                placeholder="Hồng pastel, Baby trắng, Hướng dương..."
+                value={favoriteFlowers}
+                onChange={(e) => setFavoriteFlowers(e.target.value)}
+                className="glass-input w-full text-xs py-2 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="font-semibold text-slate-700 block mb-1">Ghi chú florist nội bộ</label>
+              <textarea
+                rows={2}
+                placeholder="Thói quen đặt hoa, lưu ý khi giao, yêu cầu đặc biệt..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="glass-input w-full text-xs py-2 rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div className="glass-modal-footer bg-slate-50/70 border-t border-slate-100 px-5 py-3.5 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="btn-primary text-xs py-2 px-5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+            >
+              <Save className="w-4 h-4" />
+              <span>{customerToEdit ? 'Lưu Thay Đổi' : 'Tạo Khách Hàng'}</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

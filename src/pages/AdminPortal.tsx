@@ -15,9 +15,10 @@ import {
   Truck,
   Share2,
   Megaphone,
-  LayoutTemplate
+  LayoutTemplate,
+  TrendingUp
 } from 'lucide-react';
-import { CustomerUser, Order, OrderStatus, FlowerProduct, ContactChannel } from '../types';
+import { CustomerUser, Order, OrderStatus, FlowerProduct, ContactChannel, PromotionItem } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
 import { ManagementTabsBar } from '../components/management/ManagementTabsBar';
 import { ManagementFunctionalGrid, ManagementActionGroup } from '../components/management/ManagementFunctionalGrid';
@@ -39,7 +40,8 @@ import {
   AddProductModal,
   CustomerDetailModal,
   AdjustPointsModal,
-  EditCustomerNotesModal
+  EditCustomerNotesModal,
+  CustomerFormModal
 } from '../components/management/ManagementModals';
 
 // Subpages
@@ -51,6 +53,7 @@ import { StoreConfigSubpage } from '../components/management/subpages/StoreConfi
 import { SecuritySubpage } from '../components/management/subpages/SecuritySubpage';
 import { CmsLiveviewSubpage } from '../components/management/subpages/CmsLiveviewSubpage';
 import { MarqueeSubpage } from '../components/management/subpages/MarqueeSubpage';
+import { RevenueSubpage } from '../components/management/subpages/RevenueSubpage';
 
 export const AdminPortal: React.FC = () => {
   const {
@@ -84,6 +87,7 @@ export const AdminPortal: React.FC = () => {
     settings,
     updateSettings,
     customers,
+    addCustomerByAdmin,
     updateCustomerByAdmin,
     deleteCustomerByAdmin,
     adjustCustomerPoints,
@@ -116,12 +120,14 @@ export const AdminPortal: React.FC = () => {
   const [isAddingChannel, setIsAddingChannel] = useState(false);
   const [editingChannel, setEditingChannel] = useState<ContactChannel | null>(null);
   const [isAddVoucherOpen, setIsAddVoucherOpen] = useState(false);
+  const [editingVoucher, setEditingVoucher] = useState<PromotionItem | null>(null);
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<FlowerProduct | null>(null);
   const [isBulkDiscountOpen, setIsBulkDiscountOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerUser | null>(null);
   const [adjustingCustomer, setAdjustingCustomer] = useState<CustomerUser | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<CustomerUser | null>(null);
+  const [isCustomerFormOpen, setIsCustomerFormOpen] = useState(false);
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -163,6 +169,18 @@ export const AdminPortal: React.FC = () => {
           actionType: 'page',
           actionLabel: 'Mở Quản Trị Đơn',
           onClick: () => setActiveTab('orders')
+        },
+        {
+          id: 'action-revenue',
+          title: 'Quản Lý Doanh Thu & Báo Cáo Tài Chính',
+          description: 'Theo dõi dòng tiền thực tế, tách bạch cọc VietQR và tiền mặt COD, phân tích kỳ kế toán và xuất Excel.',
+          icon: <TrendingUp className="w-5 h-5" />,
+          iconBgColor: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+          badge: 'Báo Cáo Excel',
+          badgeColor: 'emerald',
+          actionType: 'page',
+          actionLabel: 'Xem Doanh Thu',
+          onClick: () => setActiveTab('revenue')
         },
         {
           id: 'action-products',
@@ -325,7 +343,7 @@ export const AdminPortal: React.FC = () => {
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-20 space-y-6 select-none">
       {/* 1. TOP OVERVIEW HERO BANNER */}
       <ManagementOverviewHero
-        tag="Bảng Quản Trị Hệ Thống • Super Admin Command Center"
+        tag="Thông Tin Quản Trị"
         tagIcon={<ShieldCheck className="w-3.5 h-3.5 text-purple-700" />}
         statusBadge="Hệ thống vận hành ổn định"
         stats={[
@@ -334,9 +352,9 @@ export const AdminPortal: React.FC = () => {
             title: 'Doanh Thu Hoa',
             value: formatPrice(totalRevenue),
             subtext: `${completedCount} đơn hoàn thành`,
-            icon: <ShoppingBag className="w-3.5 h-3.5" />,
+            icon: <TrendingUp className="w-3.5 h-3.5 text-purple-700" />,
             color: 'purple',
-            onClick: () => setActiveTab('orders')
+            onClick: () => setActiveTab('revenue')
           },
           {
             id: 'arranging',
@@ -428,6 +446,16 @@ export const AdminPortal: React.FC = () => {
         />
       )}
 
+      {activeTab === 'revenue' && (
+        <RevenueSubpage
+          orders={orders}
+          customers={customers}
+          onBackToDashboard={() => setActiveTab('dashboard')}
+          formatPrice={formatPrice}
+          showToast={showToast}
+        />
+      )}
+
       {activeTab === 'customers' && (
         <CustomersSubpage
           customers={customers}
@@ -440,7 +468,18 @@ export const AdminPortal: React.FC = () => {
             const pass = adminResetCustomerPassword(cust.id);
             setTempPassModal({ customerName: cust.fullName, pass });
           }}
-          onEditNotes={(cust) => setEditingCustomer(cust)}
+          onEditNotes={(cust) => {
+            setEditingCustomer(cust);
+            setIsCustomerFormOpen(true);
+          }}
+          onEditCustomer={(cust) => {
+            setEditingCustomer(cust);
+            setIsCustomerFormOpen(true);
+          }}
+          onOpenAddCustomer={() => {
+            setEditingCustomer(null);
+            setIsCustomerFormOpen(true);
+          }}
           onDeleteCustomer={(id) => deleteCustomerByAdmin(id)}
         />
       )}
@@ -449,7 +488,14 @@ export const AdminPortal: React.FC = () => {
         <PromotionsSubpage
           promotions={promotions}
           onBackToDashboard={() => setActiveTab('dashboard')}
-          onOpenAddVoucher={() => setIsAddVoucherOpen(true)}
+          onOpenAddVoucher={() => {
+            setEditingVoucher(null);
+            setIsAddVoucherOpen(true);
+          }}
+          onOpenEditVoucher={(promo) => {
+            setEditingVoucher(promo);
+            setIsAddVoucherOpen(true);
+          }}
           updatePromotions={updatePromotions}
           formatPrice={formatPrice}
         />
@@ -597,10 +643,18 @@ export const AdminPortal: React.FC = () => {
 
       <AddVoucherModal
         isOpen={isAddVoucherOpen}
-        onClose={() => setIsAddVoucherOpen(false)}
+        voucherToEdit={editingVoucher}
+        onClose={() => {
+          setIsAddVoucherOpen(false);
+          setEditingVoucher(null);
+        }}
         onAddVoucher={(promo) => {
           updatePromotions([...promotions, promo]);
           showToast(`Đã thêm voucher ${promo.code}!`, 'success');
+        }}
+        onSaveVoucher={(updatedPromo) => {
+          updatePromotions(promotions.map(p => p.id === updatedPromo.id ? updatedPromo : p));
+          showToast(`Đã cập nhật voucher ${updatedPromo.code}!`, 'success');
         }}
         formatPrice={formatPrice}
         showToast={showToast}
@@ -631,6 +685,25 @@ export const AdminPortal: React.FC = () => {
         products={products}
         onApplyDiscount={(pct, cat, evt) => applyBulkDiscount(pct, cat, evt)}
         onRestorePrices={(cat) => restoreOriginalPrices(cat)}
+        showToast={showToast}
+      />
+
+      <CustomerFormModal
+        isOpen={isCustomerFormOpen}
+        onClose={() => {
+          setIsCustomerFormOpen(false);
+          setEditingCustomer(null);
+        }}
+        customerToEdit={editingCustomer}
+        onSave={(data) => {
+          if (editingCustomer) {
+            updateCustomerByAdmin(editingCustomer.id, data);
+            showToast(`Đã cập nhật thông tin khách hàng ${data.fullName}!`, 'success');
+          } else {
+            addCustomerByAdmin(data);
+            showToast(`Đã thêm khách hàng mới ${data.fullName}!`, 'success');
+          }
+        }}
         showToast={showToast}
       />
 

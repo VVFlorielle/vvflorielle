@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Megaphone, Plus, Edit3, Trash2, ArrowLeft } from 'lucide-react';
 import { MarqueeItem } from '../../../types';
+import { ActionConfirmModal } from '../ManagementModals';
 
 interface MarqueeSubpageProps {
   marqueeAnnouncements: MarqueeItem[];
@@ -28,6 +29,7 @@ export const MarqueeSubpage: React.FC<MarqueeSubpageProps> = ({
   const [editingMarqueeId, setEditingMarqueeId] = useState<string | null>(null);
   const [editMarqueeText, setEditMarqueeText] = useState('');
   const [editMarqueeTag, setEditMarqueeTag] = useState('');
+  const [marqueeToDelete, setMarqueeToDelete] = useState<MarqueeItem | null>(null);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -252,11 +254,7 @@ export const MarqueeSubpage: React.FC<MarqueeSubpageProps> = ({
                       {/* Delete Button */}
                       <button
                         type="button"
-                        onClick={() => {
-                          if (window.confirm('Bạn có chắc chắn muốn xóa dòng tin này không?')) {
-                            deleteMarqueeItem(item.id);
-                          }
-                        }}
+                        onClick={() => setMarqueeToDelete(item)}
                         className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                         title="Xóa dòng tin"
                       >
@@ -270,6 +268,22 @@ export const MarqueeSubpage: React.FC<MarqueeSubpageProps> = ({
           )}
         </div>
       </div>
+
+      {/* In-App Action Confirm Modal: No Browser Dialogs! */}
+      <ActionConfirmModal
+        isOpen={Boolean(marqueeToDelete)}
+        onClose={() => setMarqueeToDelete(null)}
+        onConfirm={() => {
+          if (marqueeToDelete) {
+            deleteMarqueeItem(marqueeToDelete.id);
+            setMarqueeToDelete(null);
+          }
+        }}
+        title="Xóa Thông Báo Chạy Chữ"
+        message={`Bạn có chắc muốn xóa dòng chữ chạy "${marqueeToDelete?.text}" khỏi thanh thông báo đỉnh trang không?`}
+        confirmText="Xóa Dòng Tin"
+        type="danger"
+      />
     </div>
   );
 };
