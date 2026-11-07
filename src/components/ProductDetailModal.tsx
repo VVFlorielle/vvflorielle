@@ -52,6 +52,16 @@ export const ProductDetailModal: React.FC = () => {
 
   const handleAddToCart = (openCartImmediately = false) => {
     if (!selectedProduct.isAvailable) return;
+
+    // Haptic feedback
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(25);
+      } catch {
+        // Safe ignore
+      }
+    }
+
     addToCart(selectedProduct, quantity, selectedRibbon, cardMessage);
     setSelectedProduct(null);
     if (openCartImmediately) {
@@ -96,9 +106,12 @@ export const ProductDetailModal: React.FC = () => {
                   onError={() => setImageError(true)}
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-emerald-50 text-emerald-800 p-4 text-center">
-                  <ImageOff className="w-8 h-8 opacity-40 mb-1" />
-                  <span className="text-xs font-semibold">V&V Florielle Studio</span>
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-rose-50/70 text-emerald-800 p-4 text-center select-none">
+                  <div className="w-14 h-14 rounded-full bg-emerald-100/80 border border-emerald-200/70 flex items-center justify-center text-emerald-700 shadow-inner mb-2">
+                    <Sparkles className="w-6 h-6 text-emerald-600 animate-pulse" />
+                  </div>
+                  <span className="text-sm font-bold text-slate-800">V&V Florielle Studio</span>
+                  <span className="text-xs text-emerald-700 font-medium mt-0.5">Tuyệt Tác Hoa Nghệ Thuật Thủ Công</span>
                 </div>
               )}
 

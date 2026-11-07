@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Lock,
@@ -62,9 +63,10 @@ export const ActionConfirmModal: React.FC<ActionConfirmModalProps> = ({
 }) => {
   useBodyScrollLock(isOpen);
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
-  return (
-    <div className="glass-overlay z-[9999]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[99999]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[32px] border border-white/80 bg-white/95 shadow-2xl p-6 text-center animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
@@ -114,7 +116,8 @@ export const ActionConfirmModal: React.FC<ActionConfirmModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

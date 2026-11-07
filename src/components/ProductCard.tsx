@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FlowerProduct } from '../types';
 import { useStore } from '../context/StoreContext';
-import { Star, ShoppingBag, Eye, ImageOff } from 'lucide-react';
+import { Star, ShoppingBag, Eye, Sparkles } from 'lucide-react';
 
 interface ProductCardProps {
   product: FlowerProduct;
@@ -10,6 +10,7 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart, setSelectedProduct } = useStore();
   const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -18,6 +19,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!product.isAvailable) return;
+
+    // Haptic feedback for tactile native-app feel on mobile devices
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(25);
+      } catch {
+        // Safe ignore if permission denied
+      }
+    }
+
     addToCart(product, 1, 'Đỏ Ruby', 'Chúc mừng hạnh phúc!');
   };
 
@@ -30,17 +41,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="relative p-2 sm:p-2.5">
         <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-inner group">
           {!imageError && product.imageUrl ? (
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-              loading="lazy"
-              onError={() => setImageError(true)}
-            />
+            <>
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/70 via-slate-100 to-teal-50/50 animate-pulse" />
+              )}
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-108 ${
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                loading="lazy"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
+              />
+            </>
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-emerald-50 text-emerald-800 p-4 text-center">
-              <ImageOff className="w-8 h-8 opacity-40 mb-1" />
-              <span className="text-[11px] font-medium text-slate-500">V&V Florielle Studio</span>
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-rose-50/70 text-emerald-800 p-3 text-center select-none relative overflow-hidden">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-100/80 border border-emerald-200/70 flex items-center justify-center text-emerald-700 shadow-inner mb-1.5 group-hover:scale-110 transition-transform">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 animate-pulse" />
+              </div>
+              <span className="text-[10.5px] sm:text-[11.5px] font-bold text-slate-700 tracking-wide">
+                V&V Florielle Studio
+              </span>
+              <span className="text-[8.5px] sm:text-[9.5px] text-emerald-700/80 font-medium mt-0.5">
+                Thiết Kế Thủ Công
+              </span>
             </div>
           )}
         </div>

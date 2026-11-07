@@ -178,8 +178,19 @@ export const CartDrawer: React.FC = () => {
     showToast(`Áp dụng voucher ${matched.code} thành công! Giảm ${new Intl.NumberFormat('vi-VN').format(discount)}đ`);
   };
 
+  const triggerHaptic = (pattern: number | number[] = 20) => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(pattern);
+      } catch {
+        // Safe ignore
+      }
+    }
+  };
+
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    triggerHaptic([30, 40, 30]);
 
     if (!senderName.trim() || !senderPhone.trim()) {
       showToast('Vui lòng điền thông tin người gửi!', 'error');
@@ -356,7 +367,10 @@ export const CartDrawer: React.FC = () => {
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
                           <div className="flex items-center gap-1.5 border border-slate-200 rounded-lg p-0.5 bg-white">
                             <button
-                              onClick={() => updateCartItemQty(item.product.id, item.quantity - 1)}
+                              onClick={() => {
+                                triggerHaptic(15);
+                                updateCartItemQty(item.product.id, item.quantity - 1);
+                              }}
                               className="p-1 rounded text-slate-500 hover:bg-slate-100"
                             >
                               <Minus className="w-3 h-3" />
@@ -365,7 +379,10 @@ export const CartDrawer: React.FC = () => {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => updateCartItemQty(item.product.id, item.quantity + 1)}
+                              onClick={() => {
+                                triggerHaptic(15);
+                                updateCartItemQty(item.product.id, item.quantity + 1);
+                              }}
                               className="p-1 rounded text-slate-500 hover:bg-slate-100"
                             >
                               <Plus className="w-3 h-3" />
@@ -373,7 +390,10 @@ export const CartDrawer: React.FC = () => {
                           </div>
 
                           <button
-                            onClick={() => removeFromCart(item.product.id)}
+                            onClick={() => {
+                              triggerHaptic(25);
+                              removeFromCart(item.product.id);
+                            }}
                             className="p-1 text-slate-400 hover:text-rose-600 transition-colors"
                             title="Xóa khỏi giỏ"
                           >
