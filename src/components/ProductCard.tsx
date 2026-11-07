@@ -24,10 +24,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <div
       onClick={() => setSelectedProduct(product)}
-      className="glass-card rounded-[24px] border border-white/80 bg-white/75 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer group hover:shadow-xl transition-all"
+      className="glass-card rounded-[20px] sm:rounded-[24px] border border-white/80 bg-white/75 backdrop-blur-xl flex flex-col justify-between overflow-hidden cursor-pointer group hover:shadow-xl transition-all"
     >
       {/* Top Media Container - REAL PHOTOGRAPHY IMAGE */}
-      <div className="relative p-2.5">
+      <div className="relative p-2 sm:p-2.5">
         <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-inner group">
           {!imageError && product.imageUrl ? (
             <img
@@ -46,17 +46,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         {/* Tag Badges */}
-        <div className="absolute top-4 left-4 flex flex-col gap-1.5 items-start">
+        <div className="absolute top-3.5 left-3.5 sm:top-4 sm:left-4 flex flex-col gap-1 items-start">
           {product.tag && (
             <span
-              className="text-[11px] font-bold px-2 py-0.5 rounded-full text-white shadow-sm"
+              className="text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full text-white shadow-sm"
               style={{ backgroundColor: product.gradientTheme?.tagBg || '#059669' }}
             >
               {product.tag}
             </span>
           )}
           {!product.isAvailable && (
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-700 text-white shadow-sm">
+            <span className="text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-slate-700 text-white shadow-sm">
               Tạm hết hoa
             </span>
           )}
@@ -86,50 +86,54 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
       </div>
 
-      {/* Card Info Body */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      {/* Card Info Body - Tối ưu tỷ lệ chuẩn Phototiinlove */}
+      <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
         <div>
           {/* Rating */}
-          <div className="flex items-center gap-1.5 text-xs text-amber-500 mb-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5 text-amber-500 mb-1">
             <div className="flex items-center">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span className="ml-1 font-semibold text-slate-700">{product.rating.toFixed(1)}</span>
+              <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400" />
+              <span className="ml-0.5 sm:ml-1 font-semibold text-slate-700 text-[11px] sm:text-xs">{product.rating.toFixed(1)}</span>
             </div>
-            <span className="text-slate-400 text-[11px]">({product.reviewCount} đánh giá)</span>
+            <span className="text-slate-400 text-[10px] sm:text-[11px]">({product.reviewCount} đánh giá)</span>
           </div>
 
           {/* Product Name */}
-          <h3 className="font-bold text-sm text-slate-800 line-clamp-2 leading-snug group-hover:text-emerald-700 transition-colors">
+          <h3 className="font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 leading-snug group-hover:text-emerald-700 transition-colors min-h-[32px] sm:min-h-[38px]">
             {product.name}
           </h3>
 
           {/* Flower Composition Pills - Compact Single-Line Tag + Counter Badge (Chống dồn ứ làm méo thẻ) */}
-          <div className="flex items-center gap-1 mt-1.5 overflow-hidden">
+          <div className="flex items-center gap-1 mt-1 sm:mt-1.5 overflow-hidden">
             {product.flowerTypes.slice(0, 1).map((flower, idx) => (
               <span
                 key={idx}
-                className="text-[10px] text-slate-600 bg-slate-100/90 px-1.5 py-0.5 rounded-md border border-slate-200/60 truncate max-w-[120px] whitespace-nowrap"
+                className="text-[9px] sm:text-[10px] text-slate-600 bg-slate-100/90 px-1.5 py-0.5 rounded-md border border-slate-200/60 truncate max-w-[85px] sm:max-w-[120px] whitespace-nowrap"
                 title={flower}
               >
                 {flower}
               </span>
             ))}
             {product.flowerTypes.length > 1 && (
-              <span className="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200/60 shrink-0">
+              <span className="text-[8.5px] sm:text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200/60 shrink-0">
                 +{product.flowerTypes.length - 1}
               </span>
             )}
           </div>
         </div>
 
-        {/* Price & Actions */}
-        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-          <div>
-            <div className="text-base font-extrabold text-emerald-700 leading-tight">
+        {/* Price & Actions: Tối ưu chống tràn 100% trên Mobile */}
+        <div className="mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 flex items-center justify-between gap-1 sm:gap-2">
+          <div className="min-w-0 flex-1">
+            <div
+              className={`font-extrabold text-emerald-700 leading-tight truncate ${
+                product.price >= 1000000 ? 'text-[13px] sm:text-base' : 'text-sm sm:text-base'
+              }`}
+            >
               {formatPrice(product.price)}
             </div>
             {product.originalPrice && product.originalPrice > product.price && (
-              <div className="text-[11px] text-slate-400 line-through">
+              <div className="text-[10px] sm:text-[11px] text-slate-400 line-through truncate">
                 {formatPrice(product.originalPrice)}
               </div>
             )}
@@ -138,12 +142,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <button
             onClick={handleQuickAdd}
             disabled={!product.isAvailable}
-            className={`btn-primary text-xs py-1.5 px-3 flex items-center gap-1 shadow-sm ${
+            className={`whitespace-nowrap shrink-0 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-[11px] sm:text-xs shadow-xs hover:shadow-md active:scale-95 transition-all flex items-center justify-center gap-1 border border-white/30 cursor-pointer ${
               !product.isAvailable ? 'opacity-50 cursor-not-allowed bg-slate-400 hover:bg-slate-400' : ''
             }`}
+            title="Đặt mẫu hoa này"
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Đặt hoa</span>
+            <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+            <span className="truncate">Đặt hoa</span>
           </button>
         </div>
       </div>

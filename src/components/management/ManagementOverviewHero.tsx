@@ -1,5 +1,6 @@
-import React from 'react';
-import { Sparkles, Clock, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, Clock, CheckCircle2, Volume2, VolumeX, Bell } from 'lucide-react';
+import { isOrderChimeEnabled, setOrderChimeEnabled, testOrderChimeSound } from '../../utils/audioNotification';
 
 export interface ManagementStatCardItem {
   id: string;
@@ -29,6 +30,22 @@ export const ManagementOverviewHero: React.FC<ManagementOverviewHeroProps> = ({
   statusBadge = 'Hệ thống vận hành ổn định',
   stats
 }) => {
+  const [chimeOn, setChimeOn] = useState<boolean>(() => isOrderChimeEnabled());
+
+  const handleToggleChime = () => {
+    const next = !chimeOn;
+    setChimeOn(next);
+    setOrderChimeEnabled(next);
+    if (next) {
+      testOrderChimeSound();
+    }
+  };
+
+  const handleTestChime = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    testOrderChimeSound();
+  };
+
   const getColorClasses = (color: 'amber' | 'emerald' | 'sky' | 'purple', isActive?: boolean) => {
     switch (color) {
       case 'amber':
@@ -80,19 +97,42 @@ export const ManagementOverviewHero: React.FC<ManagementOverviewHeroProps> = ({
       {/* Soft background petal glow */}
       <div className="absolute right-0 top-0 w-80 h-80 bg-emerald-200/20 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Top Bar Row: Tag Pill on Left & Status Badge on Right (Exact Same Row as requested) */}
-      <div className="relative z-10 flex flex-row items-center justify-between gap-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-300/90 text-emerald-900 text-xs sm:text-[13px] font-bold shadow-2xs">
+      {/* Top Bar Row: Tag Pill on Left & Sound Toggle + Status Badge on Right */}
+      <div className="relative z-10 flex flex-row items-center justify-between gap-2 sm:gap-3">
+        <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-300/90 text-emerald-900 text-xs sm:text-[13px] font-bold shadow-2xs">
           {tagIcon}
           <span>{tag}</span>
         </div>
 
-        {statusBadge && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 border border-emerald-200 text-xs text-emerald-900 shadow-2xs font-semibold shrink-0">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{statusBadge}</span>
-          </span>
-        )}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Nút Bật/Tắt & Thử Chuông Báo Đơn Mới (Web Audio API) */}
+          <div className="inline-flex items-center gap-1 bg-white/95 border border-emerald-200/90 rounded-full px-2 sm:px-2.5 py-1 text-xs text-emerald-900 shadow-2xs">
+            <button
+              type="button"
+              onClick={handleToggleChime}
+              className="flex items-center gap-1 font-semibold hover:text-emerald-700 transition-colors cursor-pointer"
+              title={chimeOn ? 'Đang bật chuông đơn mới - Bấm để tắt' : 'Đang tắt chuông đơn - Bấm để bật'}
+            >
+              {chimeOn ? <Volume2 className="w-3.5 h-3.5 text-emerald-600" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
+              <span className="text-[11px] sm:text-xs">{chimeOn ? 'Chuông: Bật' : 'Chuông: Tắt'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleTestChime}
+              className="p-1 rounded-full hover:bg-emerald-50 text-emerald-700 transition-colors cursor-pointer"
+              title="Nghe thử âm thanh chuông báo"
+            >
+              <Bell className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            </button>
+          </div>
+
+          {statusBadge && (
+            <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 border border-emerald-200 text-xs text-emerald-900 shadow-2xs font-semibold shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>{statusBadge}</span>
+            </span>
+          )}
+        </div>
       </div>
 
       {/* 4 Quick Stat Counters (Bright, Clean, Elegant Glass Cards) */}

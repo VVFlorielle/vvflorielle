@@ -57,9 +57,9 @@ export const CatalogPage: React.FC = () => {
   const currentCat = categories.find((c) => c.id === selectedCategory);
 
   return (
-    <div className="container pt-2 sm:pt-3 pb-3 space-y-5 sm:space-y-6 animate-in fade-in duration-300">
+    <div className="container px-2.5 sm:px-4 md:px-6 pt-2 sm:pt-3 pb-3 space-y-4 sm:space-y-6 animate-in fade-in duration-300">
       {/* Dynamic Breadcrumb & Title Hero: Thay đổi linh hoạt theo từng danh mục hoa đang chọn */}
-      <div className="rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/70 border border-emerald-200/80 shadow-lg relative overflow-hidden transition-all duration-300">
+      <div className="rounded-2xl sm:rounded-[32px] p-4 sm:p-8 md:p-10 bg-gradient-to-br from-emerald-50/95 via-white/95 to-rose-50/70 border border-emerald-200/80 shadow-lg relative overflow-hidden transition-all duration-300">
         {/* Background Floral Accents khi chọn danh mục cụ thể */}
         {currentCat && selectedCategory !== 'all' && (
           <>
@@ -225,7 +225,7 @@ export const CatalogPage: React.FC = () => {
         </div>
 
         {sortedProducts.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
             {sortedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

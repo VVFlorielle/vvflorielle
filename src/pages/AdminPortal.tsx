@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { restoreScrollPosition } from '../utils/scrollRestoration';
+import { playNewOrderChime } from '../utils/audioNotification';
 import {
   Lock,
   KeyRound,
@@ -125,6 +126,15 @@ export const AdminPortal: React.FC = () => {
     setActiveTab('dashboard');
     restoreScrollPosition(lastDashboardScrollYRef.current);
   };
+
+  // Tự động phát chuông khi có đơn hàng mới phát sinh (Chuẩn Florist)
+  const previousOrderCountRef = useRef(orders.length);
+  useEffect(() => {
+    if (orders.length > previousOrderCountRef.current) {
+      playNewOrderChime();
+    }
+    previousOrderCountRef.current = orders.length;
+  }, [orders.length]);
 
   const [orderSearchForSubpage, setOrderSearchForSubpage] = useState('');
 

@@ -17,10 +17,10 @@ export const ProductsDisplayGrid: React.FC<ProductsDisplayGridProps> = ({
   onResetFilters
 }) => {
   return (
-    <section className="container">
+    <section className="container px-2.5 sm:px-4 md:px-6">
       {totalSortedCount === 0 ? (
-        <div className="glass-panel p-12 text-center text-slate-500 space-y-3 rounded-3xl">
-          <p className="text-sm">Không tìm thấy mẫu hoa phù hợp với tiêu chí lọc của bạn.</p>
+        <div className="glass-panel p-8 sm:p-12 text-center text-slate-500 space-y-3 rounded-3xl">
+          <p className="text-xs sm:text-sm">Không tìm thấy mẫu hoa phù hợp với tiêu chí lọc của bạn.</p>
           <button
             onClick={onResetFilters}
             className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer"
@@ -30,7 +30,7 @@ export const ProductsDisplayGrid: React.FC<ProductsDisplayGridProps> = ({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
