@@ -17,7 +17,7 @@ import {
   Megaphone,
   LayoutTemplate
 } from 'lucide-react';
-import { CustomerUser, Order, OrderStatus, FlowerProduct } from '../types';
+import { CustomerUser, Order, OrderStatus, FlowerProduct, ContactChannel } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
 import { ManagementTabsBar } from '../components/management/ManagementTabsBar';
 import { ManagementFunctionalGrid, ManagementActionGroup } from '../components/management/ManagementFunctionalGrid';
@@ -90,6 +90,7 @@ export const AdminPortal: React.FC = () => {
     adminResetCustomerPassword,
     contactChannels,
     addContactChannel,
+    updateContactChannel,
     deleteContactChannel,
     toggleContactChannel,
     marqueeAnnouncements,
@@ -113,6 +114,7 @@ export const AdminPortal: React.FC = () => {
   const [editShippingOrder, setEditShippingOrder] = useState<{ id: string; fee: number } | null>(null);
   const [tempPassModal, setTempPassModal] = useState<{ customerName: string; pass: string } | null>(null);
   const [isAddingChannel, setIsAddingChannel] = useState(false);
+  const [editingChannel, setEditingChannel] = useState<ContactChannel | null>(null);
   const [isAddVoucherOpen, setIsAddVoucherOpen] = useState(false);
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<FlowerProduct | null>(null);
@@ -464,7 +466,14 @@ export const AdminPortal: React.FC = () => {
           }}
           onToggleContactChannel={toggleContactChannel}
           onDeleteContactChannel={deleteContactChannel}
-          onOpenAddChannel={() => setIsAddingChannel(true)}
+          onOpenAddChannel={() => {
+            setEditingChannel(null);
+            setIsAddingChannel(true);
+          }}
+          onOpenEditChannel={(channel) => {
+            setEditingChannel(channel);
+            setIsAddingChannel(true);
+          }}
         />
       )}
 
@@ -571,10 +580,17 @@ export const AdminPortal: React.FC = () => {
 
       <AddContactChannelModal
         isOpen={isAddingChannel}
-        onClose={() => setIsAddingChannel(false)}
+        channelToEdit={editingChannel}
+        onClose={() => {
+          setIsAddingChannel(false);
+          setEditingChannel(null);
+        }}
         onAddChannel={(channel) => {
           addContactChannel(channel);
           showToast(`Đã thêm kênh liên hệ ${channel.label}!`, 'success');
+        }}
+        onUpdateChannel={(id, updates) => {
+          updateContactChannel(id, updates);
         }}
         showToast={showToast}
       />

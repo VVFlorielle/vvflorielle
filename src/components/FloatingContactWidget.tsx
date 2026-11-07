@@ -22,10 +22,18 @@ export const FloatingContactWidget: React.FC = () => {
 
   // Draggable position state
   const buttonSize = 46; // 46px on mobile, 48px on desktop
+  const getSafeMargin = () => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 640 ? 24 : 16;
+    }
+    return 16;
+  };
+
   const getDefaultPos = () => {
     if (typeof window !== 'undefined') {
+      const margin = window.innerWidth >= 640 ? 24 : 16;
       return {
-        x: Math.max(12, window.innerWidth - buttonSize - 12),
+        x: Math.max(margin, window.innerWidth - buttonSize - margin),
         y: Math.round(window.innerHeight * 0.42),
       };
     }
@@ -61,8 +69,9 @@ export const FloatingContactWidget: React.FC = () => {
     const handleResize = () => {
       setPos((prev) => {
         const isLeftHalf = prev.x < window.innerWidth / 2;
+        const margin = window.innerWidth >= 640 ? 24 : 16;
         return {
-          x: isLeftHalf ? 12 : Math.max(12, window.innerWidth - buttonSize - 12),
+          x: isLeftHalf ? margin : Math.max(margin, window.innerWidth - buttonSize - margin),
           y: Math.max(75, Math.min(prev.y, window.innerHeight - buttonSize - 90)),
         };
       });
@@ -109,8 +118,9 @@ export const FloatingContactWidget: React.FC = () => {
         lastToggleTimeRef.current = Date.now();
         setPos((currentPos) => {
           const isLeftHalf = currentPos.x < window.innerWidth / 2;
+          const margin = window.innerWidth >= 640 ? 24 : 16;
           return {
-            x: isLeftHalf ? 12 : Math.max(12, window.innerWidth - buttonSize - 12),
+            x: isLeftHalf ? margin : Math.max(margin, window.innerWidth - buttonSize - margin),
             y: Math.max(75, Math.min(currentPos.y, window.innerHeight - buttonSize - 90)),
           };
         });

@@ -757,47 +757,19 @@
   }
 }
 
-/* AI Mascot Floating & Swaying Animation (Lắc lư kiểu bay bổng sinh động) */
+/* AI Mascot Floating & Swaying Animation (Bay bổng đung đưa êm ái mượt mà như phototiinlove) */
 @keyframes mascot-float-sway {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-7px) rotate(2.8deg);
+    transform: translateY(0px) rotate(-2.2deg);
   }
   50% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  75% {
-    transform: translateY(6px) rotate(-2.8deg);
-  }
-}
-
-@keyframes mascot-shadow-breathe {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.35;
-  }
-  25% {
-    transform: scale(0.85);
-    opacity: 0.2;
-  }
-  50% {
-    transform: scale(1);
-    opacity: 0.35;
-  }
-  75% {
-    transform: scale(1.15);
-    opacity: 0.45;
+    transform: translateY(-9px) rotate(2.2deg);
   }
 }
 
 .animate-mascot-float {
-  animation: mascot-float-sway 3.8s ease-in-out infinite;
-  transform-origin: center bottom;
-}
-
-.animate-mascot-shadow {
-  animation: mascot-shadow-breathe 3.8s ease-in-out infinite;
+  animation: mascot-float-sway 3.4s ease-in-out infinite;
+  transform-origin: 50% 80%;
+  will-change: transform;
 }
 

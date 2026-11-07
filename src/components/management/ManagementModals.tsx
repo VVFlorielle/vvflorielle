@@ -844,6 +844,8 @@ export interface AddContactChannelModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddChannel: (channel: Omit<ContactChannel, 'id'>) => void;
+  channelToEdit?: ContactChannel | null;
+  onUpdateChannel?: (id: string, updates: Partial<ContactChannel>) => void;
   showToast: (msg: string, type?: 'success' | 'error' | 'info') => void;
 }
 
@@ -851,12 +853,30 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
   isOpen,
   onClose,
   onAddChannel,
+  channelToEdit,
+  onUpdateChannel,
   showToast
 }) => {
+  const isEditing = Boolean(channelToEdit && channelToEdit.id);
   const [newChannelType, setNewChannelType] = useState<ContactChannel['type']>('zalo');
   const [newChannelTitle, setNewChannelTitle] = useState('');
   const [newChannelValue, setNewChannelValue] = useState('');
   const [newChannelUrl, setNewChannelUrl] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (channelToEdit) {
+      setNewChannelType(channelToEdit.type || 'zalo');
+      setNewChannelTitle(channelToEdit.title || channelToEdit.label || '');
+      setNewChannelValue(channelToEdit.value || '');
+      setNewChannelUrl(channelToEdit.url || channelToEdit.link || '');
+    } else {
+      setNewChannelType('zalo');
+      setNewChannelTitle('');
+      setNewChannelValue('');
+      setNewChannelUrl('');
+    }
+  }, [isOpen, channelToEdit]);
 
   if (!isOpen) return null;
 
@@ -866,20 +886,30 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
       showToast('Vui lòng nhập tên kênh và đường dẫn!', 'error');
       return;
     }
-    onAddChannel({
-      type: newChannelType,
-      label: newChannelTitle.trim(),
-      title: newChannelTitle.trim(),
-      value: newChannelValue.trim() || newChannelTitle.trim(),
-      link: newChannelUrl.trim(),
-      url: newChannelUrl.trim(),
-      isEnabled: true,
-      order: 99
-    });
+
+    if (isEditing && channelToEdit && onUpdateChannel) {
+      onUpdateChannel(channelToEdit.id, {
+        type: newChannelType,
+        label: newChannelTitle.trim(),
+        title: newChannelTitle.trim(),
+        value: newChannelValue.trim() || newChannelTitle.trim(),
+        link: newChannelUrl.trim(),
+        url: newChannelUrl.trim(),
+      });
+      showToast(`Đã cập nhật kênh liên hệ "${newChannelTitle.trim()}"!`, 'success');
+    } else {
+      onAddChannel({
+        type: newChannelType,
+        label: newChannelTitle.trim(),
+        title: newChannelTitle.trim(),
+        value: newChannelValue.trim() || newChannelTitle.trim(),
+        link: newChannelUrl.trim(),
+        url: newChannelUrl.trim(),
+        isEnabled: true,
+        order: 99
+      });
+    }
     onClose();
-    setNewChannelTitle('');
-    setNewChannelValue('');
-    setNewChannelUrl('');
   };
 
   return (
@@ -889,7 +919,9 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="glass-modal-header">
-          <h3 className="font-bold text-base text-slate-900">Thêm Kênh Liên Hệ Mới</h3>
+          <h3 className="font-bold text-base text-slate-900">
+            {isEditing ? 'Chỉnh Sửa Kênh Liên Hệ' : 'Thêm Kênh Liên Hệ Mới'}
+          </h3>
           <button
             onClick={onClose}
             className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
@@ -912,7 +944,7 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
                 <option value="tiktok">TikTok Kênh Video</option>
                 <option value="facebook">Facebook Fanpage</option>
                 <option value="messenger">Facebook Messenger</option>
-                <option value="maps">Google Maps (105 Doãn Kế Thiện)</option>
+                <option value="maps">Google Maps (Chỉ đường Showroom)</option>
                 <option value="custom">Kênh Khác</option>
               </select>
             </div>
@@ -962,7 +994,7 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
               Hủy
             </button>
             <button type="submit" className="btn-primary text-xs py-2 px-4 rounded-xl cursor-pointer">
-              Thêm Kênh
+              {isEditing ? 'Lưu Thay Đổi' : 'Thêm Kênh'}
             </button>
           </div>
         </form>

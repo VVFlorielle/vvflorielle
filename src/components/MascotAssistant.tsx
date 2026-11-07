@@ -380,9 +380,6 @@ export const MascotAssistant: React.FC = () => {
                 isOpen ? 'scale-105 drop-shadow-[0_8px_20px_rgba(4,120,87,0.45)]' : ''
               }`}
             />
-
-            {/* Soft Ambient Floating Shadow beneath buoyant mascot */}
-            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-8 sm:w-10 h-2 bg-emerald-950/25 rounded-full blur-[2.5px] pointer-events-none animate-mascot-shadow" />
           </div>
 
           {/* Online status indicator dot (Emerald when idle, pulsing amber when chat is active) */}

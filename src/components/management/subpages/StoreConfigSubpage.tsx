@@ -4,6 +4,7 @@ import {
   Share2,
   Plus,
   Trash2,
+  Pencil,
   ExternalLink,
   Sparkles,
   CheckCircle2,
@@ -21,6 +22,7 @@ interface StoreConfigSubpageProps {
   onToggleContactChannel: (id: string) => void;
   onDeleteContactChannel: (id: string) => void;
   onOpenAddChannel: () => void;
+  onOpenEditChannel?: (channel: ContactChannel) => void;
   title?: string;
 }
 
@@ -32,6 +34,7 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
   onToggleContactChannel,
   onDeleteContactChannel,
   onOpenAddChannel,
+  onOpenEditChannel,
   title = 'Cấu Hình Cửa Hàng, Bảng Cước & Bản Đồ'
 }) => {
   const [editSettings, setEditSettings] = useState<ShopSettings>(settings);
@@ -408,7 +411,7 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
               Các nút liên hệ nổi góc phải màn hình giúp khách hàng gọi hotline, chat Zalo, xem TikTok hoặc chỉ đường
-              đến 105 Doãn Kế Thiện.
+              đến showroom tiệm hoa.
             </p>
           </div>
 
@@ -464,18 +467,32 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   <span>Mở thử liên kết</span>
                 </a>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (confirm(`Bạn có chắc muốn xóa kênh liên hệ "${channel.title || channel.label}"?`)) {
-                      onDeleteContactChannel(channel.id);
-                    }
-                  }}
-                  className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
-                  title="Xóa kênh"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1.5">
+                  {onOpenEditChannel && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenEditChannel(channel)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200/80 hover:border-purple-300 text-[11px] font-bold transition-all cursor-pointer"
+                      title={`Chỉnh sửa nội dung kênh "${channel.title || channel.label}"`}
+                    >
+                      <Pencil className="w-3 h-3 text-purple-600" />
+                      <span>Sửa</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm(`Bạn có chắc muốn xóa kênh liên hệ "${channel.title || channel.label}"?`)) {
+                        onDeleteContactChannel(channel.id);
+                      }
+                    }}
+                    className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                    title="Xóa kênh"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
