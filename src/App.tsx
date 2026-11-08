@@ -135,8 +135,10 @@ export const AppContent: React.FC = () => {
       {/* Customer-Only Elements (Hidden during Management Mode for 100% focus and zero overlap) */}
       {!isManagementView && (
         <>
-          {/* Main Footer */}
-          <Footer onOpenPopup={(type) => setActivePopup(type)} />
+          {/* Main Footer (Public Storefront Only: store, catalog, about, contact, care - NEVER in admin or customer management) */}
+          {!isAdmin && currentView !== 'customer' && (
+            <Footer onOpenPopup={(type) => setActivePopup(type)} />
+          )}
 
           {/* Mobile Glass Dock for Guests / Customers (Only when NOT logged in as Admin/Owner) */}
           {!isAdmin && <MobileBottomDock onOpenPopup={(type) => setActivePopup(type)} />}
