@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
 import {
   ShieldCheck,
@@ -22,6 +22,38 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
     (o) => !o.isDepositPaid && o.status !== 'CANCELLED'
   ).length;
 
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let ticking = false;
+
+    const handleScrollActivity = () => {
+      setIsScrolling(true);
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setIsScrolling(false);
+      }, 260);
+
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 15);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollActivity, { passive: true });
+    window.addEventListener('touchmove', handleScrollActivity, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScrollActivity);
+      window.removeEventListener('touchmove', handleScrollActivity);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
   const handleReturnToStore = () => {
     setCurrentView('store');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -33,22 +65,29 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
   };
 
   return (
-    <header className="w-full pt-2 sm:pt-3 pb-1.5 px-2 sm:px-6 select-none transition-all overflow-x-hidden">
+    <header
+      className={`w-full px-2 sm:px-6 select-none transition-all duration-300 ease-out ${
+        isScrolling
+          ? 'opacity-40 sm:opacity-50 scale-[0.985] backdrop-blur-xs'
+          : 'opacity-100 scale-100 backdrop-blur-2xl'
+      } hover:opacity-100 active:opacity-100 focus-within:opacity-100`}
+    >
       {/* 
-        Header 3 khối cân giữa đối xứng:
-        - Bên trái: Khối thông báo đơn cọc chờ duyệt
-        - Ở giữa: Khung bóng kính ôm Logo căn giữa tuyệt đối
-        - Bên phải: Gộp khối quyền Admin và nút Đăng Xuất thành 1 khối duy nhất
-        - Đảm bảo lề an toàn tuyệt đối trên mọi màn hình từ 360px trở lên
+        Header 3 khối dạng Popup nổi:
+        - Bố cục relative, Logo căn giữa tuyệt đối 100% bằng absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+        - Khi lướt/vuốt trang: vẫn nổi trên đầu nhưng ẩn mờ nhẹ (opacity-40-50), nhả tay dừng lướt tự động hiện rõ nét 100%
+        - Bên trái: Khối thông báo đơn cọc chờ duyệt dạng pill nổi
+        - Ở giữa: Khung bóng kính ôm Logo căn giữa tuyệt đối, không lệch dù trái/phải lệch size
+        - Bên phải: Khối quyền Admin/Chủ quán và nút Đăng xuất
       */}
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-1 min-[375px]:gap-2 sm:gap-4 relative w-full">
-        {/* === LEFT: KHỐI THÔNG BÁO ĐƠN CỌC CHỜ DUYỆT === */}
-        <div className="flex items-center justify-start shrink-0">
+      <div className="max-w-7xl mx-auto relative flex items-center justify-between w-full h-11 min-[375px]:h-12 sm:h-14">
+        {/* === LEFT: KHỐI THÔNG BÁO ĐƠN CỌC CHỜ DUYỆT (Z-10) === */}
+        <div className="flex items-center justify-start shrink-0 z-10 pointer-events-auto">
           {pendingDepositOrders > 0 ? (
             <button
               type="button"
               onClick={() => onNavigateTab?.('orders')}
-              className="inline-flex items-center gap-1 min-[375px]:gap-1.5 px-2 min-[375px]:px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-amber-50/95 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[10.5px] min-[375px]:text-[11px] sm:text-xs font-bold shadow-2xs animate-pulse cursor-pointer transition-all active:scale-95 shrink-0"
+              className="inline-flex items-center gap-1 min-[375px]:gap-1.5 px-2 min-[375px]:px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-amber-50/95 hover:bg-amber-100 border border-amber-300/90 text-amber-900 text-[10px] min-[375px]:text-[11px] sm:text-xs font-bold shadow-sm shadow-amber-500/15 animate-pulse cursor-pointer transition-all active:scale-95 shrink-0"
               title="Xem danh sách đơn cọc cần duyệt"
             >
               <span className="w-1.5 h-1.5 min-[375px]:w-2 min-[375px]:h-2 rounded-full bg-amber-500 shrink-0" />
@@ -57,7 +96,7 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
               </span>
             </button>
           ) : (
-            <div className="inline-flex items-center gap-1 min-[375px]:gap-1.5 px-2 min-[375px]:px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-emerald-50/90 text-emerald-800 border border-emerald-200/80 text-[10.5px] min-[375px]:text-[11px] sm:text-xs font-semibold shadow-2xs shrink-0">
+            <div className="inline-flex items-center gap-1 min-[375px]:gap-1.5 px-2 min-[375px]:px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-emerald-50/90 text-emerald-800 border border-emerald-200/90 text-[10px] min-[375px]:text-[11px] sm:text-xs font-semibold shadow-xs shrink-0">
               <span className="w-1.5 h-1.5 min-[375px]:w-2 min-[375px]:h-2 rounded-full bg-emerald-500 shrink-0" />
               <span className="whitespace-nowrap font-medium">
                 0 đơn<span className="hidden sm:inline"> chờ duyệt</span>
@@ -66,11 +105,12 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
           )}
         </div>
 
-        {/* === CENTER: KHỐI LOGO CO GIÃN THÔNG MINH, CĂN GIỮA TUYỆT ĐỐI === */}
-        <div className="flex items-center justify-center shrink-0 mx-auto px-0.5 min-[375px]:px-1.5">
-          <div
+        {/* === CENTER: LOGO CĂN CHÍNH GIỮA TUYỆT ĐỐI MÀN HÌNH (Z-20) === */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-auto">
+          <button
+            type="button"
             onClick={handleReturnToStore}
-            className="h-[48px] min-[375px]:h-[54px] sm:h-[72px] w-[112px] min-[375px]:w-[128px] sm:w-[175px] p-[1px] rounded-full bg-white/94 backdrop-blur-2xl border border-white/90 shadow-[0_4px_24px_rgba(5,150,105,0.15)] hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none group overflow-hidden"
+            className="h-[44px] min-[375px]:h-[50px] sm:h-[66px] w-[110px] min-[375px]:w-[126px] sm:w-[168px] p-[1px] rounded-full bg-white/95 backdrop-blur-2xl border border-white/90 shadow-[0_4px_20px_rgba(5,150,105,0.18)] hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none group overflow-hidden"
             title="V&V Florielle - Bấm để chuyển nhanh ra xem giao diện cửa hàng"
           >
             <img
@@ -78,16 +118,16 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
               alt="V&V Florielle"
               className="h-full w-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.1)] p-[1px]"
             />
-          </div>
+          </button>
         </div>
 
-        {/* === RIGHT: GỘP KHỐI ADMIN & ĐĂNG XUẤT THÀNH 1 KHỐI DUY NHẤT CÂN ĐỐI === */}
-        <div className="flex items-center justify-end shrink-0">
+        {/* === RIGHT: GỘP KHỐI ADMIN & ĐĂNG XUẤT THÀNH 1 KHỐI DUY NHẤT CÂN ĐỐI (Z-10) === */}
+        <div className="flex items-center justify-end shrink-0 z-10 pointer-events-auto">
           <div
-            className={`inline-flex items-center gap-1 min-[375px]:gap-1.5 pl-2 min-[375px]:pl-2.5 pr-1 min-[375px]:pr-1.5 py-0.5 min-[375px]:py-1 rounded-full text-[10.5px] min-[375px]:text-[11px] sm:text-xs font-bold border shadow-2xs transition-all shrink-0 ${
+            className={`inline-flex items-center gap-1 min-[375px]:gap-1.5 pl-2 min-[375px]:pl-2.5 pr-1 min-[375px]:pr-1.5 py-0.5 min-[375px]:py-1 rounded-full text-[10px] min-[375px]:text-[11px] sm:text-xs font-bold border shadow-sm transition-all shrink-0 ${
               isOwner
-                ? 'bg-emerald-50/95 text-emerald-900 border-emerald-300/90'
-                : 'bg-purple-50/95 text-purple-900 border-purple-300/90'
+                ? 'bg-emerald-50/95 text-emerald-900 border-emerald-300/90 shadow-emerald-500/15'
+                : 'bg-purple-50/95 text-purple-900 border-purple-300/90 shadow-purple-500/15'
             }`}
           >
             {/* Tên quyền: Admin hoặc Chủ Quán */}

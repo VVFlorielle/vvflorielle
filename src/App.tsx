@@ -103,10 +103,16 @@ export const AppContent: React.FC = () => {
 
       {/* Top Navigation: ManagementHeader for Admin/Owner OR Public Floating Header for Customers */}
       {isManagementView ? (
-        <ManagementHeader
-          role={currentView === 'owner' ? 'owner' : 'admin'}
-          onNavigateTab={(tab) => setActiveAdminTab(tab)}
-        />
+        <div className={`fixed top-2 sm:top-3 left-0 right-0 z-40 w-full pointer-events-none transition-all duration-300 ${
+          isAnyModalOpen ? 'opacity-0 pointer-events-none -translate-y-2' : 'opacity-100'
+        }`}>
+          <div className="pointer-events-auto">
+            <ManagementHeader
+              role={currentView === 'owner' ? 'owner' : 'admin'}
+              onNavigateTab={(tab) => setActiveAdminTab(tab)}
+            />
+          </div>
+        </div>
       ) : (
         <div className={`fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5 transition-all duration-200 ${
           isAnyModalOpen ? 'opacity-0 pointer-events-none -translate-y-2' : 'opacity-100'
@@ -121,7 +127,7 @@ export const AppContent: React.FC = () => {
       )}
 
       {/* Active View (Clean dedicated layout for management, spacious top padding for public store) */}
-      <main className={`flex-1 ${isManagementView ? 'pt-3 sm:pt-5 pb-8' : 'pt-24 sm:pt-32 pb-2'}`}>
+      <main className={`flex-1 ${isManagementView ? 'pt-[68px] sm:pt-[84px] pb-8' : 'pt-24 sm:pt-32 pb-2'}`}>
         {currentView === 'store' && <PublicStore />}
         {currentView === 'catalog' && <CatalogPage />}
         {currentView === 'about' && <AboutPage />}

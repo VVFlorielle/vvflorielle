@@ -213,9 +213,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
       <header className="w-full max-w-7xl mx-auto px-2.5 sm:px-6">
         {/* === MOBILE HEADER (MD:HIDDEN): 3 CỤM ĐẢO BÓNG KÍNH ĐỘC LẬP (CHUẨN glass-nav-luminous, LOGO CĂN CHÍNH GIỮA MÀN HÌNH) === */}
         <div className="flex md:hidden flex-col w-full gap-2 transition-all duration-300">
-          <div className="flex items-center justify-between gap-1.5 min-[375px]:gap-2 sm:gap-4 w-full">
-            {/* Cụm 1 (Bên trái): NÚT THÔNG BÁO & NÚT TÌM KIẾM (Cân đối cách mép an toàn) */}
-            <div className="flex items-center justify-start shrink-0">
+          <div className="relative flex items-center justify-between gap-1.5 min-[375px]:gap-2 sm:gap-4 w-full h-12 min-[375px]:h-14">
+            {/* Cụm 1 (Bên trái): NÚT THÔNG BÁO & NÚT TÌM KIẾM (Cân đối cách mép an toàn, z-10) */}
+            <div className="flex items-center justify-start shrink-0 z-10">
               <div className={`h-10 min-[375px]:h-11 px-1.5 min-[375px]:px-2.5 rounded-full shrink-0 flex items-center justify-center gap-1 min-[375px]:gap-1.5 ${clusterGlassClass}`}>
                 {/* Nút thông báo */}
                 <button
@@ -246,14 +246,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               </div>
             </div>
 
-            {/* Cụm 2 (Chính giữa): KHUNG BÓNG KÍNH ÔM LOGO - CĂN CHÍNH GIỮA MÀN HÌNH, VIỀN CÁCH LOGO 1-2PX */}
-            <div className="flex items-center justify-center shrink-0 mx-auto px-1">
+            {/* Cụm 2 (Chính giữa): KHUNG BÓNG KÍNH ÔM LOGO - CĂN CHÍNH GIỮA TUYỆT ĐỐI MÀN HÌNH (z-20) */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-auto">
               <div
                 onClick={() => {
                   setCurrentView('store');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`h-[58px] min-[375px]:h-[64px] w-[138px] min-[375px]:w-[148px] p-[1.5px] rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 ${clusterGlassClass}`}
+                className={`h-[50px] min-[375px]:h-[56px] w-[124px] min-[375px]:w-[138px] p-[1.5px] rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 shadow-md ${clusterGlassClass}`}
                 title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
               >
                 <img
@@ -264,8 +264,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               </div>
             </div>
 
-            {/* Cụm 3 (Bên phải): Cụm tài khoản & Admin (Gọn gàng, cân đối, không chạm mép màn hình) */}
-            <div className="flex items-center justify-end shrink-0">
+            {/* Cụm 3 (Bên phải): Cụm tài khoản & Admin (Gọn gàng, cân đối, z-10) */}
+            <div className="flex items-center justify-end shrink-0 z-10">
               {customer && (
                 <div className={`h-10 min-[375px]:h-11 pl-2 min-[375px]:pl-2.5 pr-1 min-[375px]:pr-1.5 py-1 rounded-full shrink-0 flex items-center gap-1 min-[375px]:gap-1.5 ${clusterGlassClass}`}>
                   <button
