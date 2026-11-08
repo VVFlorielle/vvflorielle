@@ -66,21 +66,22 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
 
   return (
     <header
-      className={`w-full px-2 sm:px-6 select-none transition-all duration-300 ease-out ${
+      className={`w-full px-2 sm:px-6 select-none bg-transparent transition-all duration-300 ease-out ${
         isScrolling
-          ? 'opacity-40 sm:opacity-50 scale-[0.985] backdrop-blur-xs'
-          : 'opacity-100 scale-100 backdrop-blur-2xl'
+          ? 'opacity-40 sm:opacity-50 scale-[0.985]'
+          : 'opacity-100 scale-100'
       } hover:opacity-100 active:opacity-100 focus-within:opacity-100`}
     >
       {/* 
-        Header 3 khối dạng Popup nổi:
+        3 viên capsule độc lập nổi trên nền hoàn toàn trong suốt (bg-transparent, không có khung mờ dài ngang):
         - Bố cục relative, Logo căn giữa tuyệt đối 100% bằng absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-        - Khi lướt/vuốt trang: vẫn nổi trên đầu nhưng ẩn mờ nhẹ (opacity-40-50), nhả tay dừng lướt tự động hiện rõ nét 100%
+        - Khoảng trống giữa các nút và nền phía sau 100% trong suốt, không che mờ nội dung phía sau thành dải ngang
+        - Khi lướt/vuốt trang: 3 nút tự ẩn mờ nhẹ (opacity-40-50), nhả tay dừng lướt tự động hiện rõ nét 100%
         - Bên trái: Khối thông báo đơn cọc chờ duyệt dạng pill nổi
-        - Ở giữa: Khung bóng kính ôm Logo căn giữa tuyệt đối, không lệch dù trái/phải lệch size
+        - Ở giữa: Khung bóng kính ôm Logo căn giữa tuyệt đối
         - Bên phải: Khối quyền Admin/Chủ quán và nút Đăng xuất
       */}
-      <div className="max-w-7xl mx-auto relative flex items-center justify-between w-full h-11 min-[375px]:h-12 sm:h-14">
+      <div className="max-w-7xl mx-auto relative flex items-center justify-between w-full h-11 min-[375px]:h-12 sm:h-14 bg-transparent">
         {/* === LEFT: KHỐI THÔNG BÁO ĐƠN CỌC CHỜ DUYỆT (Z-10) === */}
         <div className="flex items-center justify-start shrink-0 z-10 pointer-events-auto">
           {pendingDepositOrders > 0 ? (
