@@ -111,13 +111,13 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
           <button
             type="button"
             onClick={handleReturnToStore}
-            className="h-[48px] min-[375px]:h-[52px] sm:h-[64px] w-[140px] min-[375px]:w-[156px] sm:w-[195px] px-1 py-0.5 rounded-full bg-white/95 backdrop-blur-2xl border border-white/95 shadow-[0_4px_22px_rgba(5,150,105,0.18)] hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none group overflow-hidden"
+            className="h-[48px] min-[375px]:h-[52px] sm:h-[62px] w-[146px] min-[375px]:w-[164px] sm:w-[200px] px-1.5 py-0.5 rounded-full bg-white/95 backdrop-blur-2xl border border-white/95 shadow-[0_4px_22px_rgba(5,150,105,0.18)] hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none group overflow-hidden"
             title="V&V Florielle - Bấm để chuyển nhanh ra xem giao diện cửa hàng"
           >
             <img
               src="/logo-vvflorielle-horizontal.png"
               alt="V&V Florielle"
-              className="h-full w-full object-contain scale-[1.65] filter drop-shadow-[0_1px_4px_rgba(0,0,0,0.08)] transition-transform group-hover:scale-[1.7]"
+              className="h-full w-full object-contain scale-[1.35] sm:scale-[1.38] filter drop-shadow-[0_1px_4px_rgba(0,0,0,0.08)] transition-transform group-hover:scale-[1.42]"
             />
           </button>
         </div>
