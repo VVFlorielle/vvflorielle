@@ -217,11 +217,7 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
     JSON.stringify(draftArticles) !== JSON.stringify(articles);
 
   const toggleSection = (id: string) => {
-    setSectionsVisibility((prev) => {
-      const next = !prev[id];
-      showToast(`Đã ${next ? 'bật' : 'ẩn'} hiển thị khối này trên preview!`, 'info');
-      return { ...prev, [id]: next };
-    });
+    setSectionsVisibility((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   // Welcome Pages Meta Cards

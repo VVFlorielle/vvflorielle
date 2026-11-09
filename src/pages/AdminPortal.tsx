@@ -377,50 +377,52 @@ export const AdminPortal: React.FC = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-32 sm:pb-36 space-y-6 select-none">
-      {/* 1. TOP OVERVIEW HERO BANNER */}
-      <ManagementOverviewHero
-        tag="Thông Tin Quản Trị"
-        tagIcon={<ShieldCheck className="w-3.5 h-3.5 text-purple-700" />}
-        statusBadge="Hệ thống vận hành ổn định"
-        stats={[
-          {
-            id: 'revenue',
-            title: 'Doanh Thu Hoa',
-            value: formatPrice(totalRevenue),
-            subtext: `${completedCount} đơn hoàn thành`,
-            icon: <TrendingUp className="w-3.5 h-3.5 text-purple-700" />,
-            color: 'purple',
-            onClick: () => navigateToTab('revenue')
-          },
-          {
-            id: 'arranging',
-            title: 'Đơn Đang Xử Lý',
-            value: arrangingCount,
-            subtext: 'Đang cắm & chờ duyệt',
-            icon: <Flower2 className="w-3.5 h-3.5" />,
-            color: 'emerald',
-            onClick: () => navigateToTab('orders')
-          },
-          {
-            id: 'customers',
-            title: 'Khách Hàng VIP',
-            value: customers.length,
-            subtext: 'Hội viên thân thiết',
-            icon: <Users className="w-3.5 h-3.5" />,
-            color: 'sky',
-            onClick: () => navigateToTab('customers')
-          },
-          {
-            id: 'products',
-            title: 'Mẫu Hoa Thiết Kế',
-            value: products.length,
-            subtext: 'Mẫu hoa đang bán',
-            icon: <Gift className="w-3.5 h-3.5" />,
-            color: 'amber',
-            onClick: () => navigateToTab('products')
-          }
-        ]}
-      />
+      {/* 1. TOP OVERVIEW HERO BANNER (Chỉ hiển thị tại Dashboard Tổng Quan giống PhotoTiinLove, không đè lên CMS và trang con) */}
+      {activeTab === 'dashboard' && (
+        <ManagementOverviewHero
+          tag="Thông Tin Quản Trị"
+          tagIcon={<ShieldCheck className="w-3.5 h-3.5 text-purple-700" />}
+          statusBadge="Hệ thống vận hành ổn định"
+          stats={[
+            {
+              id: 'revenue',
+              title: 'Doanh Thu Hoa',
+              value: formatPrice(totalRevenue),
+              subtext: `${completedCount} đơn hoàn thành`,
+              icon: <TrendingUp className="w-3.5 h-3.5 text-purple-700" />,
+              color: 'purple',
+              onClick: () => navigateToTab('revenue')
+            },
+            {
+              id: 'arranging',
+              title: 'Đơn Đang Xử Lý',
+              value: arrangingCount,
+              subtext: 'Đang cắm & chờ duyệt',
+              icon: <Flower2 className="w-3.5 h-3.5" />,
+              color: 'emerald',
+              onClick: () => navigateToTab('orders')
+            },
+            {
+              id: 'customers',
+              title: 'Khách Hàng VIP',
+              value: customers.length,
+              subtext: 'Hội viên thân thiết',
+              icon: <Users className="w-3.5 h-3.5" />,
+              color: 'sky',
+              onClick: () => navigateToTab('customers')
+            },
+            {
+              id: 'products',
+              title: 'Mẫu Hoa Thiết Kế',
+              value: products.length,
+              subtext: 'Mẫu hoa đang bán',
+              icon: <Gift className="w-3.5 h-3.5" />,
+              color: 'amber',
+              onClick: () => navigateToTab('products')
+            }
+          ]}
+        />
+      )}
 
       {/* 2. SUBPAGE ROUTING */}
       {activeTab === 'dashboard' && (

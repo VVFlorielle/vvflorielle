@@ -373,50 +373,52 @@ export const OwnerPortal: React.FC = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-32 sm:pb-36 space-y-6 select-none">
-      {/* 1. TOP GREETING & 4 KPIS HERO */}
-      <ManagementOverviewHero
-        tag="Thông Tin Quản Trị"
-        tagIcon={<Flower2 className="w-3.5 h-3.5 text-emerald-700" />}
-        statusBadge="Hệ thống vận hành ổn định"
-        stats={[
-          {
-            id: 'deposit',
-            title: 'Đơn Cần Duyệt Cọc',
-            value: pendingDepositOrders.length,
-            subtext: pendingDepositOrders.length > 0 ? '⚡ Cần xác nhận bill cọc 50%' : 'Đã duyệt hết',
-            icon: <AlertCircle className="w-4 h-4 text-amber-700" />,
-            color: 'amber',
-            onClick: () => navigateToTab('orders')
-          },
-          {
-            id: 'arranging',
-            title: 'Đang Cắm Hoa',
-            value: arrangingOrders.length,
-            subtext: 'Florist đang hoàn thiện',
-            icon: <Flower2 className="w-4 h-4 text-emerald-700" />,
-            color: 'emerald',
-            onClick: () => navigateToTab('orders')
-          },
-          {
-            id: 'shipping',
-            title: 'Đang Giao Hỏa Tốc',
-            value: shippingOrders.length,
-            subtext: 'Shipper đang trên đường',
-            icon: <Truck className="w-4 h-4 text-sky-700" />,
-            color: 'sky',
-            onClick: () => navigateToTab('orders')
-          },
-          {
-            id: 'revenue',
-            title: 'Doanh Thu Hoàn Tất',
-            value: formatPrice(totalRevenue),
-            subtext: `${completedOrders.length} đơn hoàn thành`,
-            icon: <TrendingUp className="w-4 h-4 text-purple-700" />,
-            color: 'purple',
-            onClick: () => navigateToTab('revenue')
-          }
-        ]}
-      />
+      {/* 1. TOP GREETING & 4 KPIS HERO (Chỉ hiển thị tại Dashboard Tổng Quan giống PhotoTiinLove, không đè lên CMS và trang con) */}
+      {activeTab === 'dashboard' && (
+        <ManagementOverviewHero
+          tag="Thông Tin Quản Trị"
+          tagIcon={<Flower2 className="w-3.5 h-3.5 text-emerald-700" />}
+          statusBadge="Hệ thống vận hành ổn định"
+          stats={[
+            {
+              id: 'deposit',
+              title: 'Đơn Cần Duyệt Cọc',
+              value: pendingDepositOrders.length,
+              subtext: pendingDepositOrders.length > 0 ? '⚡ Cần xác nhận bill cọc 50%' : 'Đã duyệt hết',
+              icon: <AlertCircle className="w-4 h-4 text-amber-700" />,
+              color: 'amber',
+              onClick: () => navigateToTab('orders')
+            },
+            {
+              id: 'arranging',
+              title: 'Đang Cắm Hoa',
+              value: arrangingOrders.length,
+              subtext: 'Florist đang hoàn thiện',
+              icon: <Flower2 className="w-4 h-4 text-emerald-700" />,
+              color: 'emerald',
+              onClick: () => navigateToTab('orders')
+            },
+            {
+              id: 'shipping',
+              title: 'Đang Giao Hỏa Tốc',
+              value: shippingOrders.length,
+              subtext: 'Shipper đang trên đường',
+              icon: <Truck className="w-4 h-4 text-sky-700" />,
+              color: 'sky',
+              onClick: () => navigateToTab('orders')
+            },
+            {
+              id: 'revenue',
+              title: 'Doanh Thu Hoàn Tất',
+              value: formatPrice(totalRevenue),
+              subtext: `${completedOrders.length} đơn hoàn thành`,
+              icon: <TrendingUp className="w-4 h-4 text-purple-700" />,
+              color: 'purple',
+              onClick: () => navigateToTab('revenue')
+            }
+          ]}
+        />
+      )}
 
       {/* 2. SUBPAGE ROUTING & DASHBOARD */}
       {activeTab === 'dashboard' && (
