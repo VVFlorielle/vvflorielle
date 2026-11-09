@@ -68,10 +68,34 @@ export const INITIAL_CATEGORIES: FlowerCategory[] = [
   }
 ];
 
+export interface BankInfo {
+  id: string; // VCB, MB, TCB, etc.
+  name: string;
+  shortName: string;
+  bin: string;
+}
+
+export const VIETNAMESE_BANKS: BankInfo[] = [
+  { id: 'VCB', name: 'Vietcombank - Ngân hàng Ngoại thương Việt Nam', shortName: 'Vietcombank', bin: '970436' },
+  { id: 'MB', name: 'MBBank - Ngân hàng Quân Đội', shortName: 'MBBank', bin: '970422' },
+  { id: 'TCB', name: 'Techcombank - Ngân hàng Kỹ Thương', shortName: 'Techcombank', bin: '970407' },
+  { id: 'ICB', name: 'VietinBank - Ngân hàng Công Thương Việt Nam', shortName: 'VietinBank', bin: '970415' },
+  { id: 'BIDV', name: 'BIDV - Ngân hàng Đầu tư và Phát triển Việt Nam', shortName: 'BIDV', bin: '970418' },
+  { id: 'ACB', name: 'ACB - Ngân hàng Á Châu', shortName: 'ACB', bin: '970416' },
+  { id: 'VPB', name: 'VPBank - Ngân hàng Việt Nam Thịnh Vượng', shortName: 'VPBank', bin: '970432' },
+  { id: 'TPB', name: 'TPBank - Ngân hàng Tiên Phong', shortName: 'TPBank', bin: '970423' },
+  { id: 'STB', name: 'Sacombank - Ngân hàng Sài Gòn Thương Tín', shortName: 'Sacombank', bin: '970403' },
+  { id: 'VIB', name: 'VIB - Ngân hàng Quốc Tế', shortName: 'VIB', bin: '970441' },
+  { id: 'SHB', name: 'SHB - Ngân hàng Sài Gòn - Hà Nội', shortName: 'SHB', bin: '970443' },
+  { id: 'HDB', name: 'HDBank - Ngân hàng Phát triển TP.HCM', shortName: 'HDBank', bin: '970437' },
+  { id: 'MSB', name: 'MSB - Ngân hàng Hàng Hải', shortName: 'MSB', bin: '970426' },
+  { id: 'OCB', name: 'OCB - Ngân hàng Phương Đông', shortName: 'OCB', bin: '970448' }
+];
+
 export const INITIAL_PRODUCTS: FlowerProduct[] = [
   {
     id: 'fl-01',
-    name: 'Kệ Hoa Khai Trương Phú Quý Thịnh Vượng (2 Tầng)',
+    name: 'Kệ Hoa Khai Trương Khởi Sắc Hoàng Kim (2 Tầng)',
     categoryId: 'khai-truong',
     price: 1350000,
     originalPrice: 1550000,
@@ -88,11 +112,11 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     isAvailable: true,
     rating: 5.0,
     reviewCount: 38,
-    relatedProductIds: ['fl-02', 'fl-05']
+    relatedProductIds: ['fl-02', 'fl-12']
   },
   {
     id: 'fl-02',
-    name: 'Lẵng Hoa Khai Trương Tài Lộc Vàng Kim Để Bàn',
+    name: 'Lẵng Hoa Khai Trương Phát Tài Thịnh Vượng Để Bàn',
     categoryId: 'khai-truong',
     price: 680000,
     originalPrice: 750000,
@@ -113,10 +137,10 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
   },
   {
     id: 'fl-03',
-    name: 'Bó Hoa Hồng Ecuador Đỏ Say Đắm (Chân Ái)',
+    name: 'Bó Hoa Hồng Ecuador Đỏ Say Đắm Royal Velvet (99 Đóa)',
     categoryId: 'tinh-yeu',
-    price: 850000,
-    originalPrice: 950000,
+    price: 1250000,
+    originalPrice: 1450000,
     tag: 'Hot',
     imageUrl: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80',
     flowerTypes: ['Hồng đỏ Ecuador bông to', 'Hoa baby trắng Hà Lan', 'Giấy gói đen mờ cao cấp'],
@@ -130,11 +154,11 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     isAvailable: true,
     rating: 5.0,
     reviewCount: 62,
-    relatedProductIds: ['fl-07', 'fl-11']
+    relatedProductIds: ['fl-15', 'fl-07']
   },
   {
     id: 'fl-04',
-    name: 'Giỏ Hoa Pastel Dịu Ngọt - Nắng Mới Cầu Giấy',
+    name: 'Giỏ Hoa Mây Pastel Dịu Ngọt - Nắng Mới Cầu Giấy',
     categoryId: 'sinh-nhat',
     price: 680000,
     originalPrice: 790000,
@@ -151,11 +175,11 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     isAvailable: true,
     rating: 4.9,
     reviewCount: 45,
-    relatedProductIds: ['fl-10', 'fl-07']
+    relatedProductIds: ['fl-10', 'fl-14']
   },
   {
     id: 'fl-05',
-    name: 'Chậu Lan Hồ Điệp Đại Hoàng Kim (5 Cành Sứ Trắng)',
+    name: 'Chậu Lan Hồ Điệp Đại Hoàng Kim (5 Cành Sứ Bát Tràng)',
     categoryId: 'lan-ho-diep',
     price: 1650000,
     originalPrice: 1850000,
@@ -172,14 +196,15 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     isAvailable: true,
     rating: 5.0,
     reviewCount: 29,
-    relatedProductIds: ['fl-01', 'fl-06']
+    relatedProductIds: ['fl-06', 'fl-16']
   },
   {
     id: 'fl-06',
-    name: 'Chậu Lan Hồ Điệp Bạch Ngọc Tinh Khôi (3 Cành)',
+    name: 'Chậu Lan Hồ Điệp Bạch Ngọc Tinh Khôi (3 Cành Men Trắng)',
     categoryId: 'lan-ho-diep',
     price: 1050000,
-    imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
+    originalPrice: 1200000,
+    imageUrl: 'https://images.unsplash.com/photo-1533616688419-b7a585564566?auto=format&fit=crop&w=800&q=80',
     flowerTypes: ['3 cành Lan hồ điệp trắng họng vàng', 'Rêu rừng xanh trang trí', 'Nơ lụa ngọc bích'],
     description: 'Vẻ đẹp thanh tao, thuần khiết phù hợp đặt tại phòng khách, sảnh văn phòng hoặc làm quà biếu đối tác ngoại giao.',
     meaning: 'Tượng trưng cho sự khởi đầu tốt đẹp, chân thành và cao quý.',
@@ -191,15 +216,16 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     isAvailable: true,
     rating: 4.8,
     reviewCount: 19,
-    relatedProductIds: ['fl-05', 'fl-08']
+    relatedProductIds: ['fl-05', 'fl-16']
   },
   {
     id: 'fl-07',
-    name: 'Bó Hoa Baby Trắng Tinh Khôi Mộng Mơ',
+    name: 'Bó Hoa Baby Trắng Tinh Khôi Như Mây Trời',
     categoryId: 'tinh-yeu',
     price: 450000,
+    originalPrice: 500000,
     tag: 'Mới',
-    imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1567696911980-2eed69a46042?auto=format&fit=crop&w=800&q=80',
     flowerTypes: ['Hoa baby trắng nhập khẩu 100%', 'Giấy gói đen mờ cá tính', 'Ruy băng satin'],
     description: 'Bó hoa to tròn như đám mây trắng bồng bềnh, giữ khô được 1-2 năm làm hoa khô lưu niệm xinh xắn.',
     meaning: 'Tình yêu thuần khiết, trong trẻo và chân thành không toan tính.',
@@ -215,9 +241,10 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
   },
   {
     id: 'fl-08',
-    name: 'Kệ Hoa Viếng Thành Kính Chia Buồn (Trắng Tím)',
+    name: 'Kệ Hoa Viếng Thành Kính Phân Ưu (Trắng Tím 2 Tầng)',
     categoryId: 'chia-buon',
     price: 1100000,
+    originalPrice: 1250000,
     imageUrl: 'https://images.unsplash.com/photo-1507290439931-a861b5a38200?auto=format&fit=crop&w=800&q=80',
     flowerTypes: ['Lan trắng Thái Lan', 'Cúc vàng đại đóa', 'Hoa ly trắng', 'Lá cau phong thủy'],
     description: 'Kệ hoa 2 tầng trang trọng, nhã nhặn, thể hiện lòng tiếc thương vô hạn và niềm an ủi chân thành gửi đến gia quyến.',
@@ -230,13 +257,14 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     isAvailable: true,
     rating: 5.0,
     reviewCount: 15,
-    relatedProductIds: ['fl-06']
+    relatedProductIds: ['fl-18']
   },
   {
     id: 'fl-09',
-    name: 'Bó Hoa Tulip Hà Lan Mùa Xuân Nắng Ấm',
+    name: 'Bó Hoa Tulip Hà Lan Cam Nắng Ấm Mùa Xuân',
     categoryId: 'chuc-mung',
     price: 780000,
+    originalPrice: 850000,
     tag: 'Mới',
     imageUrl: 'https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=800&q=80',
     flowerTypes: ['10 cành Tulip vàng cam', 'Hoa phụ kiện', 'Giấy xi măng vintage'],
@@ -254,11 +282,12 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
   },
   {
     id: 'fl-10',
-    name: 'Bó Hoa Cúc Mẫu Đơn Hồng Khổng Lồ (Peony Mix)',
+    name: 'Bó Hoa Cúc Mẫu Đơn Mix Hồng Juliet Khổng Lồ',
     categoryId: 'sinh-nhat',
     price: 950000,
+    originalPrice: 1100000,
     tag: 'Hot',
-    imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=800&q=80',
     flowerTypes: ['5 đóa Mẫu đơn hồng nhập khẩu', 'Hoa cẩm chướng pastel', 'Lá tai lừa'],
     description: 'Bông to đường kính 12-15cm, cánh xếp lớp gợn sóng tuyệt mỹ, hương thơm nồng nàn quyến rũ.',
     meaning: 'Sự vương giả, thịnh vượng, sắc đẹp thanh xuân và tình duyên viên mãn.',
@@ -270,14 +299,15 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     isAvailable: true,
     rating: 5.0,
     reviewCount: 36,
-    relatedProductIds: ['fl-04', 'fl-03']
+    relatedProductIds: ['fl-04', 'fl-15']
   },
   {
     id: 'fl-11',
     name: 'Bó Hoa Cẩm Tú Cầu Xanh Biển Hy Vọng',
     categoryId: 'tinh-yeu',
     price: 580000,
-    imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
+    originalPrice: 650000,
+    imageUrl: 'https://images.unsplash.com/photo-1508610048659-a06b669e3321?auto=format&fit=crop&w=800&q=80',
     flowerTypes: ['3 cầu Cẩm tú cầu xanh', 'Hoa thạch thảo trắng', 'Lá bạc khuynh diệp'],
     description: 'Những cánh hoa nhỏ li ti kết thành khối cầu tròn đầy đặn như những ước mơ đong đầy yêu thương.',
     meaning: 'Lòng biết ơn, sự thấu hiểu chân thành và sự gắn kết bền chặt.',
@@ -290,6 +320,152 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     rating: 4.9,
     reviewCount: 18,
     relatedProductIds: ['fl-07', 'fl-03']
+  },
+  {
+    id: 'fl-12',
+    name: 'Kệ Hoa Khai Trương Hồng Phát Phú Quý (3 Tầng Đại Cát)',
+    categoryId: 'khai-truong',
+    price: 2250000,
+    originalPrice: 2500000,
+    tag: 'Đặc biệt',
+    imageUrl: 'https://images.unsplash.com/photo-1546842931-886c185b4c8c?auto=format&fit=crop&w=800&q=80',
+    flowerTypes: ['Hồng môn đỏ đại', 'Lan mokara vàng cam', 'Hoa ly thơm', 'Lá phát tài'],
+    description: 'Kệ hoa 3 tầng hoành tráng vững chãi, quy tụ các loài hoa mang phúc khí vượng tài cho buổi đại lễ khai trương quy mô lớn.',
+    meaning: 'Khai trương hồng phát, tài lộc dồi dào, mở rộng thịnh vượng vươn tầm.',
+    gradientTheme: {
+      bg: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+      accent: '#dc2626',
+      tagBg: '#b91c1c'
+    },
+    isAvailable: true,
+    rating: 5.0,
+    reviewCount: 16,
+    relatedProductIds: ['fl-01', 'fl-02']
+  },
+  {
+    id: 'fl-13',
+    name: 'Bó Hoa Hướng Dương Rạng Rỡ Nắng Mới Sunlight Glow',
+    categoryId: 'sinh-nhat',
+    price: 520000,
+    originalPrice: 580000,
+    tag: 'Bán chạy',
+    imageUrl: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=800&q=80',
+    flowerTypes: ['5 đóa Hướng dương Đà Lạt', 'Baby trắng', 'Thạch thảo tím', 'Giấy kraft vàng nâu'],
+    description: 'Từng đóa hướng dương vươn mình đón nắng ấm, biểu trưng cho niềm lạc quan, năng lượng tích cực và tương lai bừng sáng.',
+    meaning: 'Chúc bạn luôn tỏa sáng rực rỡ và vững bước trên con đường tương lai.',
+    gradientTheme: {
+      bg: 'linear-gradient(135deg, #fef9c3 0%, #fef08a 100%)',
+      accent: '#ca8a04',
+      tagBg: '#a16207'
+    },
+    isAvailable: true,
+    rating: 4.9,
+    reviewCount: 31,
+    relatedProductIds: ['fl-04', 'fl-09']
+  },
+  {
+    id: 'fl-14',
+    name: 'Lẵng Hoa Sinh Nhật Tone Cam Pastel Trà Đào Thanh Lịch',
+    categoryId: 'sinh-nhat',
+    price: 750000,
+    originalPrice: 850000,
+    tag: 'Mới',
+    imageUrl: 'https://images.unsplash.com/photo-1527061011665-3652c757a4d4?auto=format&fit=crop&w=800&q=80',
+    flowerTypes: ['Hồng cam trà đào', 'Cúc pingpong trắng', 'Thanh liễu cam', 'Lá chanh nhập khẩu'],
+    description: 'Tone cam trà đào trendy thanh lịch, phối hài hòa cùng cúc pingpong tròn trịa tạo cảm giác ấm áp và tràn đầy sức sống.',
+    meaning: 'Nụ cười luôn rạng ngời và đón nhận vạn điều tốt lành trong tuổi mới.',
+    gradientTheme: {
+      bg: 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)',
+      accent: '#ea580c',
+      tagBg: '#c2410c'
+    },
+    isAvailable: true,
+    rating: 5.0,
+    reviewCount: 27,
+    relatedProductIds: ['fl-04', 'fl-10']
+  },
+  {
+    id: 'fl-15',
+    name: 'Bó Hoa Hồng Juliet Nơ Lụa Satin Kem Dâu Tiểu Thư',
+    categoryId: 'tinh-yeu',
+    price: 820000,
+    originalPrice: 920000,
+    tag: 'Hot',
+    imageUrl: 'https://images.unsplash.com/photo-1562690868-60bbe7293e94?auto=format&fit=crop&w=800&q=80',
+    flowerTypes: ['Hồng triệu đô Juliet cánh kép', 'Hoa nhím biển trắng', 'Lá bạc tròn', 'Nơ satin cao cấp'],
+    description: 'Dòng hoa hồng Juliet triệu đô kinh điển được mệnh danh là nữ hoàng của các loài hồng, form hoa xoáy sâu quyến rũ bậc nhất.',
+    meaning: 'Tình yêu ngọt ngào, tinh tế và mãi mãi nâng niu như thuở ban đầu.',
+    gradientTheme: {
+      bg: 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)',
+      accent: '#e11d48',
+      tagBg: '#be123c'
+    },
+    isAvailable: true,
+    rating: 5.0,
+    reviewCount: 54,
+    relatedProductIds: ['fl-03', 'fl-10']
+  },
+  {
+    id: 'fl-16',
+    name: 'Chậu Lan Hồ Điệp Tím Nữ Hoàng Vương Giả (8 Cành Lộc Phát)',
+    categoryId: 'lan-ho-diep',
+    price: 2850000,
+    originalPrice: 3200000,
+    tag: 'Đặc biệt',
+    imageUrl: 'https://images.unsplash.com/photo-1509223197845-458d87318791?auto=format&fit=crop&w=800&q=80',
+    flowerTypes: ['8 cành Lan hồ điệp tím Huế hoàng gia', 'Dây thường xuân leo', 'Chậu men sứ cao cấp'],
+    description: 'Chậu 8 cành tượng trưng cho số 8 Phát Tài Phát Lộc. Cánh hoa tím đài các, vương giả lưu giữ độ tươi nguyên sắc từ 6-10 tuần.',
+    meaning: 'Trường tồn, quyền quý, thịnh vượng và hạnh phúc viên mãn tròn đầy.',
+    gradientTheme: {
+      bg: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
+      accent: '#9333ea',
+      tagBg: '#7e22ce'
+    },
+    isAvailable: true,
+    rating: 5.0,
+    reviewCount: 21,
+    relatedProductIds: ['fl-05', 'fl-06']
+  },
+  {
+    id: 'fl-17',
+    name: 'Hộp Hoa Mica Trong Suốt Luxury Rose Box',
+    categoryId: 'chuc-mung',
+    price: 890000,
+    originalPrice: 990000,
+    tag: 'Mới',
+    imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
+    flowerTypes: ['Hồng Ohara thơm ngát', 'Baby cầu vồng', 'Hộp mica acrylic trong suốt', 'Đèn led fairy light'],
+    description: 'Thiết kế hộp mica vuông vắn nhìn xuyên thấu vẻ đẹp của từng cánh hoa, tặng kèm đèn led lấp lánh lung linh về đêm.',
+    meaning: 'Món quà trang nhã, ấn tượng cho dịp chúc mừng đặc biệt.',
+    gradientTheme: {
+      bg: 'linear-gradient(135deg, #fae8ff 0%, #f5d0fe 100%)',
+      accent: '#c026d3',
+      tagBg: '#a21caf'
+    },
+    isAvailable: true,
+    rating: 4.9,
+    reviewCount: 33,
+    relatedProductIds: ['fl-09', 'fl-15']
+  },
+  {
+    id: 'fl-18',
+    name: 'Vòng Hoa Cúc Trắng & Lan Hồ Điệp Vĩnh Hằng',
+    categoryId: 'chia-buon',
+    price: 950000,
+    originalPrice: 1100000,
+    imageUrl: 'https://images.unsplash.com/photo-1502977249166-824b3a8a4d6d?auto=format&fit=crop&w=800&q=80',
+    flowerTypes: ['Cúc trắng Đà Lạt', 'Lan thái trắng', 'Lá đinh lăng trang trí', 'Dải băng tang lụa'],
+    description: 'Hình vòng tròn tượng trưng cho sự luân hồi bất diệt, màu trắng tinh khiết mang đến sự thanh tịnh xoa dịu nỗi đau mất mát.',
+    meaning: 'Thành kính phân ưu, tiếc thương và gửi lời chia buồn sâu sắc nhất.',
+    gradientTheme: {
+      bg: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+      accent: '#475569',
+      tagBg: '#334155'
+    },
+    isAvailable: true,
+    rating: 5.0,
+    reviewCount: 14,
+    relatedProductIds: ['fl-08']
   }
 ];
 
@@ -301,9 +477,12 @@ export const INITIAL_SHOP_SETTINGS: ShopSettings = {
   address: '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
   email: 'vvflorielle@gmail.com',
   openingHours: '06:30 - 21:30 (Mở cửa tất cả các ngày)',
-  bankName: 'Vietcombank (Ngân hàng Ngoại Thương)',
+  bankName: 'Vietcombank',
+  bankId: 'VCB',
   bankAccount: '1029384756',
   bankHolder: 'V&V FLORIELLE',
+  bankQrImageUrl: '',
+  useAutoVietQr: true,
   freeShipThreshold: 400000,
   freeShipRadiusKm: 3,
   standardShipFee: 25000,

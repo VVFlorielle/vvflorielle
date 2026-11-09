@@ -136,37 +136,19 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
             />
           </div>
 
-          {/* Bank VietQR Info */}
-          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3">
-            <h4 className="font-bold text-xs text-slate-800">Tài Khoản Nhận Chuyển Khoản VietQR</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Ngân hàng</label>
-                <input
-                  type="text"
-                  value={editSettings.bankName}
-                  onChange={(e) => setEditSettings({ ...editSettings, bankName: e.target.value })}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
+          {/* Protected Bank & VietQR Redirection Notice */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-emerald-500/10 border border-amber-300/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <span className="p-1 rounded-lg bg-amber-500/20 text-amber-700">🔒</span>
+                <span>Tài Khoản Nhận Chuyển Khoản &amp; Mã QR Đã Được Khóa Bảo Vệ Cấp Cao</span>
               </div>
-              <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Số tài khoản</label>
-                <input
-                  type="text"
-                  value={editSettings.bankAccount}
-                  onChange={(e) => setEditSettings({ ...editSettings, bankAccount: e.target.value })}
-                  className="glass-input w-full text-xs py-2 font-mono rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Tên chủ tài khoản</label>
-                <input
-                  type="text"
-                  value={editSettings.bankHolder}
-                  onChange={(e) => setEditSettings({ ...editSettings, bankHolder: e.target.value })}
-                  className="glass-input w-full text-xs py-2 rounded-xl"
-                />
-              </div>
+              <p className="text-[11px] text-slate-600 leading-relaxed max-w-xl">
+                Để ngăn ngừa triệt để nguy cơ tài khoản nhận tiền bị thay đổi trái phép khi mất quyền quản trị, mục cấu hình STK ngân hàng và mã VietQR đã được chuyển toàn bộ vào <strong>Phân hệ Bảo Mật Hệ Thống</strong> (yêu cầu xác thực bảo vệ cấp 2).
+              </p>
+            </div>
+            <div className="text-[11px] font-mono text-emerald-800 bg-emerald-100/90 px-3 py-2 rounded-xl shrink-0 font-bold border border-emerald-300 shadow-2xs">
+              {settings.bankName || 'Ngân hàng'} • {settings.bankAccount || 'Chưa thiết lập'}
             </div>
           </div>
 

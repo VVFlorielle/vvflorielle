@@ -155,6 +155,9 @@ export interface ShopSettings {
   bankName: string;
   bankAccount: string;
   bankHolder: string;
+  bankId?: string;
+  bankQrImageUrl?: string;
+  useAutoVietQr?: boolean;
   freeShipThreshold: number;
   freeShipRadiusKm?: number; // Bán kính áp dụng Freeship (mặc định 3km)
   standardShipFee: number;

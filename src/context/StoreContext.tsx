@@ -352,20 +352,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Persistence Loaders
   const [products, setProducts] = useState<FlowerProduct[]>(() => {
+    const catalogVersion = localStorage.getItem('vvf_products_catalog_version');
+    if (catalogVersion !== 'v3_botanical_catalog') {
+      localStorage.setItem('vvf_products_catalog_version', 'v3_botanical_catalog');
+      localStorage.setItem('vvf_products', JSON.stringify(INITIAL_PRODUCTS));
+      return INITIAL_PRODUCTS;
+    }
     const saved = localStorage.getItem('vvf_products');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          // Auto-migrate dim sum image if present in fl-04
-          const migrated = parsed.map((p: FlowerProduct) => {
-            if (p.id === 'fl-04' && (p.imageUrl?.includes('photo-1563245372-f21724e3856d') || p.imageUrl?.includes('photo-1587556930799'))) {
-              return { ...p, imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80' };
-            }
-            return p;
-          });
-          localStorage.setItem('vvf_products', JSON.stringify(migrated));
-          return migrated;
+        if (Array.isArray(parsed) && parsed.length >= 12) {
+          return parsed;
         }
       } catch (e) {}
     }
@@ -528,6 +526,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const merged: ShopSettings = {
           ...INITIAL_SHOP_SETTINGS,
           ...parsed,
+          bankId: parsed.bankId || INITIAL_SHOP_SETTINGS.bankId || 'VCB',
+          bankQrImageUrl: parsed.bankQrImageUrl ?? INITIAL_SHOP_SETTINGS.bankQrImageUrl,
+          useAutoVietQr: parsed.useAutoVietQr !== undefined ? parsed.useAutoVietQr : true,
           freeShipThreshold: parsed.freeShipThreshold === 500000 ? 400000 : (parsed.freeShipThreshold || 400000),
           freeShipRadiusKm: parsed.freeShipRadiusKm || 3,
           deliveryTimeEstimate: parsed.deliveryTimeEstimate || INITIAL_SHOP_SETTINGS.deliveryTimeEstimate,

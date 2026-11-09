@@ -319,9 +319,12 @@ export const CartDrawer: React.FC = () => {
   const memoText = `VVF ${createdOrder?.id || '849201'} ${cleanPhone}`;
   const depositVal = createdOrder?.depositAmount || Math.round(totalAmount * 0.5);
 
-  const vietQrUrl = `https://img.vietqr.io/image/${settings.bankName}-${settings.bankAccount}-compact2.png?amount=${depositVal}&addInfo=${encodeURIComponent(
+  const bankCode = settings.bankId || 'VCB';
+  const autoVietQrUrl = `https://img.vietqr.io/image/${bankCode}-${settings.bankAccount || '1029384756'}-compact2.png?amount=${depositVal}&addInfo=${encodeURIComponent(
     memoText
-  )}&accountName=${encodeURIComponent(settings.bankHolder)}`;
+  )}&accountName=${encodeURIComponent(settings.bankHolder || 'V&V FLORIELLE')}`;
+
+  const displayedQrUrl = !settings.useAutoVietQr && settings.bankQrImageUrl ? settings.bankQrImageUrl : autoVietQrUrl;
 
   return (
     <div
@@ -1021,12 +1024,14 @@ export const CartDrawer: React.FC = () => {
                 </div>
 
                 <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
-                  MÃ VIETQR TỰ ĐỘNG CHUYỂN CỌC
+                  {!settings.useAutoVietQr && settings.bankQrImageUrl
+                    ? 'MÃ QR TÀI KHOẢN CỦA CỬA HÀNG'
+                    : 'MÃ VIETQR TỰ ĐỘNG CHUYỂN CỌC'}
                 </div>
                 <img
-                  src={vietQrUrl}
+                  src={displayedQrUrl}
                   alt="Mã VietQR cọc đơn hoa"
-                  className="w-full aspect-square object-contain rounded-xl border border-slate-100 p-1"
+                  className="w-full aspect-square object-contain rounded-xl border border-slate-100 p-1 bg-white"
                 />
                 <div className="text-xs space-y-1.5">
                   {/* Copy STK */}

@@ -342,8 +342,8 @@ export const OwnerPortal: React.FC = () => {
         },
         {
           id: 'owner-security-subpage',
-          title: 'Bảo mật hệ thống & Phiên đăng nhập',
-          description: 'Xem danh sách thiết bị tin cậy và lịch sử thao tác hệ thống.',
+          title: 'Bảo Mật Hệ Thống & STK Ngân Hàng',
+          description: 'Cấu hình bảo vệ tài khoản nhận tiền VietQR, đổi mật khẩu và mã PIN 6 số.',
           icon: <ShieldCheck className="w-4 h-4" />,
           actionType: 'page',
           actionLabel: 'Truy cập',
@@ -554,6 +554,8 @@ export const OwnerPortal: React.FC = () => {
           saveGmailConfig={saveGmailConfig}
           requestPinResetOtp={requestPinResetOtp}
           showToast={showToast}
+          settings={settings}
+          updateSettings={updateSettings}
         />
       )}
 
