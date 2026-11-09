@@ -163,7 +163,7 @@ export const AdminLoginForm: React.FC = () => {
                     type="email"
                     value={recoveryEmail}
                     onChange={(e) => setRecoveryEmail(e.target.value)}
-                    placeholder="vvflorielle@gmail.com"
+                    placeholder="traivuho@gmail.com"
                     className="glass-input w-full text-xs py-2.5 rounded-xl"
                   />
                 </div>

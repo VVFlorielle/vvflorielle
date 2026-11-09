@@ -64,25 +64,29 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
       {/* ================================================================
           1. THANH PHÂN LOẠI NHANH TRÊN MOBILE (SEGMENTED FILTER PILLS)
           Giúp người dùng trên điện thoại bấm lọc ngay phân khu cần thao tác
+          Đảm bảo mỗi nút chỉ có đúng 1 icon gọn gàng, không bị trùng lặp icon
           ================================================================ */}
       <div className="flex sm:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-0.5">
         <button
           type="button"
           onClick={() => setSelectedGroupFilter('ALL')}
-          className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 transition-all cursor-pointer ${
+          className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
             selectedGroupFilter === 'ALL'
               ? 'bg-emerald-600 text-white shadow-xs'
               : 'bg-white/90 text-slate-700 border border-slate-200 hover:bg-slate-50'
           }`}
         >
-          ✨ Tất cả ({totalActionsCount})
+          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+          <span>Tất cả</span>
+          <span className="text-[9.5px] opacity-75">({totalActionsCount})</span>
         </button>
 
         {groups.map((group, idx) => {
           const gId = group.groupId || `group-${idx}`;
           const isSelected = selectedGroupFilter === gId;
+          // Loại bỏ toàn bộ ký tự đặc biệt/emoji thừa ở đầu tiêu đề, chỉ lấy tên nhóm tinh gọn
           const cleanShortTitle = group.groupTitle
-            .replace(/^[\p{Emoji}\u2600-\u27BF\uFE00-\uFE0F\s]+/u, '')
+            .replace(/^[^\p{L}\p{N}]+/u, '')
             .split('&')[0]
             .trim();
 

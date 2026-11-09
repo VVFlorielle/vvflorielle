@@ -127,8 +127,8 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
       <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
         <div className="w-10 sm:w-28 shrink-0" />
         <div className="text-center mx-auto px-2">
-          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-            AN NINH & BẢO VỆ DÒNG TIỀN
+          <small className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+            Hệ Thống &amp; An Toàn
           </small>
           <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
             {title}
@@ -137,20 +137,20 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
         <div className="w-10 sm:w-28 shrink-0" />
       </div>
 
-      {/* CARD 1: CẤU HÌNH TÀI KHOẢN NGÂN HÀNG & MÃ VIETQR (BẢO MẬT CAO CẤP) */}
+      {/* CARD 1: CẤU HÌNH TÀI KHOẢN NGÂN HÀNG & MÃ VIETQR */}
       <form onSubmit={handleSaveBankConfig} className="glass-panel p-5 sm:p-6 space-y-5 rounded-[28px] border-2 border-emerald-400/50 shadow-lg">
         <div className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold mb-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-              <span>PHÂN HỆ KHÓA BẢO VỆ DOANH THU &amp; STK</span>
+              <span>Tài Khoản Thụ Hưởng</span>
             </div>
             <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
               <Building2 className="w-4 h-4 text-emerald-700" />
-              <span>Tài Khoản Ngân Hàng Nhận Tiền &amp; Mã QR Thanh Toán</span>
+              <span>Tài Khoản Ngân Hàng &amp; Mã QR Thanh Toán</span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Cấu hình được chuyển vào phân hệ bảo mật để ngăn chặn nguy cơ bị can thiệp thay đổi số tài khoản khi mất quyền quản trị.
+              Cấu hình thông tin tài khoản thụ hưởng và mã QR chuyển khoản khi khách đặt hoa.
             </p>
           </div>
           <div className="shrink-0 flex items-center gap-2">

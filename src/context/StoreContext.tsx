@@ -508,7 +508,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }); // Shared PIN
   const [adminPinOtp, setAdminPinOtp] = useState<{ code: string; expiresAt: number } | null>(null);
   const [adminEmail, setAdminEmail] = useState<string>(() => {
-    return localStorage.getItem('vvf_admin_email') || 'vvflorielle@gmail.com';
+    return localStorage.getItem('vvf_admin_email') || 'traivuho@gmail.com';
   });
   const [gmailAppPassword, setGmailAppPassword] = useState<string>(() => {
     return localStorage.getItem('vvf_gmail_app_pw') || '';

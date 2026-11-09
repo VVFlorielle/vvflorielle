@@ -134,9 +134,9 @@ export interface SecurityModalProps {
 export const SecurityModal: React.FC<SecurityModalProps> = ({
   isOpen,
   onClose,
-  roleTitle = 'Super Admin',
+  roleTitle = 'Quản Trị Viên',
   onSaveCredentials,
-  adminEmail = 'vvflorielle@gmail.com',
+  adminEmail = 'traivuho@gmail.com',
   onSaveEmailConfig
 }) => {
   const [oldPassword, setOldPassword] = useState('');
@@ -251,7 +251,7 @@ export const SecurityModal: React.FC<SecurityModalProps> = ({
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="vvflorielle@gmail.com"
+                    placeholder="traivuho@gmail.com"
                     className="glass-input w-full py-2 px-3 rounded-xl"
                   />
                 </div>
