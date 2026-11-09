@@ -48,31 +48,30 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
 
   return (
     <div className="glass-panel p-4 sm:p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200">
-      {/* Header and Back Button */}
-      <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Quay lại Tổng Quan</span>
-          </button>
-          <h2 className="font-bold text-base sm:text-lg text-slate-800">{title}</h2>
+      {/* Header căn giữa chuẩn Phototiinlove (Không nút back thừa, tiêu đề căn giữa cân đối) */}
+      <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
+        <div className="w-10 sm:w-28 shrink-0" />
+        <div className="text-center mx-auto px-2">
+          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-purple-700">
+            KHÁCH HÀNG & HỘI VIÊN
+          </small>
+          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
+            {title}
+          </h2>
         </div>
-
-        {onOpenAddCustomer && (
-          <button
-            type="button"
-            onClick={onOpenAddCustomer}
-            className="btn-primary text-xs py-2 px-3.5 rounded-xl bg-purple-700 hover:bg-purple-800 shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span className="hidden sm:inline">Thêm Khách Hàng Mới</span>
-            <span className="sm:hidden">Thêm Khách</span>
-          </button>
-        )}
+        <div className="flex items-center justify-end shrink-0">
+          {onOpenAddCustomer && (
+            <button
+              type="button"
+              onClick={onOpenAddCustomer}
+              className="btn-primary text-xs py-1.5 sm:py-2 px-3 sm:px-3.5 rounded-xl bg-purple-700 hover:bg-purple-800 shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span className="hidden sm:inline">Thêm Khách Hàng Mới</span>
+              <span className="sm:hidden">Thêm Khách</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">

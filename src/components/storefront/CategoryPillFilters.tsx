@@ -53,11 +53,11 @@ export const CategoryPillFilters: React.FC<CategoryPillFiltersProps> = ({
         )}
       </div>
 
-      {/* Scrollable Category Filter Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-3.5 px-1 -mt-1 scrollbar-none">
+      {/* Category Filter Pills: 2-3 hàng tự co giãn flex-wrap trên mobile (Chuẩn theo ý bạn, không bị khuất ngang) */}
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-2 pb-3.5 px-1 -mt-1">
         <button
           onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
             selectedCategory === 'all'
               ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/25 ring-2 ring-emerald-600/20'
               : 'bg-white/90 text-slate-700 border border-emerald-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 shadow-xs'
@@ -71,9 +71,9 @@ export const CategoryPillFilters: React.FC<CategoryPillFiltersProps> = ({
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                 selectedCategory === cat.id
-                  ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/25 ring-2 ring-emerald-600/20'
+                  ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/25 ring-2 ring-emerald-600/20 font-bold'
                   : 'bg-white/90 text-slate-700 border border-emerald-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 shadow-xs'
               }`}
             >

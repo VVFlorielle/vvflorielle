@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FlowerProduct } from '../types';
 import { useStore } from '../context/StoreContext';
-import { Star, ShoppingBag, Eye, Sparkles } from 'lucide-react';
+import { Star, ShoppingBag, Eye, Sparkles, Zap } from 'lucide-react';
 
 interface ProductCardProps {
   product: FlowerProduct;
@@ -16,20 +16,36 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
-  const handleQuickAdd = (e: React.MouseEvent) => {
+  const handleAddToCartOnly = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!product.isAvailable) return;
 
-    // Haptic feedback for tactile native-app feel on mobile devices
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try {
         navigator.vibrate(25);
       } catch {
-        // Safe ignore if permission denied
+        // Safe ignore
       }
     }
 
-    addToCart(product, 1, 'Đỏ Ruby', 'Chúc mừng hạnh phúc!');
+    // openDrawer = false: chỉ thêm giỏ, thông báo toast góc phải tự tắt sau 2s, không mở drawer
+    addToCart(product, 1, 'Đỏ Ruby', 'Chúc mừng hạnh phúc!', false);
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!product.isAvailable) return;
+
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(25);
+      } catch {
+        // Safe ignore
+      }
+    }
+
+    // openDrawer = true: thêm giỏ và mở thẳng drawer điền thông tin đặt hàng
+    addToCart(product, 1, 'Đỏ Ruby', 'Chúc mừng hạnh phúc!', true);
   };
 
   return (
@@ -102,7 +118,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </button>
           {product.isAvailable && (
             <button
-              onClick={handleQuickAdd}
+              onClick={handleAddToCartOnly}
               className="p-2.5 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 shadow-md transition-all hover:scale-110"
               title="Thêm nhanh vào giỏ"
             >
@@ -148,34 +164,52 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         </div>
 
-        {/* Price & Actions: Tối ưu chống tràn 100% trên Mobile */}
-        <div className="mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 flex items-center justify-between gap-1 sm:gap-2">
-          <div className="min-w-0 flex-1">
+        {/* Price & Actions: 2 nút đặt bên dưới giá tiền để không bị ép ngang */}
+        <div className="mt-2.5 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-100 flex flex-col gap-2">
+          {/* Hàng trên: Giá tiền to rõ ràng */}
+          <div className="min-w-0">
             <div
-              className={`font-extrabold text-emerald-700 leading-tight truncate ${
-                product.price >= 1000000 ? 'text-[13px] sm:text-base' : 'text-sm sm:text-base'
+              className={`font-extrabold text-emerald-800 leading-tight ${
+                product.price >= 1000000 ? 'text-[13px] min-[375px]:text-sm sm:text-base' : 'text-sm sm:text-base'
               }`}
             >
               {formatPrice(product.price)}
             </div>
             {product.originalPrice && product.originalPrice > product.price && (
-              <div className="text-[10px] sm:text-[11px] text-slate-400 line-through truncate">
+              <div className="text-[10px] sm:text-[11px] text-slate-400 line-through">
                 {formatPrice(product.originalPrice)}
               </div>
             )}
           </div>
 
-          <button
-            onClick={handleQuickAdd}
-            disabled={!product.isAvailable}
-            className={`whitespace-nowrap shrink-0 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-[11px] sm:text-xs shadow-xs hover:shadow-md active:scale-95 transition-all flex items-center justify-center gap-1 border border-white/30 cursor-pointer ${
-              !product.isAvailable ? 'opacity-50 cursor-not-allowed bg-slate-400 hover:bg-slate-400' : ''
-            }`}
-            title="Đặt mẫu hoa này"
-          >
-            <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-            <span className="truncate">Đặt hoa</span>
-          </button>
+          {/* Hàng dưới: 2 nút riêng biệt [🛒 Thêm giỏ] và [⚡ Đặt hoa] */}
+          <div className="grid grid-cols-2 gap-1.5 w-full">
+            <button
+              type="button"
+              onClick={handleAddToCartOnly}
+              disabled={!product.isAvailable}
+              className={`py-1.5 px-1.5 sm:px-2 rounded-xl border border-emerald-300/90 bg-emerald-50/90 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] min-[375px]:text-[11px] sm:text-xs flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer shadow-2xs ${
+                !product.isAvailable ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200' : ''
+              }`}
+              title="Thêm hoa vào giỏ để chọn tiếp nhiều bó"
+            >
+              <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 text-emerald-700" />
+              <span className="truncate">Thêm giỏ</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={!product.isAvailable}
+              className={`py-1.5 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-[10px] min-[375px]:text-[11px] sm:text-xs flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer shadow-sm shadow-emerald-600/20 ${
+                !product.isAvailable ? 'opacity-50 cursor-not-allowed bg-slate-400' : ''
+              }`}
+              title="Đặt mua ngay 1 bó này và thanh toán"
+            >
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 text-amber-300 fill-amber-300" />
+              <span className="truncate">Đặt hoa</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

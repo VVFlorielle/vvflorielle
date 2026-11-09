@@ -106,7 +106,7 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
                   </div>
                   {item.badge && (
                     <span
-                      className={`text-[9.5px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs truncate max-w-[95px] ${badgeStyle}`}
+                      className={`text-[9.5px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs whitespace-nowrap shrink-0 ${badgeStyle}`}
                     >
                       {item.badge}
                     </span>
@@ -114,7 +114,7 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
                 </div>
 
                 {/* Title */}
-                <h4 className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-1 mb-1">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-2 min-h-[32px] sm:min-h-[38px] mb-1 leading-snug">
                   {item.title}
                 </h4>
 

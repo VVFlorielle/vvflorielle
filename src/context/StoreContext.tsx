@@ -94,7 +94,13 @@ interface StoreContextType {
 
   // Cart
   cart: CartItem[];
-  addToCart: (product: FlowerProduct, quantity?: number, ribbonColor?: string, cardMessage?: string) => void;
+  addToCart: (
+    product: FlowerProduct,
+    quantity?: number,
+    ribbonColor?: string,
+    cardMessage?: string,
+    openDrawer?: boolean
+  ) => void;
   updateCartItemQty: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
@@ -658,7 +664,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3200);
+    }, 2200);
   };
 
   const dismissToast = (id?: string) => {
@@ -825,7 +831,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     product: FlowerProduct,
     quantity = 1,
     ribbonColor = 'Nơ lụa đỏ sang trọng',
-    cardMessage = 'Chúc mừng ngày đặc biệt!'
+    cardMessage = 'Chúc mừng ngày đặc biệt!',
+    openDrawer = false
   ) => {
     setCart((prev) => {
       const idx = prev.findIndex((item) => item.product.id === product.id);
@@ -836,7 +843,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       return [...prev, { product, quantity, ribbonColor, cardMessage }];
     });
-    setIsCartOpen(true);
+    if (openDrawer) {
+      setIsCartOpen(true);
+    }
     showToast(`Đã thêm "${product.name}" vào giỏ hoa!`);
   };
 

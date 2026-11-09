@@ -26,17 +26,18 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
 
   return (
     <div className="glass-panel p-5 sm:p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200">
-      {/* Header and Back Button */}
-      <div className="flex items-center gap-3 pb-3 border-b border-slate-200/80">
-        <button
-          type="button"
-          onClick={onBackToDashboard}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Quay lại Tổng Quan</span>
-        </button>
-        <h2 className="font-bold text-base sm:text-lg text-slate-800">{title}</h2>
+      {/* Header căn giữa chuẩn Phototiinlove */}
+      <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
+        <div className="w-10 sm:w-28 shrink-0" />
+        <div className="text-center mx-auto px-2">
+          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-rose-700">
+            ƯU ĐÃI & VOUCHER
+          </small>
+          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
+            {title}
+          </h2>
+        </div>
+        <div className="w-10 sm:w-28 shrink-0" />
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">

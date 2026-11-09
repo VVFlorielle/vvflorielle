@@ -13,45 +13,53 @@ export const StoreCommitmentSection: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-          <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/60 shadow-sm space-y-1.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center">
-              1
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 text-xs">
+          <div className="p-3 sm:p-4 rounded-2xl bg-white/90 border border-slate-200/60 shadow-2xs space-y-1.5 flex flex-col justify-between">
+            <div className="space-y-1.5">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs sm:text-sm shadow-xs">
+                1
+              </div>
+              <h4 className="font-bold text-xs sm:text-sm text-slate-800">Chọn mẫu hoa</h4>
+              <p className="text-slate-500 text-[10.5px] sm:text-[11px] leading-relaxed">
+                Chọn mẫu có sẵn hoặc thiết kế theo tone màu và ngân sách của bạn.
+              </p>
             </div>
-            <h4 className="font-bold text-slate-800">Chọn mẫu hoa</h4>
-            <p className="text-slate-500 text-[11px]">
-              Chọn mẫu có sẵn hoặc yêu cầu thiết kế theo tone màu và ngân sách của bạn.
-            </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/60 shadow-sm space-y-1.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center">
-              2
+          <div className="p-3 sm:p-4 rounded-2xl bg-white/90 border border-slate-200/60 shadow-2xs space-y-1.5 flex flex-col justify-between">
+            <div className="space-y-1.5">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs sm:text-sm shadow-xs">
+                2
+              </div>
+              <h4 className="font-bold text-xs sm:text-sm text-slate-800">Cắm hoa &amp; In thiệp</h4>
+              <p className="text-slate-500 text-[10.5px] sm:text-[11px] leading-relaxed">
+                Florist cắm hoa tươi và in thiệp/băng rôn chúc mừng sang trọng.
+              </p>
             </div>
-            <h4 className="font-bold text-slate-800">Cắm hoa &amp; In thiệp</h4>
-            <p className="text-slate-500 text-[11px]">
-              Florist lành nghề tiến hành cắm hoa tươi và in băng rôn chúc mừng sang trọng.
-            </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/60 shadow-sm space-y-1.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center">
-              3
+          <div className="p-3 sm:p-4 rounded-2xl bg-white/90 border border-slate-200/60 shadow-2xs space-y-1.5 flex flex-col justify-between">
+            <div className="space-y-1.5">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs sm:text-sm shadow-xs">
+                3
+              </div>
+              <h4 className="font-bold text-xs sm:text-sm text-slate-800">Duyệt ảnh thực tế</h4>
+              <p className="text-slate-500 text-[10.5px] sm:text-[11px] leading-relaxed">
+                Chụp ảnh hoa gửi Zalo cho bạn duyệt trước khi shipper giao.
+              </p>
             </div>
-            <h4 className="font-bold text-slate-800">Duyệt ảnh thực tế</h4>
-            <p className="text-slate-500 text-[11px]">
-              Chụp ảnh hoa gửi qua Zalo cho bạn duyệt trước khi shipper lên đường giao.
-            </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/60 shadow-sm space-y-1.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center">
-              4
+          <div className="p-3 sm:p-4 rounded-2xl bg-white/90 border border-slate-200/60 shadow-2xs space-y-1.5 flex flex-col justify-between">
+            <div className="space-y-1.5">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs sm:text-sm shadow-xs">
+                4
+              </div>
+              <h4 className="font-bold text-xs sm:text-sm text-slate-800">Giao hoa tận tay</h4>
+              <p className="text-slate-500 text-[10.5px] sm:text-[11px] leading-relaxed">
+                Giao đúng giờ hẹn, lịch sự và gửi thông báo hoàn thành đơn.
+              </p>
             </div>
-            <h4 className="font-bold text-slate-800">Giao hoa tận tay</h4>
-            <p className="text-slate-500 text-[11px]">
-              Giao hoa đúng giờ hẹn, lịch sự và gửi thông báo xác nhận hoàn thành đơn.
-            </p>
           </div>
         </div>
       </div>

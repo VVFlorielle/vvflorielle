@@ -178,7 +178,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
               <Settings className="w-4 h-4 rotate-90" />
             </button>
 
-            <nav className="flex items-center gap-1 px-1 py-0.5 overflow-x-auto no-scrollbar scroll-smooth">
+            <nav className="flex items-center gap-1 px-1 py-0.5 overflow-x-auto no-scrollbar scroll-smooth [mask-image:linear-gradient(to_right,black_88%,transparent_100%)]">
               {/* 1. Trang Chủ */}
               <button
                 type="button"

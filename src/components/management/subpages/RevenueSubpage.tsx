@@ -267,35 +267,26 @@ export const RevenueSubpage: React.FC<RevenueSubpageProps> = ({
 
   return (
     <div className="glass-panel p-4 sm:p-6 space-y-6 rounded-[28px] animate-in fade-in duration-200">
-      {/* Header and Back Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Quay lại Tổng Quan</span>
-          </button>
-          <div>
-            <h2 className="font-bold text-base sm:text-lg text-slate-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-emerald-700" />
-              <span>{title}</span>
-            </h2>
-            <p className="text-xs text-slate-500">
-              Kiểm soát toàn bộ dòng tiền, phân tích doanh thu VietQR và tiền mặt theo chuẩn hệ thống
-            </p>
-          </div>
+      {/* Header căn giữa chuẩn Phototiinlove */}
+      <div className="relative flex flex-col sm:flex-row items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
+        <div className="hidden sm:block w-32 shrink-0" />
+        <div className="text-center mx-auto px-2">
+          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
+            TÀI CHÍNH & DÒNG TIỀN
+          </small>
+          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight flex items-center justify-center gap-2">
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
+            <span>{title}</span>
+          </h2>
         </div>
 
         <button
           type="button"
           onClick={handleExportCSV}
-          className="btn-primary text-xs py-2 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+          className="btn-primary text-xs py-1.5 sm:py-2 px-3.5 sm:px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
         >
           <Download className="w-4 h-4" />
-          <span>Xuất Báo Cáo Excel / CSV</span>
+          <span>Xuất Báo Cáo CSV</span>
         </button>
       </div>
 

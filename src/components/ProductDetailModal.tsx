@@ -62,11 +62,8 @@ export const ProductDetailModal: React.FC = () => {
       }
     }
 
-    addToCart(selectedProduct, quantity, selectedRibbon, cardMessage);
+    addToCart(selectedProduct, quantity, selectedRibbon, cardMessage, openCartImmediately);
     setSelectedProduct(null);
-    if (openCartImmediately) {
-      setIsCartOpen(true);
-    }
   };
 
   return (

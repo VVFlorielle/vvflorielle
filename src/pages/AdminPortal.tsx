@@ -117,6 +117,10 @@ export const AdminPortal: React.FC = () => {
       lastDashboardScrollYRef.current = window.scrollY || document.documentElement.scrollTop || 0;
     }
     setActiveTab(tab);
+    if (typeof window !== 'undefined') {
+      const targetHash = tab === 'dashboard' ? '#admin' : `#admin/${tab}`;
+      window.history.pushState({ adminTab: tab }, '', targetHash);
+    }
     if (tab !== 'dashboard') {
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
@@ -124,6 +128,9 @@ export const AdminPortal: React.FC = () => {
 
   const handleBackToDashboard = () => {
     setActiveTab('dashboard');
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({ adminTab: 'dashboard' }, '', '#admin');
+    }
     restoreScrollPosition(lastDashboardScrollYRef.current);
   };
 
@@ -369,7 +376,7 @@ export const AdminPortal: React.FC = () => {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-20 space-y-6 select-none">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-32 sm:pb-36 space-y-6 select-none">
       {/* 1. TOP OVERVIEW HERO BANNER */}
       <ManagementOverviewHero
         tag="Thông Tin Quản Trị"

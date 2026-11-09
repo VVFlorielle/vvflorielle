@@ -80,13 +80,27 @@ export const AppContent: React.FC = () => {
     window.addEventListener('open-shipping-modal', handleOpenShipping);
     window.addEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
 
+    const handlePopState = () => {
+      const hash = window.location.hash;
+      if (currentView === 'admin' || currentView === 'owner') {
+        if (hash.includes('/')) {
+          const tab = hash.split('/')[1];
+          setActiveAdminTab(tab);
+        } else {
+          setActiveAdminTab('dashboard');
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('open-custom-design-modal', handleOpenCustomDesign);
       window.removeEventListener('open-shipping-modal', handleOpenShipping);
       window.removeEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
+      window.removeEventListener('popstate', handlePopState);
     };
-  }, []);
+  }, [currentView, setActiveAdminTab]);
 
   const isManagementView = currentView === 'admin' || currentView === 'owner';
 
@@ -142,7 +156,7 @@ export const AppContent: React.FC = () => {
       {!isManagementView && (
         <>
           {/* Main Footer (Public Storefront Only: store, catalog, about, contact, care - NEVER in admin or customer management) */}
-          {!isAdmin && currentView !== 'customer' && (
+          {!isManagementView && currentView !== 'customer' && (
             <Footer onOpenPopup={(type) => setActivePopup(type)} />
           )}
 
@@ -166,8 +180,8 @@ export const AppContent: React.FC = () => {
       <AuthModal />
       <InfoPopups activePopup={activePopup} onClose={() => setActivePopup(null)} />
 
-      {/* Management Bottom Dock (Visible on Desktop & Mobile when logged in as Admin/Owner, automatically hidden during CMS visual editing to prevent blocking editor actions) */}
-      {isAdmin && activeAdminTab !== 'cms' && (
+      {/* Management Bottom Dock (Visible on Desktop & Mobile when logged in as Admin/Owner) */}
+      {isAdmin && (
         <ManagementBottomDock
           role={activeAdminUser === 'admin' ? 'admin' : 'owner'}
           activeTab={activeAdminTab}

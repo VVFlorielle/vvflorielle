@@ -24,7 +24,8 @@ import {
   Eye,
   EyeOff,
   UserCheck,
-  BookmarkCheck
+  BookmarkCheck,
+  Copy
 } from 'lucide-react';
 import { PaymentType } from '../types';
 import { useBodyScrollLock } from '../utils/scrollLock';
@@ -132,6 +133,28 @@ export const CartDrawer: React.FC = () => {
   const [createdOrder, setCreatedOrder] = useState<any>(null);
   const [billPreview, setBillPreview] = useState<string | null>(null);
   const [isBillUploaded, setIsBillUploaded] = useState(false);
+  const [countdownSeconds, setCountdownSeconds] = useState(15 * 60);
+
+  useEffect(() => {
+    if (step !== 'success') return;
+    const interval = setInterval(() => {
+      setCountdownSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [step]);
+
+  const formatTimer = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleCopyText = (text: string, label: string) => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text);
+      showToast(`Đã sao chép ${label}!`, 'success');
+    }
+  };
 
   if (!isCartOpen) return null;
 
@@ -990,7 +1013,13 @@ export const CartDrawer: React.FC = () => {
               </div>
 
               {/* VietQR Box */}
-              <div className="p-4 rounded-3xl bg-white border border-emerald-200/90 shadow-xl max-w-[270px] mx-auto text-center space-y-2.5">
+              <div className="p-4 rounded-3xl bg-white border border-emerald-200/90 shadow-xl max-w-[280px] mx-auto text-center space-y-2.5">
+                {/* 15-Minute Reservation Countdown */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold">
+                  <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                  <span>Giữ đơn hoa trong {formatTimer(countdownSeconds)}</span>
+                </div>
+
                 <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
                   MÃ VIETQR TỰ ĐỘNG CHUYỂN CỌC
                 </div>
@@ -999,20 +1028,60 @@ export const CartDrawer: React.FC = () => {
                   alt="Mã VietQR cọc đơn hoa"
                   className="w-full aspect-square object-contain rounded-xl border border-slate-100 p-1"
                 />
-                <div className="text-xs space-y-1">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Số tiền cần cọc:</span>
-                    <strong className="text-emerald-700 text-sm">{formatPrice(createdOrder.depositAmount)}</strong>
+                <div className="text-xs space-y-1.5">
+                  {/* Copy STK */}
+                  <div className="flex items-center justify-between text-slate-600 bg-slate-50 p-2 rounded-xl border border-slate-200/80">
+                    <div className="text-left">
+                      <span className="text-[10px] text-slate-400 block font-sans">STK ({settings.bankName || 'MB Bank'}):</span>
+                      <strong className="text-slate-800 font-mono text-xs">{settings.bankAccount || '0906721442'}</strong>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText(settings.bankAccount || '0906721442', 'STK ngân hàng')}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 cursor-pointer shadow-2xs"
+                      title="Sao chép STK"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-slate-600" />
+                    </button>
                   </div>
+
+                  {/* Copy Số tiền cọc */}
+                  <div className="flex items-center justify-between text-slate-600 bg-slate-50 p-2 rounded-xl border border-slate-200/80">
+                    <div className="text-left">
+                      <span className="text-[10px] text-slate-400 block font-sans">Số tiền cọc:</span>
+                      <strong className="text-emerald-700 text-sm font-black">{formatPrice(createdOrder.depositAmount)}</strong>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText(String(createdOrder.depositAmount), 'Số tiền cọc')}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 cursor-pointer shadow-2xs"
+                      title="Sao chép số tiền"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-slate-600" />
+                    </button>
+                  </div>
+
                   {createdOrder.remainingAmount > 0 && (
-                    <div className="flex justify-between text-[11px] text-slate-500">
+                    <div className="flex justify-between text-[11px] text-slate-500 px-1">
                       <span>Thu khi nhận hoa:</span>
-                      <span>{formatPrice(createdOrder.remainingAmount)}</span>
+                      <span className="font-semibold">{formatPrice(createdOrder.remainingAmount)}</span>
                     </div>
                   )}
-                  <div className="text-left bg-slate-50 p-2 rounded-lg text-[11px] border border-slate-200 font-mono">
-                    <span className="text-slate-400 block text-[9px] uppercase font-sans">Nội dung chuyển khoản:</span>
-                    <strong className="text-slate-800">{memoText}</strong>
+
+                  {/* Copy Cú pháp chuyển khoản */}
+                  <div className="flex items-center justify-between text-left bg-slate-50 p-2 rounded-xl text-[11px] border border-slate-200/80 font-mono">
+                    <div className="min-w-0 flex-1">
+                      <span className="text-slate-400 block text-[9px] uppercase font-sans">Cú pháp chuyển khoản:</span>
+                      <strong className="text-slate-800 text-[11px] break-all">{memoText}</strong>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText(memoText, 'Cú pháp chuyển khoản')}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 cursor-pointer shrink-0 ml-1.5 shadow-2xs"
+                      title="Sao chép cú pháp"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-slate-600" />
+                    </button>
                   </div>
                 </div>
               </div>

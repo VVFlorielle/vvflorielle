@@ -153,7 +153,7 @@ export const ManagementOverviewHero: React.FC<ManagementOverviewHeroProps> = ({
                   {stat.icon}
                 </div>
               </div>
-              <div className={`text-2xl sm:text-3xl font-black mt-1.5 truncate ${classes.value}`}>
+              <div className={`text-base min-[360px]:text-lg min-[390px]:text-xl sm:text-2xl lg:text-3xl font-black mt-1.5 whitespace-nowrap overflow-hidden text-ellipsis tracking-tight ${classes.value}`}>
                 {stat.value}
               </div>
               <div className={`text-[11px] font-medium mt-1 ${classes.subtext}`}>

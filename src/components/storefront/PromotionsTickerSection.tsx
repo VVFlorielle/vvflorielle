@@ -31,37 +31,37 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 min-[480px]:grid-cols-3 gap-2 sm:gap-4">
           {promotions.map((promo) => (
             <div
               key={promo.id}
-              className="p-4 rounded-2xl bg-white/90 border border-rose-200/80 shadow-sm flex flex-col justify-between space-y-3 relative overflow-hidden"
+              className="p-2.5 sm:p-4 rounded-2xl bg-white/90 border border-rose-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-2 relative overflow-hidden"
             >
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 uppercase tracking-wide">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 uppercase tracking-wide truncate max-w-[90px] sm:max-w-none">
                     {promo.badge}
                   </span>
-                  <span className="text-[10px] text-slate-400">HSD: {promo.validUntil}</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 whitespace-nowrap">HSD: {promo.validUntil}</span>
                 </div>
-                <h4 className="font-bold text-sm text-slate-900 leading-snug">{promo.title}</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">{promo.description}</p>
+                <h4 className="font-bold text-xs sm:text-sm text-slate-900 leading-snug line-clamp-2">{promo.title}</h4>
+                <p className="text-[10.5px] sm:text-xs text-slate-500 leading-relaxed line-clamp-2">{promo.description}</p>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                <div className="font-mono font-extrabold text-sm text-slate-900 tracking-wider bg-slate-50 px-2 py-1 rounded-lg border border-dashed border-rose-300">
+              <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between gap-1">
+                <div className="font-mono font-extrabold text-xs sm:text-sm text-slate-900 tracking-wider bg-slate-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border border-dashed border-rose-300 truncate">
                   {promo.code}
                 </div>
                 <button
                   onClick={() => onCopyCode(promo.code)}
-                  className="btn-secondary text-[11px] py-1.5 px-3 rounded-xl flex items-center gap-1 border-rose-200 text-rose-700 hover:bg-rose-50 cursor-pointer"
+                  className="btn-secondary text-[10px] sm:text-[11px] py-1 px-2 sm:px-3 rounded-xl flex items-center gap-1 border-rose-200 text-rose-700 hover:bg-rose-50 cursor-pointer shrink-0"
                 >
                   {copiedCode === promo.code ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <Check className="w-3 h-3 text-emerald-600 shrink-0" />
                   ) : (
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy className="w-3 h-3 shrink-0" />
                   )}
-                  <span>{copiedCode === promo.code ? 'Đã chép' : 'Sao chép'}</span>
+                  <span>{copiedCode === promo.code ? 'Đã chép' : 'Chép'}</span>
                 </button>
               </div>
             </div>

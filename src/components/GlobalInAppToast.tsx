@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
-import { CheckCircle2, AlertCircle, Info, X, Sparkles } from 'lucide-react';
+import React from 'react';
+import { CheckCircle2, AlertCircle, X, Sparkles, Bell } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { useBodyScrollLock } from '../utils/scrollLock';
 
 export const GlobalInAppToast: React.FC = () => {
   const {
@@ -11,103 +10,88 @@ export const GlobalInAppToast: React.FC = () => {
     dismissToast
   } = useStore();
 
-  // Active toast is the latest toast in the queue
-  const currentToast = toasts.length > 0 ? toasts[toasts.length - 1] : null;
-  const isVisible = Boolean(currentToast || activeBannerNotification);
-
-  // Lock body scroll when notification is prominently displayed in center
-  useBodyScrollLock(isVisible);
-
-  // Handlers to dismiss
-  const handleDismiss = () => {
-    if (activeBannerNotification) {
-      dismissBannerNotification();
-    }
-    dismissToast();
-  };
-
-  if (!isVisible) return null;
-
-  const isBanner = Boolean(activeBannerNotification && !currentToast);
-  const type = currentToast?.type || 'info';
-  const title = isBanner
-    ? activeBannerNotification?.title
-    : type === 'success'
-    ? 'Thành Công'
-    : type === 'error'
-    ? 'Thông Báo Lỗi'
-    : 'Thông Báo Tiệm Hoa';
-  const message = isBanner ? activeBannerNotification?.message : currentToast?.message;
-
   return (
-    <div
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-4 animate-in fade-in duration-200 select-none"
-      onClick={handleDismiss}
-      role="dialog"
-      aria-modal="true"
-    >
-      {/* 1. Translucent Frosted Glass Backdrop Overlay (Surrounds notification) */}
-      <div className="fixed inset-0 bg-slate-950/45 backdrop-blur-md transition-opacity" />
-
-      {/* 2. Floating Centered Notification Card */}
+    <>
+      {/* 1. LIGHTWEIGHT FLOATING CORNER TOASTS (Chuẩn Phototiinlove: Nổi góc phải nhẹ nhàng, tự biến mất sau ~2s) */}
       <div
-        className="relative z-10 w-full max-w-xs sm:max-w-sm rounded-[28px] sm:rounded-[32px] bg-white/95 backdrop-blur-2xl border border-white/90 shadow-[0_25px_60px_rgba(0,0,0,0.28),inset_0_2px_4px_rgba(255,255,255,0.9)] p-6 sm:p-7 text-center space-y-4 animate-in zoom-in-95 duration-200 pointer-events-auto"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed top-4 right-4 sm:top-5 sm:right-5 z-[100000] pointer-events-none flex flex-col gap-2 max-w-[340px] sm:max-w-sm w-full px-2"
+        aria-live="polite"
+        aria-atomic="true"
       >
-        {/* Close Button Top Right */}
-        <button
-          type="button"
-          onClick={handleDismiss}
-          className="absolute top-3.5 right-3.5 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-colors cursor-pointer"
-          title="Đóng thông báo"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        {/* Status Icon */}
-        <div className="flex justify-center">
-          {type === 'success' ? (
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 animate-bounce-subtle">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-          ) : type === 'error' ? (
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/25 animate-shake">
-              <AlertCircle className="w-8 h-8" />
-            </div>
-          ) : (
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/25">
-              <Sparkles className="w-8 h-8" />
-            </div>
-          )}
-        </div>
-
-        {/* Text Content */}
-        <div className="space-y-1.5">
-          <h3 className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight">
-            {title}
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed px-1">
-            {message}
-          </p>
-        </div>
-
-        {/* Confirm Action Button */}
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className={`w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white shadow-md transition-all active:scale-95 cursor-pointer ${
-              type === 'success'
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-600/20'
-                : type === 'error'
-                ? 'bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 shadow-rose-600/20'
-                : 'bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black shadow-slate-900/20'
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`pointer-events-auto flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-white/95 backdrop-blur-xl border shadow-[0_10px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-top-3 fade-in duration-200 select-none ${
+              toast.type === 'success'
+                ? 'border-emerald-300/90 text-emerald-950'
+                : toast.type === 'error'
+                ? 'border-rose-300/90 text-rose-950'
+                : 'border-slate-200 text-slate-900'
             }`}
           >
-            Đã Hiểu
-          </button>
-        </div>
+            <div className="shrink-0">
+              {toast.type === 'success' ? (
+                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+              ) : toast.type === 'error' ? (
+                <div className="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-xs">
+                  <AlertCircle className="w-4 h-4" />
+                </div>
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-xs">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+              )}
+            </div>
+            <p className="text-xs sm:text-[13px] font-semibold leading-snug flex-1">
+              {toast.message}
+            </p>
+            <button
+              type="button"
+              onClick={() => dismissToast(toast.id)}
+              className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+              title="Đóng thông báo"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ))}
       </div>
-    </div>
+
+      {/* 2. URGENT SYSTEM BANNER MODAL (Chỉ hiện khi có activeBannerNotification từ hệ thống) */}
+      {activeBannerNotification && (
+        <div
+          className="fixed inset-0 z-[100001] flex items-center justify-center p-4 bg-slate-950/45 backdrop-blur-xs animate-in fade-in duration-200 select-none"
+          onClick={dismissBannerNotification}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="relative z-10 w-full max-w-xs sm:max-w-sm rounded-[28px] bg-white p-6 text-center space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl border border-slate-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-xs">
+              <Bell className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-extrabold text-slate-900 text-base">
+                {activeBannerNotification.title || 'Thông Báo'}
+              </h3>
+              <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                {activeBannerNotification.message}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={dismissBannerNotification}
+              className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              Đã Hiểu
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

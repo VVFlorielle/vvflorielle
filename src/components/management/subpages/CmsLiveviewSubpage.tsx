@@ -135,14 +135,13 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
   const [selectedPage, setSelectedPage] = useState<CmsPageId>('home');
   const [desktopWorkspaceOpen, setDesktopWorkspaceOpen] = useState(false);
   const [workspaceItem, setWorkspaceItem] = useState<string>('hero');
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
-  const [mobileActiveView, setMobileActiveView] = useState<'preview' | 'editor' | 'tree'>('preview');
+  const [mobileHomeInspectorOpen, setMobileHomeInspectorOpen] = useState(false);
 
   // Discard Confirmation Modal State (No window.confirm)
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   // Lock body scroll when workspace or modals are active
-  useBodyScrollLock(desktopWorkspaceOpen || showDiscardConfirm);
+  useBodyScrollLock(desktopWorkspaceOpen || showDiscardConfirm || mobileHomeInspectorOpen);
 
   // Draft States
   const [draftHero, setDraftHero] = useState<HeroBannerConfig>(heroConfig);
@@ -327,11 +326,34 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
 
   const currentTree = pageTreeItems[selectedPage] || pageTreeItems.home;
 
+  const workspaceMetaMap: Record<CmsPageId, { title: string; shortTitle: string }> = {
+    home: { title: 'CHỈNH SỬA TRANG CHỦ', shortTitle: 'Trang chủ' },
+    products: { title: 'CHỈNH SỬA BẢNG GIÁ & CATALOG', shortTitle: 'Mẫu hoa' },
+    services: { title: 'CHỈNH SỬA DỊCH VỤ & HOA CƯỚI', shortTitle: 'Dịch vụ' },
+    articles: { title: 'CHỈNH SỬA CẨM NANG & TIN TỨC', shortTitle: 'Cẩm nang' },
+    about: { title: 'CHỈNH SỬA GIỚI THIỆU THƯƠNG HIỆU', shortTitle: 'Giới thiệu' },
+    contact: { title: 'CHỈNH SỬA LIÊN HỆ & SHOWROOM', shortTitle: 'Liên hệ' },
+    footer: { title: 'CHỈNH SỬA CHÂN TRANG FOOTER', shortTitle: 'Chân trang' },
+    branding: { title: 'QUẢN LÝ NHẬN DIỆN & LINH VẬT', shortTitle: 'Thương hiệu' }
+  };
+
+  const currentWorkspaceMeta = workspaceMetaMap[selectedPage] || workspaceMetaMap.home;
+
   const openWorkspace = (pageId: CmsPageId) => {
     setSelectedPage(pageId);
     const initialItem = pageTreeItems[pageId]?.[0]?.id || 'hero';
     setWorkspaceItem(initialItem);
+    setMobileHomeInspectorOpen(false);
     setDesktopWorkspaceOpen(true);
+    window.history.pushState({ cmsWorkspace: pageId }, '', window.location.hash);
+  };
+
+  const changeWorkspaceItem = (itemId: string) => {
+    setWorkspaceItem(itemId);
+    if (typeof window !== 'undefined' && window.innerWidth <= 1100) {
+      setMobileHomeInspectorOpen(true);
+      window.history.pushState({ cmsInspector: itemId }, '', window.location.hash);
+    }
   };
 
   const handleCloseWorkspace = () => {
@@ -339,6 +361,7 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
       setShowDiscardConfirm(true);
       return;
     }
+    setMobileHomeInspectorOpen(false);
     setDesktopWorkspaceOpen(false);
   };
 
@@ -348,8 +371,8 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
     setDraftPromotions(promotions);
     setDraftArticles(articles);
     setShowDiscardConfirm(false);
-    setDesktopWorkspaceOpen(false);
-    showToast('Đã hủy bỏ các thay đổi chưa lưu!', 'info');
+    setMobileHomeInspectorOpen(false);
+    showToast('Đã khôi phục dữ liệu ban đầu!', 'info');
   };
 
   const handleSaveAndApply = () => {
@@ -357,20 +380,41 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
     updateCategories(draftCategories);
     updatePromotions(draftPromotions);
     updateArticles(draftArticles);
+    setMobileHomeInspectorOpen(false);
     setDesktopWorkspaceOpen(false);
     showToast('Đã lưu và áp dụng toàn bộ cấu hình giao diện website thành công! ✨', 'success');
   };
+
+  // Popstate listener for mobile phone back button / browser back gesture
+  React.useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (mobileHomeInspectorOpen) {
+        setMobileHomeInspectorOpen(false);
+        e.stopImmediatePropagation();
+        return;
+      }
+      if (desktopWorkspaceOpen) {
+        if (hasUnsavedChanges) {
+          setShowDiscardConfirm(true);
+        } else {
+          setDesktopWorkspaceOpen(false);
+        }
+        e.stopImmediatePropagation();
+        return;
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [mobileHomeInspectorOpen, desktopWorkspaceOpen, hasUnsavedChanges]);
 
   // Editor instance for CmsPreviewTarget
   const previewEditor: CmsPreviewEditor = {
     selected: workspaceItem,
     select: (target: string) => {
       setWorkspaceItem(target);
-      // On mobile viewports (< 1024px), switch to editor tab smoothly with feedback
-      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-        setMobileActiveView('editor');
-        const targetLabel = currentTree.find((t) => t.id === target)?.label || target;
-        showToast(`Đang chỉnh sửa: ${targetLabel}`, 'info');
+      if (typeof window !== 'undefined' && window.innerWidth <= 1100) {
+        setMobileHomeInspectorOpen(true);
+        window.history.pushState({ cmsInspector: target }, '', window.location.hash);
       }
     }
   };
@@ -1274,472 +1318,181 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      {/* ========================================================
-          1. WELCOME SCREEN (When !desktopWorkspaceOpen)
-         ======================================================== */}
+    <main className="portal cms-portal-container pb-28">
+      {/* 1. CMS Welcome Section (Chưa mở Workspace) */}
       {!desktopWorkspaceOpen && (
-        <div className="space-y-6">
-          {/* Header Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80">
-            <div className="flex items-center gap-3">
+        <section className="cms-editor-welcome" aria-label="Chọn khu vực muốn chỉnh sửa">
+          <div className="cms-editor-welcome-watermark" aria-hidden="true">
+            🌸
+          </div>
+          <span className="cms-editor-welcome-kicker">QUẢN LÝ NỘI DUNG PUBLIC</span>
+          <h2>Chọn khu vực muốn chỉnh sửa</h2>
+          <p>Chọn một khu vực để mở bản xem trước và chỉnh sửa từng thành phần trong giao diện Public.</p>
+          {hasUnsavedChanges && (
+            <span className="cms-editor-welcome-draft">● Có thay đổi chưa lưu</span>
+          )}
+          <div className="cms-editor-welcome-grid">
+            {cmsWelcomePages.map(({ key, label, icon, description }) => (
               <button
+                key={key}
                 type="button"
-                onClick={onBackToDashboard}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                className="cms-editor-welcome-card"
+                onClick={() => openWorkspace(key)}
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                Quay lại Tổng Quan
-              </button>
-              <div>
-                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200">
-                  QUẢN LÝ NỘI DUNG PUBLIC • CHUẨN PHOTOTIINLOVE
+                <span className="cms-editor-welcome-card-icon">{icon}</span>
+                <span className="cms-editor-welcome-card-copy">
+                  <strong>{label}</strong>
+                  <small>{description}</small>
                 </span>
-                <h2 className="text-xl font-black text-slate-800">{title}</h2>
-              </div>
-            </div>
-
-            {hasUnsavedChanges && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold animate-pulse">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                Có thay đổi chưa lưu
-              </span>
-            )}
-          </div>
-
-          {/* Welcome Intro Banner */}
-          <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-50/60 via-white to-pink-50/40 border border-emerald-100/80 shadow-xs space-y-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
-              TRÌNH BIÊN TẬP NỘI DUNG TRỰC QUAN (LIVE WORKSPACE)
-            </span>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-              Chọn khu vực muốn chỉnh sửa giao diện website
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
-              Nhấp vào một khu vực bên dưới để mở giao diện làm việc 3 cột: Cây thành phần (Trái) — Bản xem trước bấm trực tiếp (Giữa) — Bảng chỉnh sửa chi tiết (Phải).
-            </p>
-          </div>
-
-          {/* Welcome Cards Grid (Phototiinlove model) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {cmsWelcomePages.map((page) => (
-              <button
-                key={page.key}
-                type="button"
-                onClick={() => openWorkspace(page.key)}
-                className="group p-5 rounded-2xl bg-white hover:bg-emerald-50/30 border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all text-left flex flex-col justify-between space-y-3 cursor-pointer"
-              >
-                <div className="flex items-start justify-between">
-                  <span className="text-3xl p-2.5 rounded-2xl bg-slate-50 group-hover:bg-white group-hover:scale-110 transition-transform shadow-xs">
-                    {page.icon}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 group-hover:bg-emerald-100 text-slate-600 group-hover:text-emerald-800">
-                    {page.itemCount} thành phần
-                  </span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-800 group-hover:text-emerald-800 transition-colors">
-                    {page.label}
-                  </h4>
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                    {page.description}
-                  </p>
-                </div>
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-700 group-hover:translate-x-1 transition-transform">
-                  <span>Mở Trình Chỉnh Sửa</span>
-                  <ChevronRight className="w-4 h-4" />
-                </div>
+                <span className="cms-editor-welcome-card-arrow" aria-hidden="true">›</span>
               </button>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ========================================================
-          2. WORKSPACE MODAL (CHUẨN PHOTOTIINLOVE)
-         ======================================================== */}
+      {/* 2. Full-Screen CMS Editor Workspace Overlay (Chuẩn PhotoTiinLove) */}
       {desktopWorkspaceOpen && (
-        <div className="fixed inset-0 z-[9995] flex flex-col bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full h-full max-w-[1550px] mx-auto bg-slate-50 flex flex-col shadow-2xl overflow-hidden">
-            {/* Top Bar (Responsive for Desktop & Mobile) */}
-            <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-slate-200 flex items-center justify-between gap-2 shrink-0">
-              {/* Breadcrumb & Title */}
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                <button
-                  type="button"
-                  onClick={handleCloseWorkspace}
-                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer shrink-0"
-                  title="Quay lại danh mục trang"
-                >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-                <div className="truncate">
-                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-700 block truncate">
-                    CHỈNH SỬA GIAO DIỆN • {selectedPage.toUpperCase()}
-                  </span>
-                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-800 truncate">
-                    {cmsWelcomePages.find((p) => p.key === selectedPage)?.label || 'Biên Tập Giao Diện'}
-                  </h3>
-                </div>
-              </div>
-
-              {/* Viewport Device Switcher (Desktop Only) */}
-              <div className="hidden md:flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200/80 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setPreviewDevice('desktop')}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    previewDevice === 'desktop'
-                      ? 'bg-white text-emerald-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Monitor className="w-3.5 h-3.5" />
-                  <span>Desktop</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewDevice('mobile')}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    previewDevice === 'mobile'
-                      ? 'bg-white text-emerald-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Smartphone className="w-3.5 h-3.5" />
-                  <span>Mobile</span>
-                </button>
-              </div>
-
-              {/* Top Actions */}
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (hasUnsavedChanges) {
-                      setShowDiscardConfirm(true);
-                    } else {
-                      setDesktopWorkspaceOpen(false);
-                    }
-                  }}
-                  className="hidden sm:inline-block px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveAndApply}
-                  className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>Lưu & Áp Dụng</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCloseWorkspace}
-                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                  title="Đóng cửa sổ"
-                >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
+        <div
+          className="cms-desktop-editor-backdrop"
+          aria-label="Đóng cửa sổ chỉnh sửa"
+          onClick={handleCloseWorkspace}
+        />
+      )}
+      {desktopWorkspaceOpen && (
+        <section
+          className="cms-desktop-editor-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label={currentWorkspaceMeta.title}
+        >
+          <header className="cms-desktop-editor-header">
+            <div>
+              <small>CHỈNH SỬA WEBSITE</small>
+              <h2>{currentWorkspaceMeta.title}</h2>
             </div>
-
-            {/* Mobile 3-View Segmented Control Bar (Chuẩn Phototiinlove Mobile) */}
-            <div className="lg:hidden p-1.5 bg-slate-100 border-b border-slate-200 shrink-0 select-none">
-              <div className="grid grid-cols-3 gap-1 bg-slate-200/90 p-0.5 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => setMobileActiveView('preview')}
-                  className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                    mobileActiveView === 'preview'
-                      ? 'bg-white text-emerald-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Eye className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">Xem Trước</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMobileActiveView('editor')}
-                  className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                    mobileActiveView === 'editor'
-                      ? 'bg-white text-emerald-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Pencil className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">Chỉnh Sửa</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMobileActiveView('tree')}
-                  className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                    mobileActiveView === 'tree'
-                      ? 'bg-white text-emerald-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Layers className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">Các Khối ({currentTree.length})</span>
-                </button>
-              </div>
+            <div className="cms-desktop-editor-header-actions">
+              <span className="cms-preview-draft-badge">Bản nháp</span>
+              <button
+                type="button"
+                className="secondary"
+                aria-label="Đóng chỉnh sửa"
+                onClick={handleCloseWorkspace}
+              >
+                Đóng
+              </button>
             </div>
+          </header>
 
-            {/* Workspace Content Area: 3-column on Desktop (lg:flex), Single View on Mobile based on mobileActiveView */}
-            <div className="flex-1 flex overflow-hidden relative">
-              {/* ========================================================
-                  COLUMN 1: COMPONENT TREE
-                  (Desktop: Left sidebar ~ 260px | Mobile: View 'tree')
-                 ======================================================== */}
-              <aside
-                className={`w-full lg:w-64 bg-white border-r border-slate-200 flex-col shrink-0 overflow-y-auto ${
-                  mobileActiveView === 'tree' ? 'flex' : 'hidden lg:flex'
-                }`}
-              >
-                <div className="p-3 border-b border-slate-100 bg-slate-50/70">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    THÀNH PHẦN TRANG ({currentTree.length})
-                  </span>
-                  <p className="text-[11px] text-slate-400">Bấm mắt để ẩn/hiện, bấm tên để chỉnh sửa</p>
+          <div className="cms-desktop-editor-grid">
+            {/* Column 1: Tree (Desktop left column | Mobile top horizontal scrollbar) */}
+            <aside
+              className="cms-desktop-editor-tree"
+              aria-label={`Thành phần ${currentWorkspaceMeta.title}`}
+            >
+              <div className="cms-builder-pane-title">
+                <span>☰</span>
+                <strong>{currentWorkspaceMeta.shortTitle}</strong>
+              </div>
+              <div className="cms-builder-group">
+                <span>THÀNH PHẦN</span>
+                {currentTree.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={workspaceItem === item.id ? 'active' : ''}
+                    onClick={() => changeWorkspaceItem(item.id)}
+                  >
+                    <span>•</span>
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </aside>
+
+            {/* Column 2: Live Canvas (Desktop center | Mobile live scrollable canvas) */}
+            <section
+              className="cms-desktop-editor-preview"
+              aria-label="Bản xem trước website"
+            >
+              <div className="cms-builder-preview-bar">
+                <span>👆 Chọn thành phần để chỉnh sửa</span>
+                <div className="cms-builder-preview-actions">
+                  <span>Xem trước mở rộng</span>
                 </div>
-                <div className="p-2 space-y-1.5 flex-1">
-                  {currentTree.map((item) => {
-                    const isSelected = workspaceItem === item.id;
-                    const isVisible = sectionsVisibility[item.id] !== false;
-                    return (
-                      <div
-                        key={item.id}
-                        className={`flex items-center gap-2 p-2 rounded-xl text-xs font-medium transition-all ${
-                          isSelected
-                            ? 'bg-emerald-50 text-emerald-950 font-bold border border-emerald-300 shadow-xs'
-                            : 'hover:bg-slate-100 text-slate-700 border border-transparent'
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleSection(item.id);
-                          }}
-                          className={`p-1.5 rounded-lg transition-colors cursor-pointer shrink-0 ${
-                            isVisible
-                              ? 'text-emerald-700 bg-emerald-100/70 hover:bg-emerald-200/70'
-                              : 'text-slate-400 bg-slate-100 hover:bg-slate-200'
-                          }`}
-                          title={isVisible ? 'Đang hiển thị - Bấm để ẩn' : 'Đang ẩn - Bấm để hiển thị'}
-                        >
-                          {isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setWorkspaceItem(item.id);
-                            if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                              setMobileActiveView('editor');
-                            }
-                          }}
-                          className="flex-1 text-left flex items-center justify-between min-w-0 py-1 truncate cursor-pointer"
-                        >
-                          <div className="flex items-center gap-2 truncate">
-                            <span className="text-sm shrink-0">{item.icon}</span>
-                            <span className="truncate">{item.label}</span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 lg:hidden" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </aside>
-
-              {/* ========================================================
-                  COLUMN 2: PREVIEW CANVAS
-                  (Desktop: Middle column | Mobile: View 'preview')
-                 ======================================================== */}
-              <main
-                className={`flex-1 bg-slate-100 overflow-y-auto p-2 sm:p-4 md:p-6 flex-col items-center relative w-full ${
-                  mobileActiveView === 'preview' ? 'flex' : 'hidden lg:flex'
-                }`}
-              >
-                {/* Visual Guide Hint (Desktop) */}
-                <div className="w-full max-w-4xl mb-3 hidden sm:flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-xs text-slate-600 shadow-xs">
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-emerald-600 font-bold">✎ Thao tác:</span>
-                    Nhấp trực tiếp vào bất kỳ mục nào trên bản xem trước để chọn và mở bảng chỉnh sửa tức thì!
-                  </span>
-                  <span className="text-[11px] text-slate-400">Chuẩn Phototiinlove</span>
-                </div>
-
-                {/* Mobile Guide Banner (Mobile Only) */}
-                <div className="lg:hidden w-full mb-2.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 font-medium flex items-center justify-between shadow-2xs">
-                  <span className="flex items-center gap-1 truncate">
-                    <span className="font-bold text-emerald-700">💡 Chạm khối:</span>
-                    <span className="truncate">Chạm vào bất kỳ khối nào dưới đây để sửa</span>
-                  </span>
-                  <span className="text-[10px] text-emerald-700 font-bold shrink-0 ml-1">Live Sync</span>
-                </div>
-
-                {/* Viewport Frame (No fake chassis on mobile, full width touch canvas) */}
-                <div
-                  className={`w-full transition-all duration-200 ${
-                    previewDevice === 'mobile'
-                      ? 'lg:max-w-[420px] lg:border-4 lg:border-slate-800 lg:rounded-3xl lg:shadow-xl lg:min-h-[700px] bg-white rounded-xl p-2.5 sm:p-4 shadow-xs border border-slate-200'
-                      : 'max-w-4xl bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200'
-                  }`}
-                >
-                  {previewDevice === 'mobile' && (
-                    <div className="w-24 h-4 bg-slate-800 rounded-full mx-auto mb-4 hidden lg:block" />
-                  )}
+              </div>
+              <div className="cms-desktop-editor-canvas">
+                <div className="cms-desktop-editor-frame">
                   {renderCanvasPreview()}
                 </div>
+              </div>
+            </section>
 
-                {/* Mobile Floating Bottom Action Bar (Mobile Only) */}
-                <div className="lg:hidden sticky bottom-2 w-full mt-4 z-20 pointer-events-auto flex items-center gap-2 px-1">
-                  <button
-                    type="button"
-                    onClick={() => setMobileActiveView('editor')}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-1.5 border border-white/30 cursor-pointer"
-                  >
-                    <Pencil className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">Sửa: {currentTree.find((t) => t.id === workspaceItem)?.label || 'Khối này'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveAndApply}
-                    className="py-2.5 px-4 rounded-xl bg-slate-900 active:bg-slate-800 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-1.5 border border-white/20 shrink-0 cursor-pointer"
-                  >
-                    <Save className="w-3.5 h-3.5 shrink-0" />
-                    <span>Lưu Web</span>
-                  </button>
-                </div>
-              </main>
+            {/* Mobile Inspector Backdrop (Div only, dark glass blur) */}
+            {mobileHomeInspectorOpen && (
+              <div
+                className="cms-desktop-mobile-inspector-backdrop"
+                aria-label="Đóng bảng chỉnh sửa"
+                onClick={() => setMobileHomeInspectorOpen(false)}
+              />
+            )}
 
-              {/* ========================================================
-                  COLUMN 3: INSPECTOR / EDITOR PANEL
-                  (Desktop: Right sidebar ~ 380px | Mobile: View 'editor')
-                 ======================================================== */}
-              <aside
-                className={`w-full lg:w-80 xl:w-96 bg-white border-l border-slate-200 flex-col shrink-0 overflow-y-auto ${
-                  mobileActiveView === 'editor' ? 'flex' : 'hidden lg:flex'
-                }`}
+            {/* Column 3: Inspector (Desktop right panel | Mobile floating bottom sheet / popup) */}
+            <aside
+              className={`cms-desktop-editor-inspector ${mobileHomeInspectorOpen ? 'mobile-open' : ''}`}
+              aria-label="Bảng chỉnh sửa"
+            >
+              <button
+                type="button"
+                className="cms-desktop-mobile-inspector-close"
+                aria-label="Đóng bảng chỉnh sửa"
+                onClick={() => setMobileHomeInspectorOpen(false)}
               >
-                {/* Header (Desktop) */}
-                <div className="hidden lg:flex p-3.5 border-b border-slate-100 bg-slate-50/70 items-center justify-between shrink-0">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
-                      BẢNG CHỈNH SỬA CHI TIẾT
-                    </span>
-                    <h4 className="text-xs font-bold text-slate-800 truncate">
-                      {currentTree.find((t) => t.id === workspaceItem)?.label || 'Thành Phần Đang Chọn'}
-                    </h4>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                    Live Sync
-                  </span>
+                ×
+              </button>
+              <div className="cms-inspector-heading">
+                <div>
+                  <small>{currentWorkspaceMeta.shortTitle.toUpperCase()}</small>
+                  <h3>{currentTree.find((item) => item.id === workspaceItem)?.label || 'Thuộc tính'}</h3>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => toggleSection(workspaceItem)}
+                  className="px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer"
+                  title="Ẩn/hiện khối này trên web"
+                >
+                  {sectionsVisibility[workspaceItem] !== false ? '👁 Hiển thị' : '◉̸ Đang ẩn'}
+                </button>
+              </div>
 
-                {/* Mobile Section Selector + Eye Toggle (Mobile Only) */}
-                <div className="lg:hidden p-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2 shrink-0">
-                  <div className="flex-1 min-w-0">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">
-                      Khối đang sửa:
-                    </label>
-                    <select
-                      value={workspaceItem}
-                      onChange={(e) => setWorkspaceItem(e.target.value)}
-                      className="w-full text-xs font-bold text-slate-800 bg-white border border-slate-300 rounded-lg px-2 py-1.5 focus:outline-emerald-600"
-                    >
-                      {currentTree.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.icon} {item.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleSection(workspaceItem)}
-                    className={`p-2 rounded-xl border flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer ${
-                      sectionsVisibility[workspaceItem] !== false
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        : 'bg-rose-50 text-rose-800 border-rose-200'
-                    }`}
-                    title="Ẩn/hiện khối này trên web"
-                  >
-                    {sectionsVisibility[workspaceItem] !== false ? (
-                      <>
-                        <Eye className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span className="text-[11px] hidden min-[375px]:inline">Hiện</span>
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff className="w-4 h-4 text-rose-600 shrink-0" />
-                        <span className="text-[11px] hidden min-[375px]:inline">Ẩn</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+                {renderInspector()}
+              </div>
 
-                {/* Scrollable Form Body */}
-                <div className="p-3 sm:p-4 flex-1 overflow-y-auto">{renderInspector()}</div>
-
-                {/* Desktop Actions Footer */}
-                <div className="hidden lg:flex p-3.5 border-t border-slate-100 bg-slate-50 items-center justify-between gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDraftHero(heroConfig);
-                      setDraftCategories(categories);
-                      setDraftPromotions(promotions);
-                      setDraftArticles(articles);
-                      showToast('Đã khôi phục dữ liệu ban đầu của khối này!', 'info');
-                    }}
-                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-                  >
-                    Khôi phục
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveAndApply}
-                    className="flex-1 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
-                  >
-                    Áp Dụng Thay Đổi
-                  </button>
-                </div>
-
-                {/* Mobile Actions Footer (Mobile Only) */}
-                <div className="lg:hidden p-2.5 sm:p-3 bg-slate-50 border-t border-slate-200 flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setMobileActiveView('preview')}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Eye className="w-4 h-4 shrink-0" />
-                    <span>Xem Thử</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveAndApply}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Save className="w-4 h-4 shrink-0" />
-                    <span>Lưu & Áp Dụng</span>
-                  </button>
-                </div>
-              </aside>
-            </div>
+              <div className="cms-inspector-actions">
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={handleDiscardChanges}
+                >
+                  Hủy thay đổi
+                </button>
+                <button
+                  type="button"
+                  className="primary"
+                  onClick={handleSaveAndApply}
+                >
+                  Lưu thay đổi
+                </button>
+              </div>
+            </aside>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ========================================================
-          3. IN-APP CONFIRM DISCARD MODAL (NO WINDOW.CONFIRM)
-         ======================================================== */}
+      {/* 3. In-App Discard Confirmation Modal (No window.confirm) */}
       {showDiscardConfirm && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-[2010] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-slate-100 space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">
               <AlertTriangle className="w-6 h-6" />
@@ -1769,6 +1522,6 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 };
