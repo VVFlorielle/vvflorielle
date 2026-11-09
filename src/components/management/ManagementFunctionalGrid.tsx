@@ -81,6 +81,10 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
         {groups.map((group, idx) => {
           const gId = group.groupId || `group-${idx}`;
           const isSelected = selectedGroupFilter === gId;
+          const cleanShortTitle = group.groupTitle
+            .replace(/^[\p{Emoji}\u2600-\u27BF\uFE00-\uFE0F\s]+/u, '')
+            .split('&')[0]
+            .trim();
 
           return (
             <button
@@ -93,8 +97,8 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
                   : 'bg-white/90 text-slate-700 border border-slate-200 hover:bg-slate-50'
               }`}
             >
-              <span className="text-xs">{group.groupIcon}</span>
-              <span>{group.groupTitle.split('&')[0].trim()}</span>
+              <span className="text-xs shrink-0 flex items-center">{group.groupIcon}</span>
+              <span>{cleanShortTitle}</span>
               <span className="text-[9.5px] opacity-75">({group.items.length})</span>
             </button>
           );
@@ -126,7 +130,7 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
                 <div className="flex items-center gap-2">
                   <span className="text-base sm:text-lg">{group.groupIcon}</span>
                   <h3 className="text-sm sm:text-base font-extrabold text-slate-800 tracking-tight">
-                    {group.groupTitle}
+                    {group.groupTitle.replace(/^[\p{Emoji}\u2600-\u27BF\uFE00-\uFE0F\s]+/u, '').trim()}
                   </h3>
                   <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 ml-1">
                     {group.items.length} mục

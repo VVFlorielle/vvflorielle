@@ -253,13 +253,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                   setCurrentView('store');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`h-[50px] min-[375px]:h-[56px] w-[124px] min-[375px]:w-[138px] p-[1.5px] rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 shadow-md ${clusterGlassClass}`}
+                className={`h-[48px] min-[375px]:h-[52px] w-[132px] min-[375px]:w-[146px] p-0 rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 shadow-md ${clusterGlassClass}`}
                 title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
               >
                 <img
                   src="/logo-vvflorielle-horizontal.png"
                   alt="V&V Florielle"
-                  className="h-full w-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.1)] p-[1px]"
+                  className="h-full w-full object-contain scale-[1.28] filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.1)]"
                 />
               </div>
             </div>

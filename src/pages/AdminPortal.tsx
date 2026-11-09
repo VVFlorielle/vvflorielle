@@ -193,7 +193,7 @@ export const AdminPortal: React.FC = () => {
   const adminActionGroups: ManagementActionGroup[] = [
     {
       groupId: 'operations',
-      groupTitle: '⚡ Vận Hành & Doanh Thu',
+      groupTitle: 'Vận Hành & Doanh Thu',
       groupIcon: <ShoppingBag className="w-4 h-4 text-amber-700" />,
       items: [
         {
@@ -254,7 +254,7 @@ export const AdminPortal: React.FC = () => {
     },
     {
       groupId: 'customers',
-      groupTitle: '👥 Khách Hàng & Nhân Sự',
+      groupTitle: 'Khách Hàng & Nhân Sự',
       groupIcon: <Users className="w-4 h-4 text-purple-700" />,
       items: [
         {
@@ -288,7 +288,7 @@ export const AdminPortal: React.FC = () => {
     },
     {
       groupId: 'website',
-      groupTitle: '🎨 Giao Diện & Website',
+      groupTitle: 'Giao Diện & Website',
       groupIcon: <LayoutTemplate className="w-4 h-4 text-sky-700" />,
       items: [
         {
@@ -340,7 +340,7 @@ export const AdminPortal: React.FC = () => {
     },
     {
       groupId: 'security',
-      groupTitle: '🔒 Bảo Mật Hệ Thống',
+      groupTitle: 'Bảo Mật Hệ Thống',
       groupIcon: <KeyRound className="w-4 h-4 text-rose-700" />,
       items: [
         {
