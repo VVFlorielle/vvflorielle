@@ -146,6 +146,7 @@ export interface ContactChannel {
 export interface ShopSettings {
   name: string;
   slogan: string;
+  tagline?: string;
   hotline: string;
   zalo: string;
   address: string; // 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội

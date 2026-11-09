@@ -16,7 +16,8 @@ import {
   Share2,
   Megaphone,
   LayoutTemplate,
-  KeyRound
+  KeyRound,
+  Palette
 } from 'lucide-react';
 import { CustomerUser, Order, FlowerProduct, PromotionItem, ContactChannel } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
@@ -48,6 +49,7 @@ import { CustomersSubpage } from '../components/management/subpages/CustomersSub
 import { PromotionsSubpage } from '../components/management/subpages/PromotionsSubpage';
 import { RevenueSubpage } from '../components/management/subpages/RevenueSubpage';
 import { StoreConfigSubpage } from '../components/management/subpages/StoreConfigSubpage';
+import { BrandingSubpage } from '../components/management/subpages/BrandingSubpage';
 import { SecuritySubpage } from '../components/management/subpages/SecuritySubpage';
 import { CmsLiveviewSubpage } from '../components/management/subpages/CmsLiveviewSubpage';
 import { MarqueeSubpage } from '../components/management/subpages/MarqueeSubpage';
@@ -175,193 +177,177 @@ export const OwnerPortal: React.FC = () => {
     return orders.filter((o) => o.senderPhone === custPhone || o.recipientPhone === custPhone);
   };
 
-  // KHUNG 1: VẬN HÀNH TIỆM HOA & NGHIỆP VỤ CỐT LÕI (6 chức năng)
-  const floristCoreGroups: ManagementActionGroup[] = [
+  // 4 ACTION GROUPS CHUẨN HÓA THEO CẤU TRÚC VẬN HÀNH TIỆM HOA (ĐỒNG BỘ 100% QUYỀN HẠN)
+  const ownerActionGroups: ManagementActionGroup[] = [
     {
-      groupTitle: '1. Vận Hành Đơn Hàng & Doanh Thu Thực Tế',
-      groupIcon: <Flower2 className="w-4 h-4 text-emerald-700" />,
-      badge: 'Nghiệp Vụ Hằng Ngày',
+      groupId: 'operations',
+      groupTitle: '⚡ Vận Hành & Doanh Thu',
+      groupIcon: <Flower2 className="w-4 h-4 text-amber-700" />,
       items: [
         {
+          id: 'owner-pricing',
+          title: 'Bảng giá dịch vụ',
+          description: 'Cập nhật loại hoa, giá bán công khai và quy cách hiển thị bảng giá.',
+          icon: <Flower2 className="w-4 h-4" />,
+          actionType: 'modal',
+          actionLabel: 'Mở popup',
+          onClick: () => setIsBulkDiscountOpen(true)
+        },
+        {
           id: 'owner-orders',
-          title: 'Duyệt Đơn Cọc 50% & Vận Chuyển Hỏa Tốc',
-          description: 'Xem bill VietQR chuyển khoản, duyệt cọc 1-chạm sang đang cắm, chụp ảnh hoa hoàn thiện gửi Zalo duyệt mẫu trước khi giao.',
-          icon: <ShoppingBag className="w-5 h-5" />,
-          iconBgColor: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
-          badge: `${pendingDepositOrders.length > 0 ? `${pendingDepositOrders.length} Đơn Cần Duyệt` : 'Ổn Định'}`,
-          badgeColor: pendingDepositOrders.length > 0 ? 'amber' : 'emerald',
+          title: 'Quản lý đơn hàng',
+          description: 'Duyệt cọc 50%, phân công cắm hoa và vận chuyển hỏa tốc trong ngày.',
+          icon: <ShoppingBag className="w-4 h-4" />,
           actionType: 'page',
-          actionLabel: 'Mở Xử Lý Đơn',
+          actionLabel: 'Truy cập',
           onClick: () => navigateToTab('orders')
         },
         {
-          id: 'owner-revenue',
-          title: 'Quản Lý Doanh Thu & Báo Cáo Tài Chính',
-          description: 'Theo dõi dòng tiền thực tế, tách bạch cọc VietQR và tiền mặt COD, phân tích kỳ kế toán và xuất Excel.',
-          icon: <TrendingUp className="w-5 h-5" />,
-          iconBgColor: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
-          badge: 'Báo Cáo Excel',
-          badgeColor: 'emerald',
-          actionType: 'page',
-          actionLabel: 'Xem Doanh Thu',
-          onClick: () => navigateToTab('revenue')
-        },
-        {
-          id: 'owner-stock',
-          title: 'Kiểm Soát Còn Hoa 1-Chạm (Instant Stock)',
-          description: 'Bật/tắt trạng thái Còn hàng hoặc Tạm hết của các mẫu hoa trong ngày chỉ với một thao tác chạm tức thì.',
-          icon: <Flower2 className="w-5 h-5" />,
-          iconBgColor: 'bg-pink-100 text-pink-700 border border-pink-200',
-          badge: `${products.length} Mẫu Hoa`,
-          badgeColor: 'rose',
-          actionType: 'page',
-          actionLabel: 'Mở Kho Hoa',
-          onClick: () => navigateToTab('products')
-        }
-      ]
-    },
-    {
-      groupTitle: '2. Khách Quen VIP & Khuyến Mãi Tiệm',
-      groupIcon: <Users className="w-4 h-4 text-purple-700" />,
-      badge: 'Chăm Sóc & Ưu Đãi',
-      items: [
-        {
-          id: 'owner-customers',
-          title: 'Tra Cứu Khách Hàng VIP & Lịch Sử Đặt Hoa',
-          description: 'Xem danh sách khách quen, hạng thành viên, thói quen đặt hoa, sở thích màu ruy băng và lịch sử đặt hàng.',
-          icon: <Users className="w-5 h-5" />,
-          iconBgColor: 'bg-purple-100 text-purple-700 border border-purple-200',
-          badge: `${customers.length} Khách Quen`,
-          badgeColor: 'purple',
-          actionType: 'page',
-          actionLabel: 'Tra Cứu Khách VIP',
-          onClick: () => navigateToTab('customers')
-        },
-        {
           id: 'owner-vouchers',
-          title: 'Quản Lý Voucher & Mã Giảm Giá Tiệm',
-          description: 'Theo dõi các mã ưu đãi đang hoạt động, số lượt sử dụng và điều kiện giảm giá đơn hàng.',
-          icon: <Gift className="w-5 h-5" />,
-          iconBgColor: 'bg-amber-100 text-amber-700 border border-amber-200',
-          badge: `${promotions.length} Mã`,
-          badgeColor: 'amber',
+          title: 'Quản lý Voucher',
+          description: 'Quản lý loại voucher, điểm đổi, giá trị và thời hạn áp dụng.',
+          icon: <Gift className="w-4 h-4" />,
           actionType: 'page',
-          actionLabel: 'Xem Mã Voucher',
+          actionLabel: 'Truy cập',
           onClick: () => navigateToTab('vouchers')
         },
         {
           id: 'owner-quick-voucher',
-          title: 'Tạo Nhanh Voucher Dịp Lễ (8/3, 20/10, Valentine)',
-          description: 'Bật popup tạo tức thì mã ưu đãi dịp lễ, cài đặt giảm giá VNĐ và đơn tối thiểu trong 30 giây.',
-          icon: <Sparkles className="w-5 h-5" />,
-          iconBgColor: 'bg-rose-100 text-rose-700 border border-rose-200',
-          badge: 'Tạo Nhanh 30s',
-          badgeColor: 'rose',
+          title: 'Tạo nhanh Voucher dịp lễ',
+          description: 'Bật popup tạo mã giảm giá ưu đãi ngày lễ chỉ trong 30 giây.',
+          icon: <Sparkles className="w-4 h-4" />,
           actionType: 'modal',
-          actionLabel: 'Mở Popup Tạo Mã',
+          actionLabel: 'Mở popup',
           onClick: () => setShowQuickVoucherModal(true)
-        }
-      ]
-    }
-  ];
-
-  // KHUNG 2: QUẢN TRỊ HỆ THỐNG & GIAO DIỆN WEBSITE (7 chức năng)
-  const webSystemGroups: ManagementActionGroup[] = [
-    {
-      groupTitle: '3. Cấu Hình Cửa Hàng, Bảng Cước & Kênh CSKH',
-      groupIcon: <Settings className="w-4 h-4 text-slate-700" />,
-      badge: 'Vận Hành Tiệm',
-      items: [
+        },
         {
-          id: 'owner-settings',
-          title: 'Cấu Hình Tiệm Hoa, Địa Chỉ & Bản Đồ',
-          description: 'Thiết lập tên tiệm, địa chỉ showroom, giờ mở cửa 06:30 - 21:30, số hotline chính và bán kính tối đa.',
-          icon: <Settings className="w-5 h-5" />,
-          iconBgColor: 'bg-slate-100 text-slate-700 border border-slate-200',
-          badge: 'Cửa Hàng',
-          badgeColor: 'slate',
+          id: 'owner-revenue',
+          title: 'Doanh thu & Thống kê',
+          description: 'Theo dõi dòng tiền thực tế, đối soát chuyển khoản và xuất Excel.',
+          icon: <TrendingUp className="w-4 h-4" />,
           actionType: 'page',
-          actionLabel: 'Mở Cấu Hình Tiệm',
-          onClick: () => navigateToTab('settings')
+          actionLabel: 'Truy cập',
+          onClick: () => navigateToTab('revenue')
         },
         {
           id: 'owner-shipping',
-          title: 'Cấu Hình Bảng Cước 4 Bậc & Freeship',
-          description: 'Bật popup chỉnh cước 4 bậc km (0-3km, 3-8km, 8-15km, 15-25km), ngưỡng freeship và cam kết hỏa tốc.',
-          icon: <Truck className="w-5 h-5" />,
-          iconBgColor: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
-          badge: 'Hỏa Tốc 15p - 60p',
-          badgeColor: 'emerald',
+          title: 'Cấu hình cước phí 4 bậc',
+          description: 'Thiết lập cước phí theo km (0-25km), ngưỡng freeship và cam kết hỏa tốc.',
+          icon: <Truck className="w-4 h-4" />,
           actionType: 'modal',
-          actionLabel: 'Mở Popup Cước Phí',
+          actionLabel: 'Mở popup',
           onClick: () => setShowShippingModal(true)
-        },
-        {
-          id: 'owner-channels',
-          title: 'Kênh Liên Hệ Hotline, Zalo & Messenger',
-          description: 'Quản lý các nút gọi điện, chat Zalo, Messenger, chỉ đường Google Maps hiển thị cho khách hàng.',
-          icon: <Share2 className="w-5 h-5" />,
-          iconBgColor: 'bg-sky-100 text-sky-700 border border-sky-200',
-          badge: `${contactChannels.length} Kênh`,
-          badgeColor: 'sky',
-          actionType: 'page',
-          actionLabel: 'Mở Kênh CSKH',
-          onClick: () => navigateToTab('channels')
-        },
-        {
-          id: 'owner-marquee',
-          title: 'Bảng Tin Chạy Chữ Khuyến Mãi Đỉnh Trang',
-          description: 'Soạn thảo, bật/tắt các dòng thông báo khuyến mãi, cam kết hoa tươi chạy mượt trên đỉnh website.',
-          icon: <Megaphone className="w-5 h-5" />,
-          iconBgColor: 'bg-amber-100 text-amber-700 border border-amber-200',
-          badge: `${marqueeAnnouncements.length} Tin`,
-          badgeColor: 'amber',
-          actionType: 'page',
-          actionLabel: 'Mở Bảng Tin Chạy',
-          onClick: () => navigateToTab('marquee')
         }
       ]
     },
     {
-      groupTitle: '4. Giao Diện Website CMS & Mascot Linh Vật Tiệm',
-      groupIcon: <LayoutTemplate className="w-4 h-4 text-purple-700" />,
-      badge: 'Thương Hiệu & CMS',
+      groupId: 'customers',
+      groupTitle: '👥 Khách Hàng & Nhân Sự',
+      groupIcon: <Users className="w-4 h-4 text-purple-700" />,
+      items: [
+        {
+          id: 'owner-customers',
+          title: 'Khách hàng',
+          description: 'Xem và hỗ trợ tài khoản khách, lịch sử đặt hoa và điểm tích lũy.',
+          icon: <Users className="w-4 h-4" />,
+          actionType: 'page',
+          actionLabel: 'Truy cập',
+          onClick: () => navigateToTab('customers')
+        },
+        {
+          id: 'owner-staff',
+          title: 'Tài khoản nhân viên',
+          description: 'Quản lý tài khoản cắm hoa, điều phối đơn và phân công trực tiệm.',
+          icon: <Users className="w-4 h-4" />,
+          actionType: 'page',
+          actionLabel: 'Truy cập',
+          onClick: () => navigateToTab('security')
+        },
+        {
+          id: 'owner-channels',
+          title: 'Kênh CSKH & Hotline',
+          description: 'Quản lý các nút liên hệ Hotline, chat Zalo, Messenger và Google Maps.',
+          icon: <Share2 className="w-4 h-4" />,
+          actionType: 'page',
+          actionLabel: 'Truy cập',
+          onClick: () => navigateToTab('channels')
+        }
+      ]
+    },
+    {
+      groupId: 'website',
+      groupTitle: '🎨 Giao Diện & Website',
+      groupIcon: <LayoutTemplate className="w-4 h-4 text-sky-700" />,
       items: [
         {
           id: 'owner-cms',
-          title: 'Trình Quản Lý Giao Diện Website (CMS Chuẩn Phototiinlove)',
-          description: 'Chọn khu vực muốn chỉnh sửa, nhấp trực tiếp trên preview để chọn thành phần và cập nhật nội dung tức thì.',
-          icon: <LayoutTemplate className="w-5 h-5" />,
-          iconBgColor: 'bg-purple-100 text-purple-700 border border-purple-200',
-          badge: 'CMS Chuẩn Phototiinlove',
-          badgeColor: 'purple',
+          title: 'Trình Quản Lý Giao Diện Website',
+          description: 'Tùy biến nội dung, banner, cẩm nang và bố cục hiển thị trực tiếp trên web.',
+          icon: <LayoutTemplate className="w-4 h-4" />,
           actionType: 'page',
-          actionLabel: 'Mở CMS Giao Diện',
+          actionLabel: 'Truy cập',
           onClick: () => navigateToTab('cms')
         },
         {
+          id: 'owner-branding',
+          title: 'Branding & Hệ Màu Sắc',
+          description: 'Quản lý Logo chính, Favicon tab trình duyệt, hệ màu tiệm hoa và font chữ.',
+          icon: <Palette className="w-4 h-4" />,
+          actionType: 'page',
+          actionLabel: 'Truy cập',
+          onClick: () => navigateToTab('branding')
+        },
+        {
           id: 'owner-mascot',
-          title: 'Bộ Chọn Linh Vật Trợ Lý Ảo Flori',
-          description: 'Bật popup xem và đổi tức thì linh vật hoạt họa trong bộ 6 mẫu tách nền chính thức của tiệm.',
-          icon: <Sparkles className="w-5 h-5" />,
-          iconBgColor: 'bg-amber-100 text-amber-700 border border-amber-200',
-          badge: '6 Linh Vật Tách Nền',
-          badgeColor: 'amber',
+          title: 'Quản Lý Linh Vật',
+          description: 'Bật popup xem và đổi tức thì linh vật hoạt họa trợ lý ảo Flori của tiệm.',
+          icon: <Sparkles className="w-4 h-4" />,
           actionType: 'modal',
-          actionLabel: 'Mở Popup Chọn Mascot',
+          actionLabel: 'Mở popup',
           onClick: () => setShowMascotModal(true)
         },
         {
-          id: 'owner-security',
-          title: 'Đổi Mật Khẩu, Mã PIN & Bảo Mật Chủ Tiệm',
-          description: 'Bật popup cập nhật mật khẩu đăng nhập chủ quán và mã PIN thao tác bảo mật an toàn.',
-          icon: <KeyRound className="w-5 h-5" />,
-          iconBgColor: 'bg-slate-100 text-slate-700 border border-slate-200',
-          badge: 'Bảo Mật Chủ Quán',
-          badgeColor: 'slate',
+          id: 'owner-marquee',
+          title: 'Bảng tin chạy chữ đỉnh trang',
+          description: 'Soạn thảo thông báo khuyến mãi và cam kết hoa tươi chạy mượt đầu website.',
+          icon: <Megaphone className="w-4 h-4" />,
+          actionType: 'page',
+          actionLabel: 'Truy cập',
+          onClick: () => navigateToTab('marquee')
+        },
+        {
+          id: 'owner-settings',
+          title: 'Cấu hình showroom & Bản đồ',
+          description: 'Thiết lập tên tiệm, địa chỉ showroom 105 Doãn Kế Thiện và giờ mở cửa.',
+          icon: <Settings className="w-4 h-4" />,
+          actionType: 'page',
+          actionLabel: 'Truy cập',
+          onClick: () => navigateToTab('settings')
+        }
+      ]
+    },
+    {
+      groupId: 'security',
+      groupTitle: '🔒 Bảo Mật Hệ Thống',
+      groupIcon: <KeyRound className="w-4 h-4 text-rose-700" />,
+      items: [
+        {
+          id: 'owner-security-modal',
+          title: 'Đổi mật khẩu & PIN 6 số',
+          description: 'Bật popup cập nhật mật khẩu đăng nhập chủ quán và mã PIN thao tác an toàn.',
+          icon: <KeyRound className="w-4 h-4" />,
           actionType: 'modal',
-          actionLabel: 'Mở Popup Đổi PIN',
+          actionLabel: 'Mở popup',
           onClick: () => setShowSecurityModal(true)
+        },
+        {
+          id: 'owner-security-subpage',
+          title: 'Bảo mật hệ thống & Phiên đăng nhập',
+          description: 'Xem danh sách thiết bị tin cậy và lịch sử thao tác hệ thống.',
+          icon: <ShieldCheck className="w-4 h-4" />,
+          actionType: 'page',
+          actionLabel: 'Truy cập',
+          onClick: () => navigateToTab('security')
         }
       ]
     }
@@ -438,23 +424,11 @@ export const OwnerPortal: React.FC = () => {
             formatPrice={formatPrice}
           />
 
-          {/* KHUNG 1: QUẢN LÝ TIỆM HOA & NGHIỆP VỤ CỐT LÕI */}
-          <div className="bg-gradient-to-br from-emerald-50/40 via-white to-pink-50/20 p-4 sm:p-6 rounded-3xl border border-emerald-100/80 shadow-sm space-y-4">
-            <ManagementFunctionalGrid
-              title="Quản Lý Tiệm Hoa & Nghiệp Vụ Cốt Lõi"
-              subtitle="Các nghiệp vụ điều hành hàng ngày: duyệt đơn cọc, doanh thu thực tế, kiểm soát kho hoa và khách quen VIP"
-              groups={floristCoreGroups}
-            />
-          </div>
-
-          {/* KHUNG 2: QUẢN TRỊ HỆ THỐNG & GIAO DIỆN WEBSITE */}
-          <div className="bg-gradient-to-br from-purple-50/30 via-white to-sky-50/20 p-4 sm:p-6 rounded-3xl border border-purple-100/80 shadow-sm space-y-4">
-            <ManagementFunctionalGrid
-              title="Quản Trị Hệ Thống & Giao Diện Website"
-              subtitle="Tùy biến giao diện CMS chuẩn phototiinlove, bảng cước hỏa tốc, kênh liên hệ CSKH, linh vật và bảo mật"
-              groups={webSystemGroups}
-            />
-          </div>
+          <ManagementFunctionalGrid
+            title="Danh Mục Chức Năng Quản Trị Hệ Thống"
+            subtitle="Phân nhóm quản trị chuẩn hóa theo quy trình vận hành tiệm hoa"
+            groups={ownerActionGroups}
+          />
         </div>
       )}
 
@@ -595,7 +569,14 @@ export const OwnerPortal: React.FC = () => {
           updatePromotions={updatePromotions}
           updateArticles={updateArticles}
           showToast={showToast}
-          title="Trình Quản Lý Giao Diện Website (CMS Chuẩn Phototiinlove)"
+          title="Trình Quản Lý Giao Diện Website"
+        />
+      )}
+
+      {activeTab === 'branding' && (
+        <BrandingSubpage
+          onBackToDashboard={handleBackToDashboard}
+          showToast={showToast}
         />
       )}
 

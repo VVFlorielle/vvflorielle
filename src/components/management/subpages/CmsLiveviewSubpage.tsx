@@ -129,7 +129,7 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
   updatePromotions,
   updateArticles,
   showToast,
-  title = 'Trình Quản Lý Giao Diện & Live Webview (CMS Chuẩn Phototiinlove)'
+  title = 'Trình Quản Lý Giao Diện & Live Webview'
 }) => {
   // Navigation & Workspace State
   const [selectedPage, setSelectedPage] = useState<CmsPageId>('home');
