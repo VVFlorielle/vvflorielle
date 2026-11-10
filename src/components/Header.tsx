@@ -391,7 +391,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
           </div>
 
           {/* === ISLAND 2: ĐẦY ĐỦ CÁC MENU CHỨC NĂNG (TRANG CHỦ, MẪU HOA, DỊCH VỤ, GIỚI THIỆU, TIN TỨC, LIÊN HỆ & TÌM KIẾM) === */}
-          <div className={`flex-1 rounded-2xl md:rounded-[24px] px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-1.5 lg:gap-2 min-w-0 transition-all duration-300 relative ${
+          <div className={`flex-1 rounded-2xl md:rounded-[24px] px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-1 lg:gap-2 min-w-0 transition-all duration-300 relative ${
             isScrolledActive
               ? 'bg-white/45 backdrop-blur-md border border-white/40 shadow-none'
               : 'glass-nav-luminous shadow-sm'
@@ -402,7 +402,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('store');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 currentView === 'store'
                   ? 'text-emerald-900 bg-emerald-100/90 font-bold border border-emerald-300/60 shadow-xs'
                   : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
@@ -414,9 +414,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
             </button>
 
             {/* 2. Mẫu Hoa Button & Dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <div
-                className={`inline-flex items-center rounded-xl text-xs font-semibold transition-all ${
+                className={`inline-flex items-center rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
                   currentView === 'catalog'
                     ? 'text-emerald-900 bg-emerald-100/90 font-bold border border-emerald-300/60 shadow-xs'
                     : isCategoryMenuOpen
@@ -432,7 +432,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                     setIsCategoryMenuOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="px-2.5 py-1.5 flex items-center gap-1.5 cursor-pointer"
+                  className="px-2.5 py-1.5 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   title="Xem tất cả mẫu hoa nghệ thuật"
                 >
                   <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
@@ -493,13 +493,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
             </div>
 
             {/* 3. Dịch Vụ Dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={() => {
                   setIsServiceMenuOpen(!isServiceMenuOpen);
                   setIsCategoryMenuOpen(false);
                 }}
-                className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
                   isServiceMenuOpen ? 'glass-btn-emerald-pill !border-emerald-500' : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
                 }`}
               >
@@ -595,7 +595,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('about');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 currentView === 'about'
                   ? 'text-emerald-900 bg-emerald-100/90 font-bold border border-emerald-300/60 shadow-xs'
                   : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
@@ -611,7 +611,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               onClick={() => {
                 if (onOpenPopup) onOpenPopup('care');
               }}
-              className="px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors cursor-pointer"
+              className="px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors cursor-pointer whitespace-nowrap shrink-0"
               title="Cẩm nang chăm sóc và ý nghĩa loài hoa"
             >
               <img src="/icons/icon-care-3d.png" alt="Cẩm nang" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
@@ -624,7 +624,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('contact');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 currentView === 'contact'
                   ? 'text-emerald-900 bg-emerald-100/90 font-bold border border-emerald-300/60 shadow-xs'
                   : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
@@ -678,14 +678,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               <div className="relative">
                 <button
                   onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
-                  className={`relative p-2 rounded-xl text-xs font-semibold cursor-pointer ${
+                  className={`relative w-8 h-8 rounded-xl flex items-center justify-center text-xs font-semibold cursor-pointer ${
                     isNotificationHubOpen
                       ? 'glass-btn-emerald-pill !border-emerald-500 ring-2 ring-emerald-500/20'
                       : 'glass-btn-base'
                   }`}
                   title="Trung tâm thông báo"
                 >
-                  <img src="/icons/icon-bell-3d.png" alt="Thông báo" className="w-4.5 h-4.5 object-contain shrink-0 drop-shadow-xs" />
+                  <img src="/icons/icon-bell-3d.png" alt="Thông báo" className="w-[18px] h-[18px] object-contain shrink-0 drop-shadow-xs" />
                   {unreadNotificationCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white/80">
                       {unreadNotificationCount}
