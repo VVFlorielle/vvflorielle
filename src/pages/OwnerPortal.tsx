@@ -182,7 +182,7 @@ export const OwnerPortal: React.FC = () => {
     {
       groupId: 'operations',
       groupTitle: 'Vận Hành & Doanh Thu',
-      groupIcon: <Flower2 className="w-4 h-4 text-amber-700" />,
+      groupIcon: <img src="/icons/icon-orders-3d.png" alt="Vận hành" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />,
       items: [
         {
           id: 'owner-pricing',
@@ -243,7 +243,7 @@ export const OwnerPortal: React.FC = () => {
     {
       groupId: 'customers',
       groupTitle: 'Khách Hàng & Nhân Sự',
-      groupIcon: <Users className="w-4 h-4 text-purple-700" />,
+      groupIcon: <img src="/icons/icon-contact-3d.png" alt="Khách hàng" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />,
       items: [
         {
           id: 'owner-customers',
@@ -277,7 +277,7 @@ export const OwnerPortal: React.FC = () => {
     {
       groupId: 'website',
       groupTitle: 'Giao Diện & Website',
-      groupIcon: <LayoutTemplate className="w-4 h-4 text-sky-700" />,
+      groupIcon: <img src="/icons/icon-cms-3d.png" alt="Giao diện" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />,
       items: [
         {
           id: 'owner-cms',
@@ -329,7 +329,7 @@ export const OwnerPortal: React.FC = () => {
     {
       groupId: 'security',
       groupTitle: 'Bảo Mật Hệ Thống',
-      groupIcon: <KeyRound className="w-4 h-4 text-rose-700" />,
+      groupIcon: <img src="/icons/icon-settings-3d.png" alt="Bảo mật" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />,
       items: [
         {
           id: 'owner-security-modal',

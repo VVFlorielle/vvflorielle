@@ -84,10 +84,10 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
         {groups.map((group, idx) => {
           const gId = group.groupId || `group-${idx}`;
           const isSelected = selectedGroupFilter === gId;
-          // Loại bỏ toàn bộ ký tự đặc biệt/emoji thừa ở đầu tiêu đề, chỉ lấy tên nhóm tinh gọn
+          // Lấy vế đầu ngắn gọn trước dấu '&' và loại bỏ emoji thừa
           const cleanShortTitle = group.groupTitle
-            .replace(/^[^\p{L}\p{N}]+/u, '')
             .split('&')[0]
+            .replace(/[^\p{L}\p{N}\s]/gu, '')
             .trim();
 
           return (
@@ -134,7 +134,7 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
                 <div className="flex items-center gap-2">
                   <span className="text-base sm:text-lg">{group.groupIcon}</span>
                   <h3 className="text-sm sm:text-base font-extrabold text-slate-800 tracking-tight">
-                    {group.groupTitle.replace(/^[\p{Emoji}\u2600-\u27BF\uFE00-\uFE0F\s]+/u, '').trim()}
+                    {group.groupTitle.replace(/[^\p{L}\p{N}\s&]/gu, '').trim()}
                   </h3>
                   <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 ml-1">
                     {group.items.length} mục

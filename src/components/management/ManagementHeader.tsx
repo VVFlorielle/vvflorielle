@@ -111,7 +111,7 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
           <button
             type="button"
             onClick={handleReturnToStore}
-            className="h-[48px] min-[375px]:h-[52px] sm:h-[62px] w-[146px] min-[375px]:w-[164px] sm:w-[200px] px-1.5 py-0.5 rounded-full bg-white/95 backdrop-blur-2xl border border-white/95 shadow-[0_4px_22px_rgba(5,150,105,0.18)] hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none group overflow-hidden"
+            className="h-[46px] min-[375px]:h-[50px] sm:h-[60px] w-[148px] min-[375px]:w-[158px] sm:w-[195px] px-1 py-0 rounded-full bg-white/95 backdrop-blur-2xl border border-white/95 shadow-[0_4px_22px_rgba(5,150,105,0.18)] hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none group overflow-hidden"
             title="V&V Florielle - Bấm để chuyển nhanh ra xem giao diện cửa hàng"
           >
             <img
@@ -125,20 +125,20 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
         {/* === RIGHT: GỘP KHỐI ADMIN & ĐĂNG XUẤT THÀNH 1 KHỐI DUY NHẤT CÂN ĐỐI (Z-10) === */}
         <div className="flex items-center justify-end shrink-0 z-10 pointer-events-auto">
           <div
-            className={`inline-flex items-center gap-1 min-[375px]:gap-1.5 pl-2 min-[375px]:pl-2.5 pr-1 min-[375px]:pr-1.5 py-0.5 min-[375px]:py-1 rounded-full text-[10px] min-[375px]:text-[11px] sm:text-xs font-bold border shadow-sm transition-all shrink-0 ${
+            className={`inline-flex items-center gap-1 min-[375px]:gap-1.5 px-2 py-1 rounded-full text-[10px] min-[375px]:text-[11px] sm:text-xs font-bold border shadow-sm transition-all shrink-0 ${
               isOwner
                 ? 'bg-emerald-50/95 text-emerald-900 border-emerald-300/90 shadow-emerald-500/15'
                 : 'bg-purple-50/95 text-purple-900 border-purple-300/90 shadow-purple-500/15'
             }`}
           >
-            {/* Tên quyền: Admin hoặc Chủ Quán */}
+            {/* Tên quyền: Admin hoặc Chủ Quán (Icon trên mobile, có thêm chữ trên desktop/màn lớn) */}
             <div className="flex items-center gap-1 whitespace-nowrap">
-              <img src={isOwner ? '/icons/icon-orders-3d.png' : '/icons/icon-grid-3d.png'} alt="Role" className="w-3.5 h-3.5 object-contain shrink-0 drop-shadow-xs" />
-              <span>{isOwner ? 'Chủ Quán' : 'Admin'}</span>
+              <img src={isOwner ? '/icons/icon-orders-3d.png' : '/icons/icon-grid-3d.png'} alt="Role" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
+              <span className="hidden sm:inline">{isOwner ? 'Chủ Quán' : 'Admin'}</span>
             </div>
 
             {/* Dải phân cách dọc */}
-            <span className={`w-px h-2.5 min-[375px]:h-3 ${isOwner ? 'bg-emerald-300/80' : 'bg-purple-300/80'} shrink-0`} />
+            <span className={`w-px h-3 ${isOwner ? 'bg-emerald-300/80' : 'bg-purple-300/80'} shrink-0`} />
 
             {/* Nút Đăng Xuất tích hợp gọn gàng trong khối */}
             <button

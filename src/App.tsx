@@ -180,7 +180,7 @@ export const AppContent: React.FC = () => {
       <AuthModal />
       <InfoPopups activePopup={activePopup} onClose={() => setActivePopup(null)} />
 
-      {/* Management Bottom Dock (Visible on Desktop & Mobile when logged in as Admin/Owner) */}
+      {/* Management Bottom Dock (Mobile Only when logged in as Admin/Owner - Desktop uses Top Navbar) */}
       {isAdmin && (
         <ManagementBottomDock
           role={activeAdminUser === 'admin' ? 'admin' : 'owner'}

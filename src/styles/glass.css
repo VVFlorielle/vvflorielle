@@ -741,18 +741,10 @@
   pointer-events: none !important;
 }
 
-/* On Desktop: display bottom dock when inside admin or customer management portal */
+/* On Desktop: Hide bottom docks entirely (desktop uses top header navbar) */
 @media (min-width: 768px) {
-  .management-bottom-nav.portal-desktop-nav,
-  .mobile-bottom-dock.portal-desktop-nav {
-    display: flex !important;
-    width: min(92%, 560px) !important;
-    height: 66px !important;
-    bottom: 22px !important;
-    padding: 0 12px !important;
-  }
-  .management-bottom-nav:not(.portal-desktop-nav),
-  .mobile-bottom-dock:not(.portal-desktop-nav) {
+  .management-bottom-nav,
+  .mobile-bottom-dock {
     display: none !important;
   }
 }

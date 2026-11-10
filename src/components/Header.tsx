@@ -253,7 +253,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                   setCurrentView('store');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`h-[48px] min-[375px]:h-[52px] w-[146px] min-[375px]:w-[164px] px-1.5 py-0.5 rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 shadow-md ${clusterGlassClass}`}
+                className={`h-[46px] min-[375px]:h-[50px] w-[148px] min-[375px]:w-[158px] px-1 py-0 rounded-full overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 shadow-md ${clusterGlassClass}`}
                 title="V&V Florielle - Tiệm hoa tươi nghệ thuật"
               >
                 <img
@@ -299,7 +299,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                     title="Trang quản trị"
                   >
                     <img src="/icons/icon-grid-3d.png" alt="Quản trị" className="w-3.5 h-3.5 object-contain shrink-0" />
-                    <span>
+                    <span className="hidden sm:inline">
                       {activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan' ? 'Chủ Quán' : 'Admin'}
                     </span>
                   </button>
