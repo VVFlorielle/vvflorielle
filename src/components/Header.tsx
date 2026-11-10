@@ -223,7 +223,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                   className="relative w-7 h-7 min-[375px]:w-8 min-[375px]:h-8 rounded-full hover:bg-white/70 text-slate-700 hover:text-emerald-700 flex items-center justify-center transition-colors shrink-0"
                   title="Trung tâm thông báo"
                 >
-                  <Bell className="w-3.5 h-3.5 min-[375px]:w-4 min-[375px]:h-4" />
+                  <img src="/icons/icon-bell-3d.png" alt="Thông báo" className="w-3.5 h-3.5 min-[375px]:w-4 min-[375px]:h-4 object-contain shrink-0" />
                   {unreadNotificationCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[8px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white">
                       {unreadNotificationCount}
@@ -298,7 +298,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                     className="flex items-center gap-1 text-[10.5px] font-bold text-purple-800 hover:text-purple-950 shrink-0"
                     title="Trang quản trị"
                   >
-                    <ShieldCheck className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+                    <img src="/icons/icon-grid-3d.png" alt="Quản trị" className="w-3.5 h-3.5 object-contain shrink-0" />
                     <span>
                       {activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan' ? 'Chủ Quán' : 'Admin'}
                     </span>
@@ -391,7 +391,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
           </div>
 
           {/* === ISLAND 2: ĐẦY ĐỦ CÁC MENU CHỨC NĂNG (TRANG CHỦ, MẪU HOA, DỊCH VỤ, GIỚI THIỆU, TIN TỨC, LIÊN HỆ & TÌM KIẾM) === */}
-          <div className={`flex-1 rounded-2xl md:rounded-[24px] px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2 min-w-0 transition-all duration-300 relative ${
+          <div className={`flex-1 rounded-2xl md:rounded-[24px] px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-1.5 lg:gap-2 min-w-0 transition-all duration-300 relative ${
             isScrolledActive
               ? 'bg-white/45 backdrop-blur-md border border-white/40 shadow-none'
               : 'glass-nav-luminous shadow-sm'
@@ -402,11 +402,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('store');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
-                currentView === 'store' ? 'text-emerald-800 bg-emerald-100/70' : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
+              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                currentView === 'store'
+                  ? 'text-emerald-900 bg-emerald-100/90 font-bold border border-emerald-300/60 shadow-xs'
+                  : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
               }`}
+              title="Về trang chủ tiệm hoa"
             >
-              Trang Chủ
+              <img src="/icons/icon-home-3d.png" alt="Trang chủ" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
+              <span>Trang Chủ</span>
             </button>
 
             {/* 2. Mẫu Hoa Button & Dropdown */}
@@ -428,10 +432,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                     setIsCategoryMenuOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="px-2.5 py-1.5 flex items-center gap-1 cursor-pointer"
+                  className="px-2.5 py-1.5 flex items-center gap-1.5 cursor-pointer"
                   title="Xem tất cả mẫu hoa nghệ thuật"
                 >
-                  <Flower2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
                   <span>Mẫu Hoa</span>
                 </button>
                 {/* Bấm mũi tên mở menu chọn các dòng hoa khác */}
@@ -473,7 +477,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                               <img src={cat.imageUrl} alt={cat.name} className="w-9 h-9 rounded-lg object-cover shadow-xs group-hover:scale-105 transition-transform shrink-0" />
                             ) : (
                               <div className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                                <Flower2 className="w-4 h-4" />
+                                <img src="/icons/icon-catalog-3d.png" alt={cat.name} className="w-5 h-5 object-contain" />
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
@@ -495,11 +499,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                   setIsServiceMenuOpen(!isServiceMenuOpen);
                   setIsCategoryMenuOpen(false);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors ${
+                className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
                   isServiceMenuOpen ? 'glass-btn-emerald-pill !border-emerald-500' : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
                 }`}
               >
-                <Scissors className="w-3.5 h-3.5 text-emerald-600" />
+                <img src="/icons/icon-services-3d.png" alt="Dịch vụ" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
                 <span>Dịch Vụ</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isServiceMenuOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -519,7 +523,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
                     >
-                      <Flower2 className="w-4 h-4 text-emerald-600" />
+                      <img src="/icons/icon-catalog-3d.png" alt="Hoa mẫu sẵn" className="w-5 h-5 object-contain shrink-0" />
                       <div>
                         <div className="font-bold text-xs text-slate-800">Hoa Tươi Mẫu Sẵn</div>
                         <div className="text-[10px] text-slate-400">Các mẫu hoa thiết kế sẵn mới mỗi ngày</div>
@@ -532,7 +536,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
                     >
-                      <Palette className="w-4 h-4 text-rose-600" />
+                      <img src="/icons/icon-services-3d.png" alt="Thiết kế riêng" className="w-5 h-5 object-contain shrink-0" />
                       <div>
                         <div className="font-bold text-xs text-slate-800">Hoa Thiết Kế Theo Yêu Cầu</div>
                         <div className="text-[10px] text-slate-400">Tự phối hoa &amp; tư vấn tone màu riêng</div>
@@ -545,7 +549,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
                     >
-                      <Truck className="w-4 h-4 text-sky-600" />
+                      <img src="/icons/icon-orders-3d.png" alt="Giao hỏa tốc" className="w-5 h-5 object-contain shrink-0" />
                       <div>
                         <div className="font-bold text-xs text-slate-800">Giao Hoa Hỏa Tốc (Từ 15P)</div>
                         <div className="text-[10px] text-slate-400">Từ 15P nội thành &amp; 60P ngoại thành Hà Nội</div>
@@ -558,7 +562,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5"
                     >
-                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <img src="/icons/icon-pricing-3d.png" alt="Hoa cưới sự kiện" className="w-5 h-5 object-contain shrink-0" />
                       <div>
                         <div className="font-bold text-xs text-slate-800">Hoa Cưới &amp; Sự Kiện</div>
                         <div className="text-[10px] text-slate-400">Hoa cưới cầm tay, trang trí hội nghị &amp; xuất VAT</div>
@@ -571,7 +575,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       }}
                       className="p-2 rounded-xl hover:bg-emerald-50/80 cursor-pointer flex items-center gap-2.5 border-t border-slate-100 bg-emerald-50/40"
                     >
-                      <Smartphone className="w-4 h-4 text-emerald-700" />
+                      <img src="/icons/icon-settings-3d.png" alt="Tải App APK" className="w-5 h-5 object-contain shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="font-bold text-xs text-emerald-950">Cài Đặt &amp; Tải App APK</span>
@@ -591,13 +595,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('about');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 currentView === 'about'
-                  ? 'text-emerald-900 bg-emerald-100/90 font-bold shadow-xs'
+                  ? 'text-emerald-900 bg-emerald-100/90 font-bold border border-emerald-300/60 shadow-xs'
                   : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
               }`}
+              title="Về thương hiệu tiệm hoa V&V Florielle"
             >
-              Giới Thiệu
+              <img src="/icons/icon-store-3d.png" alt="Giới thiệu" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
+              <span>Giới Thiệu</span>
             </button>
 
             {/* 5. Cẩm Nang / Tin Tức (Mở Popup Thư Viện Kiến Thức) */}
@@ -605,9 +611,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               onClick={() => {
                 if (onOpenPopup) onOpenPopup('care');
               }}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors cursor-pointer"
+              className="px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-slate-700 hover:text-emerald-700 hover:bg-white/60 transition-colors cursor-pointer"
+              title="Cẩm nang chăm sóc và ý nghĩa loài hoa"
             >
-              Cẩm Nang
+              <img src="/icons/icon-care-3d.png" alt="Cẩm nang" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
+              <span>Cẩm Nang</span>
             </button>
 
             {/* 6. Liên Hệ (Mở Trang Riêng) */}
@@ -616,13 +624,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('contact');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+              className={`px-2.5 lg:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 currentView === 'contact'
-                  ? 'text-emerald-900 bg-emerald-100/90 font-bold shadow-xs'
+                  ? 'text-emerald-900 bg-emerald-100/90 font-bold border border-emerald-300/60 shadow-xs'
                   : 'text-slate-700 hover:text-emerald-700 hover:bg-white/60'
               }`}
+              title="Thông tin liên hệ & bản đồ showroom"
             >
-              Liên Hệ
+              <img src="/icons/icon-contact-3d.png" alt="Liên hệ" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
+              <span>Liên Hệ</span>
             </button>
 
             {/* 7. Ô Tìm Kiếm Gọn Gàng */}
@@ -668,14 +678,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               <div className="relative">
                 <button
                   onClick={() => setIsNotificationHubOpen(!isNotificationHubOpen)}
-                  className={`relative p-2 rounded-xl text-xs font-semibold ${
+                  className={`relative p-2 rounded-xl text-xs font-semibold cursor-pointer ${
                     isNotificationHubOpen
                       ? 'glass-btn-emerald-pill !border-emerald-500 ring-2 ring-emerald-500/20'
                       : 'glass-btn-base'
                   }`}
                   title="Trung tâm thông báo"
                 >
-                  <Bell className="w-4 h-4 text-slate-700" />
+                  <img src="/icons/icon-bell-3d.png" alt="Thông báo" className="w-4.5 h-4.5 object-contain shrink-0 drop-shadow-xs" />
                   {unreadNotificationCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white/80">
                       {unreadNotificationCount}
@@ -821,13 +831,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       setCurrentView(targetAdminView);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${
                       currentView === 'admin' || currentView === 'owner'
                         ? 'glass-btn-purple-pill ring-2 ring-purple-500/30'
                         : 'glass-btn-purple-pill'
                     }`}
                   >
-                    <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
+                    <img src="/icons/icon-grid-3d.png" alt="Admin Hub" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
                     <span>{activeAdminUser === 'vvflorielle' || activeAdminUser === 'chuquan' ? 'Bảng Quản Lý Chủ Tiệm' : 'Admin Hub'}</span>
                   </button>
                   <button

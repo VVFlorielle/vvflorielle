@@ -133,7 +133,7 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
           >
             {/* Tên quyền: Admin hoặc Chủ Quán */}
             <div className="flex items-center gap-1 whitespace-nowrap">
-              <ShieldCheck className={`w-3 h-3 min-[375px]:w-3.5 min-[375px]:h-3.5 ${isOwner ? 'text-emerald-700' : 'text-purple-700'} shrink-0`} />
+              <img src={isOwner ? '/icons/icon-orders-3d.png' : '/icons/icon-grid-3d.png'} alt="Role" className="w-3.5 h-3.5 object-contain shrink-0 drop-shadow-xs" />
               <span>{isOwner ? 'Chủ Quán' : 'Admin'}</span>
             </div>
 
