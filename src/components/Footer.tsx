@@ -33,8 +33,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
               onClick={() => onOpenPopup && onOpenPopup('locations')}
               className="flex items-center sm:items-start gap-1.5 min-[375px]:gap-2 sm:gap-3 p-1.5 min-[375px]:p-2 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5 active:scale-98"
             >
-              <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200">
-                <Truck className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+              <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50/90 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/80 shadow-2xs">
+                <img src="/icons/icon-truck-3d.png" alt="Giao hỏa tốc" className="w-4 h-4 sm:w-6 sm:h-6 object-contain drop-shadow-xs" />
               </div>
               <div className="min-w-0">
                 <h4 className="font-bold text-slate-800 text-[10px] min-[375px]:text-[11px] sm:text-sm leading-tight truncate">
@@ -51,8 +51,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
               onClick={() => onOpenPopup && onOpenPopup('guarantee')}
               className="flex items-center sm:items-start gap-1.5 min-[375px]:gap-2 sm:gap-3 p-1.5 min-[375px]:p-2 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5 active:scale-98"
             >
-              <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-rose-100/80 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200">
-                <HeartHandshake className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+              <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-rose-50/90 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200/80 shadow-2xs">
+                <img src="/icons/icon-heart-3d.png" alt="Hoa tươi mới 100%" className="w-4 h-4 sm:w-6 sm:h-6 object-contain drop-shadow-xs" />
               </div>
               <div className="min-w-0">
                 <h4 className="font-bold text-slate-800 text-[10px] min-[375px]:text-[11px] sm:text-sm leading-tight truncate">
@@ -69,8 +69,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
               onClick={() => onOpenPopup && onOpenPopup('guarantee')}
               className="flex items-center sm:items-start gap-1.5 min-[375px]:gap-2 sm:gap-3 p-1.5 min-[375px]:p-2 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5 active:scale-98"
             >
-              <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-100/80 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200">
-                <ShieldCheck className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+              <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-50/90 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200/80 shadow-2xs">
+                <img src="/icons/icon-shield-3d.png" alt="Chụp ảnh Zalo" className="w-4 h-4 sm:w-6 sm:h-6 object-contain drop-shadow-xs" />
               </div>
               <div className="min-w-0">
                 <h4 className="font-bold text-slate-800 text-[10px] min-[375px]:text-[11px] sm:text-sm leading-tight truncate">
@@ -87,8 +87,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
               onClick={() => onOpenPopup && onOpenPopup('voucher')}
               className="flex items-center sm:items-start gap-1.5 min-[375px]:gap-2 sm:gap-3 p-1.5 min-[375px]:p-2 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5 active:scale-98"
             >
-              <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-purple-100/80 text-purple-700 flex items-center justify-center shrink-0 border border-purple-200">
-                <Gift className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+              <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-purple-50/90 text-purple-700 flex items-center justify-center shrink-0 border border-purple-200/80 shadow-2xs">
+                <img src="/icons/icon-gift-3d.png" alt="Voucher 30K" className="w-4 h-4 sm:w-6 sm:h-6 object-contain drop-shadow-xs" />
               </div>
               <div className="min-w-0">
                 <h4 className="font-bold text-slate-800 text-[10px] min-[375px]:text-[11px] sm:text-sm leading-tight truncate">
@@ -107,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
             <div className="rounded-xl sm:rounded-2xl bg-white/60 hover:bg-white/75 backdrop-blur-md border border-white/80 p-2 sm:p-5 shadow-2xs space-y-1.5 sm:space-y-3 transition-colors flex flex-col justify-between">
               <div>
                 <img
-                  src="/logo-vvflorielle-horizontal.png"
+                  src="/logo-vvflorielle-horizontal.webp"
                   alt="V&V Florielle"
                   className="h-5 min-[375px]:h-6 sm:h-9 w-auto object-contain mb-1"
                 />

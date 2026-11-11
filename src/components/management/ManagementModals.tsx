@@ -161,9 +161,17 @@ export const SecurityModal: React.FC<SecurityModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-6 sm:p-7 space-y-5 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="glass-panel w-full max-w-lg md:max-w-2xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shadow-xs">
               <Lock className="w-5 h-5" />
@@ -177,109 +185,112 @@ export const SecurityModal: React.FC<SecurityModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="font-semibold text-slate-700 block mb-1">Mật khẩu hiện tại *</label>
-              <input
-                type="password"
-                required
-                placeholder="Nhập mật khẩu cũ..."
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                className="glass-input w-full py-2 px-3 rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="font-semibold text-slate-700 block mb-1">Mã PIN cũ (nếu có)</label>
-              <input
-                type="password"
-                placeholder="Nhập PIN cũ..."
-                value={oldPin}
-                onChange={(e) => setOldPin(e.target.value)}
-                className="glass-input w-full py-2 px-3 rounded-xl"
-              />
-            </div>
-          </div>
-
-          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-            <h4 className="font-bold text-slate-700 flex items-center gap-1.5">
-              <KeyRound className="w-3.5 h-3.5 text-purple-600" />
-              <span>Thiết lập thông tin bảo mật mới</span>
-            </h4>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs no-scrollbar flex flex-col justify-between">
+          <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Mật khẩu mới</label>
+                <label className="font-semibold text-slate-700 block mb-1">Mật khẩu hiện tại *</label>
                 <input
                   type="password"
-                  placeholder="Để trống nếu không đổi"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  placeholder="Nhập mật khẩu cũ..."
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
                   className="glass-input w-full py-2 px-3 rounded-xl"
                 />
               </div>
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Mã PIN mới (6 - 8 số)</label>
+                <label className="font-semibold text-slate-700 block mb-1">Mã PIN cũ (nếu có)</label>
                 <input
                   type="password"
-                  maxLength={8}
-                  placeholder="Để trống nếu không đổi"
-                  value={newPin}
-                  onChange={(e) => setNewPin(e.target.value)}
-                  className="glass-input w-full py-2 px-3 rounded-xl font-mono text-center tracking-widest"
+                  placeholder="Nhập PIN cũ..."
+                  value={oldPin}
+                  onChange={(e) => setOldPin(e.target.value)}
+                  className="glass-input w-full py-2 px-3 rounded-xl"
                 />
               </div>
             </div>
-          </div>
 
-          {onSaveEmailConfig && (
-            <div className="p-3 rounded-2xl bg-sky-50 border border-sky-100 space-y-2">
-              <h4 className="font-bold text-sky-800 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-sky-600" />
-                <span>Gmail nhận mã OTP khôi phục</span>
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <h4 className="font-bold text-slate-700 flex items-center gap-1.5">
+                <KeyRound className="w-3.5 h-3.5 text-purple-600" />
+                <span>Thiết lập thông tin bảo mật mới</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Hòm thư Gmail</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Mật khẩu mới</label>
                   <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="traivuho@gmail.com"
+                    type="password"
+                    placeholder="Để trống nếu không đổi"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                     className="glass-input w-full py-2 px-3 rounded-xl"
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Mật khẩu ứng dụng (16 ký tự)</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Mã PIN mới (6 - 8 số)</label>
                   <input
                     type="password"
-                    placeholder="xxxx xxxx xxxx xxxx"
-                    value={appPassword}
-                    onChange={(e) => setAppPassword(e.target.value)}
-                    className="glass-input w-full py-2 px-3 rounded-xl"
+                    maxLength={8}
+                    placeholder="Để trống nếu không đổi"
+                    value={newPin}
+                    onChange={(e) => setNewPin(e.target.value)}
+                    className="glass-input w-full py-2 px-3 rounded-xl font-mono text-center tracking-widest"
                   />
                 </div>
               </div>
             </div>
-          )}
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+            {onSaveEmailConfig && (
+              <div className="p-3 rounded-2xl bg-sky-50 border border-sky-100 space-y-2">
+                <h4 className="font-bold text-sky-800 flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-sky-600" />
+                  <span>Gmail nhận mã OTP khôi phục</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Hòm thư Gmail</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="traivuho@gmail.com"
+                      className="glass-input w-full py-2 px-3 rounded-xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Mật khẩu ứng dụng (16 ký tự)</label>
+                    <input
+                      type="password"
+                      placeholder="xxxx xxxx xxxx xxxx"
+                      value={appPassword}
+                      onChange={(e) => setAppPassword(e.target.value)}
+                      className="glass-input w-full py-2 px-3 rounded-xl"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold"
+              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold cursor-pointer"
             >
               Hủy bỏ
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold shadow-md flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Lưu Thiết Lập</span>
@@ -317,9 +328,17 @@ export const ShippingConfigModal: React.FC<ShippingConfigModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-6 sm:p-7 space-y-5 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="glass-panel w-full max-w-xl md:max-w-4xl lg:max-w-5xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-xs">
               <Truck className="w-5 h-5" />
@@ -333,93 +352,110 @@ export const ShippingConfigModal: React.FC<ShippingConfigModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100 space-y-2">
-            <h4 className="font-bold text-emerald-900 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Chính sách Freeship &amp; Bán kính giao hàng</span>
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Đơn hoa tối thiểu để Freeship (VNĐ)</label>
-                <input
-                  type="number"
-                  value={formData.freeShipThreshold}
-                  onChange={(e) => setFormData({ ...formData, freeShipThreshold: Number(e.target.value) })}
-                  className="glass-input w-full py-2 px-3 rounded-xl"
-                />
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 text-xs no-scrollbar flex flex-col justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {/* Left Column: Freeship & Radius Settings */}
+            <div className="space-y-4">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 space-y-3">
+                <h4 className="font-bold text-emerald-900 flex items-center gap-1.5 text-xs sm:text-sm">
+                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                  <span>Chính sách Freeship &amp; Bán kính giao</span>
+                </h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Đơn hoa tối thiểu để Freeship (VNĐ)</label>
+                    <input
+                      type="number"
+                      step={50000}
+                      value={formData.freeShipThreshold}
+                      onChange={(e) => setFormData({ ...formData, freeShipThreshold: Number(e.target.value) })}
+                      className="glass-input w-full py-2 px-3 rounded-xl font-bold font-mono text-emerald-800"
+                    />
+                    <span className="text-[10.5px] text-slate-500 mt-1 block">Khách đặt trên mức này sẽ được miễn cước vận chuyển tiêu chuẩn.</span>
+                  </div>
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">Bán kính giao tối đa của tiệm (km)</label>
+                    <input
+                      type="number"
+                      value={formData.maxDeliveryRadiusKm || 25}
+                      onChange={(e) => setFormData({ ...formData, maxDeliveryRadiusKm: Number(e.target.value) })}
+                      className="glass-input w-full py-2 px-3 rounded-xl font-bold font-mono"
+                    />
+                    <span className="text-[10.5px] text-slate-500 mt-1 block">Giới hạn giao hoa hỏa tốc tính từ 105 Doãn Kế Thiện, Cầu Giấy.</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Bán kính giao tối đa (km)</label>
-                <input
-                  type="number"
-                  value={formData.maxDeliveryRadiusKm || 25}
-                  onChange={(e) => setFormData({ ...formData, maxDeliveryRadiusKm: Number(e.target.value) })}
-                  className="glass-input w-full py-2 px-3 rounded-xl"
-                />
-              </div>
-            </div>
-          </div>
 
-          <div className="space-y-2.5">
-            <h4 className="font-bold text-slate-800">Biểu Phí Giao Hàng &amp; Cam Kết Hỏa Tốc</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <span className="font-bold text-slate-700 block mb-1">Cước cơ bản (0 - 3km)</span>
-                <input
-                  type="number"
-                  value={formData.standardShipFee}
-                  onChange={(e) => setFormData({ ...formData, standardShipFee: Number(e.target.value) })}
-                  className="glass-input w-full py-1.5 px-3 rounded-xl"
-                />
-              </div>
-              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <span className="font-bold text-slate-700 block mb-1">Cước phụ trội theo km (sau 3km)</span>
-                <input
-                  type="number"
-                  value={formData.shippingFeePerKm}
-                  onChange={(e) => setFormData({ ...formData, shippingFeePerKm: Number(e.target.value) })}
-                  className="glass-input w-full py-1.5 px-3 rounded-xl"
-                />
-              </div>
-              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <span className="font-bold text-slate-700 block mb-1">Bán kính áp dụng Freeship (km)</span>
-                <input
-                  type="number"
-                  value={formData.freeShipRadiusKm || 3}
-                  onChange={(e) => setFormData({ ...formData, freeShipRadiusKm: Number(e.target.value) })}
-                  className="glass-input w-full py-1.5 px-3 rounded-xl"
-                />
-              </div>
-              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <span className="font-bold text-slate-700 block mb-1">Cam kết thời gian giao</span>
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="font-bold text-slate-700 block mb-1">Cam kết thời gian giao hoa</span>
                 <input
                   type="text"
                   value={formData.deliveryTimeEstimate || 'Từ 15 phút nội thành, 60 phút ngoại thành'}
                   onChange={(e) => setFormData({ ...formData, deliveryTimeEstimate: e.target.value })}
-                  className="glass-input w-full py-1.5 px-3 rounded-xl"
+                  className="glass-input w-full py-2 px-3 rounded-xl"
                 />
+              </div>
+            </div>
+
+            {/* Right Column: Rate Tiers */}
+            <div className="space-y-4">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3">
+                <h4 className="font-bold text-slate-800 text-xs sm:text-sm">Biểu Phí Giao Hàng Chuẩn</h4>
+                <div className="space-y-3">
+                  <div>
+                    <span className="font-bold text-slate-700 block mb-1">Cước cơ bản (Dưới 2-3km)</span>
+                    <input
+                      type="number"
+                      step={5000}
+                      value={formData.standardShipFee}
+                      onChange={(e) => setFormData({ ...formData, standardShipFee: Number(e.target.value) })}
+                      className="glass-input w-full py-2 px-3 rounded-xl font-bold font-mono text-slate-800"
+                    />
+                    <span className="text-[10.5px] text-slate-500 mt-1 block">Áp dụng cho các đơn bán kính gần quanh showroom Cầu Giấy.</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-700 block mb-1">Cước phụ trội theo km (từ km thứ 3 trở đi)</span>
+                    <input
+                      type="number"
+                      step={1000}
+                      value={formData.shippingFeePerKm}
+                      onChange={(e) => setFormData({ ...formData, shippingFeePerKm: Number(e.target.value) })}
+                      className="glass-input w-full py-2 px-3 rounded-xl font-bold font-mono text-slate-800"
+                    />
+                    <span className="text-[10.5px] text-slate-500 mt-1 block">Cộng thêm mỗi km ngoài bán kính chuẩn Google Maps.</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-700 block mb-1">Bán kính áp dụng Freeship (km)</span>
+                    <input
+                      type="number"
+                      value={formData.freeShipRadiusKm || 3}
+                      onChange={(e) => setFormData({ ...formData, freeShipRadiusKm: Number(e.target.value) })}
+                      className="glass-input w-full py-2 px-3 rounded-xl font-bold font-mono"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 shrink-0 mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold"
+              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold cursor-pointer"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Lưu Cấu Hình Cước</span>
@@ -479,9 +515,17 @@ export const QuickVoucherModal: React.FC<QuickVoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="glass-panel w-full max-w-md md:max-w-2xl lg:max-w-3xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shadow-xs">
               <Gift className="w-5 h-5" />
@@ -493,94 +537,105 @@ export const QuickVoucherModal: React.FC<QuickVoucherModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Quick Presets */}
-        <div className="space-y-1.5">
-          <span className="text-[11px] font-bold text-slate-600 block">Gợi ý tạo nhanh cho dịp lễ:</span>
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => handleQuickPreset('FLORAL83', 50000, 500000, 'QUỐC TẾ PHỤ NỮ')}
-              className="px-2.5 py-1 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 text-xs font-semibold"
-            >
-              🌸 8/3 Giảm 50K
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickPreset('LOVE2010', 40000, 450000, '20/10 PHỤ NỮ VN')}
-              className="px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold"
-            >
-              🌹 20/10 Giảm 40K
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickPreset('SWEET1402', 60000, 600000, 'VALENTINE')}
-              className="px-2.5 py-1 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-semibold"
-            >
-              💖 Valentine Giảm 60K
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickPreset('FREESHIP30K', 30000, 350000, 'FREESHIP')}
-              className="px-2.5 py-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold"
-            >
-              🚚 Freeship 30K
-            </button>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
-          <div>
-            <label className="font-semibold text-slate-700 block mb-1">Mã Voucher *</label>
-            <input
-              type="text"
-              required
-              placeholder="VD: VUONHOA50K"
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              className="glass-input w-full py-2 px-3 rounded-xl font-mono tracking-wider uppercase font-bold"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="font-semibold text-slate-700 block mb-1">Mức giảm (VNĐ) *</label>
-              <input
-                type="number"
-                required
-                value={discount}
-                onChange={(e) => setDiscount(Number(e.target.value))}
-                className="glass-input w-full py-2 px-3 rounded-xl"
-              />
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 text-xs no-scrollbar flex flex-col justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left: Quick Presets */}
+            <div className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/70 space-y-2.5">
+              <span className="text-[11px] font-bold text-amber-950 block">Gợi ý tạo nhanh cho dịp lễ:</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleQuickPreset('FLORAL83', 50000, 500000, 'QUỐC TẾ PHỤ NỮ')}
+                  className="px-3 py-2 rounded-xl bg-white hover:bg-pink-50 text-pink-700 border border-pink-200 text-xs font-bold text-left transition-colors cursor-pointer flex items-center justify-between shadow-2xs"
+                >
+                  <span>🌸 8/3 Giảm 50K</span>
+                  <span className="text-[10px] text-slate-400">Đơn &gt; 500k</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickPreset('LOVE2010', 40000, 450000, '20/10 PHỤ NỮ VN')}
+                  className="px-3 py-2 rounded-xl bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold text-left transition-colors cursor-pointer flex items-center justify-between shadow-2xs"
+                >
+                  <span>🌹 20/10 Giảm 40K</span>
+                  <span className="text-[10px] text-slate-400">Đơn &gt; 450k</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickPreset('SWEET1402', 60000, 600000, 'VALENTINE')}
+                  className="px-3 py-2 rounded-xl bg-white hover:bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold text-left transition-colors cursor-pointer flex items-center justify-between shadow-2xs"
+                >
+                  <span>💖 Valentine Giảm 60K</span>
+                  <span className="text-[10px] text-slate-400">Đơn &gt; 600k</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickPreset('FREESHIP30K', 30000, 350000, 'FREESHIP')}
+                  className="px-3 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold text-left transition-colors cursor-pointer flex items-center justify-between shadow-2xs"
+                >
+                  <span>🚚 Freeship 30K</span>
+                  <span className="text-[10px] text-slate-400">Đơn &gt; 350k</span>
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="font-semibold text-slate-700 block mb-1">Đơn tối thiểu (VNĐ)</label>
-              <input
-                type="number"
-                required
-                value={minOrder}
-                onChange={(e) => setMinOrder(Number(e.target.value))}
-                className="glass-input w-full py-2 px-3 rounded-xl"
-              />
+
+            {/* Right: Form inputs */}
+            <div className="space-y-3">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Mã Voucher *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="VD: VUONHOA50K"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  className="glass-input w-full py-2 px-3 rounded-xl font-mono tracking-wider uppercase font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Mức giảm (VNĐ) *</label>
+                <input
+                  type="number"
+                  step={5000}
+                  required
+                  value={discount}
+                  onChange={(e) => setDiscount(Number(e.target.value))}
+                  className="glass-input w-full py-2 px-3 rounded-xl font-bold font-mono text-emerald-700"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Đơn tối thiểu (VNĐ)</label>
+                <input
+                  type="number"
+                  step={50000}
+                  required
+                  value={minOrder}
+                  onChange={(e) => setMinOrder(Number(e.target.value))}
+                  className="glass-input w-full py-2 px-3 rounded-xl font-bold font-mono"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 shrink-0 mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold"
+              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold cursor-pointer"
             >
               Đóng
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               <Gift className="w-3.5 h-3.5" />
               <span>Phát Hành Mã</span>
@@ -609,9 +664,17 @@ export const MascotSelectorModal: React.FC<MascotSelectorModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="glass-panel w-full max-w-2xl md:max-w-4xl lg:max-w-5xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-pink-100 text-pink-700 flex items-center justify-center shadow-xs">
               <Sparkles className="w-5 h-5" />
@@ -623,57 +686,70 @@ export const MascotSelectorModal: React.FC<MascotSelectorModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          {AVAILABLE_MASCOTS.map((m) => {
-            const isSelected = currentMascotId === m.url || currentMascotId === m.id;
-            return (
-              <div
-                key={m.id}
-                onClick={() => {
-                  onSelectMascot(m.url);
-                  onClose();
-                }}
-                className={`group relative p-3 rounded-2xl border text-center transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-pink-50/90 border-pink-400 ring-2 ring-pink-200 shadow-md'
-                    : 'bg-white/80 border-slate-200 hover:border-pink-300 hover:shadow-lg'
-                }`}
-              >
-                <div className="relative w-24 h-24 mx-auto mb-2 overflow-hidden rounded-xl bg-pink-50/50 flex items-center justify-center">
-                  <img
-                    src={m.url}
-                    alt={m.name}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                  {isSelected && (
-                    <span className="absolute top-1 right-1 w-5 h-5 rounded-full bg-pink-600 text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
-                      ✓
-                    </span>
-                  )}
-                </div>
-                <h4 className="font-bold text-xs text-slate-800 line-clamp-1">{m.name}</h4>
-                <button
-                  type="button"
-                  className={`mt-2 w-full py-1 rounded-xl text-[11px] font-bold transition-colors ${
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 no-scrollbar">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-3.5">
+            {AVAILABLE_MASCOTS.map((m) => {
+              const isSelected = currentMascotId === m.url || currentMascotId === m.id;
+              return (
+                <div
+                  key={m.id}
+                  onClick={() => {
+                    onSelectMascot(m.url);
+                    onClose();
+                  }}
+                  className={`group relative p-2.5 sm:p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col justify-between ${
                     isSelected
-                      ? 'bg-pink-600 text-white shadow-xs'
-                      : 'bg-slate-100 group-hover:bg-pink-100 text-slate-600 group-hover:text-pink-700'
+                      ? 'bg-pink-50/90 border-pink-400 ring-2 ring-pink-200 shadow-md'
+                      : 'bg-white/80 border-slate-200 hover:border-pink-300 hover:shadow-lg'
                   }`}
                 >
-                  {isSelected ? 'Đang Sử Dụng' : 'Chọn Linh Vật'}
-                </button>
-              </div>
-            );
-          })}
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-2 overflow-hidden rounded-xl bg-pink-50/50 flex items-center justify-center">
+                    <img
+                      src={m.url}
+                      alt={m.name}
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                    {isSelected && (
+                      <span className="absolute top-1 right-1 w-5 h-5 rounded-full bg-pink-600 text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="font-bold text-xs text-slate-800 line-clamp-1">{m.name}</h4>
+                  <button
+                    type="button"
+                    className={`mt-2 w-full py-1 rounded-xl text-[10.5px] font-bold transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'bg-pink-600 text-white shadow-xs'
+                        : 'bg-slate-100 group-hover:bg-pink-100 text-slate-600 group-hover:text-pink-700'
+                    }`}
+                  >
+                    {isSelected ? 'Đang Sử Dụng' : 'Chọn'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="p-3 sm:p-4 border-t border-slate-100 flex justify-end shrink-0 bg-slate-50/90">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+          >
+            Đóng
+          </button>
         </div>
       </div>
     </div>
@@ -696,9 +772,17 @@ export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
   if (!order) return null;
 
   return (
-    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="glass-panel w-full max-w-lg md:max-w-3xl lg:max-w-4xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
           <div>
             <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider block">
               Biên Lai Đặt Cọc 50% VietQR
@@ -709,65 +793,77 @@ export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="space-y-3 text-xs">
-          {/* Bill image */}
-          <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 text-center max-h-72 flex items-center justify-center">
-            {order.paymentBillImage ? (
-              <img
-                src={order.paymentBillImage}
-                alt="Bill VietQR"
-                className="max-h-72 w-auto object-contain mx-auto"
-              />
-            ) : (
-              <div className="py-12 text-slate-400 space-y-1">
-                <Camera className="w-8 h-8 mx-auto text-slate-300" />
-                <p>Khách hàng chưa tải ảnh biên lai lên</p>
-              </div>
-            )}
-          </div>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 text-xs no-scrollbar flex flex-col justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-start">
+            {/* Left Column: Bill image */}
+            <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 text-center min-h-[220px] max-h-80 flex items-center justify-center p-2 shadow-inner">
+              {order.paymentBillImage ? (
+                <img
+                  src={order.paymentBillImage}
+                  alt="Bill VietQR"
+                  className="max-h-72 w-auto object-contain mx-auto rounded-xl shadow-xs"
+                />
+              ) : (
+                <div className="py-12 text-slate-400 space-y-1.5">
+                  <Camera className="w-10 h-10 mx-auto text-slate-300" />
+                  <p className="font-semibold text-xs">Khách hàng chưa tải ảnh biên lai lên</p>
+                  <p className="text-[10px] text-slate-400">Có thể duyệt đơn trực tiếp nếu đã nhận được tiền nổi ở tài khoản</p>
+                </div>
+              )}
+            </div>
 
-          {/* Order quick info */}
-          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-slate-700">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Khách đặt:</span>
-              <span className="font-bold">{order.senderName} ({order.senderPhone})</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Người nhận:</span>
-              <span>{order.recipientName} ({order.recipientPhone})</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Cọc 50% cần duyệt:</span>
-              <span className="font-bold text-emerald-700 text-sm">
-                {new Intl.NumberFormat('vi-VN').format(order.depositAmount || 0)}đ
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Trạng thái hiện tại:</span>
-              <span className="font-semibold text-amber-700">{order.status}</span>
+            {/* Right Column: Order quick info */}
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-slate-700">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
+                  <span className="text-slate-500">Khách đặt:</span>
+                  <span className="font-bold text-slate-900">{order.senderName} ({order.senderPhone})</span>
+                </div>
+                <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
+                  <span className="text-slate-500">Người nhận:</span>
+                  <span className="font-semibold">{order.recipientName} ({order.recipientPhone})</span>
+                </div>
+                <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
+                  <span className="text-slate-500">Cọc 50% cần duyệt:</span>
+                  <span className="font-black text-emerald-700 text-sm">
+                    {new Intl.NumberFormat('vi-VN').format(order.depositAmount || 0)}đ
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Trạng thái:</span>
+                  <span className="font-bold px-2 py-0.5 rounded-md text-[11px] bg-amber-100 text-amber-800">
+                    {order.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 text-emerald-950 text-[11px] leading-relaxed">
+                Sau khi bấm &quot;Duyệt Cọc 1-Chạm&quot;, đơn hàng sẽ tự động chuyển sang trạng thái <strong>ĐANG CHUẨN BỊ HOA</strong> và thông báo cho thợ cắm hoa.
+              </div>
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-100 shrink-0 mt-4">
             <a
               href={`tel:${order.senderPhone}`}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold flex items-center gap-1.5 transition-colors"
             >
-              <Phone className="w-3.5 h-3.5" />
-              <span>Gọi Khách</span>
+              <Phone className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Gọi Khách Đặt</span>
             </a>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold cursor-pointer transition-colors"
               >
                 Đóng
               </button>
@@ -778,9 +874,9 @@ export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
                     onApproveDeposit(order.id);
                     onClose();
                   }}
-                  className="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <CheckCircle2 className="w-4 h-4" />
                   <span>Duyệt Cọc 1-Chạm</span>
                 </button>
               )}
@@ -1526,7 +1622,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-y-auto no-scrollbar">
           <div className="p-5 sm:p-6 space-y-5 text-xs">
             {/* Top row: Name & Category */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1972,6 +2068,10 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
   const [eventName, setEventName] = useState('Đại Lễ Quốc Tế Phụ Nữ 8/3');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [discountPercent, setDiscountPercent] = useState<number>(15);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+
+  // Hook must always be called unconditionally at top level
+  useBodyScrollLock(isOpen);
 
   if (!isOpen) return null;
 
@@ -1989,8 +2089,6 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
     { name: 'Tri Ân Ngày Nhà Giáo 20/11', percent: 15, tag: '20/11' },
     { name: 'Flash Sale Cuối Tuần Rực Rỡ', percent: 25, tag: 'Flash Sale' }
   ];
-
-  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
 
   const handleApply = () => {
     if (discountPercent <= 0) {
@@ -2013,7 +2111,7 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
   return (
     <div className="glass-overlay z-[9995]" onClick={onClose}>
       <div
-        className="glass-modal-content max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col"
+        className="glass-modal-content max-w-xl md:max-w-2xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col my-auto max-h-[calc(100dvh-120px)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -2035,8 +2133,8 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-5 sm:p-6 space-y-4 text-xs">
+        {/* Body - Tự động cuộn mượt mà trên mobile, không đẩy lẹm chân footer */}
+        <div className="glass-modal-body space-y-4 text-xs">
           {/* Quick Event Presets */}
           <div className="space-y-1.5">
             <label className="font-bold text-slate-700 flex items-center gap-1.5">
@@ -2104,15 +2202,15 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
                   max={90}
                   value={discountPercent}
                   onChange={(e) => setDiscountPercent(Number(e.target.value))}
-                  className="glass-input w-24 text-xs py-2 px-3 rounded-xl font-mono font-bold text-center border border-slate-200"
+                  className="glass-input w-20 text-xs py-2 px-2.5 rounded-xl font-mono font-bold text-center border border-slate-200 shrink-0"
                 />
-                <div className="flex items-center gap-1 flex-1">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-1 flex-1">
                   {[5, 10, 15, 20, 25, 30].map((pct) => (
                     <button
                       key={pct}
                       type="button"
                       onClick={() => setDiscountPercent(pct)}
-                      className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                      className={`py-1.5 px-0.5 rounded-lg text-[10px] font-bold transition-all text-center cursor-pointer ${
                         discountPercent === pct
                           ? 'bg-rose-600 text-white shadow-xs'
                           : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
@@ -2148,32 +2246,32 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="glass-modal-footer border-t border-slate-100 bg-slate-50/80 px-5 sm:px-6 py-3.5 flex items-center justify-between">
+        {/* Footer Actions - Cố định 100%, không bao giờ bị cắt chân nút */}
+        <div className="glass-modal-footer border-t border-slate-100 bg-slate-50/90 px-3 sm:px-6 py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shrink-0">
           <button
             type="button"
             onClick={handleRestore}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-200/80 hover:bg-amber-100 text-slate-700 hover:text-amber-800 text-xs font-bold transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-200/80 hover:bg-amber-100 text-slate-700 hover:text-amber-800 text-[11px] sm:text-xs font-bold transition-colors cursor-pointer"
             title="Khôi phục về giá niêm yết ban đầu"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Khôi Phục Giá Gốc</span>
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer"
+              className="btn-secondary text-[11px] sm:text-xs py-1.5 px-3 sm:py-2 sm:px-4 rounded-xl cursor-pointer"
             >
               Đóng
             </button>
             <button
               type="button"
               onClick={handleApply}
-              className="btn-primary text-xs py-2 px-4 rounded-xl cursor-pointer shadow-md flex items-center gap-1.5 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold"
+              className="btn-primary text-[11px] sm:text-xs py-1.5 px-3 sm:py-2 sm:px-4 rounded-xl cursor-pointer shadow-md flex items-center gap-1.5 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold"
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-3.5 h-3.5" />
               <span>Áp Dụng Sự Kiện Giảm Giá</span>
             </button>
           </div>
@@ -2722,7 +2820,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="p-5 sm:p-6 space-y-3.5 text-xs overflow-y-auto max-h-[70vh]">
+          <div className="p-5 sm:p-6 space-y-3.5 text-xs overflow-y-auto max-h-[70vh] no-scrollbar">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="font-semibold text-slate-700 block mb-1">Họ và tên khách hàng *</label>

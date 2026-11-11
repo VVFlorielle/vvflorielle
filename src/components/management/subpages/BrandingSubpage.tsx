@@ -93,8 +93,8 @@ export const BrandingSubpage: React.FC<BrandingSubpageProps> = ({
     return {
       brandName: settings?.name || 'V&V Florielle',
       tagline: settings?.tagline || settings?.slogan || 'Flowers that speak from the heart',
-      logoUrl: '/logo-vvflorielle-horizontal.png',
-      miniLogoUrl: '/logo-vvflorielle-square.png',
+      logoUrl: '/logo-vvflorielle-horizontal.webp',
+      miniLogoUrl: '/logo-vvflorielle-square.webp',
       primaryColor: '#059669',
       secondaryColor: '#047857',
       bgColor: '#f0fdf4',
@@ -219,8 +219,8 @@ export const BrandingSubpage: React.FC<BrandingSubpageProps> = ({
     const def: BrandingData = {
       brandName: 'V&V Florielle',
       tagline: 'Flowers that speak from the heart',
-      logoUrl: '/logo-vvflorielle-horizontal.png',
-      miniLogoUrl: '/logo-vvflorielle-square.png',
+      logoUrl: '/logo-vvflorielle-horizontal.webp',
+      miniLogoUrl: '/logo-vvflorielle-square.webp',
       primaryColor: '#059669',
       secondaryColor: '#047857',
       bgColor: '#f0fdf4',

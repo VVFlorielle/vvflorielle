@@ -23,8 +23,8 @@ export const ManagementRecentOrders: React.FC<ManagementRecentOrdersProps> = ({
     <div className="p-5 sm:p-6 rounded-[28px] bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-sm space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-xs">
-            <Flower2 className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-emerald-50/90 border border-emerald-200/80 flex items-center justify-center shadow-xs">
+            <img src="/icons/icon-catalog-3d.png" alt="Vận hành" className="w-6 h-6 object-contain drop-shadow-xs" />
           </div>
           <div>
             <h3 className="font-bold text-base text-slate-800">

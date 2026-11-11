@@ -310,7 +310,7 @@ export const ContactPage: React.FC = () => {
                   {/* Khu vực Logo & Thông điệp tiệm */}
                   <div className="flex-1 flex flex-col items-center justify-center space-y-2 py-2">
                     <img
-                      src="/logo-vvflorielle-horizontal.png"
+                      src="/logo-vvflorielle-horizontal.webp"
                       alt="V&V Florielle"
                       className="h-16 sm:h-20 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform hover:scale-105"
                     />

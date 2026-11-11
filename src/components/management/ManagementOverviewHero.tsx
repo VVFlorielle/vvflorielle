@@ -106,23 +106,28 @@ export const ManagementOverviewHero: React.FC<ManagementOverviewHeroProps> = ({
 
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Nút Bật/Tắt & Thử Chuông Báo Đơn Mới (Web Audio API) */}
-          <div className="inline-flex items-center gap-1 bg-white/95 border border-emerald-200/90 rounded-full px-2 sm:px-2.5 py-1 text-xs text-emerald-900 shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 bg-white/95 border border-emerald-200/90 rounded-full px-2.5 sm:px-3 py-1 text-xs text-emerald-900 shadow-2xs">
             <button
               type="button"
               onClick={handleToggleChime}
-              className="flex items-center gap-1 font-semibold hover:text-emerald-700 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 font-semibold hover:text-emerald-700 transition-colors cursor-pointer"
               title={chimeOn ? 'Đang bật chuông đơn mới - Bấm để tắt' : 'Đang tắt chuông đơn - Bấm để bật'}
             >
-              {chimeOn ? <Volume2 className="w-3.5 h-3.5 text-emerald-600" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
+              <img
+                src="/icons/icon-bell-3d.png"
+                alt="Chuông"
+                className={`w-3.5 h-3.5 object-contain shrink-0 transition-opacity ${chimeOn ? 'opacity-100' : 'opacity-40 grayscale'}`}
+              />
               <span className="text-[11px] sm:text-xs">{chimeOn ? 'Chuông: Bật' : 'Chuông: Tắt'}</span>
             </button>
+            <span className="w-px h-3 bg-emerald-200" />
             <button
               type="button"
               onClick={handleTestChime}
-              className="p-1 rounded-full hover:bg-emerald-50 text-emerald-700 transition-colors cursor-pointer"
+              className="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 transition-colors cursor-pointer"
               title="Nghe thử âm thanh chuông báo"
             >
-              <Bell className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              Thử chuông
             </button>
           </div>
 

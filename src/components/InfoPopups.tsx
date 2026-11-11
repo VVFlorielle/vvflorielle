@@ -49,16 +49,16 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
 
   return (
     <div
-      className="glass-overlay z-[9995] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
+      className="glass-overlay z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className={`glass-modal-content w-full relative transition-all duration-300 ${
+        className={`glass-modal-content w-full relative transition-all duration-300 overflow-hidden ${
           isWideModal
-            ? 'max-w-2xl sm:max-w-3xl'
+            ? 'max-w-2xl sm:max-w-3xl md:max-w-4xl'
             : activePopup === 'app-download'
-            ? 'max-w-lg'
-            : 'max-w-md'
+            ? 'max-w-lg md:max-w-2xl'
+            : 'max-w-md md:max-w-xl'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -71,8 +71,8 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
           <X className="w-5 h-5" />
         </button>
 
-        {/* Modal Inner Contents */}
-        <div className="p-4 sm:p-6 overflow-y-auto max-h-[85vh]">
+        {/* Modal Inner Contents (no-scrollbar, safe max-height above bottom dock) */}
+        <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(100dvh-130px)] sm:max-h-[85vh] no-scrollbar">
           {activePopup === 'custom-design' && <CustomDesignModal onClose={onClose} />}
           {activePopup === 'care' && <FlowerCareModal onClose={onClose} />}
           {activePopup === 'shipping' && <ShippingPolicyModal onClose={onClose} />}

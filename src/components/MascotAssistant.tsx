@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   Sparkles,
@@ -76,7 +76,8 @@ export const MascotAssistant: React.FC = () => {
     setIsCartOpen,
     setCurrentView,
     setAuthModalMode,
-    setIsAuthModalOpen
+    setIsAuthModalOpen,
+    weatherState
   } = useStore();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -85,6 +86,19 @@ export const MascotAssistant: React.FC = () => {
     typeof window !== 'undefined' ? window.innerWidth >= 768 : false
   );
   const [tipIndex, setTipIndex] = useState(0);
+
+  // Dynamic Mascot Tips (Includes Real-time Weather Sync from Admin)
+  const activeTips = useMemo(() => {
+    const list = [...MASCOT_TIPS];
+    if (weatherState?.condition === 'rain') {
+      list.unshift('🌧️ Hà Nội đang mưa gió, bạn nhớ giữ ấm nha! Tiệm bọc màng chống ướt kỹ lưỡng trước khi shipper giao nhé! 🌸');
+    } else if (weatherState?.condition === 'cold') {
+      list.unshift('❄️ Trời Hà Nội đang trở lạnh, mọi bó hoa đều được bọc chống sốc nhiệt giữ hoa tươi nguyên bản bạn nhé! 🌸');
+    } else if (weatherState?.condition === 'storm') {
+      list.unshift('⛈️ Ngoài trời đang có giông bão, tiệm luôn đảm bảo hoa được giao an toàn bằng xe chuyên dụng nhé! 🌸');
+    }
+    return list;
+  }, [weatherState?.condition]);
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState<MascotMessage[]>([
     {
@@ -148,7 +162,7 @@ export const MascotAssistant: React.FC = () => {
 
     const cycleInterval = setInterval(() => {
       if (!isOpen && (typeof window === 'undefined' || window.innerWidth >= 768)) {
-        setTipIndex((prev) => (prev + 1) % MASCOT_TIPS.length);
+        setTipIndex((prev) => (prev + 1) % activeTips.length);
         setShowBubble(true);
         if (hideTimer) clearTimeout(hideTimer);
         hideTimer = setTimeout(() => {
@@ -319,7 +333,7 @@ export const MascotAssistant: React.FC = () => {
     <>
       {/* 1. DRAGGABLE FLOATING AI MASCOT (Matching phototiinlove) */}
       <div
-        className="fixed z-[100] select-none touch-none flex items-center cursor-pointer group"
+        className={`fixed ${isOpen ? 'z-[95]' : 'z-40'} select-none touch-none flex items-center cursor-pointer group`}
         style={{
           left: `${targetX}px`,
           top: `${targetY}px`,
@@ -351,7 +365,7 @@ export const MascotAssistant: React.FC = () => {
               <span>Flori trợ lý ảo</span>
             </div>
             <p className="text-[11px] text-slate-700 leading-snug">
-              {MASCOT_TIPS[tipIndex]}
+              {activeTips[tipIndex % activeTips.length]}
             </p>
 
             {/* Bubble arrow pointing towards mascot */}
@@ -374,7 +388,7 @@ export const MascotAssistant: React.FC = () => {
           {/* Always display the transparent floral mascot logo with dynamic buoyant floating & swaying animation */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center select-none animate-mascot-float">
             <img
-              src={settings.mascotImageUrl || '/images/mascot/mascot-1.png'}
+              src={settings.mascotImageUrl || '/images/mascot/mascot-1.webp'}
               alt="Linh vật AI V&V Florielle"
               className={`w-full h-full object-contain pointer-events-none filter drop-shadow-[0_6px_16px_rgba(5,150,105,0.28)] transition-all duration-300 ${
                 isOpen ? 'scale-105 drop-shadow-[0_8px_20px_rgba(4,120,87,0.45)]' : ''
@@ -396,9 +410,9 @@ export const MascotAssistant: React.FC = () => {
       {/* 2. INTERACTIVE AI MASCOT CHAT DRAWER / WINDOW (Anchored near Mascot) */}
       {isOpen && (
         <>
-          {/* Backdrop on mobile for clean dismissal */}
+          {/* Backdrop for clean dismissal on both mobile and desktop */}
           <div
-            className="fixed inset-0 z-[80] bg-black/30 backdrop-blur-2xs sm:hidden"
+            className="fixed inset-0 z-[85] bg-black/20 backdrop-blur-2xs cursor-pointer"
             onClick={() => setIsOpen(false)}
           />
 
@@ -425,7 +439,7 @@ export const MascotAssistant: React.FC = () => {
             <div className="p-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="hidden sm:flex w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-md items-center justify-center shadow-xs border border-white/30 overflow-hidden">
-                  <img src={settings.mascotImageUrl || '/images/mascot/mascot-1.png'} alt="Flori" className="w-7 h-7 object-contain" />
+                  <img src={settings.mascotImageUrl || '/images/mascot/mascot-1.webp'} alt="Flori" className="w-7 h-7 object-contain" />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
@@ -477,7 +491,7 @@ export const MascotAssistant: React.FC = () => {
               </div>
 
               {/* Chat Messages Body */}
-              <div className="flex-1 p-3 overflow-y-auto space-y-2.5 text-xs">
+              <div className="flex-1 p-3 overflow-y-auto space-y-2.5 text-xs no-scrollbar">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -487,7 +501,7 @@ export const MascotAssistant: React.FC = () => {
                 >
                   {msg.sender === 'mascot' && (
                     <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 shadow-xs border border-emerald-200 overflow-hidden">
-                      <img src={settings.mascotImageUrl || '/images/mascot/mascot-1.png'} alt="Flori" className="w-5 h-5 object-contain" />
+                      <img src={settings.mascotImageUrl || '/images/mascot/mascot-1.webp'} alt="Flori" className="w-5 h-5 object-contain" />
                     </div>
                   )}
 

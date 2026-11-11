@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useStore } from '../context/StoreContext';
 import { ShoppingCart } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
 
 export const FloatingCartWidget: React.FC = () => {
   const { cart, setIsCartOpen } = useStore();
@@ -9,9 +9,11 @@ export const FloatingCartWidget: React.FC = () => {
   // Initial draggable position (floating comfortably above bottom dock with plenty of clearance)
   const getDefaultPos = () => {
     if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 640;
       return {
-        x: Math.max(20, window.innerWidth - 92),
-        y: Math.max(100, window.innerHeight - 170),
+        // Aligned with right-2.5 (10px) on mobile: orb width 60px -> x = innerWidth - 70 leaves 10px right margin
+        x: isMobile ? Math.max(10, window.innerWidth - 70) : Math.max(16, window.innerWidth - 86),
+        y: isMobile ? Math.max(90, window.innerHeight - 210) : Math.max(100, window.innerHeight - 170),
       };
     }
     return { x: 1200, y: 680 };
@@ -26,21 +28,23 @@ export const FloatingCartWidget: React.FC = () => {
   // Ensure initial placement is at bottom right corner (well above bottom dock) & track resize
   useEffect(() => {
     if (!hasUserMovedRef.current && typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 640;
       setPos({
-        x: Math.max(20, window.innerWidth - 92),
-        y: Math.max(100, window.innerHeight - 170),
+        x: isMobile ? Math.max(10, window.innerWidth - 70) : Math.max(16, window.innerWidth - 86),
+        y: isMobile ? Math.max(90, window.innerHeight - 210) : Math.max(100, window.innerHeight - 170),
       });
     }
 
     const handleResize = () => {
+      const isMobile = window.innerWidth < 640;
       if (!hasUserMovedRef.current) {
         setPos({
-          x: Math.max(20, window.innerWidth - 92),
-          y: Math.max(100, window.innerHeight - 170),
+          x: isMobile ? Math.max(10, window.innerWidth - 70) : Math.max(16, window.innerWidth - 86),
+          y: isMobile ? Math.max(90, window.innerHeight - 210) : Math.max(100, window.innerHeight - 170),
         });
       } else {
         setPos((prev) => ({
-          x: Math.max(16, Math.min(prev.x, window.innerWidth - 82)),
+          x: Math.max(10, Math.min(prev.x, window.innerWidth - 70)),
           y: Math.max(65, Math.min(prev.y, window.innerHeight - 85)),
         }));
       }
@@ -70,7 +74,7 @@ export const FloatingCartWidget: React.FC = () => {
         hasUserMovedRef.current = true;
       }
 
-      const newX = Math.max(16, Math.min(window.innerWidth - 82, dragStartRef.current.initialX + dx));
+      const newX = Math.max(10, Math.min(window.innerWidth - 70, dragStartRef.current.initialX + dx));
       const newY = Math.max(65, Math.min(window.innerHeight - 85, dragStartRef.current.initialY + dy));
       setPos({ x: newX, y: newY });
     };
@@ -95,12 +99,13 @@ export const FloatingCartWidget: React.FC = () => {
 
   return (
     <div
+      id="floating-cart-widget"
       style={{
         left: `${pos.x}px`,
         top: `${pos.y}px`,
         touchAction: 'none',
       }}
-      className="fixed z-[9980] hidden md:flex items-center justify-center select-none group cursor-grab active:cursor-grabbing transition-transform"
+      className="fixed z-40 w-[60px] h-[60px] sm:w-16 sm:h-16 flex items-center justify-center select-none group cursor-grab active:cursor-grabbing transition-transform"
       onPointerDown={handlePointerDown}
       onClick={handleCartClick}
       title="Giỏ hoa của bạn (Bấm để xem)"
@@ -108,9 +113,9 @@ export const FloatingCartWidget: React.FC = () => {
       {/* Outer ambient glow animation */}
       <div className="absolute inset-[-4px] rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 blur-sm opacity-50 group-hover:opacity-80 transition-opacity animate-pulse" />
 
-      {/* Main Draggable Cart Orb (Supermarket Orange, Frameless Glassmorphism) */}
-      <div className="relative w-15 h-15 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white/95 shadow-[0_10px_28px_rgba(249,115,22,0.48),inset_0_2px_4px_rgba(255,255,255,0.85)] flex items-center justify-center group-hover:scale-108 active:scale-95 transition-all duration-200">
-        <ShoppingCart className="w-7 h-7 sm:w-7.5 sm:h-7.5 text-white filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)] group-hover:scale-110 transition-transform" />
+      {/* Main Draggable Cart Orb (Supermarket Orange, Frameless Glassmorphism with Glowing White Cart Icon) */}
+      <div className="relative w-[60px] h-[60px] sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white/95 shadow-[0_10px_28px_rgba(249,115,22,0.48),inset_0_2px_4px_rgba(255,255,255,0.85)] flex items-center justify-center group-hover:scale-108 active:scale-95 transition-all duration-200">
+        <ShoppingCart className="w-7 h-7 sm:w-7.5 sm:h-7.5 text-white stroke-[2.3] filter drop-shadow-[0_0_8px_rgba(255,255,255,0.9)] group-hover:scale-110 transition-transform pointer-events-none select-none" />
 
         {/* Badge Count - Only display when items exist */}
         {totalCartCount > 0 && (

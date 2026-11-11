@@ -67,7 +67,7 @@ export const ProductDetailModal: React.FC = () => {
   };
 
   return (
-    <div className="glass-overlay z-[9995]" onClick={() => setSelectedProduct(null)}>
+    <div className="glass-overlay z-[100000]" onClick={() => setSelectedProduct(null)}>
       <div
         className="glass-modal-content max-w-2xl lg:max-w-3xl relative"
         onClick={(e) => e.stopPropagation()}

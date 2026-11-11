@@ -228,116 +228,105 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
           ================================================================ */}
       {isLoggedIn && (
         <div
-          className="fixed left-[calc(14px+env(safe-area-inset-left,0px))] bottom-[calc(76px+env(safe-area-inset-bottom,0px))] z-[9991] flex items-center pointer-events-auto"
+          className="fixed left-[calc(14px+env(safe-area-inset-left,0px))] bottom-[calc(76px+env(safe-area-inset-bottom,0px))] z-[9991] md:hidden flex items-center pointer-events-auto"
           onTouchStart={resetAutoCollapse}
           onMouseEnter={resetAutoCollapse}
         >
-          <div className="flex items-center gap-1.5 p-1 rounded-full bg-white/92 backdrop-blur-2xl border border-white/95 shadow-[0_12px_32px_rgba(5,150,105,0.18)] transition-all duration-300">
-            {/* Nút tròn bánh răng: Chạm để trượt mở hoặc trượt thu gọn */}
+          <div className={`flex items-center rounded-full bg-white/20 backdrop-blur-xl border border-white/60 shadow-[0_8px_24px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.85)] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden p-0 ${
+            isExpanded ? 'h-11 max-w-[calc(100vw-28px)]' : 'w-11 h-11'
+          }`}>
+            {/* Nút tròn bánh răng: Chạm để trượt mở hoặc trượt thu gọn (luôn tròn xoe 44x44, không bị ép dẹt) */}
             <button
               type="button"
               onClick={() => {
                 handleUserInteract();
                 setIsExpanded(!isExpanded);
               }}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 cursor-pointer ${
+              className={`w-11 h-11 rounded-full aspect-square flex items-center justify-center transition-all duration-300 shrink-0 cursor-pointer p-0 select-none ${
                 isExpanded
                   ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
                   : 'bg-white/80 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700'
               }`}
               title={isExpanded ? 'Thu gọn menu' : 'Mở menu chức năng phụ'}
             >
-              <Settings className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
+              <Settings className={`w-5 h-5 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${isExpanded ? 'rotate-90' : ''}`} />
             </button>
 
-            {/* Khay trượt Slide-out / Slide-in êm ái, thích ứng không tràn viền */}
+            {/* Khay trượt Slide-out / Slide-in êm ái, thích ứng không tràn viền, chiều cao bằng bánh răng */}
             <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out flex items-center ${
+              className={`overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center ${
                 isExpanded
                   ? 'max-w-[calc(100vw-80px)] opacity-100 translate-x-0'
                   : 'max-w-0 opacity-0 -translate-x-4 pointer-events-none'
               }`}
             >
               <nav
-                className="flex items-center gap-1 px-1 py-0.5 whitespace-nowrap overflow-x-auto no-scrollbar"
+                className="flex items-center gap-1 pl-1.5 pr-2 whitespace-nowrap overflow-x-auto no-scrollbar scroll-smooth"
                 aria-label="Menu chức năng mở rộng"
               >
                 <button
                   type="button"
-                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  className="h-8 px-2.5 rounded-full hover:bg-white/70 text-slate-800 transition-colors shrink-0 cursor-pointer active:scale-95 flex items-center gap-1"
                   onClick={() => {
                     setIsExpanded(false);
                     handleCatalogClick();
                   }}
                   title="Mẫu hoa tươi"
                 >
-                  <span className="text-sm">💐</span>
-                  <span className="text-[10px] font-bold">Mẫu Hoa</span>
+                  <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-4 h-4 object-contain shrink-0" />
+                  <span className="text-[10.5px] font-bold">Mẫu Hoa</span>
                 </button>
 
                 <button
                   type="button"
-                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  className="h-8 px-2.5 rounded-full hover:bg-white/70 text-slate-800 transition-colors shrink-0 cursor-pointer active:scale-95 flex items-center gap-1"
                   onClick={() => {
                     setIsExpanded(false);
                     setCurrentView('care');
                   }}
                   title="Cẩm nang dưỡng hoa"
                 >
-                  <span className="text-sm">📖</span>
-                  <span className="text-[10px] font-bold">Cẩm Nang</span>
+                  <img src="/icons/icon-care-3d.png" alt="Cẩm nang" className="w-4 h-4 object-contain shrink-0" />
+                  <span className="text-[10.5px] font-bold">Cẩm Nang</span>
                 </button>
 
                 <button
                   type="button"
-                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  className="h-8 px-2.5 rounded-full hover:bg-white/70 text-slate-800 transition-colors shrink-0 cursor-pointer active:scale-95 flex items-center gap-1"
                   onClick={() => {
                     setIsExpanded(false);
                     setCurrentView('about');
                   }}
                   title="Giới thiệu tiệm hoa"
                 >
-                  <span className="text-sm">🌸</span>
-                  <span className="text-[10px] font-bold">Giới Thiệu</span>
+                  <img src="/icons/icon-services-3d.png" alt="Giới thiệu" className="w-4 h-4 object-contain shrink-0" />
+                  <span className="text-[10.5px] font-bold">Giới Thiệu</span>
                 </button>
 
                 <button
                   type="button"
-                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  className="h-8 px-2.5 rounded-full hover:bg-white/70 text-slate-800 transition-colors shrink-0 cursor-pointer active:scale-95 flex items-center gap-1"
                   onClick={() => {
                     setIsExpanded(false);
                     setCurrentView('contact');
                   }}
                   title="Liên hệ & Chỉ đường"
                 >
-                  <span className="text-sm">📞</span>
-                  <span className="text-[10px] font-bold">Liên Hệ</span>
+                  <img src="/icons/icon-contact-3d.png" alt="Liên hệ" className="w-4 h-4 object-contain shrink-0" />
+                  <span className="text-[10.5px] font-bold">Liên Hệ</span>
                 </button>
 
                 <button
                   type="button"
-                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
-                  onClick={() => {
-                    setIsExpanded(false);
-                    if (onOpenPopup) onOpenPopup('app-download');
-                  }}
-                  title="Cài đặt & Tải App APK"
-                >
-                  <span className="text-sm">📱</span>
-                  <span className="text-[10px] font-bold">Tải App</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors shrink-0 cursor-pointer active:scale-95"
+                  className="h-8 px-2.5 rounded-full hover:bg-white/70 text-slate-800 transition-colors shrink-0 cursor-pointer active:scale-95 flex items-center gap-1"
                   onClick={() => {
                     setIsExpanded(false);
                     if (onOpenPopup) onOpenPopup('voucher');
                   }}
                   title="Voucher & Tích điểm"
                 >
-                  <span className="text-sm">🎁</span>
-                  <span className="text-[10px] font-bold">Ưu Đãi</span>
+                  <img src="/icons/icon-gift-3d.png" alt="Ưu đãi" className="w-4 h-4 object-contain shrink-0" />
+                  <span className="text-[10.5px] font-bold">Ưu Đãi</span>
                 </button>
               </nav>
             </div>
@@ -614,7 +603,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
           DOCK CHÍNH (5 NÚT CÔNG KHAI KHI GUEST / 5 NÚT ĐIỀU HÀNH KHI LOGGED IN)
           ================================================================ */}
       <nav
-        className={`management-bottom-nav ${hidden && !isTouched ? 'management-nav-hidden' : ''}`}
+        className={`management-bottom-nav md:hidden ${hidden && !isTouched ? 'management-nav-hidden' : ''}`}
         aria-label="Thanh điều hướng chính"
         onTouchStart={handleUserInteract}
         onMouseEnter={handleUserInteract}

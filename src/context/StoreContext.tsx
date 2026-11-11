@@ -19,7 +19,9 @@ import {
   AdminAccountType,
   AdminViewMode,
   SessionRole,
-  StoreView
+  StoreView,
+  WeatherCondition,
+  WeatherState
 } from '../types';
 import {
   INITIAL_CATEGORIES,
@@ -129,6 +131,9 @@ interface StoreContextType {
     isGiftDelivery?: boolean;
     revealSenderToRecipient?: boolean;
     senderAgreedOverDistance?: boolean;
+    weatherCondition?: string;
+    weatherSurcharge?: number;
+    specialHoursSurcharge?: number;
   }) => Order;
   createCustomDesignRequest: (data: {
     senderName: string;
@@ -190,6 +195,31 @@ interface StoreContextType {
   // Shop Settings
   settings: ShopSettings;
   updateSettings: (newSettings: Partial<ShopSettings>) => void;
+
+  // Weather Assistant & Admin Mascot Surcharges & Shift Hours
+  weatherState: WeatherState;
+  updateWeatherState: (condition: WeatherCondition, surcharge: number, label: string, note?: string) => void;
+  updateAdminWeatherMascotIcon: (iconUrl: string) => void;
+  specialHoursSurchargeRate: number;
+  updateSpecialHoursSurchargeRate: (fee: number) => void;
+  shiftHours: {
+    shift1Start: string;
+    shift1End: string;
+    shift2Start: string;
+    shift2End: string;
+  };
+  updateShiftHours: (hours: { shift1Start: string; shift1End: string; shift2Start: string; shift2End: string }) => void;
+  weatherSurcharges: {
+    rain: number;
+    cold: number;
+    storm: number;
+  };
+  updateWeatherConditionSurcharge: (condition: 'rain' | 'cold' | 'storm', fee: number) => void;
+  shiftSurcharges: {
+    nightEarly: number;
+    noon: number;
+  };
+  updateShiftSurcharges: (surcharges: { nightEarly: number; noon: number }) => void;
 
   // In-App Notifications & Cute Female Voice Alerts
   notifications: AppNotification[];
@@ -315,9 +345,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentView, setCurrentView] = useState<StoreView>(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.toLowerCase();
-      if (hash === '#customer') return 'customer';
-      if (hash === '#admin') return 'admin';
-      if (hash === '#owner') return 'owner';
+      if (hash.startsWith('#customer')) return 'customer';
+      if (hash.startsWith('#admin')) return 'admin';
+      if (hash.startsWith('#owner')) return 'owner';
       if (hash === '#catalog' || hash === '#mau-hoa') return 'catalog';
       if (hash === '#about' || hash === '#gioi-thieu') return 'about';
       if (hash === '#contact' || hash === '#lien-he') return 'contact';
@@ -329,9 +359,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
-      if (hash === '#customer') setCurrentView('customer');
-      else if (hash === '#admin') setCurrentView('admin');
-      else if (hash === '#owner') setCurrentView('owner');
+      if (hash.startsWith('#customer')) setCurrentView('customer');
+      else if (hash.startsWith('#admin')) setCurrentView('admin');
+      else if (hash.startsWith('#owner')) setCurrentView('owner');
       else if (hash === '#catalog' || hash === '#mau-hoa') setCurrentView('catalog');
       else if (hash === '#about' || hash === '#gioi-thieu') setCurrentView('about');
       else if (hash === '#contact' || hash === '#lien-he') setCurrentView('contact');
@@ -350,11 +380,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'customer' | 'admin' | 'register' | 'forgot'>('customer');
 
-  // Persistence Loaders
+  // Persistence Loaders (Enforce clean sync of exactly 54 products - 9 per category)
   const [products, setProducts] = useState<FlowerProduct[]>(() => {
     const catalogVersion = localStorage.getItem('vvf_products_catalog_version');
-    if (catalogVersion !== 'v3_botanical_catalog') {
-      localStorage.setItem('vvf_products_catalog_version', 'v3_botanical_catalog');
+    if (catalogVersion !== 'v6_54_products_sync') {
+      localStorage.setItem('vvf_products_catalog_version', 'v6_54_products_sync');
       localStorage.setItem('vvf_products', JSON.stringify(INITIAL_PRODUCTS));
       return INITIAL_PRODUCTS;
     }
@@ -362,11 +392,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= 12) {
-          return parsed;
+        if (Array.isArray(parsed) && parsed.length >= 54) {
+          // Verify each category has products
+          const requiredCats = ['khai-truong', 'sinh-nhat', 'tinh-yeu', 'lan-ho-diep', 'chuc-mung', 'chia-buon'];
+          const isComplete = requiredCats.every((cId) => parsed.filter((p: FlowerProduct) => p.categoryId === cId).length >= 9);
+          if (isComplete) return parsed;
         }
       } catch (e) {}
     }
+    localStorage.setItem('vvf_products', JSON.stringify(INITIAL_PRODUCTS));
     return INITIAL_PRODUCTS;
   });
 
@@ -572,6 +606,119 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [activeBannerNotification, setActiveBannerNotification] = useState<AppNotification | null>(null);
   const [pointsCelebrationModal, setPointsCelebrationModal] = useState<{ isOpen: boolean; points: number; orderId: string } | null>(null);
 
+  // Weather State & Admin Mascot Surcharge Engine
+  const [weatherState, setWeatherState] = useState<WeatherState>(() => {
+    const saved = localStorage.getItem('vvf_weather_state');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.surcharge === 10000 || parsed.surcharge === 15000) {
+          parsed.surcharge = 5000;
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return {
+      condition: 'sunny',
+      surcharge: 0,
+      label: 'Nắng ráo / Thời tiết đẹp',
+      note: 'Thời tiết chuẩn, giao hoa nhanh chóng và an toàn.',
+      mascotIcon: '/images/mascot/mascot-4.webp',
+      lastUpdated: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      lastPromptTime: Date.now()
+    };
+  });
+
+  // Phụ phí giao giờ đặc biệt (Đêm khuya / Sáng sớm / Nghỉ trưa): Mặc định tạm 5.000₫ theo yêu cầu chủ tiệm
+  const [specialHoursSurchargeRate, setSpecialHoursSurchargeRate] = useState<number>(() => {
+    const saved = localStorage.getItem('vvf_special_hours_surcharge');
+    if (saved) {
+      try {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      } catch (e) {}
+    }
+    return 5000;
+  });
+
+  const updateSpecialHoursSurchargeRate = (fee: number) => {
+    setSpecialHoursSurchargeRate(fee);
+    localStorage.setItem('vvf_special_hours_surcharge', fee.toString());
+    showToast(`Đã cập nhật mức phụ phí giao ngoài giờ: +${fee.toLocaleString('vi-VN')}₫`, 'success');
+  };
+
+  // Giờ hoạt động tiệm theo 2 ca (Ca sáng: 07:30-11:30, Ca chiều/tối: 13:00-22:00)
+  const [shiftHours, setShiftHours] = useState(() => {
+    const saved = localStorage.getItem('vvf_shift_hours');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return {
+      shift1Start: '07:30',
+      shift1End: '11:30',
+      shift2Start: '13:00',
+      shift2End: '22:00'
+    };
+  });
+
+  const updateShiftHours = (newShifts: { shift1Start: string; shift1End: string; shift2Start: string; shift2End: string }) => {
+    setShiftHours(newShifts);
+    localStorage.setItem('vvf_shift_hours', JSON.stringify(newShifts));
+    const newOpeningHoursStr = `${newShifts.shift1Start} - ${newShifts.shift1End} & ${newShifts.shift2Start} - ${newShifts.shift2End} (Hằng ngày)`;
+    setSettings((prev) => ({
+      ...prev,
+      openingHours: newOpeningHoursStr,
+      shift1Start: newShifts.shift1Start,
+      shift1End: newShifts.shift1End,
+      shift2Start: newShifts.shift2Start,
+      shift2End: newShifts.shift2End
+    }));
+    showToast(`Đã cập nhật giờ hoạt động: ${newOpeningHoursStr}`, 'success');
+  };
+
+  // Mức phụ phí riêng cho từng loại thời tiết (Mặc định tạm 5k)
+  const [weatherSurcharges, setWeatherSurcharges] = useState<{ rain: number; cold: number; storm: number }>(() => {
+    const saved = localStorage.getItem('vvf_weather_surcharges');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return { rain: 5000, cold: 5000, storm: 5000 };
+  });
+
+  const updateWeatherConditionSurcharge = (condition: 'rain' | 'cold' | 'storm', fee: number) => {
+    const updated = { ...weatherSurcharges, [condition]: fee };
+    setWeatherSurcharges(updated);
+    localStorage.setItem('vvf_weather_surcharges', JSON.stringify(updated));
+    // Nếu điều kiện thời tiết hiện tại trùng khớp, cập nhật luôn
+    if (weatherState.condition === condition) {
+      updateWeatherState(condition, fee, weatherState.label, weatherState.note);
+    }
+    const condLabel = condition === 'rain' ? 'Mưa gió' : condition === 'cold' ? 'Lạnh rét' : 'Mưa bão';
+    showToast(`Đã lưu phụ phí ${condLabel}: +${fee.toLocaleString('vi-VN')}₫`, 'success');
+  };
+
+  // Mức phụ phí riêng cho từng ca ngoài giờ (Ca đêm/sớm vs Ca trưa)
+  const [shiftSurcharges, setShiftSurcharges] = useState<{ nightEarly: number; noon: number }>(() => {
+    const saved = localStorage.getItem('vvf_shift_surcharges');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return { nightEarly: 5000, noon: 5000 };
+  });
+
+  const updateShiftSurcharges = (surcharges: { nightEarly: number; noon: number }) => {
+    setShiftSurcharges(surcharges);
+    localStorage.setItem('vvf_shift_surcharges', JSON.stringify(surcharges));
+    setSpecialHoursSurchargeRate(surcharges.nightEarly);
+    showToast('Đã lưu phụ phí ngoài giờ theo ca!', 'success');
+  };
+
   const [toasts, setToasts] = useState<ToastNotice[]>([]);
   const bannerTimerRef = useRef<any>(null);
 
@@ -694,33 +841,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setActiveBannerNotification(null);
     }, 5500);
 
-    // Audio & Voice Alerts (if enabled in settings)
+    // Audio Alerts - Chuông báo âm thanh bình thường (Không dùng giọng đọc AI)
     if (settings.voiceAlertsEnabled) {
       playNotificationChime();
-      setTimeout(() => {
-        if (notifData.type === 'ORDER_NEW') {
-          speakCuteVoice('Bạn ơi, có đơn hoa mới nè! Vào xem ngay nha!');
-        } else if (notifData.type === 'PAYMENT_BILL') {
-          speakCuteVoice('Ting ting! Khách vừa gửi bill cọc nè! Kiểm tra giúp mình nhé!');
-        } else if (notifData.type === 'POINTS_REWARD') {
-          speakCuteVoice('Giao hoa thành công! Chúc mừng bạn vừa được cộng điểm thưởng nha!');
-        } else if (notifData.type === 'ORDER_STATUS' && notifData.title.includes('đang cắm hoa')) {
-          speakCuteVoice('V và V Florielle đã duyệt cọc và đang cắm hoa xinh cho bạn nhé!');
-        } else if (notifData.type === 'ORDER_STATUS' && notifData.title.includes('đang giao')) {
-          speakCuteVoice('Shipper đang trên đường giao hoa xinh đến bạn rồi nè!');
-        } else {
-          speakCuteVoice(notifData.title);
-        }
-      }, 350);
     }
   };
 
-  const testCuteVoice = (phrase = 'Bạn ơi, có đơn hoa mới nè! Vào xem ngay nha! 💕') => {
+  const testCuteVoice = () => {
     playNotificationChime();
-    setTimeout(() => {
-      speakCuteVoice(phrase);
-    }, 300);
-    showToast('Đang phát giọng đọc AI nữ dễ thương!', 'info');
+    showToast('Đang phát chuông thông báo đơn mới!', 'info');
   };
 
   const dismissBannerNotification = () => {
@@ -978,6 +1107,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     isGiftDelivery?: boolean;
     revealSenderToRecipient?: boolean;
     senderAgreedOverDistance?: boolean;
+    weatherCondition?: string;
+    weatherSurcharge?: number;
+    specialHoursSurcharge?: number;
   }): Order => {
     const newId = generateUniqueOrderId();
     const now = new Date();
@@ -988,7 +1120,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const km = Math.max(1, orderData.shippingDistanceKm || 1);
     const standardFee = calculateTieredShippingFee(km, orderData.flowerPrice, settings);
 
-    const totalBeforeDiscount = orderData.flowerPrice + standardFee;
+    const weatherFee = orderData.weatherSurcharge || 0;
+    const specialFee = orderData.specialHoursSurcharge || 0;
+    const totalBeforeDiscount = orderData.flowerPrice + standardFee + weatherFee + specialFee;
     const finalTotal = Math.max(0, totalBeforeDiscount - (orderData.discountAmount || 0));
 
     // Deposit: 50% or 100%
@@ -1009,7 +1143,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     setOrders((prev) => [newOrder, ...prev]);
-    clearCart();
 
     // Trigger Notification for Admin
     sendAppNotification({
@@ -1443,8 +1576,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return false;
     }
     const currentList = customer.savedAddresses || [];
-    if (currentList.length >= 3) {
-      showToast('Sổ địa chỉ đã đạt tối đa 3 mẫu! Vui lòng xóa bớt để thêm mới.', 'error');
+    if (currentList.length >= 4) {
+      showToast('Sổ địa chỉ đã đạt tối đa 4 địa chỉ! Vui lòng xóa bớt để thêm mới.', 'error');
       return false;
     }
 
@@ -1501,6 +1634,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }));
     updateCustomerProfile({ savedAddresses: nextList });
     showToast('Đã đặt làm địa chỉ giao hàng mặc định!');
+  };
+
+  const updateWeatherState = (condition: WeatherCondition, surcharge: number, label: string, note?: string) => {
+    const newState: WeatherState = {
+      ...weatherState,
+      condition,
+      surcharge,
+      label,
+      note: note || (surcharge > 0 ? 'Phụ phí thời tiết hỗ trợ shipper bọc màng chống ướt và di chuyển an toàn.' : 'Thời tiết chuẩn, giao hoa nhanh chóng.'),
+      lastUpdated: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      lastPromptTime: Date.now()
+    };
+    setWeatherState(newState);
+    localStorage.setItem('vvf_weather_state', JSON.stringify(newState));
+    showToast(`Đã cập nhật thời tiết: ${label} (${surcharge > 0 ? `+${surcharge.toLocaleString('vi-VN')}₫` : 'Không phụ phí'})`, 'success');
+  };
+
+  const updateAdminWeatherMascotIcon = (iconUrl: string) => {
+    const newState = { ...weatherState, mascotIcon: iconUrl };
+    setWeatherState(newState);
+    localStorage.setItem('vvf_weather_state', JSON.stringify(newState));
+    showToast('Đã đổi biểu tượng trợ lý thời tiết!', 'success');
   };
 
   const addCustomerByAdmin = (custData: Partial<CustomerUser>): CustomerUser => {
@@ -1859,6 +2014,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         verifyPinResetOtp,
         settings,
         updateSettings,
+        weatherState,
+        updateWeatherState,
+        updateAdminWeatherMascotIcon,
+        specialHoursSurchargeRate,
+        updateSpecialHoursSurchargeRate,
+        shiftHours,
+        updateShiftHours,
+        weatherSurcharges,
+        updateWeatherConditionSurcharge,
+        shiftSurcharges,
+        updateShiftSurcharges,
         notifications,
         unreadNotificationCount,
         activeBannerNotification,

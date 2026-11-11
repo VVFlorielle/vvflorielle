@@ -167,7 +167,7 @@ export const FloatingContactWidget: React.FC = () => {
           touchAction: 'none',
           transition: isDragging ? 'none' : 'left 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.25s ease-out, opacity 0.3s ease',
         }}
-        className={`fixed z-[9970] select-none cursor-grab active:cursor-grabbing ${
+        className={`fixed z-40 select-none cursor-grab active:cursor-grabbing ${
           isScrolling ? 'opacity-45 hover:opacity-100 scale-95' : 'opacity-100 scale-100'
         }`}
         onPointerDown={handlePointerDown}

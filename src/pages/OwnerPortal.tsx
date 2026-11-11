@@ -188,7 +188,7 @@ export const OwnerPortal: React.FC = () => {
           id: 'owner-pricing',
           title: 'Bảng giá dịch vụ',
           description: 'Cập nhật loại hoa, giá bán công khai và quy cách hiển thị bảng giá.',
-          icon: <Flower2 className="w-4 h-4" />,
+          icon: <img src="/icons/icon-pricing-3d.png" alt="Bảng giá" className="w-4 h-4 object-contain drop-shadow-xs" />,
           actionType: 'modal',
           actionLabel: 'Mở popup',
           onClick: () => setIsBulkDiscountOpen(true)
@@ -197,7 +197,7 @@ export const OwnerPortal: React.FC = () => {
           id: 'owner-orders',
           title: 'Quản lý đơn hàng',
           description: 'Duyệt cọc 50%, phân công cắm hoa và vận chuyển hỏa tốc trong ngày.',
-          icon: <ShoppingBag className="w-4 h-4" />,
+          icon: <img src="/icons/icon-orders-3d.png" alt="Đơn hàng" className="w-4 h-4 object-contain drop-shadow-xs" />,
           actionType: 'page',
           actionLabel: 'Truy cập',
           onClick: () => navigateToTab('orders')
@@ -206,7 +206,7 @@ export const OwnerPortal: React.FC = () => {
           id: 'owner-vouchers',
           title: 'Quản lý Voucher',
           description: 'Quản lý loại voucher, điểm đổi, giá trị và thời hạn áp dụng.',
-          icon: <Gift className="w-4 h-4" />,
+          icon: <img src="/icons/icon-gift-3d.png" alt="Voucher" className="w-4 h-4 object-contain drop-shadow-xs" />,
           actionType: 'page',
           actionLabel: 'Truy cập',
           onClick: () => navigateToTab('vouchers')
@@ -233,7 +233,7 @@ export const OwnerPortal: React.FC = () => {
           id: 'owner-shipping',
           title: 'Cấu hình cước phí 4 bậc',
           description: 'Thiết lập cước phí theo km (0-25km), ngưỡng freeship và cam kết hỏa tốc.',
-          icon: <Truck className="w-4 h-4" />,
+          icon: <img src="/icons/icon-truck-3d.png" alt="Vận chuyển" className="w-4 h-4 object-contain drop-shadow-xs" />,
           actionType: 'modal',
           actionLabel: 'Mở popup',
           onClick: () => setShowShippingModal(true)
@@ -249,7 +249,7 @@ export const OwnerPortal: React.FC = () => {
           id: 'owner-customers',
           title: 'Khách hàng',
           description: 'Xem và hỗ trợ tài khoản khách, lịch sử đặt hoa và điểm tích lũy.',
-          icon: <Users className="w-4 h-4" />,
+          icon: <img src="/icons/icon-user-3d.png" alt="Khách hàng" className="w-4 h-4 object-contain drop-shadow-xs" />,
           actionType: 'page',
           actionLabel: 'Truy cập',
           onClick: () => navigateToTab('customers')
@@ -258,7 +258,7 @@ export const OwnerPortal: React.FC = () => {
           id: 'owner-staff',
           title: 'Tài khoản nhân viên',
           description: 'Quản lý tài khoản cắm hoa, điều phối đơn và phân công trực tiệm.',
-          icon: <Users className="w-4 h-4" />,
+          icon: <img src="/icons/icon-user-3d.png" alt="Nhân viên" className="w-4 h-4 object-contain drop-shadow-xs" />,
           actionType: 'page',
           actionLabel: 'Truy cập',
           onClick: () => navigateToTab('security')
@@ -334,7 +334,7 @@ export const OwnerPortal: React.FC = () => {
         {
           id: 'owner-security-modal',
           title: 'Đổi mật khẩu & PIN 6 số',
-          description: 'Bật popup cập nhật mật khẩu đăng nhập chủ quán và mã PIN thao tác an toàn.',
+          description: 'Bật popup cập nhật mật khẩu đăng nhập chủ tiệm và mã PIN thao tác an toàn.',
           icon: <KeyRound className="w-4 h-4" />,
           actionType: 'modal',
           actionLabel: 'Mở popup',
@@ -344,7 +344,7 @@ export const OwnerPortal: React.FC = () => {
           id: 'owner-security-subpage',
           title: 'Bảo Mật Hệ Thống & STK Ngân Hàng',
           description: 'Cấu hình bảo vệ tài khoản nhận tiền VietQR, đổi mật khẩu và mã PIN 6 số.',
-          icon: <ShieldCheck className="w-4 h-4" />,
+          icon: <img src="/icons/icon-shield-3d.png" alt="Bảo mật" className="w-4 h-4 object-contain drop-shadow-xs" />,
           actionType: 'page',
           actionLabel: 'Truy cập',
           onClick: () => navigateToTab('security')
@@ -360,10 +360,10 @@ export const OwnerPortal: React.FC = () => {
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-32 sm:pb-36 space-y-6 select-none">
       {/* 1. TOP GREETING & 4 KPIS HERO (Chỉ hiển thị tại Dashboard Tổng Quan giống PhotoTiinLove, không đè lên CMS và trang con) */}
-      {activeTab === 'dashboard' && (
+      {(activeTab === 'dashboard' || activeTab === 'pricing') && (
         <ManagementOverviewHero
           tag="Thông Tin Quản Trị"
-          tagIcon={<Flower2 className="w-3.5 h-3.5 text-emerald-700" />}
+          tagIcon={<img src="/icons/icon-catalog-3d.png" alt="Hoa" className="w-3.5 h-3.5 object-contain" />}
           statusBadge="Hệ thống vận hành ổn định"
           stats={[
             {
@@ -380,7 +380,7 @@ export const OwnerPortal: React.FC = () => {
               title: 'Đang Cắm Hoa',
               value: arrangingOrders.length,
               subtext: 'Florist đang hoàn thiện',
-              icon: <Flower2 className="w-4 h-4 text-emerald-700" />,
+              icon: <img src="/icons/icon-catalog-3d.png" alt="Cắm hoa" className="w-4 h-4 object-contain" />,
               color: 'emerald',
               onClick: () => navigateToTab('orders')
             },
@@ -407,7 +407,7 @@ export const OwnerPortal: React.FC = () => {
       )}
 
       {/* 2. SUBPAGE ROUTING & DASHBOARD */}
-      {activeTab === 'dashboard' && (
+      {(activeTab === 'dashboard' || activeTab === 'pricing') && (
         <div className="space-y-8 animate-in fade-in duration-200">
           <ManagementRecentOrders
             orders={orders}
@@ -598,7 +598,7 @@ export const OwnerPortal: React.FC = () => {
       <SecurityModal
         isOpen={showSecurityModal}
         onClose={() => setShowSecurityModal(false)}
-        roleTitle="Chủ Quán"
+        roleTitle="Chủ Tiệm"
         onSaveCredentials={changeAdminCredentials}
         adminEmail={adminEmail}
         onSaveEmailConfig={saveGmailConfig}
@@ -731,8 +731,11 @@ export const OwnerPortal: React.FC = () => {
       />
 
       <BulkDiscountModal
-        isOpen={isBulkDiscountOpen}
-        onClose={() => setIsBulkDiscountOpen(false)}
+        isOpen={isBulkDiscountOpen || activeTab === 'pricing'}
+        onClose={() => {
+          setIsBulkDiscountOpen(false);
+          if (activeTab === 'pricing') handleBackToDashboard();
+        }}
         categories={categories}
         products={products}
         onApplyDiscount={(pct, cat, evt) => applyBulkDiscount(pct, cat, evt)}

@@ -13,6 +13,7 @@ import { AdminPortal } from './pages/AdminPortal';
 import { OwnerPortal } from './pages/OwnerPortal';
 import { ManagementHeader } from './components/management/ManagementHeader';
 import { ManagementBottomDock } from './components/management/ManagementBottomDock';
+import { AdminWeatherAssistant } from './components/management/AdminWeatherAssistant';
 import { QrScannerModal } from './components/management/QrScannerModal';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
@@ -140,8 +141,8 @@ export const AppContent: React.FC = () => {
         </div>
       )}
 
-      {/* Active View (Clean dedicated layout for management, spacious top padding for public store) */}
-      <main className={`flex-1 ${isManagementView ? 'pt-[68px] sm:pt-[84px] pb-8' : 'pt-24 sm:pt-32 pb-2'}`}>
+      {/* Active View (Clean dedicated layout for management; original compact padding for homepage hero, spacious top padding for subpage hero titles so fixed Header & Marquee never overlap) */}
+      <main className={`flex-1 ${isManagementView ? 'pt-[68px] sm:pt-[84px] pb-8' : currentView === 'store' ? 'pt-24 sm:pt-32 pb-2' : 'pt-[124px] sm:pt-[156px] pb-2'}`}>
         {currentView === 'store' && <PublicStore />}
         {currentView === 'catalog' && <CatalogPage />}
         {currentView === 'about' && <AboutPage />}
@@ -191,6 +192,9 @@ export const AppContent: React.FC = () => {
           onOpenQrScanner={() => setIsQrScannerOpen(true)}
         />
       )}
+
+      {/* Floating Admin Weather & Mascot Assistant (Management View Only) */}
+      {isManagementView && <AdminWeatherAssistant />}
 
       {/* Global QR Scanner Modal for Admin & Owner */}
       <QrScannerModal

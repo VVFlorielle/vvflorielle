@@ -42,17 +42,17 @@
   --radius-full: 9999px;
 }
 
-/* 1. Luminous Glass Navigation Bar Frame & Footer (High Translucency & Specular Bevels) */
+/* 1. Luminous Glass Navigation Bar Frame & Footer (Transparent Crystal Glass - True See-Through Refraction) */
 .glass-nav-luminous {
-  background: rgba(255, 255, 255, 0.58);
-  backdrop-filter: blur(28px) saturate(210%);
-  -webkit-backdrop-filter: blur(28px) saturate(210%);
-  border: 1px solid rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow: 
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.98),
-    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.4),
-    0 20px 48px -12px rgba(5, 150, 105, 0.12),
-    0 8px 24px -4px rgba(15, 23, 42, 0.04);
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 32px -4px rgba(15, 23, 42, 0.06),
+    0 2px 8px -1px rgba(5, 150, 105, 0.03);
 }
 
 .glass-footer-luminous {
@@ -364,15 +364,21 @@
 .glass-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.42);
+  background: rgba(15, 23, 42, 0.48);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  z-index: 999;
+  z-index: 100000 !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 12px 12px 96px 12px; /* 96px clearance guarantees modal never touches mobile bottom dock */
   animation: fadeIn 0.24s ease;
+}
+
+@media (min-width: 640px) {
+  .glass-overlay {
+    padding: 20px 20px 84px 20px; /* 84px clearance guarantees modal never touches desktop bottom dock */
+  }
 }
 
 .glass-modal-content {
@@ -383,7 +389,7 @@
   box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.18), 0 10px 25px -5px rgba(5, 150, 105, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 1);
   border-radius: 28px;
   width: 100%;
-  max-height: 90vh;
+  max-height: calc(100dvh - 120px); /* Strictly ensures comfortable clearance above bottom dock */
   overflow: hidden !important; /* Strictly prevents square scrollbars from breaching rounded corners */
   display: flex;
   flex-direction: column;
@@ -394,6 +400,7 @@
 @media (min-width: 640px) {
   .glass-modal-content {
     border-radius: 36px;
+    max-height: calc(100dvh - 120px);
   }
 }
 
@@ -416,10 +423,14 @@
 }
 
 .glass-modal-body {
-  flex: 1 1 auto;
+  flex: 1 1 0%;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   padding: 1.125rem 1.25rem;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
 }
 
 @media (min-width: 640px) {
@@ -435,7 +446,7 @@
   gap: 0.625rem;
   padding: 0.875rem 1.25rem;
   border-top: 1px solid rgba(241, 245, 249, 0.9);
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -451,7 +462,9 @@
 .glass-modal-body::-webkit-scrollbar,
 .glass-modal-content::-webkit-scrollbar,
 .glass-scrollable::-webkit-scrollbar {
-  width: 6px;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .glass-modal-body::-webkit-scrollbar-track,
@@ -578,11 +591,11 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 12px 30px rgba(5, 150, 105, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), inset 0 1px 1.5px rgba(255, 255, 255, 0.85) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -627,11 +640,11 @@
   gap: 4px;
   padding: 4px 14px 4px 4px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.92) !important;
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 16px 40px rgba(5, 150, 105, 0.16), 0 4px 14px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.85) !important;
   animation: paperScrollUnfurl 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   width: auto;
   max-width: calc(100vw - 28px);
@@ -698,10 +711,10 @@
 }
 
 .dock-unfurl-item.active {
-  background: #d1fae5 !important;
+  background: rgba(255, 255, 255, 0.70) !important;
   color: #065f46 !important;
-  border: 1px solid rgba(5, 150, 105, 0.25);
-  box-shadow: inset 0 0 0 1px rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9);
 }
 
 @media (min-width: 901px) {
@@ -720,12 +733,12 @@
   width: min(calc(100vw - 20px), 440px) !important;
   height: 60px !important;
   z-index: 9990 !important;
-  background: rgba(255, 255, 255, 0.92) !important;
-  backdrop-filter: blur(28px) saturate(210%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(210%) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
   border-radius: 9999px !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 4px 14px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03), inset 0 1px 1.5px rgba(255, 255, 255, 0.85) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -741,10 +754,10 @@
   pointer-events: none !important;
 }
 
-/* On Desktop: Hide bottom docks entirely (desktop uses top header navbar) */
+/* On Desktop: Hide secondary unfurl gear dock (Desktop uses top header navigation) */
 @media (min-width: 768px) {
-  .management-bottom-nav,
-  .mobile-bottom-dock {
+  .logged-in-public-dock-unfurl,
+  .dock-unfurl-gear-toggle {
     display: none !important;
   }
 }

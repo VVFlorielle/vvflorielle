@@ -56,7 +56,7 @@ export const PublicStore: React.FC = () => {
     return (b.rating || 0) - (a.rating || 0);
   });
 
-  const homepageProducts = sortedProducts.slice(0, 8);
+  const homepageProducts = selectedCategory === 'all' ? sortedProducts.slice(0, 8) : sortedProducts.slice(0, 9);
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);

@@ -92,14 +92,34 @@ export interface Order {
   isGiftDelivery?: boolean; // Khách chọn đặt gửi hoa tặng hộ
   revealSenderToRecipient?: boolean; // true = Tiết lộ tên người gửi, false = Tặng bí mật / Giấu tên
   senderAgreedOverDistance?: boolean; // Khách đã xác nhận tự chịu trách nhiệm khi giao xa > 20km
+  weatherCondition?: string; // Tình trạng thời tiết khi tạo đơn
+  weatherSurcharge?: number; // Phụ phí thời tiết xấu (+5k / +10k)
+  specialHoursSurcharge?: number; // Phụ phí giao ngoài giờ hoạt động (+10k)
+}
+
+export type WeatherCondition = 'sunny' | 'rain' | 'cold' | 'storm';
+
+export interface WeatherState {
+  condition: WeatherCondition;
+  surcharge: number; // 0, 5000, 10000, 15000
+  label: string;
+  note: string;
+  mascotIcon: string;
+  lastUpdated: string;
+  lastPromptTime: number; // timestamp
 }
 
 export interface SavedAddress {
   id: string;
-  name: string; // Tên gợi nhớ: "Nhà riêng", "Công ty người yêu", "Mẹ ở quê"...
+  name: string; // Tên gợi nhớ: "Nhà riêng", "Văn phòng công ty", "Người thân"...
   recipientName: string;
   recipientPhone: string;
-  recipientAddress: string;
+  city?: string; // Mặc định 'Hà Nội'
+  districtId?: string; // 'cau-giay', 'ba-dinh'...
+  districtName?: string;
+  wardName?: string;
+  detailAddress?: string; // Số nhà, ngõ, ngách...
+  recipientAddress: string; // Địa chỉ đầy đủ
   distanceKm?: number;
   note?: string;
   isDefault?: boolean;
@@ -124,7 +144,7 @@ export interface CustomerUser {
   notes?: string;
   status?: 'ACTIVE' | 'BLOCKED';
   favoriteFlowers?: string[];
-  savedAddresses?: SavedAddress[]; // Sổ địa chỉ người nhận (tối đa 3 mẫu)
+  savedAddresses?: SavedAddress[]; // Sổ địa chỉ người nhận (tối đa 4 địa chỉ)
   otpCode?: string;
   otpExpiresAt?: number;
 }
@@ -152,6 +172,15 @@ export interface ShopSettings {
   address: string; // 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội
   email: string;
   openingHours: string;
+  shift1Start?: string; // Mặc định: '07:30'
+  shift1End?: string;   // Mặc định: '11:30'
+  shift2Start?: string; // Mặc định: '13:00'
+  shift2End?: string;   // Mặc định: '22:00'
+  rainSurcharge?: number;   // Mức phụ phí Mưa gió (mặc định: 5000)
+  coldSurcharge?: number;   // Mức phụ phí Lạnh rét (mặc định: 5000)
+  stormSurcharge?: number;  // Mức phụ phí Bão lũ (mặc định: 5000)
+  nightShiftSurcharge?: number; // Ca đêm / Sáng sớm (mặc định: 5000)
+  noonShiftSurcharge?: number;  // Ca trưa (mặc định: 5000)
   bankName: string;
   bankAccount: string;
   bankHolder: string;
