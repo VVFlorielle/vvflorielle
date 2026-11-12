@@ -288,13 +288,38 @@ export const AdminWeatherAssistant: React.FC = () => {
         </div>
 
         {/* 1-Hour Reminder Bubble (Appears every 1h if not dismissed, Soft frosted glass with tail) */}
-        {isOneHourPassed && !isOpen && (
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 bg-white/95 text-slate-800 text-[11px] font-bold py-1.5 px-3 rounded-2xl shadow-lg whitespace-nowrap pointer-events-none animate-bounce-subtle border border-emerald-300/90 flex items-center gap-1.5 backdrop-blur-md z-10">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400 shrink-0" />
-            <span>Thời tiết Hà Nội sao rồi bạn ơi?</span>
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-r border-b border-emerald-300/90 rotate-45" />
-          </div>
-        )}
+        {isOneHourPassed && !isOpen && (() => {
+          // Dynamic edge alignment to prevent horizontal screen overflow:
+          // If mascot is near left screen edge (< 100px), anchor bubble flush-left with arrow at mascot center.
+          // If mascot is near right screen edge (> window.innerWidth - 180px), anchor bubble flush-right with arrow at mascot center.
+          // Otherwise, center bubble comfortably above mascot head.
+          const isNearLeft = pos.x < 100;
+          const isNearRight = typeof window !== 'undefined' && pos.x > window.innerWidth - 180;
+
+          return (
+            <div
+              className={`absolute bottom-full mb-2.5 bg-white/95 text-slate-800 text-[11px] font-bold py-1.5 px-3 rounded-2xl shadow-lg pointer-events-none animate-bounce-subtle border border-emerald-300/90 flex items-center justify-center gap-1.5 backdrop-blur-md z-10 w-max max-w-[210px] sm:max-w-[230px] max-w-[calc(100vw-28px)] whitespace-normal break-words text-center leading-snug ${
+                isNearLeft
+                  ? 'left-0 translate-x-0'
+                  : isNearRight
+                    ? 'right-0 translate-x-0'
+                    : 'left-1/2 -translate-x-1/2'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400 shrink-0" />
+              <span>Thời tiết Hà Nội sao rồi bạn ơi?</span>
+              <div
+                className={`absolute -bottom-1 w-2.5 h-2.5 bg-white border-r border-b border-emerald-300/90 rotate-45 ${
+                  isNearLeft
+                    ? 'left-6'
+                    : isNearRight
+                      ? 'right-6'
+                      : 'left-1/2 -translate-x-1/2'
+                }`}
+              />
+            </div>
+          );
+        })()}
       </div>
 
       {/* 2. MODAL DIALOG (HORIZONTAL 2-COLUMNS ON DESKTOP, VERTICAL WITH DOCK CLEARANCE ON MOBILE) */}
