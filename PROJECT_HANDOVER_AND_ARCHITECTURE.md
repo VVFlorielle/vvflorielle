@@ -205,15 +205,30 @@ E:\V&VFlorielle/
   * Bậc 5: Trên `15.0 km` (Ngoại ô xa) $\rightarrow$ 45.000₫ + phụ phí mỗi km vượt (VD: 5.000₫/km).
 * Admin và Chủ tiệm có thể trực tiếp sửa lại các mức giá này trong modal *Cấu hình cước phí 4 bậc* bất kỳ lúc nào.
 
-### 5. Quy Chế Quản Trị Voucher Hội Viên Nghiêm Ngặt (Chống Lạm Dụng)
-* **Khách chưa đăng nhập**:
-  * **Khóa hoàn toàn tính năng Voucher**: Không được cấp mã và không được dùng mã voucher.
-  * Hiển thị thông báo khuyến khích: *"🔒 Đăng nhập hoặc Tạo tài khoản để nhận Voucher Freeship đơn đầu và ưu đãi cước ship hàng tháng!"*.
-* **Tài khoản đã đăng nhập (Hội viên)**:
-  * **Chỉ dùng 1 lần duy nhất cho 1 tài khoản**: Mỗi mã voucher khi áp dụng thành công sẽ gắn cờ `isUsed: true` vào tài khoản đó, không thể tái sử dụng.
-  * **Mã Giảm Phí Ship Định Kỳ Hàng Tháng (10k hoặc 20k)**: Mỗi tháng hệ thống cấp 01 mã giảm ship vào ví voucher của hội viên. Thời hạn sử dụng tối đa **7 ngày**, quá 7 ngày tự động hết hạn.
-  * **Mã Freeship Đơn Đầu Tiên**: Cấp cho thành viên mới đăng ký, thời hạn sử dụng tối đa **7 ngày** kể từ ngày tạo tài khoản.
-  * **Hiển thị hạn dùng**: Mỗi voucher hiển thị rõ ràng nhãn `Hạn dùng: Còn X ngày` (hoặc đếm ngược giờ).
+### 5. Cơ Chế Ví Voucher & Quy Chuẩn Áp Dụng 2 Dạng Chuẩn Shopee (Chống Lạm Dụng)
+* **Tổng quan cơ chế**: Tương tự như cơ chế của Shopee, Lazada hay các ứng dụng mua hàng hàng đầu, toàn bộ hệ thống Voucher được gắn chặt với danh tính Hội viên (`customerId`). Khách chưa đăng nhập không thể lưu và không thể sử dụng mã.
+* **Tự động gợi ý & Tự điền mã tốt nhất (Auto-apply Best Voucher)**:
+  * Khi hội viên vào giỏ hàng hoặc bước thanh toán, nếu trong Ví Voucher của tài khoản đang có mã Freeship hoặc mã giảm cước ship hợp lệ thỏa mãn điều kiện đơn hàng, hệ thống **tự động điền và kích hoạt mã ưu đãi tốt nhất** cho khách, giúp khách tiết kiệm chi phí tối đa mà không cần phải gõ lại thủ công.
+* **2 Dạng Áp Dụng Voucher Chuẩn Sàn TMĐT**:
+  * **DẠNG 1: Chọn mã tự điền từ Kho Voucher đã lưu của tài khoản (Ví Voucher)**:
+    * **Cơ chế thu thập mã bên ngoài Web**:
+      * Trên toàn bộ giao diện công khai (Top bar thông báo, Banner trang chủ, Popup sự kiện khuyến mại, danh mục hoa ưu đãi...), mỗi voucher đều có nút **"Lưu mã"** (hoặc "Thu thập voucher").
+      * **Nếu đã đăng nhập**: Khách bấm *"Lưu mã"* $\rightarrow$ Mã được tự động thêm vào Kho Voucher của tài khoản, nút đổi trạng thái thành *"Đã lưu trong ví"*, hiển thị toast thông báo thành công.
+      * **Nếu chưa đăng nhập / chưa có tài khoản**: Khách bấm *"Lưu mã"* $\rightarrow$ Hệ thống bật ngay popup thông báo bắt buộc: *"Vui lòng đăng nhập hoặc tạo tài khoản để lưu mã ưu đãi này vào ví voucher và sử dụng khi thanh toán!"* (kèm nút chuyển sang Form Đăng nhập / Đăng ký).
+    * **Cơ chế chọn mã tại Giỏ hàng**:
+      * Tại bước thanh toán giỏ hàng, khách bấm nút *"Chọn hoặc nhập mã Voucher"* $\rightarrow$ Hệ thống mở Modal/Drawer hiển thị danh sách toàn bộ voucher mà tài khoản đang sở hữu trong ví.
+      * Khách chỉ cần tích chọn mã muốn dùng $\rightarrow$ Hệ thống tự điền mã, áp dụng chiết khấu ngay lập tức và cập nhật tổng tiền thanh toán.
+  * **DẠNG 2: Tự nhập mã đặc biệt thủ công (Manual Input)**:
+    * Dành riêng cho các mã ưu đãi độc quyền / mã bảo mật không hiển thị công khai trên giao diện web:
+      * **Mã do Admin / CSKH cấp riêng**: Dành cho khách VIP, khách quen lâu năm, mã bồi thường khi đơn hoa giao trễ, hoặc quà tặng sinh nhật đặc biệt từ chủ tiệm.
+      * **Mã đổi từ Điểm tích lũy thành viên (Loyalty Points / Hoa Xu)**: Hội viên dùng điểm tích lũy sau các đơn hàng trước đó để quy đổi thành mã voucher giảm giá (VD: 500 điểm $\rightarrow$ Voucher 50.000₫).
+    * Khách tự gõ mã vào ô input và bấm nút **"Áp dụng"**. Hệ thống kiểm tra điều kiện (tài khoản đã đăng nhập, mã tồn tại, còn hạn, chưa sử dụng, đạt giá trị đơn tối thiểu) rồi trừ tiền ngay vào hóa đơn.
+* **Chính sách Chống lạm dụng & Thời hạn sử dụng nghiêm ngặt**:
+  * **Chưa đăng nhập = Không có mã**: Không được cấp mã và không được sử dụng bất kỳ voucher nào để tránh việc gian lận hoặc lạm dụng mã giảm giá.
+  * **Chỉ dùng 1 lần duy nhất cho 1 tài khoản**: Mỗi mã voucher khi áp dụng thành công cho một đơn hàng đã cọc sẽ lập tức gắn cờ `isUsed: true` vào tài khoản đó, vĩnh viễn không thể tái sử dụng.
+  * **Mã Giảm Phí Ship Định Kỳ Hàng Tháng (10k hoặc 20k)**: Mỗi tháng hệ thống cấp 01 mã giảm ship vào ví voucher của hội viên. Thời hạn sử dụng tối đa **7 ngày**, quá 7 ngày tự động hết hạn và biến mất khỏi ví.
+  * **Mã Freeship Đơn Đầu Tiên**: Cấp tự động cho thành viên mới khi vừa đăng ký tài khoản thành công. Thời hạn sử dụng tối đa **7 ngày** kể từ ngày tạo tài khoản.
+  * **Hiển thị hạn dùng trực quan**: Mỗi voucher trong ví đều hiển thị rõ ràng nhãn `Hạn dùng: Còn X ngày` (hoặc đếm ngược giờ khi sắp hết hạn) để kích thích khách hoàn tất đơn hoa sớm.
 
 ### 6. Nút "Xác Nhận & Cọc VietQR" Nổi Thanh Thoát Trên Mobile
 * **Tuyệt đối không dùng khung hộp vuông lớn** bao quanh dưới đáy làm thô và chiếm diện tích màn hình.
