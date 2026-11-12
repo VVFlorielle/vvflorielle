@@ -276,30 +276,57 @@ Admin và Chủ Tiệm có giao diện quản trị đầy đủ để toàn quy
 #### D. Chính Sách Cấp Mã Định Kỳ & Phân Tầng Điều Kiện (Chống Lạm Phát Voucher)
 Hệ thống thiết kế danh mục voucher đa dạng, kết hợp hài hòa giữa **Mã không điều kiện (Đơn từ 0₫)** để tạo cảm giác hời, tri ân khách hàng và **Mã có điều kiện (Bậc giá trị đơn & Trần tối đa)** để bảo vệ dòng tiền, thúc đẩy giá trị giỏ hàng:
 
-1. **Mã Giảm Phí Ship Định Kỳ (Không Điều Kiện - Áp Dụng Từ Đơn 0₫)**:
-   * **Mã Giảm 10.000₫ Cước Ship HÀNG TUẦN**:
-     * Cấp tự động vào đầu tuần cho mỗi tài khoản hội viên.
-     * **Thời hạn sử dụng**: **05 ngày** (kể từ khi cấp).
-     * **Điều kiện áp dụng**: **Áp dụng từ đơn 0₫** (không yêu cầu giá trị đơn hàng tối thiểu).
-   * **Mã Giảm 20.000₫ Cước Ship HÀNG THÁNG**:
-     * Cấp tự động vào đầu mỗi tháng cho hội viên thân thiết.
-     * **Thời hạn sử dụng**: **15 ngày** (kể từ khi cấp).
-     * **Điều kiện áp dụng**: **Áp dụng từ đơn 0₫** (không yêu cầu giá trị đơn hàng tối thiểu).
+1. **Cơ Chế Kích Hoạt Hạn Dùng Theo Lần Đăng Nhập Đầu Tiên (Smart Login-Triggered Activation)**:
+   * **Bảo toàn quyền lợi khách hàng**: Thời hạn của mã định kỳ hàng tuần (5 ngày) và hàng tháng (15 ngày) **chỉ bắt đầu tính đếm ngược kể từ LẦN ĐĂNG NHẬP ĐẦU TIÊN của khách hàng trong tuần/tháng đó** (hoặc lần đăng nhập gần ngày cấp nhất). Điều này ngăn chặn tình trạng khách bận không vào web dẫn đến mã bị trôi mất mà khách không hề hay biết.
+   * **Thông báo nổi bật (Active In-App Notification)**: Ngay khi khách hàng đăng nhập mà trình duyệt/app đang mở, hệ thống sẽ bật toast / pop-up thông báo chúc mừng và hiển thị rõ các voucher vừa được kích hoạt trong ví.
+   * **Bảo lưu khi không đăng nhập**: Nếu tuần/tháng nào khách hoàn toàn không đăng nhập, mã không bị tiêu tốn lãng phí; hạn sử dụng vẫn bảo lưu và chỉ chạy từ lần đăng nhập gần nhất.
+   * **Quy tắc Chốt Cố Định Đúng 23:59:59 Tối Chủ Nhật Cho Mã Tuần**:
+     * Mã tuần thường được cấp vào đầu tuần (Thứ 2).
+     * Dù khách đăng nhập vào Thứ 4 hay Thứ 5 (tính 5 ngày thì sang tuần sau), nhưng **đúng sau 23:59:59 tối Chủ Nhật, mã tuần cũ BẮT BUỘC HẾT HẠN và KHÔNG THỂ SỬ DỤNG ĐƯỢC NỮA** để chốt sổ tuần.
+     * Sang Thứ 2 của tuần mới, hệ thống tự động reset chu kỳ và chuẩn bị lượt cấp tuần mới chờ lần đăng nhập tiếp theo.
 
-2. **Mã Freeship 100% Sự Kiện Đặc Biệt (Sinh Nhật, Lễ Lớn) & Khống Chế Trần Freeship**:
-   * **Dịp phát hành**: Chỉ cấp trong các dịp đặc biệt như **Sinh nhật khách hàng** hoặc sự kiện lớn của tiệm.
+2. **Mã Giảm Phí Ship Định Kỳ (Không Điều Kiện - Áp Dụng Từ Đơn 0₫)**:
+   * **Mã Giảm 10.000₫ Cước Ship HÀNG TUẦN**: Cấp tự động đầu tuần, hạn **05 ngày** kể từ lần đăng nhập đầu tuần (chốt tối đa 23:59 Chủ nhật), áp dụng từ đơn **0₫**.
+   * **Mã Giảm 20.000₫ Cước Ship HÀNG THÁNG**: Cấp tự động đầu tháng, hạn **15 ngày** kể từ lần đăng nhập đầu tháng, áp dụng từ đơn **0₫**.
+
+3. **Mã Siêu Sale Ngày Đôi (Double-Day Sale - Mua 3 Giảm 30% Tối Đa 250k)**:
+   * Vào các ngày đôi trong năm (1/1, 2/2, 3/3, 8/8, 9/9, 10/10, 11/11, 12/12):
+     * Cấp mã siêu ưu đãi combo: **Mua từ 3 sản phẩm hoa $\rightarrow$ Giảm 30% (tối đa 250.000₫)**.
+     * **Điều kiện đơn hàng**: Tổng giá trị của 3 sản phẩm tối thiểu từ **150.000₫**.
+     * **Thời hạn sử dụng**: **Chỉ có hiệu lực trong ngày đôi**, đúng sau **23:59:59 cùng ngày tự động hết hạn**.
+
+4. **Mã Sự Kiện Dịp Lễ Đặc Biệt (Holiday Campaigns - Hạn 3 Ngày)**:
+   * Vào các dịp lễ lớn (Valentine 14/2, 8/3, 20/10, 20/11, Giáng sinh, Tết):
+     * Hệ thống tự động thêm mã sự kiện lễ có điều kiện vào kho voucher của tất cả khách hàng.
+     * **Thời hạn sử dụng**: Đúng **03 ngày** cao điểm lễ.
+
+5. **Mã Flash Deal Theo Khung Giờ (Hourly Deals - Mini Game Săn Deal Hút Khách)**:
+   * Admin có thể tung mã Flash Deal theo các khung giờ vàng trong ngày (VD: **12:00 trưa** hoặc **20:00 tối**).
+   * Có công tắc bật/tắt linh hoạt theo ngày trong trang quản trị Admin.
+   * **Hạn dùng**: **Chỉ có hiệu lực trong ngày tới hết 23:59:59 là hết hạn**.
+   * Mức giảm: Hời hơn mã free một chút (tạo cảm giác săn deal mini game cuốn hút người mua nhưng không làm tổn hại doanh thu thật của quán).
+
+6. **Mã Freeship 100% Sinh Nhật Khách Hàng & Khống Chế Trần Freeship**:
+   * **Dịp phát hành**: Cấp vào dịp **Sinh nhật của khách hàng** (hoặc sự kiện lớn của tiệm).
    * **Thời hạn sử dụng**: **07 ngày**.
    * **Giới hạn bán kính giao hoa**: **Chỉ áp dụng trong bán kính dưới 20.0km** tính từ Showroom 105 Doãn Kế Thiện. Ngoài bán kính 20km không áp dụng.
    * **Trần Giảm Freeship Tối Đa**: **Chỉ Free tối đa 30.000₫ hoặc 35.000₫**, TUYỆT ĐỐI không free toàn bộ nếu cước vượt trần.
      * *Ví dụ*: Đơn giao xa 18km có cước ship tiêu chuẩn là `45.000₫`. Khi áp mã Freeship này, hệ thống giảm trừ tối đa `35.000₫`, khách hàng chỉ cần thanh toán phần cước vượt trần là `10.000₫`.
 
-3. **Mã Giảm Tiền Hoa Phân Tầng Theo Giá Trị Đơn Hàng Tối Thiểu (Min Order Value Tiering)**:
+7. **Mã Giảm Tiền Hoa Phân Tầng Theo Giá Trị Đơn Hàng Tối Thiểu (Min Order Value Tiering)**:
    Để kích thích khách nâng cao giá trị đơn hàng mà không bị lạm phát voucher:
    * **Mã giảm 10.000₫**: Áp dụng cho đơn hàng hoa tối thiểu từ **50.000₫**.
    * **Mã giảm 20.000₫**: Áp dụng cho đơn hàng hoa tối thiểu từ **200.000₫**.
    * **Mã giảm 50.000₫**: Áp dụng cho đơn hàng hoa tối thiểu từ **500.000₫**.
    * **Mã giảm 100.000₫**: Áp dụng cho đơn hàng hoa tối thiểu từ **1.000.000₫**.
    * **Các mã Freeship ngẫu nhiên khác**: Sẽ có quy định giá trị đơn hàng tối thiểu (VD: đơn từ 300.000₫ mới được áp mã) kèm trần giảm 30k-35k.
+
+8. **Chính Sách Chống Lạm Phát Voucher (Cap 99 Vouchers / Ví & Mỗi Loại 1 Mã)**:
+   * **Giới hạn dung lượng ví**: Một tài khoản khách hàng chỉ được lưu tối đa **99 voucher**.
+   * **Quy tắc "Mỗi loại chỉ sở hữu 01 mã còn hiệu lực"**:
+     * Tránh tình trạng tích trữ trùng lặp (ví dụ: chỉ có 1 mã ship tuần còn hạn, 1 mã ship tháng còn hạn, 1 mã ngày đôi...).
+     * Chỉ khi mã đó đã được sử dụng thành công hoặc hết hạn thì tài khoản mới có thể nhận/lưu mã mới cùng loại.
+   * Giữ cho ví voucher của khách luôn gọn gàng, thanh lịch, có giá trị thực chất và chống lạm phát voucher trên toàn hệ thống.
 
 #### E. Quy Chuẩn Áp Dụng & Cộng Dồn Voucher Chuẩn Shopee (Tối Đa 2 Tầng)
 Trên mỗi đơn hàng hoa tươi, hệ thống áp dụng cơ chế cộng dồn **tối đa 2 tầng chiết khấu độc lập**:
