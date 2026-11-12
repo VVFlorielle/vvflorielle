@@ -276,18 +276,32 @@ Admin và Chủ Tiệm có giao diện quản trị đầy đủ để toàn quy
 #### D. Chính Sách Cấp Mã Định Kỳ & Phân Tầng Điều Kiện (Chống Lạm Phát Voucher)
 Hệ thống thiết kế danh mục voucher đa dạng, kết hợp hài hòa giữa **Mã không điều kiện (Đơn từ 0₫)** để tạo cảm giác hời, tri ân khách hàng và **Mã có điều kiện (Bậc giá trị đơn & Trần tối đa)** để bảo vệ dòng tiền, thúc đẩy giá trị giỏ hàng:
 
-1. **Cơ Chế Kích Hoạt Hạn Dùng Theo Lần Đăng Nhập Đầu Tiên (Smart Login-Triggered Activation)**:
-   * **Bảo toàn quyền lợi khách hàng**: Thời hạn của mã định kỳ hàng tuần (5 ngày) và hàng tháng (15 ngày) **chỉ bắt đầu tính đếm ngược kể từ LẦN ĐĂNG NHẬP ĐẦU TIÊN của khách hàng trong tuần/tháng đó** (hoặc lần đăng nhập gần ngày cấp nhất). Điều này ngăn chặn tình trạng khách bận không vào web dẫn đến mã bị trôi mất mà khách không hề hay biết.
-   * **Thông báo nổi bật (Active In-App Notification)**: Ngay khi khách hàng đăng nhập mà trình duyệt/app đang mở, hệ thống sẽ bật toast / pop-up thông báo chúc mừng và hiển thị rõ các voucher vừa được kích hoạt trong ví.
-   * **Bảo lưu khi không đăng nhập**: Nếu tuần/tháng nào khách hoàn toàn không đăng nhập, mã không bị tiêu tốn lãng phí; hạn sử dụng vẫn bảo lưu và chỉ chạy từ lần đăng nhập gần nhất.
-   * **Quy tắc Chốt Cố Định Đúng 23:59:59 Tối Chủ Nhật Cho Mã Tuần**:
-     * Mã tuần thường được cấp vào đầu tuần (Thứ 2).
-     * Dù khách đăng nhập vào Thứ 4 hay Thứ 5 (tính 5 ngày thì sang tuần sau), nhưng **đúng sau 23:59:59 tối Chủ Nhật, mã tuần cũ BẮT BUỘC HẾT HẠN và KHÔNG THỂ SỬ DỤNG ĐƯỢC NỮA** để chốt sổ tuần.
-     * Sang Thứ 2 của tuần mới, hệ thống tự động reset chu kỳ và chuẩn bị lượt cấp tuần mới chờ lần đăng nhập tiếp theo.
+1. **Cơ Chế Tính Hạn Voucher Tuần & Tháng Theo Ngày Đăng Nhập Gần Nhất**:
+   * **Bản chất vận hành**:
+     * Hệ thống tự động cấp voucher theo chu kỳ thời gian thực.
+     * **Nếu khách có đăng nhập**: Thời hạn sử dụng sẽ bắt đầu kích hoạt tính từ ngày đăng nhập gần ngày cấp nhất để khách kịp biết và dùng mã.
+     * **Nếu trong vòng 2 tuần khách không vào web/app**: Voucher tuần và tháng vẫn được cấp và tự động hết hạn như bình thường theo thời gian thực (không bảo lưu dồn ứ vô hạn).
+     * Khi khách đăng nhập mà trình duyệt/app đang mở, hệ thống sẽ bật thông báo / toast voucher mới được kích hoạt.
+   * **Mã Giảm 10.000₫ Cước Ship HÀNG TUẦN (Hạn 04 Ngày & Chốt 23:59 Chủ Nhật)**:
+     * Cấp tự động vào đầu tuần (Thứ 2), áp dụng từ đơn **0₫**.
+     * **Thời hạn 04 ngày tính từ ngày đăng nhập gần nhất**: Ví dụ khách đăng nhập vào Thứ 4 thì hạn 4 ngày tính từ Thứ 4. Nếu tuần này khách vào Thứ 3 thì tính từ Thứ 3; nếu tuần đó không đăng nhập thì hạn vẫn tự chạy bình thường từ Thứ 2 và hết hạn vào Thứ 6.
+     * **Quy tắc Chốt Cố Định Đúng 23:59:59 Tối Chủ Nhật**: Dù tính 4 ngày (ví dụ vào Thứ 5 hay Thứ 6), nhưng **đúng sau 23:59:59 tối Chủ Nhật, mã tuần cũ BẮT BUỘC HẾT HẠN và KHÔNG THỂ SỬ DỤNG ĐƯỢC NỮA** nếu chưa dùng để chốt chu kỳ tuần. Sang Thứ 2 tuần kế tiếp lại cấp mã mới.
+   * **Mã Giảm 20.000₫ Cước Ship HÀNG THÁNG (Hạn 10 Ngày)**:
+     * Cấp tự động vào đầu tháng (ngày 1 hàng tháng), áp dụng từ đơn **0₫**.
+     * **Thời hạn 10 ngày tính từ ngày đăng nhập đầu tiên của tháng** (nhưng tối đa không vượt quá ngày cuối tháng).
+     * Nếu trong 2 tuần hoặc cả tháng khách không đăng nhập, hạn vẫn tự chạy theo mốc cấp đầu tháng và tự hết hạn sau 10 ngày.
 
-2. **Mã Giảm Phí Ship Định Kỳ (Không Điều Kiện - Áp Dụng Từ Đơn 0₫)**:
-   * **Mã Giảm 10.000₫ Cước Ship HÀNG TUẦN**: Cấp tự động đầu tuần, hạn **05 ngày** kể từ lần đăng nhập đầu tuần (chốt tối đa 23:59 Chủ nhật), áp dụng từ đơn **0₫**.
-   * **Mã Giảm 20.000₫ Cước Ship HÀNG THÁNG**: Cấp tự động đầu tháng, hạn **15 ngày** kể từ lần đăng nhập đầu tháng, áp dụng từ đơn **0₫**.
+2. **Bộ 3 Mã Giảm Nhẹ Định Kỳ: Mùng 1 Đầu Tháng, Ngày 15 (Rằm) & Cuối Tháng (Lương Về)**:
+   Tương tự như Deal nhưng mức giảm nhẹ, có điều kiện đi kèm theo nhịp văn hóa và sinh hoạt của người mua:
+   * **Mã Mùng 1 Đầu Tháng (Khai Hoa Đắc Lộc)**:
+     * Mức giảm: Giảm 5% (hoặc giảm 15.000₫) cho đơn hoa tối thiểu từ **200.000₫** đón may mắn đầu tháng.
+     * Thời hạn: Có hiệu lực trong ngày mùng 1 (hết hạn lúc 23:59:59 cùng ngày).
+   * **Mã Ngày 15 Giữa Tháng (Hoa Rằm / Thanh Tịnh)**:
+     * Mức giảm: Giảm 20.000₫ cho đơn hoa tối thiểu từ **250.000₫**.
+     * Thời hạn: Có hiệu lực trong ngày 15 hàng tháng (hết hạn lúc 23:59:59 cùng ngày).
+   * **Mã Cuối Tháng (Payday Sale - Thưởng Hoa Lương Về)**:
+     * Mức giảm: Giảm 8% (hoặc 30.000₫) cho đơn hoa tối thiểu từ **350.000₫**.
+     * Thời hạn: Áp dụng trong 2–3 ngày cuối tháng (hết hạn lúc 23:59:59 ngày cuối tháng).
 
 3. **Mã Siêu Sale Ngày Đôi (Double-Day Sale - Mua 3 Giảm 30% Tối Đa 250k)**:
    * Vào các ngày đôi trong năm (1/1, 2/2, 3/3, 8/8, 9/9, 10/10, 11/11, 12/12):
