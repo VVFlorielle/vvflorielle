@@ -243,14 +243,33 @@ Admin và Chủ Tiệm có giao diện quản trị đầy đủ để toàn quy
 5. **Chỉnh sửa Giá Trị Voucher**: Admin có thể sửa đổi mức giảm (VNĐ hoặc %), giá trị đơn hàng tối thiểu (`minOrder`), và mức giảm tối đa nếu là giảm theo %.
 6. **Thêm mới Voucher linh hoạt**: Admin tự nhập tiêu đề, mức giảm, thời hạn, giới hạn số lượt dùng và hệ thống tự động sinh mã code bảo mật.
 
-#### D. Chính Sách Cấp Mã Miễn Phí Định Kỳ: Hàng Tuần & Hàng Tháng
-* **Mã định kỳ Hàng Tuần (Weekly Vouchers)**:
-  * Hệ thống tự động cấp miễn phí vào ví voucher của mỗi tài khoản hội viên:
-    * **01 Mã Freeship / Giảm cước ship hàng tuần**.
-    * **01 Mã giảm 10.000₫ hoặc 20.000₫ tiền hoa hàng tuần**.
-  * Thời hạn sử dụng: Mặc định có hiệu lực trong tuần (tối đa 7 ngày), sang tuần mới hệ thống tự động làm mới mã.
-* **Mã định kỳ Hàng Tháng (Monthly Vouchers)**:
-  * Cấp 01 mã tri ân hội viên thân thiết (giảm cước ship hoặc giảm trực tiếp giá trị đơn hàng), hạn dùng tối đa 7 ngày kể từ ngày cấp.
+#### D. Chính Sách Cấp Mã Định Kỳ & Phân Tầng Điều Kiện (Chống Lạm Phát Voucher)
+Hệ thống thiết kế danh mục voucher đa dạng, kết hợp hài hòa giữa **Mã không điều kiện (Đơn từ 0₫)** để tạo cảm giác hời, tri ân khách hàng và **Mã có điều kiện (Bậc giá trị đơn & Trần tối đa)** để bảo vệ dòng tiền, thúc đẩy giá trị giỏ hàng:
+
+1. **Mã Giảm Phí Ship Định Kỳ (Không Điều Kiện - Áp Dụng Từ Đơn 0₫)**:
+   * **Mã Giảm 10.000₫ Cước Ship HÀNG TUẦN**:
+     * Cấp tự động vào đầu tuần cho mỗi tài khoản hội viên.
+     * **Thời hạn sử dụng**: **05 ngày** (kể từ khi cấp).
+     * **Điều kiện áp dụng**: **Áp dụng từ đơn 0₫** (không yêu cầu giá trị đơn hàng tối thiểu).
+   * **Mã Giảm 20.000₫ Cước Ship HÀNG THÁNG**:
+     * Cấp tự động vào đầu mỗi tháng cho hội viên thân thiết.
+     * **Thời hạn sử dụng**: **15 ngày** (kể từ khi cấp).
+     * **Điều kiện áp dụng**: **Áp dụng từ đơn 0₫** (không yêu cầu giá trị đơn hàng tối thiểu).
+
+2. **Mã Freeship 100% Sự Kiện Đặc Biệt (Sinh Nhật, Lễ Lớn) & Khống Chế Trần Freeship**:
+   * **Dịp phát hành**: Chỉ cấp trong các dịp đặc biệt như **Sinh nhật khách hàng** hoặc sự kiện lớn của tiệm.
+   * **Thời hạn sử dụng**: **07 ngày**.
+   * **Giới hạn bán kính giao hoa**: **Chỉ áp dụng trong bán kính dưới 20.0km** tính từ Showroom 105 Doãn Kế Thiện. Ngoài bán kính 20km không áp dụng.
+   * **Trần Giảm Freeship Tối Đa**: **Chỉ Free tối đa 30.000₫ hoặc 35.000₫**, TUYỆT ĐỐI không free toàn bộ nếu cước vượt trần.
+     * *Ví dụ*: Đơn giao xa 18km có cước ship tiêu chuẩn là `45.000₫`. Khi áp mã Freeship này, hệ thống giảm trừ tối đa `35.000₫`, khách hàng chỉ cần thanh toán phần cước vượt trần là `10.000₫`.
+
+3. **Mã Giảm Tiền Hoa Phân Tầng Theo Giá Trị Đơn Hàng Tối Thiểu (Min Order Value Tiering)**:
+   Để kích thích khách nâng cao giá trị đơn hàng mà không bị lạm phát voucher:
+   * **Mã giảm 10.000₫**: Áp dụng cho đơn hàng hoa tối thiểu từ **50.000₫**.
+   * **Mã giảm 20.000₫**: Áp dụng cho đơn hàng hoa tối thiểu từ **200.000₫**.
+   * **Mã giảm 50.000₫**: Áp dụng cho đơn hàng hoa tối thiểu từ **500.000₫**.
+   * **Mã giảm 100.000₫**: Áp dụng cho đơn hàng hoa tối thiểu từ **1.000.000₫**.
+   * **Các mã Freeship ngẫu nhiên khác**: Sẽ có quy định giá trị đơn hàng tối thiểu (VD: đơn từ 300.000₫ mới được áp mã) kèm trần giảm 30k-35k.
 
 #### E. Quy Chuẩn Áp Dụng & Cộng Dồn Voucher Chuẩn Shopee (Tối Đa 2 Tầng)
 Trên mỗi đơn hàng hoa tươi, hệ thống áp dụng cơ chế cộng dồn **tối đa 2 tầng chiết khấu độc lập**:
