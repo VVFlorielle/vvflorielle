@@ -169,7 +169,7 @@ E:\V&VFlorielle/
 | **Kế hoạch 2.1**: Trợ lý thời tiết nổi Admin & Tối ưu Popup | - | **ĐÃ HOÀN THÀNH** | Linh vật nổi kéo thả, tự mờ khi idle trên mobile, nhắc nhở 1 giờ bóng thoại kính mờ, accordion thu gọn phụ phí, tách 2 hàng giờ, fix triệt để lỗi trắng trang `#owner`. |
 | **Kế hoạch 2.2**: Dọn sạch chú thích thừa địa lý Hà Nội | - | **ĐÃ HOÀN THÀNH** | Đã xóa sạch 10 chú thích thừa trong ngoặc đơn (`(Cùng phường tiệm)`, `(Times City)`...), chuẩn hóa tên hành chính. |
 | **Kế hoạch Sửa Ưu Tiên**: Tối ưu bóng thoại linh vật trợ lý trang quản trị | **ƯU TIÊN SỐ 1** | **ĐÃ HOÀN THÀNH** | Vẫn để trên đầu linh vật, khống chế bề ngang vừa phải không kéo dài ngoằng, chống tràn mép màn hình (mobile & desktop), kính mờ sáng viền tinh tế (Đã commit 5927a41). |
-| **Kế hoạch 5**: Định vị GPS, Quản trị Voucher Hội viên & Tối ưu vận hành | **ƯU TIÊN SỐ 2** | **SẴN SÀNG TRIỂN KHAI** | GPS chính xác, voucher 2 tầng Shopee (tuần 10k hạn 4 ngày từ lần đăng nhập chốt 23:59:59 CN, tháng 20k hạn 10 ngày từ lần đăng nhập đầu tháng, bộ 3 mã mùng 1/15/payday, ngày đôi 3 món giảm 30%, flash deal 12h/20h, sinh nhật < 20km trần 35k, 2 tuần không vào tự hết hạn, trần điểm tích lũy 50%, kho tối đa 99 voucher, mã ngẫu nhiên alphanumeric), tách dropdown mobile 2 hàng, nút cọc nổi, tải ảnh linh vật máy tính, đổi ảnh hoa demo bị sai. |
+| **Kế hoạch 5**: Định vị GPS, Quản trị Voucher Hội viên & Tối ưu vận hành | **ƯU TIÊN SỐ 2** | **SẴN SÀNG TRIỂN KHAI** | GPS chính xác, voucher 2 tầng Shopee (tuần 10k hạn 4 ngày từ lần đăng nhập chốt 23:59:59 CN, tháng 20k hạn 10 ngày từ lần đăng nhập đầu tháng, bộ 3 mã mùng 1/15/payday, ngày đôi 5 bậc 15%-35% giới hạn 210 mã, flash deal 12h/20h, sinh nhật < 20km trần 35k, 2 tuần không vào tự hết hạn, trần điểm tích lũy 50%, kho tối đa 99 voucher, mã ngẫu nhiên alphanumeric), tách dropdown mobile 2 hàng, nút cọc nổi, tải ảnh linh vật máy tính, đổi ảnh hoa demo bị sai. |
 | **Kế hoạch 3**: Bảo Mật Cấp 2 Toàn Bộ Website | **ƯU TIÊN SỐ 3** | **CHỜ DUYỆT TRIỂN KHAI** | Xác thực 2FA/OTP Email, khóa tài khoản khi nhập sai mã PIN quá 5 lần, mã hóa dữ liệu nhạy cảm, chống spam đơn hàng, session timeout 30 phút. |
 | **Kế hoạch 4**: Tích hợp Cổng thanh toán VietQR Webhook | **ƯU TIÊN SỐ 4** | **TẠM HOÃN (TƯƠNG LAI)** | Tạm thời chưa cần thiết theo chỉ đạo của chủ tiệm. Sau này có thể kết nối Cassio / SeAPay Webhook nhận biến động số dư tự động đổi trạng thái đơn. |
 
@@ -310,11 +310,32 @@ Hệ thống thiết kế danh mục voucher đa dạng, kết hợp hài hòa g
      * Mức giảm: Giảm 8% (hoặc 30.000₫) cho đơn hoa tối thiểu từ **350.000₫**.
      * Thời hạn: Áp dụng trong 2–3 ngày cuối tháng (hết hạn lúc 23:59:59 ngày cuối tháng).
 
-3. **Mã Siêu Sale Ngày Đôi (Double-Day Sale - Mua 3 Giảm 30% Tối Đa 250k)**:
-   * Vào các ngày đôi trong năm (1/1, 2/2, 3/3, 8/8, 9/9, 10/10, 11/11, 12/12):
-     * Cấp mã siêu ưu đãi combo: **Mua từ 3 sản phẩm hoa $\rightarrow$ Giảm 30% (tối đa 250.000₫)**.
-     * **Điều kiện đơn hàng**: Tổng giá trị của 3 sản phẩm tối thiểu từ **150.000₫**.
-     * **Thời hạn sử dụng**: **Chỉ có hiệu lực trong ngày đôi**, đúng sau **23:59:59 cùng ngày tự động hết hạn**.
+3. **Mã Siêu Sale Ngày Đôi (Double-Day Sale - 5 Phân Bậc Chi Tiết, Giới Hạn 210 Lượt Mã)**:
+   * **Thời điểm áp dụng**: Vào các ngày đôi trong năm (1/1, 2/2, 3/3, 4/4, 5/5, 6/6, 7/7, 8/8, 9/9, 10/10, 11/11, 12/12).
+   * **Tổng hạn mức phát hành**: Đúng **210 lượt voucher** phân bổ theo 5 bậc quyền lợi:
+
+   | Nhóm Ưu Đãi | Tên Voucher | Mức Giảm Giá | Mức Giảm Tối Đa | Số Lượng Mã | Điều Kiện Tổng Tiền Hoa | Điều Kiện Số Sản Phẩm |
+   | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+   | **Đơn hàng nhỏ** | `VVF-DD15` | **Giảm 15%** | **25.000₫** | **100 mã** | Từ **150.000₫** | Tối thiểu **1 sản phẩm** |
+   | **Đơn hàng nhỏ** | `VVF-DD20` | **Giảm 20%** | **50.000₫** | **60 mã** | Từ **300.000₫** | Tối thiểu **2 sản phẩm** |
+   | **Combo từ 3 món** | `VVF-DD25` | **Giảm 25%** | **100.000₫** | **30 mã** | Từ **450.000₫** | Tối thiểu **3 sản phẩm** |
+   | **Combo từ 3 món** | `VVF-DD30` | **Giảm 30%** | **150.000₫** | **15 mã** | Từ **650.000₫** | Tối thiểu **3 sản phẩm** |
+   | **Combo VIP từ 3 món** | `VVF-DD35` | **Giảm 35%** | **250.000₫** | **5 mã** | Từ **850.000₫** | Tối thiểu **3 sản phẩm** |
+   | **TỔNG CỘNG** | - | - | - | **210 MÃ** | - | - |
+
+   * **Quy Định Sử Dụng & Nguyên Tắc Tính Toán Nghiêm Ngặt**:
+     1. **Cơ sở tính giảm giá**: Voucher Double-Day **chỉ tính giảm trên tổng giá niêm yết của các sản phẩm hoa** (tiền hoa thuần), TUYỆT ĐỐI KHÔNG bao gồm phí vận chuyển.
+     2. **Xét điều kiện tối thiểu**: Điều kiện giá trị tối thiểu (150k, 300k, 450k, 650k, 850k) và số lượng sản phẩm (1, 2, 3) được xét theo **tổng giá hoa trước khi áp dụng voucher**.
+     3. **Tách bạch phí vận chuyển**: Phí vận chuyển được tính riêng độc lập và cộng vào tổng tiền thanh toán sau khi đã trừ giảm giá hoa.
+     4. **Quy tắc cộng dồn 2 tầng chuẩn TMĐT Shopee**:
+        * Khách hàng được phép sử dụng đồng thời: **1 voucher giảm giá hoa + 1 voucher giảm phí vận chuyển** (nếu có).
+        * Voucher giảm phí vận chuyển chỉ áp dụng trừ vào phần cước giao hàng, hoàn toàn không làm thay đổi số tiền giảm trên giá hoa.
+     5. **Giới hạn số lượt dùng**:
+        * Mỗi đơn hàng chỉ được áp dụng duy nhất **1 voucher giảm giá hoa**.
+        * Mỗi khách hàng có tài khoản chỉ được sử dụng tối đa **1 lượt voucher Double-Day**.
+     6. **Hiệu lực & Hết hạn**:
+        * **Hạn dùng**: Duy nhất trong ngày đôi, hết hiệu lực lúc **23:59:59 cùng ngày** hoặc **khi hết số lượng mã** (Quota Exhaustion).
+        * Các mã tự động hết hiệu lực khi đạt đủ giới hạn số lượt sử dụng tương ứng.
 
 4. **Mã Sự Kiện Dịp Lễ Đặc Biệt (Holiday Campaigns - Hạn 3 Ngày)**:
    * Vào các dịp lễ lớn (Valentine 14/2, 8/3, 20/10, 20/11, Giáng sinh, Tết):
