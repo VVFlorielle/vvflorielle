@@ -14,7 +14,7 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
     name: 'Quận Cầu Giấy',
     baseKm: 1.8,
     wards: [
-      { name: 'Phường Mai Dịch (Cùng phường tiệm)', kmOffset: -0.8 },
+      { name: 'Phường Mai Dịch', kmOffset: -0.8 },
       { name: 'Phường Dịch Vọng Hậu', kmOffset: -0.3 },
       { name: 'Phường Dịch Vọng', kmOffset: 0.2 },
       { name: 'Phường Nghĩa Tân', kmOffset: -0.2 },
@@ -35,7 +35,7 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
       { name: 'Phường Mễ Trì', kmOffset: 0.2 },
       { name: 'Phường Phú Đô', kmOffset: 0.5 },
       { name: 'Phường Trung Văn', kmOffset: 1.2 },
-      { name: 'Phường Tây Mỗ (Vinhomes Smart City)', kmOffset: 2.8 },
+      { name: 'Phường Tây Mỗ', kmOffset: 2.8 },
       { name: 'Phường Đại Mỗ', kmOffset: 2.5 },
       { name: 'Phường Xuân Phương', kmOffset: 1.0 },
       { name: 'Phường Phương Canh', kmOffset: 1.5 },
@@ -105,9 +105,9 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
       { name: 'Phường Bưởi', kmOffset: -1.8 },
       { name: 'Phường Xuân La', kmOffset: -1.2 },
       { name: 'Phường Thụy Khuê', kmOffset: -0.5 },
-      { name: 'Phường Phú Thượng (Ciputra)', kmOffset: 0.2 },
+      { name: 'Phường Phú Thượng', kmOffset: 0.2 },
       { name: 'Phường Nhật Tân', kmOffset: 0.8 },
-      { name: 'Phường Quảng An (Hồ Tây)', kmOffset: 1.2 },
+      { name: 'Phường Quảng An', kmOffset: 1.2 },
       { name: 'Phường Tứ Liên', kmOffset: 1.5 },
       { name: 'Phường Yên Phụ', kmOffset: 1.2 },
     ]
@@ -137,7 +137,7 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
       { name: 'Phường Hàng Bông', kmOffset: -0.5 },
       { name: 'Phường Hàng Gai', kmOffset: 0.0 },
       { name: 'Phường Hàng Trống', kmOffset: 0.2 },
-      { name: 'Phường Tràng Tiền (Bờ Hồ)', kmOffset: 0.5 },
+      { name: 'Phường Tràng Tiền', kmOffset: 0.5 },
       { name: 'Phường Hàng Bạc', kmOffset: 0.3 },
       { name: 'Phường Hàng Đào', kmOffset: 0.2 },
       { name: 'Phường Hàng Buồm', kmOffset: 0.4 },
@@ -158,7 +158,7 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
       { name: 'Phường Đồng Tâm', kmOffset: 0.3 },
       { name: 'Phường Bạch Mai', kmOffset: 0.5 },
       { name: 'Phường Thanh Nhàn', kmOffset: 0.6 },
-      { name: 'Phường Minh Khai (Times City)', kmOffset: 1.2 },
+      { name: 'Phường Minh Khai', kmOffset: 1.2 },
       { name: 'Phường Vĩnh Tuy', kmOffset: 1.5 },
       { name: 'Phường Trương Định', kmOffset: 0.8 },
     ]
@@ -191,7 +191,7 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
       { name: 'Phường Tương Mai', kmOffset: -0.5 },
       { name: 'Phường Tân Mai', kmOffset: 0.0 },
       { name: 'Phường Thịnh Liệt', kmOffset: 0.5 },
-      { name: 'Phường Hoàng Liệt (Linh Đàm)', kmOffset: 0.8 },
+      { name: 'Phường Hoàng Liệt', kmOffset: 0.8 },
       { name: 'Phường Yên Sở', kmOffset: 2.0 },
       { name: 'Phường Vĩnh Hưng', kmOffset: 1.5 },
       { name: 'Phường Lĩnh Nam', kmOffset: 2.2 },
@@ -207,7 +207,7 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
       { name: 'Phường Gia Thụy', kmOffset: -0.5 },
       { name: 'Phường Long Biên', kmOffset: 0.0 },
       { name: 'Phường Sài Đồng', kmOffset: 1.5 },
-      { name: 'Phường Phúc Đồng (Vinhomes Riverside)', kmOffset: 1.8 },
+      { name: 'Phường Phúc Đồng', kmOffset: 1.8 },
       { name: 'Phường Việt Hưng', kmOffset: 1.2 },
       { name: 'Phường Thạch Bàn', kmOffset: 2.5 },
     ]
@@ -217,11 +217,11 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
     name: 'Huyện Ngoại Thành Hà Nội',
     baseKm: 22.0,
     wards: [
-      { name: 'Huyện Hoài Đức (Vân Canh, An Khánh)', kmOffset: -10.0 }, // ~12km
+      { name: 'Huyện Hoài Đức', kmOffset: -10.0 }, // ~12km
       { name: 'Huyện Đan Phượng', kmOffset: -6.0 }, // ~16km
       { name: 'Huyện Đông Anh', kmOffset: -4.0 }, // ~18km
       { name: 'Huyện Thanh Trì', kmOffset: -6.0 }, // ~16km
-      { name: 'Huyện Gia Lâm (Vinhomes Ocean Park 1)', kmOffset: 0.0 }, // ~22km
+      { name: 'Huyện Gia Lâm', kmOffset: 0.0 }, // ~22km
       { name: 'Huyện Mê Linh', kmOffset: 3.0 }, // ~25km
       { name: 'Huyện Thường Tín', kmOffset: 5.0 }, // ~27km
       { name: 'Huyện Sóc Sơn', kmOffset: 10.0 }, // ~32km
