@@ -168,8 +168,8 @@ E:\V&VFlorielle/
 | **Kế hoạch 2**: Kho 54 mẫu hoa thật & WebP | - | **ĐÃ HOÀN THÀNH** | 54 mẫu hoa thật (đúng 9 mẫu/danh mục), nén WebP, sửa lỗi thụt lề padding-top, icon xe giỏ hàng trắng phát sáng. |
 | **Kế hoạch 2.1**: Trợ lý thời tiết nổi Admin & Tối ưu Popup | - | **ĐÃ HOÀN THÀNH** | Linh vật nổi kéo thả, tự mờ khi idle trên mobile, nhắc nhở 1 giờ bóng thoại kính mờ, accordion thu gọn phụ phí, tách 2 hàng giờ, fix triệt để lỗi trắng trang `#owner`. |
 | **Kế hoạch 2.2**: Dọn sạch chú thích thừa địa lý Hà Nội | - | **ĐÃ HOÀN THÀNH** | Đã xóa sạch 10 chú thích thừa trong ngoặc đơn (`(Cùng phường tiệm)`, `(Times City)`...), chuẩn hóa tên hành chính. |
-| **Kế hoạch Sửa Ưu Tiên**: Tối ưu bóng thoại linh vật trợ lý trang quản trị | **ƯU TIÊN SỐ 1** | **SỬA NGAY ĐẦU TIÊN** | Vẫn để trên đầu linh vật, khống chế bề ngang vừa phải không kéo dài ngoằng, chống tràn mép màn hình (mobile & desktop), kính mờ sáng viền tinh tế. |
-| **Kế hoạch 5**: Định vị GPS, Quản trị Voucher Hội viên & Tối ưu vận hành | **ƯU TIÊN SỐ 2** | **CHỜ DUYỆT TRIỂN KHAI** | GPS chính xác, voucher 2 tầng Shopee (tuần 10k 5 ngày từ 0đ, tháng 20k 15 ngày từ 0đ, sinh nhật dưới 20km trần 35k, phân tầng đơn tối thiểu, trần điểm tích lũy tối đa 50%), tách dropdown mobile 2 hàng, nút cọc nổi, tải ảnh linh vật máy tính, đổi ảnh hoa demo bị sai. |
+| **Kế hoạch Sửa Ưu Tiên**: Tối ưu bóng thoại linh vật trợ lý trang quản trị | **ƯU TIÊN SỐ 1** | **ĐÃ HOÀN THÀNH** | Vẫn để trên đầu linh vật, khống chế bề ngang vừa phải không kéo dài ngoằng, chống tràn mép màn hình (mobile & desktop), kính mờ sáng viền tinh tế (Đã commit 5927a41). |
+| **Kế hoạch 5**: Định vị GPS, Quản trị Voucher Hội viên & Tối ưu vận hành | **ƯU TIÊN SỐ 2** | **SẴN SÀNG TRIỂN KHAI** | GPS chính xác, voucher 2 tầng Shopee (tuần 10k hạn 4 ngày từ lần đăng nhập chốt 23:59:59 CN, tháng 20k hạn 10 ngày từ lần đăng nhập đầu tháng, bộ 3 mã mùng 1/15/payday, ngày đôi 3 món giảm 30%, flash deal 12h/20h, sinh nhật < 20km trần 35k, 2 tuần không vào tự hết hạn, trần điểm tích lũy 50%, kho tối đa 99 voucher, mã ngẫu nhiên alphanumeric), tách dropdown mobile 2 hàng, nút cọc nổi, tải ảnh linh vật máy tính, đổi ảnh hoa demo bị sai. |
 | **Kế hoạch 3**: Bảo Mật Cấp 2 Toàn Bộ Website | **ƯU TIÊN SỐ 3** | **CHỜ DUYỆT TRIỂN KHAI** | Xác thực 2FA/OTP Email, khóa tài khoản khi nhập sai mã PIN quá 5 lần, mã hóa dữ liệu nhạy cảm, chống spam đơn hàng, session timeout 30 phút. |
 | **Kế hoạch 4**: Tích hợp Cổng thanh toán VietQR Webhook | **ƯU TIÊN SỐ 4** | **TẠM HOÃN (TƯƠNG LAI)** | Tạm thời chưa cần thiết theo chỉ đạo của chủ tiệm. Sau này có thể kết nối Cassio / SeAPay Webhook nhận biến động số dư tự động đổi trạng thái đơn. |
 
@@ -177,8 +177,15 @@ E:\V&VFlorielle/
 
 ## VI. KẾ HOẠCH SỬA ƯU TIÊN: TỐI ƯU BÓNG THOẠI LINH VẬT TRỢ LÝ TRANG QUẢN TRỊ (ƯU TIÊN SỐ 1 - SỬA ĐẦU TIÊN)
 
-> [!IMPORTANT]
-> **Kế hoạch này được Chủ Tiệm yêu cầu thực hiện ĐẦU TIÊN trước tất cả các kế hoạch khác**. Kỹ sư/Agent tiếp quản cần nắm vững các yêu cầu kỹ thuật chi tiết sau:
+> [!NOTE]
+> **TRẠNG THÁI HIỆN TẠI: ĐÃ HOÀN THÀNH & KIỂM ĐỊNH TOÀN DIỆN (Commit `5927a41`)**
+> - Đã chỉnh sửa tệp [`src/components/management/AdminWeatherAssistant.tsx`](file:///E:/V&VFlorielle/src/components/management/AdminWeatherAssistant.tsx) với cơ chế neo góc màn hình thông minh dựa trên `pos.x`:
+>   * `pos.x < 100`: Neo sát lề trái (`left-0 translate-x-0`), đuôi nhọn trỏ tại `left-6`.
+>   * `pos.x > window.innerWidth - 180`: Neo sát lề phải (`right-0 translate-x-0`), đuôi nhọn trỏ tại `right-6`.
+>   * Ở giữa: Căn giữa đỉnh đầu linh vật (`left-1/2 -translate-x-1/2`).
+> - Khống chế độ rộng `w-max max-w-[210px] sm:max-w-[230px]` và lớp phòng vệ `max-w-[calc(100vw-28px)]` giúp bóng thoại không bao giờ bị kéo dài ngoằng và tuyệt đối không tràn mép màn hình.
+> - Xóa bỏ `whitespace-nowrap`, cho phép xuống dòng mềm mại tự nhiên (`whitespace-normal break-words leading-snug`).
+> - Đã chạy kiểm tra `npx tsc -b` với kết quả **0 lỗi**.
 
 ### 1. Hiện Trạng & Vấn Đề Gặp Phải
 * Bóng thoại nhắc nhở 1 giờ của linh vật trợ lý trong trang quản trị ([`src/components/management/AdminWeatherAssistant.tsx`](file:///E:/V&VFlorielle/src/components/management/AdminWeatherAssistant.tsx)) đang dùng thuộc tính `whitespace-nowrap` và căn giữa cứng `left-1/2 -translate-x-1/2`.
@@ -188,16 +195,16 @@ E:\V&VFlorielle/
 1. **Vị trí hiển thị**: Vẫn giữ nguyên vị trí ở **TRÊN ĐẦU** con linh vật (`bottom-full mb-2.5`), tuyệt đối không chuyển xuống dưới để tránh che khuất linh vật.
 2. **Khống chế bề ngang vừa phải (Gọn gàng, không dài ngoằng)**:
    * Bỏ thuộc tính `whitespace-nowrap`.
-   * Áp dụng độ rộng tối đa chuẩn: `w-max max-w-[220px] sm:max-w-[260px]`.
+   * Áp dụng độ rộng tối đa chuẩn: `w-max max-w-[210px] sm:max-w-[230px]`.
    * Thêm `whitespace-normal break-words text-center leading-snug` để câu thoại tự động xuống dòng thanh thoát, mềm mại.
 3. **Cơ chế Chống Tràn Mép Màn Hình Thông Minh (Edge Overflow Protection)**:
-   * Tự động nhận diện tọa độ ngang `position.x` của linh vật so với độ rộng màn hình `window.innerWidth`:
-     * **Khi linh vật ở sát mép trái (`position.x < 120`)**: Bóng thoại neo về mép trái linh vật (`left-0 translate-x-0`), đuôi nhọn trỏ tại `left-6`.
-     * **Khi linh vật ở sát mép phải (`position.x > window.innerWidth - 160`)**: Bóng thoại neo về mép phải linh vật (`right-0 translate-x-0`), đuôi nhọn trỏ tại `right-6`.
+   * Tự động nhận diện tọa độ ngang `pos.x` của linh vật so với độ rộng màn hình `window.innerWidth`:
+     * **Khi linh vật ở sát mép trái (`pos.x < 100`)**: Bóng thoại neo về mép trái linh vật (`left-0 translate-x-0`), đuôi nhọn trỏ tại `left-6`.
+     * **Khi linh vật ở sát mép phải (`pos.x > window.innerWidth - 180`)**: Bóng thoại neo về mép phải linh vật (`right-0 translate-x-0`), đuôi nhọn trỏ tại `right-6`.
      * **Khi linh vật ở giữa**: Bóng thoại căn giữa linh vật (`left-1/2 -translate-x-1/2`), đuôi nhọn căn giữa.
-   * Thêm lớp phòng thủ CSS: `max-w-[calc(100vw-32px)]` đảm bảo 100% không bao giờ vượt quá chiều rộng khung nhìn màn hình.
+   * Thêm lớp phòng thủ CSS: `max-w-[calc(100vw-28px)]` đảm bảo 100% không bao giờ vượt quá chiều rộng khung nhìn màn hình.
 4. **Quy Chuẩn Thiết Kế Thị Giác (Visual Polish)**:
-   * Nền bóng thoại: Kính mờ sáng cao cấp (`bg-white/95 backdrop-blur-md`), viền xanh ngọc nhẹ (`border border-emerald-300/90`), đổ bóng mềm (`shadow-xl`).
+   * Nền bóng thoại: Kính mờ sáng cao cấp (`bg-white/95 backdrop-blur-md`), viền xanh ngọc nhẹ (`border border-emerald-300/90`), đổ bóng mềm (`shadow-lg`).
    * Màu chữ: Xám đen sắc nét (`text-slate-800 text-[11px] font-bold`), tuyệt đối không để màu đen xì hoặc mờ đục.
    * Đuôi bóng thoại: Hình thoi xoay 45 độ màu trắng viền ngọc chỉ chuẩn xác vào đỉnh đầu linh vật.
 
