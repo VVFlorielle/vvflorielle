@@ -226,19 +226,50 @@ E:\V&VFlorielle/
 
 #### C. Trung Tâm Quản Lý Voucher Dành Riêng Cho Admin (Admin Voucher Hub)
 Admin và Chủ Tiệm có giao diện quản trị đầy đủ để toàn quyền kiểm soát mọi voucher trong hệ thống:
-1. **Bật/Tắt Hiển thị ngoài Web (`showOnPublicWeb`)**: Switch bật/tắt để Admin quyết định chính xác voucher nào được xuất hiện ở banner/popup công khai, voucher nào là mã ẩn nội bộ.
-2. **Trạng thái phát hành (`status`)**:
+1. **Phát Hành Voucher Sự Kiện Toàn Dân (Airdrop/Broadcast to All Customers)**:
+   * Vào các dịp lễ đặc biệt (Valentine 14/2, Quốc tế Phụ nữ 8/3, Phụ nữ VN 20/10, Tết, Sinh nhật tiệm...): Admin có tính năng phát hành mã sự kiện với chế độ **"Cấp cho toàn bộ hội viên"**.
+   * Khi phát hành, mã sẽ **tự động chuyển thẳng vào Kho Voucher (Ví Voucher) của tất cả tài khoản khách hàng** đã đăng ký trong hệ thống.
+   * **Quyền Thu Hồi & Xóa Bất Cứ Lúc Nào (Instant Revoke / Delete)**: Admin có thể bấm nút *Thu hồi* hoặc *Xóa* chiến dịch bất kỳ lúc nào. Khi thu hồi, voucher lập tức bị vô hiệu hóa và biến mất khỏi ví của tất cả khách hàng chưa sử dụng.
+   * **Giới hạn nghiêm ngặt**: Mỗi tài khoản hội viên chỉ được thu thập và sử dụng mã sự kiện này đúng **1 lần duy nhất** (`isUsed: true`).
+2. **Bật/Tắt Hiển thị ngoài Web (`showOnPublicWeb`)**: Switch bật/tắt để Admin quyết định chính xác voucher nào được xuất hiện ở banner/popup công khai, voucher nào là mã ẩn nội bộ.
+3. **Trạng thái phát hành (`status`)**:
    * `Đang phát hành (Active)`: Khách có thể lưu, đổi điểm và sử dụng.
    * `Tạm ngừng (Paused)`: Tạm thời khóa, khách không thể áp dụng.
    * `Hết hạn (Expired)`: Hệ thống tự động chuyển sang hết hạn khi quá ngày.
-3. **Tùy biến Hạn Sử Dụng Linh Hoạt (`validUntil` / `durationDays`)**:
+4. **Tùy biến Hạn Sử Dụng Linh Hoạt (`validUntil` / `durationDays`)**:
    * **Mã thông thường (Tân thủ, Giảm ship định kỳ)**: Mặc định hạn sử dụng tối đa **7 ngày** để kích thích khách hoàn tất đơn hoa sớm.
    * **Mã các dịp lễ đặc biệt (Valentine 14/2, 8/3, 20/10, Flash Sale cuối tuần)**: Admin có thể **tự do chỉnh sửa hạn sử dụng theo từng chiến dịch** (VD: Flash Sale 3 ngày, Lễ Tết 5 ngày hoặc 14 ngày...).
    * **Hiển thị đếm ngược trực quan**: Trong ví voucher luôn hiển thị rõ nhãn `Hạn dùng: Còn X ngày` (hoặc đếm ngược giờ).
-4. **Chỉnh sửa Giá Trị Voucher**: Admin có thể sửa đổi mức giảm (VNĐ hoặc %), giá trị đơn hàng tối thiểu (`minOrder`), và mức giảm tối đa nếu là giảm theo %.
-5. **Thêm mới Voucher linh hoạt**: Admin tự nhập tiêu đề, mức giảm, thời hạn, giới hạn số lượt dùng và hệ thống tự động sinh mã code bảo mật.
+5. **Chỉnh sửa Giá Trị Voucher**: Admin có thể sửa đổi mức giảm (VNĐ hoặc %), giá trị đơn hàng tối thiểu (`minOrder`), và mức giảm tối đa nếu là giảm theo %.
+6. **Thêm mới Voucher linh hoạt**: Admin tự nhập tiêu đề, mức giảm, thời hạn, giới hạn số lượt dùng và hệ thống tự động sinh mã code bảo mật.
 
-#### D. 2 Dạng Áp Dụng Voucher Chuẩn Sàn TMĐT
+#### D. Chính Sách Cấp Mã Miễn Phí Định Kỳ: Hàng Tuần & Hàng Tháng
+* **Mã định kỳ Hàng Tuần (Weekly Vouchers)**:
+  * Hệ thống tự động cấp miễn phí vào ví voucher của mỗi tài khoản hội viên:
+    * **01 Mã Freeship / Giảm cước ship hàng tuần**.
+    * **01 Mã giảm 10.000₫ hoặc 20.000₫ tiền hoa hàng tuần**.
+  * Thời hạn sử dụng: Mặc định có hiệu lực trong tuần (tối đa 7 ngày), sang tuần mới hệ thống tự động làm mới mã.
+* **Mã định kỳ Hàng Tháng (Monthly Vouchers)**:
+  * Cấp 01 mã tri ân hội viên thân thiết (giảm cước ship hoặc giảm trực tiếp giá trị đơn hàng), hạn dùng tối đa 7 ngày kể từ ngày cấp.
+
+#### E. Quy Chuẩn Áp Dụng & Cộng Dồn Voucher Chuẩn Shopee (Tối Đa 2 Tầng)
+Trên mỗi đơn hàng hoa tươi, hệ thống áp dụng cơ chế cộng dồn **tối đa 2 tầng chiết khấu độc lập**:
+1. **TẦNG 1: Chiết khấu Phí Vận Chuyển (Shipping Discount)**:
+   * Áp dụng tối đa **01 mã giảm phí ship** (Mã Freeship đơn đầu, Mã Freeship hàng tuần, hoặc Mã giảm 10k/20k ship hàng tháng).
+2. **TẦNG 2: Chiết khấu Tiền Hàng / Tiền Hoa (Order Discount)**:
+   * Khách hàng được chọn **1 trong 2 hình thức** (không cộng dồn cả hai):
+     * **LỰA CHỌN 1**: Áp dụng **01 Mã giảm giá tiền hàng** (Voucher giảm theo số tiền VNĐ hoặc giảm theo %).
+     * **LỰA CHỌN 2**: Dùng **Điểm tích lũy (Hoa Xu / Loyalty Points)** để cấn trừ trực tiếp vào tiền hoa.
+3. **Quy Định Khống Chế Trần Điểm Tích Lũy (Chống Thất Thoát Vốn Tiệm Hoa)**:
+   * **ĐIỂM TÍCH LŨY CHỈ CHO PHÉP GIẢM TỐI ĐA 50% TỔNG TIỀN HOA CỦA ĐƠN HÀNG**!
+   * *Ví dụ thực tế*:
+     * Đơn hoa của khách trị giá `600.000₫`. Khách hàng đang có số dư `500.000 điểm` (tương đương 500.000₫).
+     * Hệ thống **chỉ cho phép dùng tối đa 300.000 điểm** (đúng 50% của 600.000₫ = giảm 300.000₫).
+     * Khách hàng bắt buộc phải thanh toán `300.000₫` tiền hoa còn lại (cộng phí ship nếu có).
+     * Số điểm dư thừa `200.000 điểm` vẫn được lưu trữ nguyên vẹn trong tài khoản của khách để sử dụng cho các đơn đặt hoa tiếp theo.
+   * *Mục đích*: Bảo vệ dòng tiền và chi phí giá vốn hoa tươi nhập khẩu của tiệm, tuyệt đối không để xảy ra trường hợp khách đổi điểm mua hoa 0₫.
+
+#### F. 2 Dạng Áp Dụng Voucher Chuẩn Sàn TMĐT
 * **DẠNG 1: Chọn mã tự điền từ Kho Voucher đã lưu của tài khoản (Ví Voucher)**:
   * **Cơ chế thu thập mã bên ngoài Web**:
     * Các voucher công khai đều có nút **"Lưu mã"** (hoặc "Thu thập voucher").
@@ -255,7 +286,7 @@ Admin và Chủ Tiệm có giao diện quản trị đầy đủ để toàn quy
       * Hệ thống đồng thời vẫn hiển thị mã ký tự chữ (kèm nút "Sao chép mã") để khách có thể chủ động sao chép hoặc tự gõ nếu thích.
   * **Khách nhập mã thủ công**: Với các mã đặc biệt riêng tư do Admin cấp hoặc mã quà tặng, khách gõ mã vào ô input và bấm nút **"Áp dụng"**. Hệ thống kiểm tra điều kiện (tài khoản đã đăng nhập, mã tồn tại, còn hạn, chưa sử dụng, đạt giá trị đơn tối thiểu) rồi trừ tiền ngay vào hóa đơn.
 
-#### E. Chính Sách Chống Lạm Dụng & Bảo Mật Tuyệt Đối
+#### G. Chính Sách Chống Lạm Dụng & Bảo Mật Tuyệt Đối
 1. **Chưa đăng nhập = Không có mã**: Khóa hoàn toàn tính năng voucher với khách vãng lai để chống gian lận.
 2. **Chỉ dùng 1 lần duy nhất cho 1 tài khoản**: Mỗi mã voucher khi áp dụng thành công cho một đơn hàng đã cọc sẽ lập tức gắn cờ `isUsed: true` vào tài khoản đó, vĩnh viễn không thể tái sử dụng.
 3. **Thu hồi / Hủy voucher khi hủy đơn**: Nếu đơn hàng bị hủy hợp lệ trước khi cọc, voucher được hoàn trả về ví của khách.
