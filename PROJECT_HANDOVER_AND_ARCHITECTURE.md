@@ -221,8 +221,11 @@ E:\V&VFlorielle/
   * **DẠNG 2: Tự nhập mã đặc biệt thủ công (Manual Input)**:
     * Dành riêng cho các mã ưu đãi độc quyền / mã bảo mật không hiển thị công khai trên giao diện web:
       * **Mã do Admin / CSKH cấp riêng**: Dành cho khách VIP, khách quen lâu năm, mã bồi thường khi đơn hoa giao trễ, hoặc quà tặng sinh nhật đặc biệt từ chủ tiệm.
-      * **Mã đổi từ Điểm tích lũy thành viên (Loyalty Points / Hoa Xu)**: Hội viên dùng điểm tích lũy sau các đơn hàng trước đó để quy đổi thành mã voucher giảm giá (VD: 500 điểm $\rightarrow$ Voucher 50.000₫).
-    * Khách tự gõ mã vào ô input và bấm nút **"Áp dụng"**. Hệ thống kiểm tra điều kiện (tài khoản đã đăng nhập, mã tồn tại, còn hạn, chưa sử dụng, đạt giá trị đơn tối thiểu) rồi trừ tiền ngay vào hóa đơn.
+      * **Mã đổi từ Điểm tích lũy thành viên (Loyalty Points / Hoa Xu)**:
+        * Hội viên dùng điểm tích lũy sau các đơn hoa thành công trước đó để quy đổi thành voucher giảm giá (VD: 500 điểm $\rightarrow$ Voucher 50.000₫).
+        * **Cơ chế TỰ ĐỘNG LƯU VÀO VÍ VOUCHER**: Ngay sau khi khách bấm xác nhận đổi điểm thành công, hệ thống trừ số điểm tương ứng và **MÃ VOUCHER ĐƯỢC TỰ ĐỘNG CHUYỂN THẲNG VÀO KHO VOUCHER (Ví Voucher) CỦA TÀI KHOẢN**. Khách hàng **không cần phải ghi nhớ hay copy-paste lại mã**, khi vào giỏ hàng hoặc bước thanh toán chỉ cần mở danh sách voucher là mã vừa đổi điểm đã nằm sẵn ở đầu danh sách để tích chọn dùng ngay!
+        * Hệ thống đồng thời vẫn hiển thị mã ký tự chữ (kèm nút "Sao chép mã") để khách có thể chủ động sao chép hoặc tự gõ nếu thích.
+    * **Khách nhập mã thủ công**: Với các mã đặc biệt riêng tư do Admin cấp hoặc mã quà tặng, khách gõ mã vào ô input và bấm nút **"Áp dụng"**. Hệ thống kiểm tra điều kiện (tài khoản đã đăng nhập, mã tồn tại, còn hạn, chưa sử dụng, đạt giá trị đơn tối thiểu) rồi trừ tiền ngay vào hóa đơn.
 * **Chính sách Chống lạm dụng & Thời hạn sử dụng nghiêm ngặt**:
   * **Chưa đăng nhập = Không có mã**: Không được cấp mã và không được sử dụng bất kỳ voucher nào để tránh việc gian lận hoặc lạm dụng mã giảm giá.
   * **Chỉ dùng 1 lần duy nhất cho 1 tài khoản**: Mỗi mã voucher khi áp dụng thành công cho một đơn hàng đã cọc sẽ lập tức gắn cờ `isUsed: true` vào tài khoản đó, vĩnh viễn không thể tái sử dụng.
