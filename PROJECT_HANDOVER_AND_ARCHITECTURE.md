@@ -23,13 +23,14 @@
    - [7. Dọn Sạch Chú Thích Thừa Địa Lý Hà Nội (`hanoiLocations.ts`)](#7-dọn-sạch-chú-thích-thừa-địa-lý-hà-nội-hanoilocationsts)
    - [8. Bộ Kiểm Định Tự Động Playwright & Thư Viện 35 Ảnh Nghiệm Thu](#8-bộ-kiểm-định-tự-động-playwright--thư-viện-35-ảnh-nghiệm-thu)
 5. [V. Bảng Ma Trận Kế Hoạch (Đã Làm - Đang Làm - Chưa Làm)](#v-bảng-ma-trận-kế-hoạch-đã-làm---đang-làm---chưa-làm)
-6. [VI. KẾ HOẠCH 5: ĐỊNH VỊ GPS, QUẢN TRỊ VOUCHER HỘI VIÊN & TỐI ƯU GIAO DIỆN (ƯU TIÊN SỐ 1 - LÀM TIẾP THEO)](#vi-kế-hoạch-5-định-vị-gps-quản-trị-voucher-hội-viên--tối-ưu-giao-diện-ưu-tiên-số-1---làm-tiếp-theo)
-7. [VII. KẾ HOẠCH 3: BẢO MẬT CẤP 2 TOÀN DIỆN (ƯU TIÊN SỐ 2 - CHỜ DUYỆT)](#vii-kế-hoạch-3-bảo-mật-cấp-2-toàn-diện-ưu-tiên-số-2---chờ-duyệt)
-8. [VIII. KẾ HOẠCH 4: CỔNG THANH TOÁN VIETQR WEBHOOK TỰ ĐỘNG (ƯU TIÊN SỐ 3 - TẠM HOÃN)](#viii-kế-hoạch-4-cổng-thanh-toán-vietqr-webhook-tự-động-ưu-tiên-số-3---tạm-hoãn)
-9. [IX. Dữ Liệu Cấu Hình & Tài Khoản Mặc Định](#ix-dữ-liệu-cấu-hình--tài-khoản-mặc-định)
-10. [X. Quy Chuẩn Tính Cước Ship & Khung Giờ Hoạt Động](#x-quy-chuẩn-tính-cước-ship--khung-giờ-hoạt-động)
-11. [XI. Kiến Trúc Dữ Liệu State & Khóa Lưu Trữ LocalStorage](#xi-kiến-trúc-dữ-liệu-state--khóa-lưu-trữ-localstorage)
-12. [XII. Hướng Dẫn Thao Tác Kỹ Thuật, Đẩy Dữ Liệu & Triển Khai Hosting](#xii-hướng-dẫn-thao-tác-kỹ-thuật-đẩy-dữ-liệu--triển-khai-hosting)
+6. [VI. KẾ HOẠCH SỬA ƯU TIÊN: TỐI ƯU BÓNG THOẠI LINH VẬT TRỢ LÝ TRANG QUẢN TRỊ (ƯU TIÊN SỐ 1 - SỬA ĐẦU TIÊN)](#vi-kế-hoạch-sửa-ưu-tiên-tối-ưu-bóng-thoại-linh-vật-trợ-lý-trang-quản-trị-ưu-tiên-số-1---sửa-đầu-tiên)
+7. [VII. KẾ HOẠCH 5: ĐỊNH VỊ GPS, QUẢN TRỊ VOUCHER HỘI VIÊN & TỐI ƯU GIAO DIỆN (ƯU TIÊN SỐ 2)](#vii-kế-hoạch-5-định-vị-gps-quản-trị-voucher-hội-viên--tối-ưu-giao-diện-ưu-tiên-số-2)
+8. [VIII. KẾ HOẠCH 3: BẢO MẬT CẤP 2 TOÀN DIỆN (ƯU TIÊN SỐ 3 - CHỜ DUYỆT)](#viii-kế-hoạch-3-bảo-mật-cấp-2-toàn-diện-ưu-tiên-số-3---chờ-duyệt)
+9. [IX. KẾ HOẠCH 4: CỔNG THANH TOÁN VIETQR WEBHOOK TỰ ĐỘNG (ƯU TIÊN SỐ 4 - TẠM HOÃN)](#ix-kế-hoạch-4-cổng-thanh-toán-vietqr-webhook-tự-động-ưu-tiên-số-4---tạm-hoãn)
+10. [X. Dữ Liệu Cấu Hình & Tài Khoản Mặc Định](#x-dữ-liệu-cấu-hình--tài-khoản-mặc-định)
+11. [XI. Quy Chuẩn Tính Cước Ship & Khung Giờ Hoạt Động](#xi-quy-chuẩn-tính-cước-ship--khung-giờ-hoạt-động)
+12. [XII. Kiến Trúc Dữ Liệu State & Khóa Lưu Trữ LocalStorage](#xii-kiến-trúc-dữ-liệu-state--khóa-lưu-trữ-localstorage)
+13. [XIII. Hướng Dẫn Thao Tác Kỹ Thuật, Đẩy Dữ Liệu & Triển Khai Hosting](#xiii-hướng-dẫn-thao-tác-kỹ-thuật-đẩy-dữ-liệu--triển-khai-hosting)
 
 ---
 
@@ -167,16 +168,45 @@ E:\V&VFlorielle/
 | **Kế hoạch 2**: Kho 54 mẫu hoa thật & WebP | - | **ĐÃ HOÀN THÀNH** | 54 mẫu hoa thật (đúng 9 mẫu/danh mục), nén WebP, sửa lỗi thụt lề padding-top, icon xe giỏ hàng trắng phát sáng. |
 | **Kế hoạch 2.1**: Trợ lý thời tiết nổi Admin & Tối ưu Popup | - | **ĐÃ HOÀN THÀNH** | Linh vật nổi kéo thả, tự mờ khi idle trên mobile, nhắc nhở 1 giờ bóng thoại kính mờ, accordion thu gọn phụ phí, tách 2 hàng giờ, fix triệt để lỗi trắng trang `#owner`. |
 | **Kế hoạch 2.2**: Dọn sạch chú thích thừa địa lý Hà Nội | - | **ĐÃ HOÀN THÀNH** | Đã xóa sạch 10 chú thích thừa trong ngoặc đơn (`(Cùng phường tiệm)`, `(Times City)`...), chuẩn hóa tên hành chính. |
-| **Kế hoạch 5**: Định vị GPS, Quản trị Voucher Hội viên & Tối ưu vận hành | **ƯU TIÊN SỐ 1** | **CHỜ DUYỆT LỆNH TRIỂN KHAI** | GPS chính xác, chuẩn hóa cước ship cố định theo km, chặn khách chưa đăng nhập dùng voucher, voucher 1 lần/tài khoản hạn 7 ngày, nút cọc nổi thanh thoát, tải ảnh linh vật máy tính, đổi ảnh hoa demo bị sai. |
-| **Kế hoạch 3**: Bảo Mật Cấp 2 Toàn Bộ Website | **ƯU TIÊN SỐ 2** | **CHỜ DUYỆT TRIỂN KHAI** | Xác thực 2FA/OTP Email, khóa tài khoản khi nhập sai mã PIN quá 5 lần, mã hóa dữ liệu nhạy cảm, chống spam đơn hàng, session timeout 30 phút. |
-| **Kế hoạch 4**: Tích hợp Cổng thanh toán VietQR Webhook | **ƯU TIÊN SỐ 3** | **TẠM HOÃN (TƯƠNG LAI)** | Tạm thời chưa cần thiết theo chỉ đạo của chủ tiệm. Sau này có thể kết nối Cassio / SeAPay Webhook nhận biến động số dư tự động đổi trạng thái đơn. |
+| **Kế hoạch Sửa Ưu Tiên**: Tối ưu bóng thoại linh vật trợ lý trang quản trị | **ƯU TIÊN SỐ 1** | **SỬA NGAY ĐẦU TIÊN** | Vẫn để trên đầu linh vật, khống chế bề ngang vừa phải không kéo dài ngoằng, chống tràn mép màn hình (mobile & desktop), kính mờ sáng viền tinh tế. |
+| **Kế hoạch 5**: Định vị GPS, Quản trị Voucher Hội viên & Tối ưu vận hành | **ƯU TIÊN SỐ 2** | **CHỜ DUYỆT TRIỂN KHAI** | GPS chính xác, voucher 2 tầng Shopee (tuần 10k 5 ngày từ 0đ, tháng 20k 15 ngày từ 0đ, sinh nhật dưới 20km trần 35k, phân tầng đơn tối thiểu, trần điểm tích lũy tối đa 50%), tách dropdown mobile 2 hàng, nút cọc nổi, tải ảnh linh vật máy tính, đổi ảnh hoa demo bị sai. |
+| **Kế hoạch 3**: Bảo Mật Cấp 2 Toàn Bộ Website | **ƯU TIÊN SỐ 3** | **CHỜ DUYỆT TRIỂN KHAI** | Xác thực 2FA/OTP Email, khóa tài khoản khi nhập sai mã PIN quá 5 lần, mã hóa dữ liệu nhạy cảm, chống spam đơn hàng, session timeout 30 phút. |
+| **Kế hoạch 4**: Tích hợp Cổng thanh toán VietQR Webhook | **ƯU TIÊN SỐ 4** | **TẠM HOÃN (TƯƠNG LAI)** | Tạm thời chưa cần thiết theo chỉ đạo của chủ tiệm. Sau này có thể kết nối Cassio / SeAPay Webhook nhận biến động số dư tự động đổi trạng thái đơn. |
 
 ---
 
-## VI. KẾ HOẠCH 5: ĐỊNH VỊ GPS, QUẢN TRỊ VOUCHER HỘI VIÊN & TỐI ƯU GIAO DIỆN (ƯU TIÊN SỐ 1 - LÀM TIẾP THEO)
+## VI. KẾ HOẠCH SỬA ƯU TIÊN: TỐI ƯU BÓNG THOẠI LINH VẬT TRỢ LÝ TRANG QUẢN TRỊ (ƯU TIÊN SỐ 1 - SỬA ĐẦU TIÊN)
 
 > [!IMPORTANT]
-> **Kế hoạch 5 là kế hoạch có mức độ ưu tiên CAO NHẤT hiện tại**. Người tiếp quản mã nguồn cần đọc kỹ 7 hạng mục chi tiết dưới đây để thực hiện chính xác:
+> **Kế hoạch này được Chủ Tiệm yêu cầu thực hiện ĐẦU TIÊN trước tất cả các kế hoạch khác**. Kỹ sư/Agent tiếp quản cần nắm vững các yêu cầu kỹ thuật chi tiết sau:
+
+### 1. Hiện Trạng & Vấn Đề Gặp Phải
+* Bóng thoại nhắc nhở 1 giờ của linh vật trợ lý trong trang quản trị ([`src/components/management/AdminWeatherAssistant.tsx`](file:///E:/V&VFlorielle/src/components/management/AdminWeatherAssistant.tsx)) đang dùng thuộc tính `whitespace-nowrap` và căn giữa cứng `left-1/2 -translate-x-1/2`.
+* Hậu quả: Khi linh vật được kéo gần sát mép trái hoặc mép phải màn hình (đặc biệt trên Mobile 390px), bóng thoại bị **kéo dài ngoằng theo chiều ngang** và **bị tràn cắt cụt ra ngoài mép màn hình**.
+
+### 2. Yêu Cầu Kỹ Thuật & Giải Pháp Triển Khai
+1. **Vị trí hiển thị**: Vẫn giữ nguyên vị trí ở **TRÊN ĐẦU** con linh vật (`bottom-full mb-2.5`), tuyệt đối không chuyển xuống dưới để tránh che khuất linh vật.
+2. **Khống chế bề ngang vừa phải (Gọn gàng, không dài ngoằng)**:
+   * Bỏ thuộc tính `whitespace-nowrap`.
+   * Áp dụng độ rộng tối đa chuẩn: `w-max max-w-[220px] sm:max-w-[260px]`.
+   * Thêm `whitespace-normal break-words text-center leading-snug` để câu thoại tự động xuống dòng thanh thoát, mềm mại.
+3. **Cơ chế Chống Tràn Mép Màn Hình Thông Minh (Edge Overflow Protection)**:
+   * Tự động nhận diện tọa độ ngang `position.x` của linh vật so với độ rộng màn hình `window.innerWidth`:
+     * **Khi linh vật ở sát mép trái (`position.x < 120`)**: Bóng thoại neo về mép trái linh vật (`left-0 translate-x-0`), đuôi nhọn trỏ tại `left-6`.
+     * **Khi linh vật ở sát mép phải (`position.x > window.innerWidth - 160`)**: Bóng thoại neo về mép phải linh vật (`right-0 translate-x-0`), đuôi nhọn trỏ tại `right-6`.
+     * **Khi linh vật ở giữa**: Bóng thoại căn giữa linh vật (`left-1/2 -translate-x-1/2`), đuôi nhọn căn giữa.
+   * Thêm lớp phòng thủ CSS: `max-w-[calc(100vw-32px)]` đảm bảo 100% không bao giờ vượt quá chiều rộng khung nhìn màn hình.
+4. **Quy Chuẩn Thiết Kế Thị Giác (Visual Polish)**:
+   * Nền bóng thoại: Kính mờ sáng cao cấp (`bg-white/95 backdrop-blur-md`), viền xanh ngọc nhẹ (`border border-emerald-300/90`), đổ bóng mềm (`shadow-xl`).
+   * Màu chữ: Xám đen sắc nét (`text-slate-800 text-[11px] font-bold`), tuyệt đối không để màu đen xì hoặc mờ đục.
+   * Đuôi bóng thoại: Hình thoi xoay 45 độ màu trắng viền ngọc chỉ chuẩn xác vào đỉnh đầu linh vật.
+
+---
+
+## VII. KẾ HOẠCH 5: ĐỊNH VỊ GPS, QUẢN TRỊ VOUCHER HỘI VIÊN & TỐI ƯU GIAO DIỆN (ƯU TIÊN SỐ 2)
+
+> [!IMPORTANT]
+> **Kế hoạch 5 là kế hoạch có mức độ ưu tiên SỐ 2 (Thực hiện ngay sau khi hoàn thành Kế hoạch Sửa Ưu Tiên)**. Người tiếp quản mã nguồn cần đọc kỹ 7 hạng mục chi tiết dưới đây để thực hiện chính xác:
 
 ### 1. Chuẩn Hóa Toàn Bộ Ảnh Sản Phẩm Demo Bị Sai (Lỗi 3)
 * **Hiện trạng**: Mẫu `fl-01` ("Lẵng Hoa Để Bàn Phát Tài Thịnh Vượng") và một số mẫu hoa đang bị trỏ nhầm sang ảnh phòng tranh/nội thất thay vì hoa thật.
@@ -320,7 +350,7 @@ Trên mỗi đơn hàng hoa tươi, hệ thống áp dụng cơ chế cộng d�
 
 ---
 
-## VII. KẾ HOẠCH 3: BẢO MẬT CẤP 2 TOÀN DIỆN (ƯU TIÊN SỐ 2 - CHỜ DUYỆT)
+## VIII. KẾ HOẠCH 3: BẢO MẬT CẤP 2 TOÀN DIỆN (ƯU TIÊN SỐ 3 - CHỜ DUYỆT)
 
 1. **Xác thực 2 Lớp (2FA / OTP qua Gmail)**: Đăng nhập từ thiết bị lạ yêu cầu OTP 6 số gửi về `traivuho@gmail.com`.
 2. **Khóa Bảo Vệ Chống Dò PIN/Pass**: Nhập sai quá **5 lần** sẽ tự động khóa phiên trong **15 phút** và gửi email cảnh báo.
@@ -331,14 +361,14 @@ Trên mỗi đơn hàng hoa tươi, hệ thống áp dụng cơ chế cộng d�
 
 ---
 
-## VIII. KẾ HOẠCH 4: CỔNG THANH TOÁN VIETQR WEBHOOK TỰ ĐỘNG (ƯU TIÊN SỐ 3 - TẠM HOÃN)
+## IX. KẾ HOẠCH 4: CỔNG THANH TOÁN VIETQR WEBHOOK TỰ ĐỘNG (ƯU TIÊN SỐ 4 - TẠM HOÃN)
 
 * **Trạng thái**: Tạm hoãn theo chỉ đạo của chủ tiệm vì chưa thực sự cần thiết ở thời điểm hiện tại.
 * **Mô tả kỹ thuật tương lai**: Kết nối Cassio / SeAPay Webhook nhận biến động số dư tài khoản ngân hàng Vietcombank để tự động chuyển trạng thái đơn hàng sang *"Đã Cọc 50%"* mà không cần Admin phải duyệt thủ công.
 
 ---
 
-## IX. DỮ LIỆU CẤU HÌNH & TÀI KHOẢN MẶC ĐỊNH
+## X. DỮ LIỆU CẤU HÌNH & TÀI KHOẢN MẶC ĐỊNH
 
 ### 1. Tài Khoản Quản Trị Hệ Thống
 * **Tài khoản Super Admin (Điều hành / Nhân viên)**:
@@ -367,7 +397,7 @@ Trên mỗi đơn hàng hoa tươi, hệ thống áp dụng cơ chế cộng d�
 
 ---
 
-## X. QUY CHUẨN TÍNH CƯỚC SHIP & KHUNG GIỜ HOẠT ĐỘNG
+## XI. QUY CHUẨN TÍNH CƯỚC SHIP & KHUNG GIỜ HOẠT ĐỘNG
 
 ### 1. Bảng Định Mức Cước Ship Tính Từ 105 Doãn Kế Thiện
 | Khoảng Cách Tính Theo Maps | Mức Cước Tiêu Chuẩn | Ghi Chú Ưu Đãi |
@@ -390,7 +420,7 @@ Trên mỗi đơn hàng hoa tươi, hệ thống áp dụng cơ chế cộng d�
 
 ---
 
-## XI. KIẾN TRÚC DỮ LIỆU STATE & KHÓA LƯU TRỮ LOCALSTORAGE
+## XII. KIẾN TRÚC DỮ LIỆU STATE & KHÓA LƯU TRỮ LOCALSTORAGE
 
 | Khóa Lưu Trữ (`localStorage`) | Kiểu Dữ Liệu | Mục Đích Sử Dụng |
 | :--- | :--- | :--- |
@@ -408,7 +438,7 @@ Trên mỗi đơn hàng hoa tươi, hệ thống áp dụng cơ chế cộng d�
 
 ---
 
-## XII. HƯỚNG DẪN THAO TÁC KỸ THUẬT, ĐẨY DỮ LIỆU & TRIỂN KHAI HOSTING
+## XIII. HƯỚNG DẪN THAO TÁC KỸ THUẬT, ĐẨY DỮ LIỆU & TRIỂN KHAI HOSTING
 
 ### 1. Chạy Dự Án Ở Môi Trường Cục Bộ (Local Development)
 Yêu cầu môi trường: **Node.js v18+** hoặc **v20+**.
