@@ -12,9 +12,21 @@ import {
   Check,
   Send
 } from 'lucide-react';
+import { getStoreStatus } from '../utils/storeStatus';
 
 export const FloatingContactWidget: React.FC = () => {
-  const { settings, showToast } = useStore();
+  const { settings, contactChannels, showToast } = useStore();
+  const [storeStatus, setStoreStatus] = useState(() => getStoreStatus(settings));
+
+  // Sync real-time store open/closed status every 30s
+  useEffect(() => {
+    setStoreStatus(getStoreStatus(settings));
+    const interval = setInterval(() => {
+      setStoreStatus(getStoreStatus(settings));
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [settings]);
+
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
@@ -167,7 +179,7 @@ export const FloatingContactWidget: React.FC = () => {
           touchAction: 'none',
           transition: isDragging ? 'none' : 'left 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.25s ease-out, opacity 0.3s ease',
         }}
-        className={`fixed z-40 select-none cursor-grab active:cursor-grabbing ${
+        className={`floating-contact-widget fixed z-40 select-none cursor-grab active:cursor-grabbing ${
           isScrolling ? 'opacity-45 hover:opacity-100 scale-95' : 'opacity-100 scale-100'
         }`}
         onPointerDown={handlePointerDown}
@@ -178,6 +190,25 @@ export const FloatingContactWidget: React.FC = () => {
           {/* Subtle pulse ring waves */}
           <div className="absolute inset-[-3px] rounded-full border-2 border-rose-500 animate-ping opacity-40 pointer-events-none" />
           <div className="absolute inset-[-6px] rounded-full border border-pink-400 opacity-30 animate-pulse pointer-events-none" />
+
+          {/* Real-time Store Status Badge on top of Contact Widget ("Mở Cửa" | "Tạm Nghỉ" | "Đóng Cửa") */}
+          {!isOpen && (
+            <div
+              className="absolute -top-6 sm:-top-6.5 left-1/2 -translate-x-1/2 z-20 pointer-events-none transition-all duration-300"
+              title={`Trạng thái: ${storeStatus.text} • Giờ mở cửa: ${settings.openingHours || '07:30 - 22:00'} hàng ngày`}
+            >
+              <div
+                className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md border shadow-[0_2px_8px_rgba(0,0,0,0.12)] whitespace-nowrap select-none ${storeStatus.borderColor} ${storeStatus.textColor}`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${storeStatus.dotColor}`}
+                />
+                <span className="text-[7.5px] sm:text-[8.5px] font-bold tracking-tight">
+                  {storeStatus.text}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Main Round Contact Orb */}
           <div
@@ -198,13 +229,6 @@ export const FloatingContactWidget: React.FC = () => {
               </div>
             )}
           </div>
-
-          {/* Online status indicator dot */}
-          {!isOpen && (
-            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm flex items-center justify-center pointer-events-none">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping opacity-75" />
-            </span>
-          )}
 
           {/* Desktop Hover Hint Pill */}
           <div className="hidden sm:group-hover:flex absolute right-full top-1/2 -translate-y-1/2 mr-2.5 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/20 shadow-xl text-[11px] font-bold text-white whitespace-nowrap pointer-events-none">
@@ -317,33 +341,52 @@ export const FloatingContactWidget: React.FC = () => {
                 </a>
               </div>
 
-              {/* Channel 3: Messenger Fanpage */}
-              <div className="p-3 rounded-2xl bg-gradient-to-r from-sky-50/90 to-indigo-50/70 border border-sky-200/80 flex items-center justify-between gap-2.5 group hover:border-sky-300 transition-all">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#00B2FF] to-[#006AFF] text-white flex items-center justify-center shrink-0 shadow-md shadow-sky-500/30">
-                    <MessageSquare className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[12px] font-bold text-slate-900">Facebook Messenger</span>
-                    </div>
-                    <p className="text-[11px] text-slate-600 truncate">
-                      V&V Florielle Boutique Florist
-                    </p>
-                  </div>
-                </div>
-                <a
-                  href="https://facebook.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#00B2FF] to-[#006AFF] hover:brightness-110 text-white text-[11px] font-extrabold flex items-center gap-1 shadow-sm transition-all shrink-0"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  <span>Chat</span>
-                </a>
-              </div>
+              {/* Dynamic Additional Channels from Settings (Facebook, TikTok, Instagram, etc.) */}
+              {contactChannels && contactChannels.filter(c => c.isEnabled && c.type !== 'hotline' && c.type !== 'zalo').map((ch) => {
+                const isMessenger = ch.type === 'messenger' || ch.type === 'facebook';
+                const isTiktok = ch.type === 'tiktok';
+                const channelTitle = ch.title || ch.label || 'Kênh Liên Hệ';
+                const channelLink = ch.url || ch.link || '#';
 
-              {/* Channel 4: Showroom Address & Hours */}
+                return (
+                  <div
+                    key={ch.id}
+                    className="p-3 rounded-2xl bg-gradient-to-r from-sky-50/90 to-indigo-50/70 border border-sky-200/80 flex items-center justify-between gap-2.5 group hover:border-sky-300 transition-all"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`w-9 h-9 rounded-xl text-white flex items-center justify-center shrink-0 shadow-md ${
+                        isTiktok
+                          ? 'bg-gradient-to-tr from-slate-900 to-black shadow-slate-900/30'
+                          : 'bg-gradient-to-tr from-[#00B2FF] to-[#006AFF] shadow-sky-500/30'
+                      }`}>
+                        {isMessenger ? <MessageSquare className="w-4 h-4" /> : <ExternalLink className="w-4 h-4" />}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[12px] font-bold text-slate-900 truncate">{channelTitle}</span>
+                          <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-sky-200 text-sky-800">
+                            {ch.type}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 truncate">
+                          {ch.value || settings.name || 'V&V Florielle'}
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href={channelLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-white text-[11px] font-extrabold flex items-center gap-1 shadow-sm transition-all shrink-0"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>Truy cập</span>
+                    </a>
+                  </div>
+                );
+              })}
+
+              {/* Showroom Address & Hours (Fully Dynamic) */}
               <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-teal-50/70 border border-emerald-200/80 flex items-center justify-between gap-2.5 group hover:border-emerald-300 transition-all">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-600/30">
@@ -354,16 +397,16 @@ export const FloatingContactWidget: React.FC = () => {
                       <span className="text-[12px] font-bold text-slate-900">Ghé Thăm Showroom</span>
                     </div>
                     <p className="text-[11px] text-slate-700 font-semibold truncate">
-                      105 Doãn Kế Thiện, Cầu Giấy, Hà Nội
+                      {settings.address || '105 Doãn Kế Thiện, Mai Dịch, Cầu Giấy, Hà Nội'}
                     </p>
                     <p className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
                       <Clock className="w-3 h-3 text-emerald-600" />
-                      Mở cửa: 06:30 - 21:30 (Mỗi ngày)
+                      <span>Mở cửa: {settings.openingHours || '07:30 - 22:00'} (Mỗi ngày)</span>
                     </p>
                   </div>
                 </div>
                 <a
-                  href="https://maps.google.com/?q=105+Doan+Ke+Thien+Cau+Giay+Ha+Noi"
+                  href={`https://maps.google.com/?q=${encodeURIComponent(settings.address || '105 Doãn Kế Thiện Cầu Giấy Hà Nội')}`}
                   target="_blank"
                   rel="noreferrer"
                   className="px-2.5 py-1.5 rounded-xl bg-white border border-emerald-300 hover:bg-emerald-50 text-emerald-800 text-[11px] font-extrabold flex items-center gap-1 shadow-sm transition-all shrink-0"

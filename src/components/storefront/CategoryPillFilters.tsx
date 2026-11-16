@@ -57,10 +57,10 @@ export const CategoryPillFilters: React.FC<CategoryPillFiltersProps> = ({
       <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-2 pb-3.5 px-1 -mt-1">
         <button
           onClick={() => setSelectedCategory('all')}
-          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
             selectedCategory === 'all'
-              ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/25 ring-2 ring-emerald-600/20'
-              : 'bg-white/90 text-slate-700 border border-emerald-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 shadow-xs'
+              ? 'active-category-pill text-white shadow-md'
+              : 'bg-white/95 text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 shadow-2xs'
           }`}
         >
           🌿 Tất Cả Mẫu Hoa
@@ -71,10 +71,10 @@ export const CategoryPillFilters: React.FC<CategoryPillFiltersProps> = ({
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                 selectedCategory === cat.id
-                  ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/25 ring-2 ring-emerald-600/20 font-bold'
-                  : 'bg-white/90 text-slate-700 border border-emerald-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 shadow-xs'
+                  ? 'active-category-pill text-white shadow-md font-bold'
+                  : 'bg-white/95 text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 shadow-2xs font-semibold'
               }`}
             >
               <span>{cat.name}</span>

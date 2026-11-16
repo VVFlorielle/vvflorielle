@@ -38,8 +38,8 @@ const FAQ_CHIPS = [
     a: 'Tiệm xuất phát từ cửa hàng trung tâm. Bán kính dưới 3km đơn từ 400.000đ được Miễn Phí Vận Chuyển (Freeship). Từ 3 - 7km: 35k; 7 - 12km: 50k. Từ 20 - 50km có cảnh báo chất lượng hoa tươi. Trên 50km vui lòng liên hệ Hotline tiệm để được phục vụ chuyến xe chuyên dụng!'
   },
   {
-    q: 'Hoa có tươi mới loại 1 không?',
-    a: '100% hoa tại V&V Florielle là hoa tuyển chọn loại 1 nhập mới mỗi ngày từ đơn vị vườn hoa & hoa ngoại nhập khẩu cao cấp. Tiệm cam kết bảo hành đổi mới 100% trong 2H nếu hoa bị dập nát hoặc không đúng mẫu yêu cầu!'
+    q: 'Chất lượng hoa tại tiệm thế nào?',
+    a: 'V&V Florielle tuyển chọn hoa tươi loại 1 nhập mới mỗi sáng tại Hà Nội & hoa ngoại nhập khẩu, cùng các dòng hoa sáp thơm nghệ thuật lưu hương 3-5 năm và hoa lụa cao cấp tinh tế. Tiệm cam kết bảo hành đổi mới 100% trong 2H nếu hoa bị lỗi hoặc không đúng mẫu yêu cầu!'
   },
   {
     q: 'Cách cọc đơn qua VietQR?',
@@ -65,7 +65,7 @@ const MASCOT_TIPS = [
   '🎁 Tặng Voucher Freeship 100% khi tích đủ 100 điểm thưởng!',
   '📸 Florist chụp ảnh gửi mẫu hoàn thiện qua Zalo trước khi giao nha!',
   '🎀 Tặng kèm thiệp chúc mừng viết tay & ruy băng lụa cao cấp!',
-  '✨ Cậu cần tư vấn chọn hoa tươi giao nhanh cứ nhắn tớ nhé! 💕',
+  '✨ Cậu cần tư vấn chọn hoa (hoa tươi, hoa sáp, hoa lụa) cứ nhắn tớ nhé! 💕',
   '🌷 Cậu cần tư vấn chọn hoa dịp gì? Chạm vào tớ nhé! 💬'
 ];
 
@@ -333,7 +333,7 @@ export const MascotAssistant: React.FC = () => {
     <>
       {/* 1. DRAGGABLE FLOATING AI MASCOT (Matching phototiinlove) */}
       <div
-        className={`fixed ${isOpen ? 'z-[95]' : 'z-40'} select-none touch-none flex items-center cursor-pointer group`}
+        className={`floating-mascot-wrapper fixed ${isOpen ? 'z-[95]' : 'z-40'} select-none touch-none flex items-center cursor-pointer group`}
         style={{
           left: `${targetX}px`,
           top: `${targetY}px`,

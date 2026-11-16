@@ -105,7 +105,7 @@ export const FloatingCartWidget: React.FC = () => {
         top: `${pos.y}px`,
         touchAction: 'none',
       }}
-      className="fixed z-40 w-[60px] h-[60px] sm:w-16 sm:h-16 flex items-center justify-center select-none group cursor-grab active:cursor-grabbing transition-transform"
+      className="floating-cart-widget fixed z-40 w-[60px] h-[60px] sm:w-16 sm:h-16 flex items-center justify-center select-none group cursor-grab active:cursor-grabbing transition-transform"
       onPointerDown={handlePointerDown}
       onClick={handleCartClick}
       title="Giỏ hoa của bạn (Bấm để xem)"

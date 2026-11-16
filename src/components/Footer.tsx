@@ -46,20 +46,20 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
               </div>
             </div>
 
-            {/* Card 2: Hoa Tươi Mới 100% */}
+            {/* Card 2: Hoa Tuyển Chọn Thượng Hạng */}
             <div
               onClick={() => onOpenPopup && onOpenPopup('guarantee')}
               className="flex items-center sm:items-start gap-1.5 min-[375px]:gap-2 sm:gap-3 p-1.5 min-[375px]:p-2 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/90 shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5 active:scale-98"
             >
               <div className="w-6 h-6 min-[375px]:w-7 min-[375px]:h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-rose-50/90 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200/80 shadow-2xs">
-                <img src="/icons/icon-heart-3d.png" alt="Hoa tươi mới 100%" className="w-4 h-4 sm:w-6 sm:h-6 object-contain drop-shadow-xs" />
+                <img src="/icons/icon-heart-3d.png" alt="Hoa tuyển chọn thượng hạng" className="w-4 h-4 sm:w-6 sm:h-6 object-contain drop-shadow-xs" />
               </div>
               <div className="min-w-0">
                 <h4 className="font-bold text-slate-800 text-[10px] min-[375px]:text-[11px] sm:text-sm leading-tight truncate">
-                  Hoa Tươi Mới 100%
+                  Hoa Tuyển Chọn Cao Cấp
                 </h4>
                 <p className="text-[8.5px] min-[375px]:text-[9.5px] sm:text-xs text-slate-500 mt-0.5 truncate leading-relaxed">
-                  Nhập mới, đổi trả trong 2h.
+                  Hoa tươi, sáp &amp; lụa đổi trả 2h.
                 </p>
               </div>
             </div>
@@ -107,15 +107,15 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
             <div className="rounded-xl sm:rounded-2xl bg-white/60 hover:bg-white/75 backdrop-blur-md border border-white/80 p-2 sm:p-5 shadow-2xs space-y-1.5 sm:space-y-3 transition-colors flex flex-col justify-between">
               <div>
                 <img
-                  src="/logo-vvflorielle-horizontal.webp"
-                  alt="V&V Florielle"
+                  src={settings.logoVerticalUrl || settings.logoHorizontalUrl || '/logo-vvflorielle-horizontal.webp'}
+                  alt={settings.name || "V&V Florielle"}
                   className="h-5 min-[375px]:h-6 sm:h-9 w-auto object-contain mb-1"
                 />
                 <div className="font-black text-[10px] min-[375px]:text-[11.5px] sm:text-base text-slate-900 tracking-tight flex items-center gap-1">
                   <span className="truncate">{settings.name}</span>
                 </div>
                 <p className="text-[8px] min-[375px]:text-[9px] sm:text-xs text-slate-500 leading-tight mt-0.5 line-clamp-2">
-                  {settings.slogan}. Tiệm hoa tươi thiết kế cao cấp Hà Nội.
+                  {settings.slogan}. Tiệm hoa nghệ thuật thiết kế cao cấp Hà Nội.
                 </p>
               </div>
 
@@ -126,7 +126,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
                   title={settings.address}
                 >
                   <MapPin className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-emerald-600 shrink-0" />
-                  <span className="truncate">105 Doãn Kế Thiện, CG</span>
+                  <span className="truncate">{settings.address || '105 Doãn Kế Thiện, CG'}</span>
                 </div>
                 <div className="flex items-center gap-1 truncate">
                   <PhoneCall className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-emerald-600 shrink-0" />
@@ -246,12 +246,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
           {/* 3. BOTTOM COPYRIGHT */}
           <div className="pt-2 sm:pt-4 border-t border-white/80 flex flex-col sm:flex-row items-center justify-between text-[8.5px] min-[375px]:text-[9.5px] sm:text-xs text-slate-400 gap-1 sm:gap-2 text-center sm:text-left">
             <div className="truncate">
-              © {new Date().getFullYear()} {settings.name}. Hệ thống đặt hoa tươi thiết kế trực tuyến cao cấp.
+              © {new Date().getFullYear()} {settings.name}. All rights reserved.
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 text-[8px] min-[375px]:text-[9px] sm:text-[11px] text-slate-500 font-medium shrink-0">
               <span>Boutique Florist</span>
               <span>•</span>
-              <span>100% Hoa Tươi Loại 1</span>
+              <span>Đa Dạng Hoa Tươi • Hoa Sáp • Hoa Lụa</span>
             </div>
           </div>
 

@@ -28,17 +28,17 @@ export const ManagementRecentOrders: React.FC<ManagementRecentOrdersProps> = ({
           </div>
           <div>
             <h3 className="font-bold text-base text-slate-800">
-              Bảng Vận Hành Tiệm Hoa V&amp;V Florielle
+              Bảng Điều Phối Đơn Hàng
             </h3>
             <p className="text-xs text-slate-500">
-              105 Doãn Kế Thiện • Duyệt đơn cọc VietQR 1-chạm, kiểm soát còn hoa tức thì và chăm sóc khách hàng thân thiết.
+              Theo dõi tiến độ cắm hoa và duyệt đơn cọc VietQR theo thời gian thực.
             </p>
           </div>
         </div>
         <button
           type="button"
           onClick={onViewAllOrders}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-200 transition-colors w-fit cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-200 transition-colors w-fit cursor-pointer self-start sm:self-auto"
         >
           <span>Xem tất cả {orders.length} đơn hàng</span>
           <ChevronRight className="w-3.5 h-3.5" />

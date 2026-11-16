@@ -46,14 +46,14 @@ export const AboutPage: React.FC = () => {
           </span>
 
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight leading-tight text-center">
-            Tiệm Hoa Tươi Nghệ Thuật <br className="hidden sm:inline" />
+            Tiệm Hoa Nghệ Thuật & Thiết Kế Hoa <br className="hidden sm:inline" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-teal-600">
               V&V Florielle
             </span>
           </h1>
 
           <p className="text-xs sm:text-base text-slate-600 leading-relaxed text-center max-w-2xl mx-auto">
-            Tọa lạc tại <strong className="text-slate-900">Số 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội</strong>, V&V Florielle là không gian sáng tạo hoa nghệ thuật cao cấp. Chúng mình tin rằng mỗi bông hoa đều mang một tần số cảm xúc riêng biệt, kết nối tâm giao và lưu giữ trọn vẹn những khoảnh khắc ngọt ngào nhất.
+            Tọa lạc tại <strong className="text-slate-900">{settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội'}</strong>, {settings.name} là không gian sáng tạo hoa nghệ thuật cao cấp. Chúng mình tin rằng mỗi bông hoa đều mang một tần số cảm xúc riêng biệt, kết nối tâm giao và lưu giữ trọn vẹn những khoảnh khắc ngọt ngào nhất.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
@@ -97,8 +97,8 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-xs text-slate-800">Hoa Tươi Tuyển Chọn Mỗi Ngày</h4>
-                <p className="text-[11px] text-slate-500">100% hoa nhập trực tiếp từ vườn hoa Đà Lạt loại 1 và hoa nhập khẩu cao cấp từ Ecuador, Hà Lan.</p>
+                <h4 className="font-bold text-xs text-slate-800">Hoa Tuyển Chọn Đa Dạng (Hoa Tươi • Hoa Sáp • Hoa Lụa)</h4>
+                <p className="text-[11px] text-slate-500">Đa dạng lựa chọn: Hoa tươi loại 1 nhập mới mỗi sáng tại Hà Nội & nguồn hoa nhập khẩu cao cấp, cùng các dòng hoa sáp thơm nghệ thuật lưu hương 3-5 năm và hoa lụa cao cấp bền đẹp vĩnh cửu.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -126,43 +126,43 @@ export const AboutPage: React.FC = () => {
           <h3 className="text-xl sm:text-3xl font-black text-slate-900">4 Cam Kết Vàng Với Khách Hàng</h3>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="glass-card p-5 rounded-3xl border border-white/80 shadow-sm text-center space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 mx-auto flex items-center justify-center shadow-xs">
-              <Award className="w-6 h-6" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="glass-card p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/80 shadow-sm text-center space-y-1.5 sm:space-y-2">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-100 text-emerald-800 mx-auto flex items-center justify-center shadow-xs">
+              <Award className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h4 className="font-bold text-sm text-slate-900">Hoa Tươi Loại 1</h4>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
-              Tuyển chọn từng bông hoa nở đẹp, cánh dày, giữ độ tươi tự nhiên suốt 3 - 7 ngày.
+            <h4 className="font-bold text-xs sm:text-sm text-slate-900">Chất Lượng Thượng Hạng</h4>
+            <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed">
+              Tuyển chọn hoa tươi cánh dày nở chuẩn 3 - 7 ngày, hoa sáp thơm & hoa lụa cao cấp tỉ mỉ từng chi tiết.
             </p>
           </div>
 
-          <div className="glass-card p-5 rounded-3xl border border-white/80 shadow-sm text-center space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-800 mx-auto flex items-center justify-center shadow-xs">
-              <Truck className="w-6 h-6" />
+          <div className="glass-card p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/80 shadow-sm text-center space-y-1.5 sm:space-y-2">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-teal-100 text-teal-800 mx-auto flex items-center justify-center shadow-xs">
+              <Truck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h4 className="font-bold text-sm text-slate-900">Giao Hỏa Tốc Từ 15 Phút</h4>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
+            <h4 className="font-bold text-xs sm:text-sm text-slate-900">Giao Hỏa Tốc Từ 15 Phút</h4>
+            <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed">
               Điện hoa hỏa tốc chỉ từ 15P nội thành &amp; 60P ngoại thành Hà Nội, bảo quản chuyên dụng không dập nát.
             </p>
           </div>
 
-          <div className="glass-card p-5 rounded-3xl border border-white/80 shadow-sm text-center space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 mx-auto flex items-center justify-center shadow-xs">
-              <Camera className="w-6 h-6" />
+          <div className="glass-card p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/80 shadow-sm text-center space-y-1.5 sm:space-y-2">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-100 text-amber-800 mx-auto flex items-center justify-center shadow-xs">
+              <Camera className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h4 className="font-bold text-sm text-slate-900">Chụp Ảnh Duyệt Mẫu</h4>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
+            <h4 className="font-bold text-xs sm:text-sm text-slate-900">Chụp Ảnh Duyệt Mẫu</h4>
+            <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed">
               Chụp ảnh và quay video thành phẩm thực tế gửi qua Zalo trước khi giao đi.
             </p>
           </div>
 
-          <div className="glass-card p-5 rounded-3xl border border-white/80 shadow-sm text-center space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-800 mx-auto flex items-center justify-center shadow-xs">
-              <ShieldCheck className="w-6 h-6" />
+          <div className="glass-card p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/80 shadow-sm text-center space-y-1.5 sm:space-y-2">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-100 text-rose-800 mx-auto flex items-center justify-center shadow-xs">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h4 className="font-bold text-sm text-slate-900">Bảo Hành Đổi Mới 100%</h4>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
+            <h4 className="font-bold text-xs sm:text-sm text-slate-900">Bảo Hành Đổi Mới 100%</h4>
+            <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed">
               Đổi mới hoặc hoàn tiền ngay trong 2 giờ nếu hoa không tươi hoặc không đúng mẫu.
             </p>
           </div>
@@ -170,19 +170,21 @@ export const AboutPage: React.FC = () => {
       </div>
 
       {/* 4. WORKSHOP & ĐỊA CHỈ TIỆM - SÁNG PASTEL BÓNG KÍNH KHÔNG DÙNG NỀN TỐI */}
-      <div className="rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-emerald-50/90 via-white/95 to-teal-50/90 border border-emerald-200/90 shadow-xl backdrop-blur-xl relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="space-y-2 max-w-lg text-center sm:text-left">
+      <div className="rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-emerald-50/90 via-white/95 to-teal-50/90 border border-emerald-200/90 shadow-xl backdrop-blur-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div className="space-y-2 max-w-lg text-center lg:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 text-xs font-bold border border-emerald-300/80 shadow-2xs">
             <MapPin className="w-3.5 h-3.5 text-emerald-700" />
             <span>Ghé Thăm Tiệm Hoa Nghệ Thuật</span>
           </div>
-          <h3 className="text-xl sm:text-3xl font-black tracking-tight text-emerald-950 font-serif">Số 105 Doãn Kế Thiện, Cầu Giấy, Hà Nội</h3>
+          <h3 className="text-xl sm:text-3xl font-black tracking-tight text-emerald-950 font-serif">
+            {settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội'}
+          </h3>
           <p className="text-xs text-slate-600 leading-relaxed">
             Tiệm hoa mở cửa đón khách từ <strong className="text-emerald-900">06:30 đến 21:30</strong> hàng ngày. Kính mời bạn ghé thăm để tận mắt ngắm nhìn những đoá hoa thơm ngát và nhâm nhi tách trà cùng florist của tiệm!
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full lg:w-auto">
           <a
             href={`tel:${settings.hotline}`}
             className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 hover:from-emerald-800 hover:to-teal-700 text-white font-extrabold text-xs shadow-md shadow-emerald-700/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 border border-white/40 backdrop-blur-md cursor-pointer"

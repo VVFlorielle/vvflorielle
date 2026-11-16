@@ -166,10 +166,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Price & Actions: 2 nút đặt bên dưới giá tiền để không bị ép ngang */}
         <div className="mt-2.5 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-100 flex flex-col gap-2">
-          {/* Hàng trên: Giá tiền to rõ ràng */}
+          {/* Hàng trên: Giá tiền đỏ cam chuẩn thương mại điện tử - Không bị đổi theo branding */}
           <div className="min-w-0">
             <div
-              className={`font-extrabold text-emerald-800 leading-tight ${
+              className={`font-black text-[#ee4d2d] leading-tight fixed-semantic product-price tracking-tight ${
                 product.price >= 1000000 ? 'text-[13px] min-[375px]:text-sm sm:text-base' : 'text-sm sm:text-base'
               }`}
             >
@@ -182,18 +182,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             )}
           </div>
 
-          {/* Hàng dưới: 2 nút riêng biệt [🛒 Thêm giỏ] và [⚡ Đặt hoa] */}
+          {/* Hàng dưới: 2 nút riêng biệt [🛒 Thêm giỏ] và [⚡ Đặt hoa] đồng bộ theo màu Branding */}
           <div className="grid grid-cols-2 gap-1.5 w-full">
             <button
               type="button"
               onClick={handleAddToCartOnly}
               disabled={!product.isAvailable}
-              className={`py-1.5 px-1.5 sm:px-2 rounded-xl border border-emerald-300/90 bg-emerald-50/90 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] min-[375px]:text-[11px] sm:text-xs flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer shadow-2xs ${
+              className={`btn-add-cart py-1.5 px-1.5 sm:px-2 rounded-xl border font-bold text-[10px] min-[375px]:text-[11px] sm:text-xs flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer shadow-2xs ${
                 !product.isAvailable ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200' : ''
               }`}
+              style={product.isAvailable ? {
+                borderColor: 'var(--primary-border, rgba(16, 185, 129, 0.35))',
+                backgroundColor: 'var(--primary-light, #ecfdf5)',
+                color: 'var(--primary-color, #059669)',
+              } : undefined}
               title="Thêm hoa vào giỏ để chọn tiếp nhiều bó"
             >
-              <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 text-emerald-700" />
+              <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" style={{ color: 'var(--primary-color, #059669)' }} />
               <span className="truncate">Thêm giỏ</span>
             </button>
 
@@ -201,9 +206,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               type="button"
               onClick={handleBuyNow}
               disabled={!product.isAvailable}
-              className={`py-1.5 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-[10px] min-[375px]:text-[11px] sm:text-xs flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer shadow-sm shadow-emerald-600/20 ${
+              className={`btn-buy-now py-1.5 px-1.5 sm:px-2 rounded-xl text-white font-bold text-[10px] min-[375px]:text-[11px] sm:text-xs flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer shadow-sm ${
                 !product.isAvailable ? 'opacity-50 cursor-not-allowed bg-slate-400' : ''
               }`}
+              style={product.isAvailable ? {
+                background: 'linear-gradient(135deg, var(--primary-color, #059669) 0%, var(--primary-hover, #047857) 100%)',
+                boxShadow: '0 4px 14px var(--primary-glow, rgba(16, 185, 129, 0.25))',
+              } : undefined}
               title="Đặt mua ngay 1 bó này và thanh toán"
             >
               <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 text-amber-300 fill-amber-300" />

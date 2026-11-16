@@ -36,12 +36,17 @@ export const ProductsDisplayGrid: React.FC<ProductsDisplayGridProps> = ({
             ))}
           </div>
 
-          {/* Button to view all catalog when more than 8 products */}
+          {/* Button to view all catalog when more than 8 products (Đồng bộ theo màu Branding) */}
           {totalSortedCount > 8 && (
             <div className="text-center pt-8 pb-2">
               <button
+                type="button"
                 onClick={onViewAllCatalog}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:from-emerald-800 hover:to-teal-900 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
+                className="btn-view-all-flowers inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
+                style={{
+                  background: 'linear-gradient(135deg, var(--primary-color, #059669) 0%, var(--primary-hover, #047857) 100%)',
+                  boxShadow: '0 6px 20px var(--primary-glow, rgba(16, 185, 129, 0.25))'
+                }}
               >
                 <span>Xem thêm tất cả {totalSortedCount} mẫu hoa trên trang Bộ Sưu Tập</span>
                 <ArrowRight className="w-4 h-4" />

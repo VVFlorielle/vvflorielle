@@ -8,7 +8,9 @@ import { useStore } from '../context/StoreContext';
 
 export const FloralCornerTopLeft: React.FC<{ className?: string; src?: string }> = ({ className = '', src }) => {
   const { settings } = useStore();
-  const imgSrc = src || settings.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp';
+  const leftImage = settings.floralCornerTopLeftImage ?? settings.floralCornerTopImage;
+  if (leftImage === 'none' || leftImage === '') return null;
+  const imgSrc = src || leftImage || '/images/floral/floral-corner-rose-peony.webp';
   return (
     <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
       <img
@@ -22,13 +24,16 @@ export const FloralCornerTopLeft: React.FC<{ className?: string; src?: string }>
 
 export const FloralCornerTopRight: React.FC<{ className?: string; src?: string }> = ({ className = '', src }) => {
   const { settings } = useStore();
-  const imgSrc = src || settings.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp';
+  const rightImage = settings.floralCornerTopRightImage ?? settings.floralCornerTopImage;
+  if (rightImage === 'none' || rightImage === '') return null;
+  const hasSpecificRight = Boolean(settings.floralCornerTopRightImage);
+  const imgSrc = src || rightImage || '/images/floral/floral-corner-rose-peony.webp';
   return (
     <div className={`pointer-events-none select-none overflow-hidden ${className}`}>
       <img
         src={imgSrc}
         alt="Hoa góc trên phải"
-        className="w-full h-full object-contain -scale-x-100 opacity-90"
+        className={`w-full h-full object-contain ${hasSpecificRight ? '' : '-scale-x-100'} opacity-90`}
       />
     </div>
   );

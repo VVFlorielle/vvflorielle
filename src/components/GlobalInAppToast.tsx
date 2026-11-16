@@ -1,60 +1,37 @@
 import React from 'react';
-import { CheckCircle2, AlertCircle, X, Sparkles, Bell } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Sparkles, Bell } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export const GlobalInAppToast: React.FC = () => {
   const {
     toasts,
     activeBannerNotification,
-    dismissBannerNotification,
-    dismissToast
+    dismissBannerNotification
   } = useStore();
 
   return (
     <>
-      {/* 1. LIGHTWEIGHT FLOATING CORNER TOASTS (Chuẩn Phototiinlove: Nổi góc phải nhẹ nhàng, tự biến mất sau ~2s) */}
+      {/* 1. CENTER FLOATING HUD TOAST (Bóng kính màu trắng, chữ màu đen nổi thanh thoát, không khung cồng kềnh, xuyên click 100%, tối đa 3 hàng) */}
       <div
-        className="fixed top-4 right-4 sm:top-5 sm:right-5 z-[100000] pointer-events-none flex flex-col gap-2 max-w-[340px] sm:max-w-sm w-full px-2"
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000000] pointer-events-none flex flex-col items-center gap-2 select-none px-4 w-auto max-w-[92vw]"
         aria-live="polite"
         aria-atomic="true"
       >
-        {toasts.map((toast) => (
+        {toasts.slice(-3).map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-white/95 backdrop-blur-xl border shadow-[0_10px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-top-3 fade-in duration-200 select-none ${
-              toast.type === 'success'
-                ? 'border-emerald-300/90 text-emerald-950'
-                : toast.type === 'error'
-                ? 'border-rose-300/90 text-rose-950'
-                : 'border-slate-200 text-slate-900'
-            }`}
+            className="pointer-events-none inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/85 backdrop-blur-md text-slate-800 text-xs sm:text-[13px] font-bold tracking-wide shadow-[0_8px_30px_rgba(0,0,0,0.14)] border border-white/90 ring-1 ring-slate-900/5 animate-in zoom-in-95 slide-in-from-bottom-2 fade-in duration-200 max-w-[90vw] sm:max-w-md text-center"
           >
-            <div className="shrink-0">
-              {toast.type === 'success' ? (
-                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-              ) : toast.type === 'error' ? (
-                <div className="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-xs">
-                  <AlertCircle className="w-4 h-4" />
-                </div>
-              ) : (
-                <div className="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-xs">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </div>
-              )}
-            </div>
-            <p className="text-xs sm:text-[13px] font-semibold leading-snug flex-1">
+            {toast.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : toast.type === 'error' ? (
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            ) : (
+              <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+            )}
+            <span className="leading-normal">
               {toast.message}
-            </p>
-            <button
-              type="button"
-              onClick={() => dismissToast(toast.id)}
-              className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
-              title="Đóng thông báo"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
+            </span>
           </div>
         ))}
       </div>
@@ -62,7 +39,7 @@ export const GlobalInAppToast: React.FC = () => {
       {/* 2. URGENT SYSTEM BANNER MODAL (Chỉ hiện khi có activeBannerNotification từ hệ thống) */}
       {activeBannerNotification && (
         <div
-          className="fixed inset-0 z-[100001] flex items-center justify-center p-4 bg-slate-950/45 backdrop-blur-xs animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-[1000000] flex items-center justify-center p-4 bg-slate-900/25 backdrop-blur-sm animate-in fade-in duration-200 select-none"
           onClick={dismissBannerNotification}
           role="dialog"
           aria-modal="true"

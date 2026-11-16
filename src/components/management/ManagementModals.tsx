@@ -31,13 +31,20 @@ import {
   Plus,
   AlertTriangle,
   UserPlus,
+  UserCheck,
+  User,
   Award,
   HelpCircle,
-  Edit3
+  Edit3,
+  Cloud,
+  ExternalLink,
+  HardDrive,
+  RefreshCw
 } from 'lucide-react';
 import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel, FlowerCategory, CustomerTier } from '../../types';
 import { AVAILABLE_MASCOTS } from '../../data/mockData';
 import { useBodyScrollLock } from '../../utils/scrollLock';
+import { compressImage } from '../../utils/imageCompressor';
 
 // 0. UNIVERSAL IN-APP ACTION CONFIRM MODAL (NO BROWSER DIALOGS!)
 export interface ActionConfirmModalProps {
@@ -66,7 +73,7 @@ export const ActionConfirmModal: React.FC<ActionConfirmModalProps> = ({
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="glass-overlay z-[99999]" onClick={onClose}>
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[32px] border border-white/80 bg-white/95 shadow-2xl p-6 text-center animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
@@ -160,36 +167,32 @@ export const SecurityModal: React.FC<SecurityModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      className="glass-overlay z-[100000]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="glass-panel w-full max-w-lg md:max-w-2xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        className="glass-panel w-full max-w-lg md:max-w-2xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shadow-xs">
-              <Lock className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base text-slate-800">
-                Bảo Mật &amp; Đổi Mật Khẩu ({roleTitle})
-              </h3>
-              <p className="text-xs text-slate-500">Quản lý mật khẩu đăng nhập, PIN cấp 2 và Gmail</p>
-            </div>
-          </div>
+        <div className="relative p-5 pb-3 border-b border-slate-100 flex flex-col items-center text-center shrink-0 bg-white/80">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
             title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shadow-xs mb-2">
+            <Lock className="w-5 h-5" />
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-800 tracking-tight">
+            Bảo Mật &amp; Đổi Mật Khẩu ({roleTitle})
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">Quản lý mật khẩu đăng nhập, PIN cấp 2 và Gmail</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs no-scrollbar flex flex-col justify-between">
@@ -298,7 +301,8 @@ export const SecurityModal: React.FC<SecurityModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -327,36 +331,32 @@ export const ShippingConfigModal: React.FC<ShippingConfigModalProps> = ({
     onClose();
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      className="glass-overlay z-[100000]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="glass-panel w-full max-w-xl md:max-w-4xl lg:max-w-5xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        className="glass-panel w-full max-w-xl md:max-w-4xl lg:max-w-5xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-xs">
-              <Truck className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base text-slate-800">
-                Cấu Hình Bảng Cước Vận Chuyển 4 Bậc &amp; Bán Kính
-              </h3>
-              <p className="text-xs text-slate-500">Thiết lập cước hỏa tốc từ 15 phút nội thành, 60 phút ngoại thành</p>
-            </div>
-          </div>
+        <div className="relative p-5 pb-3 border-b border-slate-100 flex flex-col items-center text-center shrink-0 bg-white/80">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
             title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-xs mb-2">
+            <Truck className="w-5 h-5" />
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-800 tracking-tight">
+            Cấu Hình Bảng Cước Vận Chuyển 4 Bậc &amp; Bán Kính
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">Thiết lập cước hỏa tốc từ 15 phút nội thành, 60 phút ngoại thành</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 text-xs no-scrollbar flex flex-col justify-between">
@@ -463,7 +463,8 @@ export const ShippingConfigModal: React.FC<ShippingConfigModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -514,34 +515,30 @@ export const QuickVoucherModal: React.FC<QuickVoucherModalProps> = ({
     setBadge(b);
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      className="glass-overlay z-[100000]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="glass-panel w-full max-w-md md:max-w-2xl lg:max-w-3xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        className="glass-panel w-full max-w-md md:max-w-2xl lg:max-w-3xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shadow-xs">
-              <Gift className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base text-slate-800">Tạo Nhanh Voucher Dịp Lễ</h3>
-              <p className="text-xs text-slate-500">Tạo mã ưu đãi cho ngày lễ trong 30 giây</p>
-            </div>
-          </div>
+        <div className="relative p-5 pb-3 border-b border-slate-100 flex flex-col items-center text-center shrink-0 bg-white/80">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
             title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shadow-xs mb-2">
+            <Gift className="w-5 h-5" />
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-800 tracking-tight">Tạo Nhanh Voucher Dịp Lễ</h3>
+          <p className="text-xs text-slate-500 mt-0.5">Tạo mã ưu đãi cho ngày lễ trong 30 giây</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 text-xs no-scrollbar flex flex-col justify-between">
@@ -643,7 +640,8 @@ export const QuickVoucherModal: React.FC<QuickVoucherModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -663,34 +661,30 @@ export const MascotSelectorModal: React.FC<MascotSelectorModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      className="glass-overlay z-[100000]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="glass-panel w-full max-w-2xl md:max-w-4xl lg:max-w-5xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        className="glass-panel w-full max-w-2xl md:max-w-4xl lg:max-w-5xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-pink-100 text-pink-700 flex items-center justify-center shadow-xs">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base text-slate-800">Chọn Linh Vật Tiệm Hoa (6 Mascot Mới)</h3>
-              <p className="text-xs text-slate-500">Admin có thể chọn và thay thế linh vật hiển thị trên giao diện</p>
-            </div>
-          </div>
+        <div className="relative p-5 pb-3 border-b border-slate-100 flex flex-col items-center text-center shrink-0 bg-white/80">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
             title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-pink-100 text-pink-700 flex items-center justify-center shadow-xs mb-2">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-800 tracking-tight">Chọn Linh Vật Tiệm Hoa (6 Mascot Mới)</h3>
+          <p className="text-xs text-slate-500 mt-0.5">Admin có thể chọn và thay thế linh vật hiển thị trên giao diện</p>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 no-scrollbar">
@@ -752,7 +746,8 @@ export const MascotSelectorModal: React.FC<MascotSelectorModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -761,60 +756,191 @@ export interface BillPreviewModalProps {
   order: Order | null;
   onClose: () => void;
   onApproveDeposit: (orderId: string) => void;
+  onRejectDeposit?: (orderId: string, reason: string) => void;
+  onSyncBillToDrive?: (orderId: string) => Promise<{ success: boolean; driveUrl?: string; error?: string }>;
+  isDriveConfigured?: boolean;
 }
 
 export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
   order,
   onClose,
-  onApproveDeposit
+  onApproveDeposit,
+  onRejectDeposit,
+  onSyncBillToDrive,
+  isDriveConfigured = false
 }) => {
   useBodyScrollLock(Boolean(order));
+  const [rejectReason, setRejectReason] = useState('Số tiền chuyển chưa đủ 50% tiền cọc');
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
+
+  const handleSyncToDrive = async () => {
+    if (!order || !onSyncBillToDrive) return;
+    setIsSyncing(true);
+    setSyncFeedback(null);
+    try {
+      const res = await onSyncBillToDrive(order.id);
+      if (res.success) {
+        setSyncFeedback('✓ Đã đồng bộ lên Google Drive thành công!');
+      } else {
+        setSyncFeedback(`⚠️ ${res.error || 'Lỗi đồng bộ'}`);
+      }
+    } catch (err: any) {
+      setSyncFeedback(`⚠️ Lỗi: ${err?.message || 'Không thể đồng bộ'}`);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   if (!order) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 pb-28 sm:p-5 sm:pb-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+      className="glass-overlay z-[100000]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="glass-panel w-full max-w-lg md:max-w-3xl lg:max-w-4xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[calc(100dvh-130px)] md:max-h-[85vh]"
+        className="glass-panel w-full max-w-lg md:max-w-3xl lg:max-w-4xl bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
-          <div>
-            <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider block">
-              Biên Lai Đặt Cọc 50% VietQR
-            </span>
-            <h3 className="font-bold text-base text-slate-800">
-              Đơn hàng #{order.id}
-            </h3>
-          </div>
+        <div className="relative p-5 pb-3 border-b border-slate-100 flex flex-col items-center text-center shrink-0 bg-white/80">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
             title="Đóng modal"
           >
             <X className="w-4 h-4" />
           </button>
+          <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider block mb-1">
+            Biên Lai Đặt Cọc 50% VietQR
+          </span>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-800 tracking-tight">
+            Đơn hàng #{order.id}
+          </h3>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 text-xs no-scrollbar flex flex-col justify-between">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 text-xs no-scrollbar flex flex-col justify-between space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-start">
-            {/* Left Column: Bill image */}
-            <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 text-center min-h-[220px] max-h-80 flex items-center justify-center p-2 shadow-inner">
-              {order.paymentBillImage ? (
-                <img
-                  src={order.paymentBillImage}
-                  alt="Bill VietQR"
-                  className="max-h-72 w-auto object-contain mx-auto rounded-xl shadow-xs"
-                />
+            {/* Left Column: Bill image & Custom Sample Image */}
+            <div className="space-y-3">
+              {order.isBillArchived ? (
+                <div className="rounded-2xl border border-indigo-200 bg-indigo-50/70 p-6 text-center space-y-3 shadow-inner">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center shadow-xs">
+                    <Cloud className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm">Biên Lai Đã Được Lưu Trữ Trên Google Drive</h4>
+                    <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto">
+                      Dữ liệu ảnh base64 tại máy đã được dọn dẹp an toàn để tối ưu bộ nhớ trình duyệt web (&lt; 2MB).
+                    </p>
+                    {order.billArchivedAt && (
+                      <p className="text-[10px] text-slate-400 mt-1 font-mono">
+                        Thời điểm lưu trữ: {new Date(order.billArchivedAt).toLocaleString('vi-VN')}
+                      </p>
+                    )}
+                  </div>
+
+                  {order.billDriveUrl ? (
+                    <a
+                      href={order.billDriveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Mở Xem Biên Lai Trên Google Drive</span>
+                    </a>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 italic">
+                      (Đã dọn dẹp dữ liệu ảnh nội bộ)
+                    </p>
+                  )}
+                </div>
               ) : (
-                <div className="py-12 text-slate-400 space-y-1.5">
-                  <Camera className="w-10 h-10 mx-auto text-slate-300" />
-                  <p className="font-semibold text-xs">Khách hàng chưa tải ảnh biên lai lên</p>
-                  <p className="text-[10px] text-slate-400">Có thể duyệt đơn trực tiếp nếu đã nhận được tiền nổi ở tài khoản</p>
+                <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 text-center min-h-[220px] max-h-80 flex items-center justify-center p-2 shadow-inner">
+                  {order.paymentBillImage || order.billImageDataUrl ? (
+                    <img
+                      src={order.paymentBillImage || order.billImageDataUrl}
+                      alt="Bill VietQR"
+                      className="max-h-72 w-auto object-contain mx-auto rounded-xl shadow-xs"
+                    />
+                  ) : (
+                    <div className="py-12 text-slate-400 space-y-1.5">
+                      <Camera className="w-10 h-10 mx-auto text-slate-300" />
+                      <p className="font-semibold text-xs">Khách hàng chưa tải ảnh biên lai lên</p>
+                      <p className="text-[10px] text-slate-400">Có thể duyệt đơn trực tiếp nếu đã nhận được tiền nổi ở tài khoản</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Sync status / Drive action banner */}
+              {!order.isBillArchived && (order.paymentBillImage || order.billImageDataUrl) && (
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    {order.billDriveUrl ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Đã sao lưu Google Drive</span>
+                        </span>
+                        <a
+                          href={order.billDriveUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 underline flex items-center gap-0.5"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span>Mở link</span>
+                        </a>
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex items-center justify-between gap-2">
+                        <span className="text-[11px] text-slate-500">
+                          {isDriveConfigured ? 'Ảnh đang lưu tạm tại trình duyệt.' : 'Chưa cấu hình Google Drive Webhook.'}
+                        </span>
+                        {isDriveConfigured && onSyncBillToDrive && (
+                          <button
+                            type="button"
+                            onClick={handleSyncToDrive}
+                            disabled={isSyncing}
+                            className="py-1 px-2.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors disabled:opacity-50"
+                          >
+                            {isSyncing ? (
+                              <>
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                                <span>Đang tải lên...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Cloud className="w-3 h-3" />
+                                <span>Lưu lên Drive</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {syncFeedback && (
+                    <span className="text-[10px] font-semibold text-indigo-800 block">{syncFeedback}</span>
+                  )}
+                </div>
+              )}
+
+              {order.customDesignSampleImage && (
+                <div className="p-3 rounded-2xl bg-purple-50/80 border border-purple-200 text-left space-y-1.5">
+                  <span className="font-bold text-purple-900 block text-[11px]">Ảnh mẫu hoa khách yêu cầu:</span>
+                  <div className="rounded-xl overflow-hidden max-h-40 border border-purple-200 bg-white">
+                    <img
+                      src={order.customDesignSampleImage}
+                      alt="Mẫu hoa khách yêu cầu"
+                      className="w-full h-full object-contain mx-auto"
+                    />
+                  </div>
                 </div>
               )}
             </div>
@@ -847,6 +973,42 @@ export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
               <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 text-emerald-950 text-[11px] leading-relaxed">
                 Sau khi bấm &quot;Duyệt Cọc 1-Chạm&quot;, đơn hàng sẽ tự động chuyển sang trạng thái <strong>ĐANG CHUẨN BỊ HOA</strong> và thông báo cho thợ cắm hoa.
               </div>
+
+              {/* Reject form if active */}
+              {isRejecting && (
+                <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 space-y-2 text-rose-900">
+                  <span className="font-bold text-xs block">Lý do từ chối biên lai cọc:</span>
+                  <select
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    className="glass-input w-full text-xs p-1.5 rounded-lg"
+                  >
+                    <option value="Số tiền chuyển chưa đủ 50% tiền cọc">Số tiền chuyển chưa đủ 50% tiền cọc</option>
+                    <option value="Sai nội dung cú pháp chuyển khoản">Sai nội dung cú pháp chuyển khoản</option>
+                    <option value="Ảnh biên lai mờ / không kiểm tra được mã GD">Ảnh biên lai mờ / không kiểm tra được mã GD</option>
+                    <option value="Tài khoản tiệm chưa nhận được tiền nổi">Tài khoản tiệm chưa nhận được tiền nổi</option>
+                  </select>
+                  <div className="flex justify-end gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setIsRejecting(false)}
+                      className="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs"
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onRejectDeposit?.(order.id, rejectReason);
+                        onClose();
+                      }}
+                      className="px-3 py-1 bg-rose-600 text-white font-bold rounded-lg text-xs"
+                    >
+                      Gửi Báo Thiếu Cọc
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -867,24 +1029,36 @@ export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
               >
                 Đóng
               </button>
-              {order.status === 'PENDING' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onApproveDeposit(order.id);
-                    onClose();
-                  }}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer transition-colors"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Duyệt Cọc 1-Chạm</span>
-                </button>
+              {(order.status === 'PENDING' || order.status === 'WAITING_DEPOSIT') && !order.isDepositPaid && (
+                <>
+                  {onRejectDeposit && !isRejecting && (
+                    <button
+                      type="button"
+                      onClick={() => setIsRejecting(true)}
+                      className="px-3.5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold cursor-pointer transition-colors"
+                    >
+                      Báo Thiếu Cọc
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onApproveDeposit(order.id);
+                      onClose();
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Duyệt Cọc 1-Chạm</span>
+                  </button>
+                </>
               )}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -900,8 +1074,8 @@ export const EditShippingFeeModal: React.FC<EditShippingFeeModalProps> = ({ orde
 
   if (!order) return null;
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -956,7 +1130,8 @@ export const EditShippingFeeModal: React.FC<EditShippingFeeModalProps> = ({ orde
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -970,8 +1145,8 @@ export interface TempPasswordModalProps {
 export const TempPasswordModal: React.FC<TempPasswordModalProps> = ({ data, onClose, showToast }) => {
   if (!data) return null;
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-sm rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -1024,7 +1199,8 @@ export const TempPasswordModal: React.FC<TempPasswordModalProps> = ({ data, onCl
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -1101,8 +1277,8 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
     onClose();
   };
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -1188,7 +1364,8 @@ export const AddContactChannelModal: React.FC<AddContactChannelModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -1219,6 +1396,13 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
   const [newVoucherMinOrder, setNewVoucherMinOrder] = useState(300000);
   const [newVoucherBadge, setNewVoucherBadge] = useState('ƯU ĐÃI');
   const [newVoucherPoints, setNewVoucherPoints] = useState(0);
+  const [newVoucherScope, setNewVoucherScope] = useState<'FLOWER' | 'SHIPPING'>('FLOWER');
+  const [newCampaignType, setNewCampaignType] = useState<string>('STANDARD');
+  const [newUsageLimit, setNewUsageLimit] = useState<number | ''>('');
+  const [newHourlyStart, setNewHourlyStart] = useState('');
+  const [newHourlyEnd, setNewHourlyEnd] = useState('');
+  const [newMaxRadius, setNewMaxRadius] = useState<number | ''>('');
+  const [newShowPublic, setNewShowPublic] = useState(true);
 
   useEffect(() => {
     if (voucherToEdit) {
@@ -1229,6 +1413,13 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
       setNewVoucherMinOrder(voucherToEdit.minOrder);
       setNewVoucherBadge(voucherToEdit.badge || 'ƯU ĐÃI');
       setNewVoucherPoints(voucherToEdit.pointsToRedeem || 0);
+      setNewVoucherScope(voucherToEdit.voucherScope || (voucherToEdit.discountType === 'FREESHIP' ? 'SHIPPING' : 'FLOWER'));
+      setNewCampaignType(voucherToEdit.campaignType || 'STANDARD');
+      setNewUsageLimit(voucherToEdit.usageLimit || '');
+      setNewHourlyStart(voucherToEdit.hourlyDealStart || '');
+      setNewHourlyEnd(voucherToEdit.hourlyDealEnd || '');
+      setNewMaxRadius(voucherToEdit.maxShippingRadiusKm || '');
+      setNewShowPublic(voucherToEdit.showOnPublicWeb !== false);
     } else {
       setNewVoucherCode('');
       setNewVoucherTitle('');
@@ -1237,6 +1428,13 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
       setNewVoucherMinOrder(300000);
       setNewVoucherBadge('ƯU ĐÃI');
       setNewVoucherPoints(0);
+      setNewVoucherScope('FLOWER');
+      setNewCampaignType('STANDARD');
+      setNewUsageLimit('');
+      setNewHourlyStart('');
+      setNewHourlyEnd('');
+      setNewMaxRadius('');
+      setNewShowPublic(true);
     }
   }, [voucherToEdit, isOpen]);
 
@@ -1260,6 +1458,14 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
         discountAmount: newVoucherDiscount,
         minOrder: newVoucherMinOrder,
         badge: newVoucherBadge.trim() || 'ƯU ĐÃI',
+        voucherScope: newVoucherScope,
+        campaignType: newCampaignType as any,
+        discountType: newVoucherScope === 'SHIPPING' ? 'FREESHIP' : 'FIXED',
+        usageLimit: newUsageLimit !== '' ? Number(newUsageLimit) : undefined,
+        hourlyDealStart: newHourlyStart.trim() || undefined,
+        hourlyDealEnd: newHourlyEnd.trim() || undefined,
+        maxShippingRadiusKm: newMaxRadius !== '' ? Number(newMaxRadius) : undefined,
+        showOnPublicWeb: newShowPublic,
         pointsToRedeem: newVoucherPoints > 0 ? newVoucherPoints : undefined
       };
       onSaveVoucher(updatedPromo);
@@ -1279,45 +1485,99 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
       minOrder: newVoucherMinOrder,
       badge: newVoucherBadge.trim() || 'ƯU ĐÃI',
       validUntil: '31/12/2026',
-      discountType: 'FREESHIP',
+      discountType: newVoucherScope === 'SHIPPING' ? 'FREESHIP' : 'FIXED',
+      voucherScope: newVoucherScope,
+      campaignType: newCampaignType as any,
+      usageLimit: newUsageLimit !== '' ? Number(newUsageLimit) : undefined,
+      usedCount: 0,
+      hourlyDealStart: newHourlyStart.trim() || undefined,
+      hourlyDealEnd: newHourlyEnd.trim() || undefined,
+      maxShippingRadiusKm: newMaxRadius !== '' ? Number(newMaxRadius) : undefined,
+      showOnPublicWeb: newShowPublic,
       isActive: true,
       pointsToRedeem: newVoucherPoints > 0 ? newVoucherPoints : undefined
     };
     onAddVoucher(newPromo);
     showToast(`Đã tạo mới voucher ${newPromo.code}!`, 'success');
     onClose();
-    setNewVoucherCode('');
-    setNewVoucherTitle('');
-    setNewVoucherDesc('');
   };
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-lg md:max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="glass-modal-header">
-          <h3 className="font-bold text-base sm:text-lg text-slate-900">
-            {voucherToEdit ? 'Chỉnh Sửa Mã Giảm Giá / Voucher' : 'Tạo Mã Giảm Giá / Voucher Mới'}
-          </h3>
+        <div className="relative p-5 pb-3 border-b border-slate-100 flex flex-col items-center text-center shrink-0 bg-white/80">
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="absolute right-4 top-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-5 h-5" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold mb-2 shadow-xs">
+            <Gift className="w-5 h-5" />
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">
+            {voucherToEdit ? 'Chỉnh Sửa Mã Giảm Giá / Voucher' : 'Tạo Mã Giảm Giá / Voucher Ưu Đãi'}
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">Thiết lập điều kiện đơn hàng, mức chiết khấu và thời hạn</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
           <div className="glass-modal-body space-y-3.5 text-xs">
+            {/* Phạm vi Voucher */}
+            <div>
+              <label className="font-bold text-slate-700 block mb-1">Phạm Vi Áp Dụng Voucher *</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNewVoucherScope('FLOWER')}
+                  className={`py-2 px-3 rounded-xl border font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    newVoucherScope === 'FLOWER'
+                      ? 'bg-rose-50 border-rose-500 text-rose-700 ring-2 ring-rose-500/20 shadow-xs'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>🌸 Giảm Giá Hoa Tươi</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewVoucherScope('SHIPPING')}
+                  className={`py-2 px-3 rounded-xl border font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    newVoucherScope === 'SHIPPING'
+                      ? 'bg-blue-50 border-blue-500 text-blue-700 ring-2 ring-blue-500/20 shadow-xs'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>🚚 Giảm Phí Vận Chuyển (Freeship)</span>
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Mã Voucher *</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-slate-700">Mã Voucher *</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                      let rand = '';
+                      for (let i = 0; i < 8; i++) rand += chars.charAt(Math.floor(Math.random() * chars.length));
+                      setNewVoucherCode(`VVF-SEC-${rand}`);
+                    }}
+                    className="text-[10px] font-bold text-purple-700 hover:text-purple-900 cursor-pointer underline flex items-center gap-0.5"
+                    title="Sinh mã bảo mật ngẫu nhiên không thể đoán trước"
+                  >
+                    <span>🎲 Sinh mã bảo mật</span>
+                  </button>
+                </div>
                 <input
                   type="text"
                   required
-                  placeholder="FREESHIP30K"
+                  placeholder="VVF-WEEK10K hoặc VVF-SEC-..."
                   value={newVoucherCode}
                   onChange={(e) => setNewVoucherCode(e.target.value.toUpperCase())}
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono font-bold"
@@ -1327,7 +1587,7 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
                 <label className="font-semibold text-slate-700 block mb-1">Nhãn / Badge</label>
                 <input
                   type="text"
-                  placeholder="FREESHIP, HOT, VIP"
+                  placeholder="Voucher Tuần, Ngày Đôi 20K..."
                   value={newVoucherBadge}
                   onChange={(e) => setNewVoucherBadge(e.target.value)}
                   className="glass-input w-full text-xs py-2 rounded-xl"
@@ -1335,12 +1595,65 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
               </div>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Loại Chiến Dịch</label>
+                <select
+                  value={newCampaignType}
+                  onChange={(e) => setNewCampaignType(e.target.value)}
+                  className="glass-input w-full text-xs py-2 rounded-xl"
+                >
+                  <option value="STANDARD">Thông thường (STANDARD)</option>
+                  <option value="WEEKLY">Voucher Tuần (Hết hạn CN)</option>
+                  <option value="MONTHLY">Voucher Tháng (10 ngày đầu)</option>
+                  <option value="DOUBLE_DAY">Ngày Đôi (50-210 lượt)</option>
+                  <option value="FLASH_DEAL">Flash Deal (Giờ vàng)</option>
+                  <option value="BIRTHDAY">Sinh Nhật Hội Viên</option>
+                  <option value="LOYALTY_REDEEM">Đổi Điểm Thưởng (Hoa Xu)</option>
+                  <option value="HOLIDAY">Mùng 1 / Rằm / Payday</option>
+                </select>
+              </div>
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Giới hạn lượt dùng (toàn web)</label>
+                <input
+                  type="number"
+                  placeholder="Để trống = Không giới hạn"
+                  value={newUsageLimit}
+                  onChange={(e) => setNewUsageLimit(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="glass-input w-full text-xs py-2 rounded-xl"
+                />
+              </div>
+            </div>
+
+            {newCampaignType === 'FLASH_DEAL' && (
+              <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                <div>
+                  <label className="font-bold text-amber-900 block mb-1 text-[11px]">Giờ bắt đầu Flash Deal</label>
+                  <input
+                    type="time"
+                    value={newHourlyStart}
+                    onChange={(e) => setNewHourlyStart(e.target.value)}
+                    className="glass-input w-full text-xs py-1.5 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-amber-900 block mb-1 text-[11px]">Giờ kết thúc Flash Deal</label>
+                  <input
+                    type="time"
+                    value={newHourlyEnd}
+                    onChange={(e) => setNewHourlyEnd(e.target.value)}
+                    className="glass-input w-full text-xs py-1.5 rounded-lg"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="font-semibold text-slate-700 block mb-1">Tiêu đề voucher *</label>
               <input
                 type="text"
                 required
-                placeholder="Miễn phí vận chuyển 30K..."
+                placeholder="Voucher Hoa Tươi Đầu Tuần 10K..."
                 value={newVoucherTitle}
                 onChange={(e) => setNewVoucherTitle(e.target.value)}
                 className="glass-input w-full text-xs py-2 rounded-xl"
@@ -1351,7 +1664,7 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
               <label className="font-semibold text-slate-700 block mb-1">Mô tả điều kiện áp dụng</label>
               <textarea
                 rows={2}
-                placeholder="Áp dụng cho đơn hoa từ 300.000đ..."
+                placeholder="Áp dụng cho mọi đơn hoa từ 199.000đ trong tuần..."
                 value={newVoucherDesc}
                 onChange={(e) => setNewVoucherDesc(e.target.value)}
                 className="glass-input w-full text-xs py-2 rounded-xl"
@@ -1360,7 +1673,7 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Số tiền giảm</label>
+                <label className="font-semibold text-slate-700 block mb-1">Số tiền giảm (đ)</label>
                 <input
                   type="number"
                   step={5000}
@@ -1370,7 +1683,7 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
                 />
               </div>
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Đơn tối thiểu</label>
+                <label className="font-semibold text-slate-700 block mb-1">Đơn hoa tối thiểu</label>
                 <input
                   type="number"
                   step={10000}
@@ -1389,6 +1702,31 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
               </div>
+            </div>
+
+            {newVoucherScope === 'SHIPPING' && (
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Giới hạn bán kính freeship (km)</label>
+                <input
+                  type="number"
+                  placeholder="Để trống = Không giới hạn km (VD: 20km)"
+                  value={newMaxRadius}
+                  onChange={(e) => setNewMaxRadius(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="glass-input w-full text-xs py-2 rounded-xl"
+                />
+              </div>
+            )}
+
+            <div className="pt-2 border-t border-slate-200">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={newShowPublic}
+                  onChange={(e) => setNewShowPublic(e.target.checked)}
+                  className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
+                />
+                <span>Hiển thị công khai ngoài website (Bỏ chọn nếu là voucher ẩn / Airdrop / Sinh nhật)</span>
+              </label>
             </div>
           </div>
 
@@ -1409,7 +1747,8 @@ export const AddVoucherModal: React.FC<AddVoucherModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -1523,29 +1862,42 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     }
   };
 
-  // Handle local file upload (base64 data URL)
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle local file upload (Tối đa 10MB, tự động nén WebP)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Kích thước ảnh tối đa 5MB!', 'error');
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Kích thước ảnh tối đa 10MB!', 'error');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      if (result) {
-        setImageUrl(result);
-        setImageError(false);
-        showToast('Đã tải ảnh thiết kế lên thành công!', 'success');
-      }
-    };
-    reader.onerror = () => {
-      showToast('Không thể đọc file ảnh, vui lòng thử lại!', 'error');
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressedDataUrl = await compressImage(file, {
+        maxWidth: 1200,
+        maxHeight: 1200,
+        quality: 0.85,
+        maxSizeBytes: 200 * 1024
+      });
+      setImageUrl(compressedDataUrl);
+      setImageError(false);
+      showToast('Đã tối ưu và tải ảnh thiết kế lên thành công!', 'success');
+    } catch {
+      // Fallback to FileReader if compression fails
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (result) {
+          setImageUrl(result);
+          setImageError(false);
+          showToast('Đã tải ảnh thiết kế lên thành công!', 'success');
+        }
+      };
+      reader.onerror = () => {
+        showToast('Không thể đọc file ảnh, vui lòng thử lại!', 'error');
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   if (!isOpen) return null;
@@ -1589,36 +1941,32 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     showToast(isEditMode ? `Đã lưu cập nhật mẫu hoa "${savedProduct.name}"!` : `Đã thêm mẫu hoa mới "${savedProduct.name}"!`, 'success');
   };
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-3xl lg:max-w-4xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="glass-modal-header border-b border-slate-100 bg-gradient-to-r from-emerald-50/60 to-white px-5 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-              {isEditMode ? <Pencil className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-            </div>
-            <div>
-              <h3 className="font-bold text-base sm:text-lg text-slate-900">
-                {isEditMode ? `Chỉnh Sửa Mẫu Hoa: ${product?.name}` : 'Thêm Mẫu Hoa Thiết Kế Mới'}
-              </h3>
-              <p className="text-xs text-slate-500">
-                {isEditMode
-                  ? 'Cập nhật giá bán, mức giảm giá, ảnh chụp thật và hoa thành phần'
-                  : 'Cập nhật mẫu hoa tươi mới vào catalog bán lẻ & bảng vận hành tiệm'}
-              </p>
-            </div>
-          </div>
+        {/* Header căn giữa chuẩn Phototiinlove */}
+        <div className="relative border-b border-slate-100 bg-gradient-to-r from-emerald-50/60 to-white px-5 sm:px-6 py-4 flex flex-col items-center text-center">
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="absolute right-4 top-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             title="Đóng modal"
           >
             <X className="w-5 h-5" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold mb-2 shadow-xs">
+            {isEditMode ? <Pencil className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">
+            {isEditMode ? `Chỉnh Sửa Mẫu Hoa: ${product?.name}` : 'Thêm Mẫu Hoa Thiết Kế Mới'}
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {isEditMode
+              ? 'Cập nhật giá bán, mức giảm giá, ảnh chụp thật và hoa thành phần'
+              : 'Cập nhật mẫu hoa tươi mới vào catalog bán lẻ & bảng vận hành tiệm'}
+          </p>
         </div>
 
         {/* Form Body */}
@@ -1803,7 +2151,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                       <Upload className="w-5 h-5" />
                     </div>
                     <p className="font-bold text-xs text-emerald-950">Nhấp để chọn file ảnh từ máy tính / điện thoại</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">Hỗ trợ JPG, PNG, WEBP (Tối đa 5MB) • Xem trước tức thì</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">Hỗ trợ JPG, PNG, WEBP (Tối đa 10MB) • Tự động nén WebP siêu nhẹ</p>
                   </div>
                 </div>
               ) : (
@@ -2016,7 +2364,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -2108,29 +2457,26 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
     onClose();
   };
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
-        className="glass-modal-content max-w-xl md:max-w-2xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col my-auto max-h-[calc(100dvh-120px)]"
+        className="glass-modal-content max-w-xl md:max-w-2xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="glass-modal-header border-b border-slate-100 bg-gradient-to-r from-rose-50/70 via-amber-50/40 to-white px-5 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold">
-              <Percent className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base sm:text-lg text-slate-900">Sự Kiện Giảm Giá Đồng Loạt</h3>
-              <p className="text-xs text-slate-500">Giảm giá % theo dịp lễ cho toàn tiệm hoặc từng danh mục</p>
-            </div>
-          </div>
+        {/* Header căn giữa chuẩn Phototiinlove */}
+        <div className="relative border-b border-slate-100 bg-gradient-to-r from-rose-50/70 via-amber-50/40 to-white px-5 sm:px-6 py-4 flex flex-col items-center text-center">
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="absolute right-4 top-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-5 h-5" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold mb-2 shadow-xs">
+            <Percent className="w-5 h-5" />
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">Sự Kiện Giảm Giá Đồng Loạt</h3>
+          <p className="text-xs text-slate-500 mt-0.5">Giảm giá % theo dịp lễ cho toàn tiệm hoặc từng danh mục</p>
         </div>
 
         {/* Body - Tự động cuộn mượt mà trên mobile, không đẩy lẹm chân footer */}
@@ -2287,7 +2633,8 @@ export const BulkDiscountModal: React.FC<BulkDiscountModalProps> = ({
         confirmText="Khôi Phục Ngay"
         type="warning"
       />
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -2307,25 +2654,27 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
 }) => {
   if (!customer) return null;
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-2xl lg:max-w-4xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="glass-modal-header">
-          <div>
-            <h3 className="font-bold text-base sm:text-lg text-slate-900">Chi Tiết Hồ Sơ Khách Hàng</h3>
-            <p className="text-xs text-slate-500">
-              {customer.fullName} • <span className="font-mono">{customer.phone}</span>
-            </p>
-          </div>
+        <div className="relative border-b border-slate-100 bg-gradient-to-r from-purple-50/60 to-white px-5 sm:px-6 py-4 flex flex-col items-center text-center">
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="absolute right-4 top-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-5 h-5" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold mb-2 shadow-xs">
+            <UserCheck className="w-5 h-5" />
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">Chi Tiết Hồ Sơ Khách Hàng</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {customer.fullName} • <span className="font-mono">{customer.phone}</span>
+          </p>
         </div>
 
         <div className="glass-modal-body space-y-4 text-xs">
@@ -2433,7 +2782,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -2478,8 +2828,8 @@ export const AdjustPointsModal: React.FC<AdjustPointsModalProps> = ({ customer, 
 
   const nextPoints = Math.max(0, customer.points + delta);
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -2604,7 +2954,8 @@ export const AdjustPointsModal: React.FC<AdjustPointsModalProps> = ({ customer, 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -2631,8 +2982,8 @@ export const EditCustomerNotesModal: React.FC<EditCustomerNotesModalProps> = ({
 
   if (!customer) return null;
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-md rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white"
         onClick={(e) => e.stopPropagation()}
@@ -2701,7 +3052,8 @@ export const EditCustomerNotesModal: React.FC<EditCustomerNotesModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -2729,9 +3081,10 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   const [tier, setTier] = useState<CustomerTier>('Thành viên mới');
   const [points, setPoints] = useState<number>(0);
   const [isVerified, setIsVerified] = useState<boolean>(true);
-  const [status, setStatus] = useState<'ACTIVE' | 'BLOCKED'>('ACTIVE');
+  const [status, setStatus] = useState<'ACTIVE' | 'BLOCKED' | 'DELETED'>('ACTIVE');
   const [notes, setNotes] = useState('');
   const [favoriteFlowers, setFavoriteFlowers] = useState('');
+  const [tags, setTags] = useState('');
 
   useEffect(() => {
     if (customerToEdit) {
@@ -2749,6 +3102,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
           ? customerToEdit.favoriteFlowers.join(', ')
           : customerToEdit.favoriteFlowers || ''
       );
+      setTags(customerToEdit.tags?.join(', ') || '');
     } else {
       setFullName('');
       setPhone('');
@@ -2760,6 +3114,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
       setStatus('ACTIVE');
       setNotes('');
       setFavoriteFlowers('');
+      setTags('');
     }
   }, [customerToEdit, isOpen]);
 
@@ -2782,41 +3137,39 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
       isVerified,
       status,
       notes: notes.trim() || undefined,
-      favoriteFlowers: favoriteFlowers.split(',').map((f) => f.trim()).filter(Boolean)
+      favoriteFlowers: favoriteFlowers.split(',').map((f) => f.trim()).filter(Boolean),
+      tags: tags.split(',').map((t) => t.trim()).filter(Boolean)
     };
 
     onSave(payload, !customerToEdit);
     onClose();
   };
 
-  return (
-    <div className="glass-overlay z-[9995]" onClick={onClose}>
+  return createPortal(
+    <div className="glass-overlay z-[100000]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-lg md:max-w-xl rounded-[28px] sm:rounded-[36px] border border-white/80 bg-white shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="glass-modal-header border-b border-slate-100 px-5 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
-              {customerToEdit ? <Pencil className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-            </div>
-            <div>
-              <h3 className="font-bold text-base sm:text-lg text-slate-900">
-                {customerToEdit ? 'Chỉnh Sửa Hồ Sơ Khách Hàng' : 'Thêm Khách Hàng Thân Thiết Mới'}
-              </h3>
-              <p className="text-xs text-slate-500">
-                {customerToEdit
-                  ? `Cập nhật thông tin chi tiết cho ${customerToEdit.fullName}`
-                  : 'Tạo tài khoản khách hàng mới phục vụ tại quầy hoặc qua điện thoại'}
-              </p>
-            </div>
-          </div>
+        <div className="relative border-b border-slate-100 px-5 sm:px-6 py-4 flex flex-col items-center text-center">
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="absolute right-4 top-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Đóng modal"
           >
             <X className="w-5 h-5" />
           </button>
+          <div className="w-11 h-11 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold mb-2 shadow-xs">
+            {customerToEdit ? <Pencil className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">
+            {customerToEdit ? 'Chỉnh Sửa Hồ Sơ Khách Hàng' : 'Thêm Khách Hàng Thân Thiết Mới'}
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {customerToEdit
+              ? `Cập nhật thông tin chi tiết cho ${customerToEdit.fullName}`
+              : 'Tạo tài khoản khách hàng mới phục vụ tại quầy hoặc qua điện thoại'}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
@@ -2925,6 +3278,39 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
             </div>
 
             <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="font-semibold text-slate-700 block">
+                  Nhãn phong cách / Gu khách hàng (CRM Tags)
+                </label>
+                <span className="text-[10px] text-slate-400">Cách nhau bằng dấu phẩy</span>
+              </div>
+              <input
+                type="text"
+                placeholder="VD: VIP Doanh Nghiệp, Thích Hoa Hồng, Tone Pastel, Khách Quen..."
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                className="glass-input w-full text-xs py-2 rounded-xl"
+              />
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {['VIP Doanh Nghiệp', 'Khách Quen', 'Thích Hoa Hồng', 'Tone Pastel', 'Thích Tặng Giấu Tên', 'Khai Trương Thường Xuyên'].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      const cur = tags.split(',').map((s) => s.trim()).filter(Boolean);
+                      if (!cur.includes(preset)) {
+                        setTags(cur.concat(preset).join(', '));
+                      }
+                    }}
+                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-800 transition-colors cursor-pointer border border-slate-200"
+                  >
+                    + {preset}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
               <label className="font-semibold text-slate-700 block mb-1">Mẫu hoa / Tông màu yêu thích</label>
               <input
                 type="text"
@@ -2965,7 +3351,8 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

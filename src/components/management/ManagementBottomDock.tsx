@@ -132,29 +132,33 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
           ================================================================ */}
       {isStorefront && (
         <div
-          className={`fixed left-2.5 bottom-[72px] sm:bottom-[78px] z-[75] md:hidden flex items-center pointer-events-auto transition-all duration-300 ${
+          className={`fixed bottom-[72px] sm:bottom-[78px] z-[75] md:hidden flex items-center pointer-events-auto transition-all duration-300 ${
             isNotificationOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          } ${
+            isUnfurlExpanded
+              ? 'left-3 right-3 max-w-lg mx-auto'
+              : 'left-3 w-11'
           }`}
           onTouchStart={resetAutoCollapse}
         >
           <div
-            className={`flex items-center rounded-full bg-white/20 backdrop-blur-xl border border-white/60 shadow-[0_8px_24px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.85)] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden p-0 ${
-              isUnfurlExpanded ? 'h-11 max-w-[calc(100vw-20px)]' : 'w-11 h-11'
+            className={`flex items-center rounded-full bg-white/40 backdrop-blur-xl border border-white/70 shadow-[0_8px_24px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.9)] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden p-0.5 ${
+              isUnfurlExpanded ? 'h-11 w-full justify-between' : 'w-11 h-11'
             }`}
           >
             {/* Nút tròn bánh răng 44px tinh tế (Luôn tròn xoe 44x44, không bị ép dẹt) */}
             <button
               type="button"
               onClick={() => setIsUnfurlExpanded(!isUnfurlExpanded)}
-              className="w-11 h-11 rounded-full aspect-square flex items-center justify-center bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-md shrink-0 cursor-pointer p-0 hover:scale-105 active:scale-95 transition-all duration-300 select-none"
+              className="w-10 h-10 rounded-full aspect-square flex items-center justify-center bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-md shrink-0 cursor-pointer p-0 hover:scale-105 active:scale-95 transition-all duration-300 select-none"
               title={isUnfurlExpanded ? 'Thu gọn menu' : 'Mở menu điều hướng website nhanh'}
             >
               <Settings className={`w-5 h-5 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${isUnfurlExpanded ? 'rotate-90' : 'rotate-0'}`} />
             </button>
 
-            {/* Dãy nút ngang nhỏ gọn trượt ra êm mượt, đồng chiều cao với bánh răng */}
+            {/* Dãy nút dọc nhỏ gọn trượt ra êm mượt, chia đều 100% không bị ngắn tũn */}
             {isUnfurlExpanded && (
-              <nav className="flex items-center gap-1 pl-1.5 pr-2 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300">
+              <nav className="flex-1 flex items-center justify-around gap-0.5 pl-1 pr-1.5 overflow-hidden whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300">
                 {/* 1. Trang Chủ */}
                 <button
                   type="button"
@@ -163,11 +167,11 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
                     setCurrentView('store');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="h-8 px-2.5 rounded-full hover:bg-white/70 active:scale-95 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                  className="flex flex-col items-center justify-center py-1 px-1 flex-1 min-w-[38px] max-w-[56px] rounded-xl hover:bg-white/80 active:scale-95 transition-all cursor-pointer shrink-0"
                   title="Về Trang Chủ"
                 >
-                  <img src="/icons/icon-home-3d.png" alt="Trang chủ" className="w-4 h-4 object-contain drop-shadow-xs shrink-0" />
-                  <span className="text-[10.5px] font-bold text-slate-800 leading-none">Trang chủ</span>
+                  <img src="/icons/icon-home-3d.png" alt="Trang chủ" className="w-4 h-4 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <span className="text-[9px] font-bold text-slate-800 leading-none">Trang chủ</span>
                 </button>
 
                 {/* 2. Bảng Giá */}
@@ -178,11 +182,11 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
                     setCurrentView('catalog');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="h-8 px-2.5 rounded-full hover:bg-white/70 active:scale-95 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                  className="flex flex-col items-center justify-center py-1 px-1 flex-1 min-w-[38px] max-w-[56px] rounded-xl hover:bg-white/80 active:scale-95 transition-all cursor-pointer shrink-0"
                   title="Xem Bảng Giá"
                 >
-                  <img src="/icons/icon-pricing-3d.png" alt="Bảng giá" className="w-4 h-4 object-contain drop-shadow-xs shrink-0" />
-                  <span className="text-[10.5px] font-bold text-slate-800 leading-none">Bảng giá</span>
+                  <img src="/icons/icon-pricing-3d.png" alt="Bảng giá" className="w-4 h-4 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <span className="text-[9px] font-bold text-slate-800 leading-none">Bảng giá</span>
                 </button>
 
                 {/* 3. Mẫu Hoa */}
@@ -193,14 +197,14 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
                     setCurrentView('catalog');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="h-8 px-2.5 rounded-full hover:bg-white/70 active:scale-95 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                  className="flex flex-col items-center justify-center py-1 px-1 flex-1 min-w-[38px] max-w-[56px] rounded-xl hover:bg-white/80 active:scale-95 transition-all cursor-pointer shrink-0"
                   title="Khám phá mẫu hoa nghệ thuật"
                 >
-                  <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-4 h-4 object-contain drop-shadow-xs shrink-0" />
-                  <span className="text-[10.5px] font-bold text-slate-800 leading-none">Mẫu hoa</span>
+                  <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-4 h-4 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <span className="text-[9px] font-bold text-slate-800 leading-none">Mẫu hoa</span>
                 </button>
 
-                {/* 4. Dịch Vụ */}
+                {/* 4. Giới Thiệu (Chuẩn menu desktop) */}
                 <button
                   type="button"
                   onClick={() => {
@@ -208,14 +212,14 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
                     setCurrentView('about');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="h-8 px-2.5 rounded-full hover:bg-white/70 active:scale-95 transition-all cursor-pointer flex items-center gap-1 shrink-0"
-                  title="Dịch vụ hoa cưới & thiết kế"
+                  className="flex flex-col items-center justify-center py-1 px-1 flex-1 min-w-[38px] max-w-[56px] rounded-xl hover:bg-white/80 active:scale-95 transition-all cursor-pointer shrink-0"
+                  title="Giới thiệu câu chuyện thương hiệu"
                 >
-                  <img src="/icons/icon-services-3d.png" alt="Dịch vụ" className="w-4 h-4 object-contain drop-shadow-xs shrink-0" />
-                  <span className="text-[10.5px] font-bold text-slate-800 leading-none">Dịch vụ</span>
+                  <img src="/icons/icon-services-3d.png" alt="Giới thiệu" className="w-4 h-4 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <span className="text-[9px] font-bold text-slate-800 leading-none">Giới thiệu</span>
                 </button>
 
-                {/* 5. Cẩm Nang */}
+                {/* 5. Chăm Sóc */}
                 <button
                   type="button"
                   onClick={() => {
@@ -223,11 +227,11 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
                     setCurrentView('care');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="h-8 px-2.5 rounded-full hover:bg-white/70 active:scale-95 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                  className="flex flex-col items-center justify-center py-1 px-1 flex-1 min-w-[38px] max-w-[56px] rounded-xl hover:bg-white/80 active:scale-95 transition-all cursor-pointer shrink-0"
                   title="Cẩm nang chăm sóc hoa tươi"
                 >
-                  <img src="/icons/icon-care-3d.png" alt="Cẩm nang" className="w-4 h-4 object-contain drop-shadow-xs shrink-0" />
-                  <span className="text-[10.5px] font-bold text-slate-800 leading-none">Cẩm nang</span>
+                  <img src="/icons/icon-care-3d.png" alt="Chăm sóc" className="w-4 h-4 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <span className="text-[9px] font-bold text-slate-800 leading-none">Chăm sóc</span>
                 </button>
 
                 {/* 6. Liên Hệ */}
@@ -238,11 +242,11 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
                     setCurrentView('contact');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="h-8 px-2.5 rounded-full hover:bg-white/70 active:scale-95 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                  className="flex flex-col items-center justify-center py-1 px-1 flex-1 min-w-[38px] max-w-[56px] rounded-xl hover:bg-white/80 active:scale-95 transition-all cursor-pointer shrink-0"
                   title="Liên hệ hotline & showroom"
                 >
-                  <img src="/icons/icon-contact-3d.png" alt="Liên hệ" className="w-4 h-4 object-contain drop-shadow-xs shrink-0" />
-                  <span className="text-[10.5px] font-bold text-slate-800 leading-none">Liên hệ</span>
+                  <img src="/icons/icon-contact-3d.png" alt="Liên hệ" className="w-4 h-4 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <span className="text-[9px] font-bold text-slate-800 leading-none">Liên hệ</span>
                 </button>
               </nav>
             )}
@@ -261,7 +265,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             [4. Đổi Quản trị ⮂ Trang web]
             [5. Chủ tiệm: Đơn hàng / Admin: Giao diện]
           ================================================================ */}
-      <div className="fixed bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[70] select-none pointer-events-auto transition-all duration-200 opacity-100 scale-100 sm:w-auto sm:min-w-[480px]">
+      <div className="fixed bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[70] select-none pointer-events-auto transition-all duration-200 opacity-100 scale-100 sm:w-auto sm:min-w-[480px] management-bottom-dock-wrapper">
         <nav
           className="flex items-center justify-between sm:justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/55 shadow-[0_12px_32px_rgba(0,0,0,0.08),inset_0_1px_1.5px_rgba(255,255,255,0.85)] w-full sm:w-auto"
           aria-label="Thanh dock điều hướng quản trị 5 nút"

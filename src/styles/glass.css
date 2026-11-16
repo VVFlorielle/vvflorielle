@@ -282,9 +282,9 @@
     inset 0 1px 1px rgba(255, 255, 255, 1);
 }
 
-/* 5. Standard Primary / Secondary Buttons */
+/* 5. Standard Primary / Secondary Buttons (Dynamic Theme Powered) */
 .btn-primary {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, var(--primary-color, #059669) 0%, var(--primary-hover, #047857) 100%);
   color: #ffffff;
   font-weight: 600;
   border-radius: var(--radius-sm);
@@ -298,14 +298,14 @@
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 
     inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.4),
-    0 6px 18px rgba(5, 150, 105, 0.28);
+    0 6px 18px var(--primary-glow, rgba(5, 150, 105, 0.28));
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  background: linear-gradient(135deg, var(--primary-hover, #047857) 0%, var(--primary-color, #059669) 100%);
   box-shadow: 
     inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55),
-    0 10px 24px rgba(5, 150, 105, 0.4);
+    0 10px 24px var(--primary-glow, rgba(5, 150, 105, 0.4));
   transform: translateY(-1.5px);
 }
 
@@ -360,36 +360,44 @@
     0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
-/* Floating Glass Modals & Drawers */
+/* Floating Glass Modals & Drawers (Chuẩn tràn màn hình không khoảng hở, mềm mại mờ sáng) */
 .glass-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.48);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
   z-index: 100000 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 12px 96px 12px; /* 96px clearance guarantees modal never touches mobile bottom dock */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px;
   animation: fadeIn 0.24s ease;
+  user-select: none;
 }
 
 @media (min-width: 640px) {
   .glass-overlay {
-    padding: 20px 20px 84px 20px; /* 84px clearance guarantees modal never touches desktop bottom dock */
+    padding: 20px;
   }
 }
 
 .glass-modal-content {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(32px) saturate(210%);
   -webkit-backdrop-filter: blur(32px) saturate(210%);
   border: 1.5px solid rgba(255, 255, 255, 0.95);
   box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.18), 0 10px 25px -5px rgba(5, 150, 105, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 1);
   border-radius: 28px;
   width: 100%;
-  max-height: calc(100dvh - 120px); /* Strictly ensures comfortable clearance above bottom dock */
+  max-height: calc(100dvh - 24px); /* Mở rộng tối đa chiều cao dọc theo yêu cầu, không để khoảng hở đáy */
   overflow: hidden !important; /* Strictly prevents square scrollbars from breaching rounded corners */
   display: flex;
   flex-direction: column;
@@ -400,7 +408,7 @@
 @media (min-width: 640px) {
   .glass-modal-content {
     border-radius: 36px;
-    max-height: calc(100dvh - 120px);
+    max-height: min(90vh, 900px);
   }
 }
 
@@ -477,14 +485,14 @@
 .glass-modal-body::-webkit-scrollbar-thumb,
 .glass-modal-content::-webkit-scrollbar-thumb,
 .glass-scrollable::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.35);
+  background: var(--primary-glow, rgba(16, 185, 129, 0.35));
   border-radius: 9999px;
 }
 
 .glass-modal-body::-webkit-scrollbar-thumb:hover,
 .glass-modal-content::-webkit-scrollbar-thumb:hover,
 .glass-scrollable::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.65);
+  background: var(--primary-color, rgba(16, 185, 129, 0.65));
 }
 
 .glass-drawer {
@@ -777,4 +785,93 @@
   transform-origin: 50% 80%;
   will-change: transform;
 }
+
+/* Print Optimization for Delivery Slips & Receipts */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  header, footer, nav, aside, 
+  .floating-widget, 
+  .mobile-bottom-dock, 
+  .management-bottom-nav,
+  .print-hide {
+    display: none !important;
+  }
+
+  .printable-delivery-slip {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+}
+
+/* ==========================================================================
+   Zero-Gap Modal Guarantee: Hide floating top navigation and bottom docks
+   whenever any modal locks the body scroll, completely preventing headers
+   or docks from peeking through or floating over modals.
+   ========================================================================== */
+body.is-body-scroll-locked .management-header-wrapper,
+body.is-body-scroll-locked .public-header-wrapper {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body.is-body-scroll-locked .management-bottom-dock-wrapper,
+body.is-body-scroll-locked [aria-label="Thanh dock điều hướng quản trị 5 nút"],
+body.is-body-scroll-locked .mobile-bottom-dock-wrapper,
+body.is-body-scroll-locked .floating-contact-widget,
+body.is-body-scroll-locked .floating-cart-widget,
+body.is-body-scroll-locked .admin-weather-assistant,
+body.is-body-scroll-locked .floating-mascot-wrapper {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Scroll To Top Button - Fully Dynamic with Branding Theme */
+.btn-scroll-to-top {
+  border: 1.5px solid var(--primary-border, rgba(5, 150, 105, 0.35)) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: var(--primary-color, #059669) !important;
+  box-shadow: 0 4px 16px var(--primary-glow, rgba(5, 150, 105, 0.22)) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-scroll-to-top:hover {
+  background-color: var(--primary-light, #ecfdf5) !important;
+  border-color: var(--primary-color, #059669) !important;
+  color: var(--primary-color, #059669) !important;
+  box-shadow: 0 6px 20px var(--primary-glow, rgba(5, 150, 105, 0.32)) !important;
+}
+
+.btn-scroll-to-top svg {
+  color: var(--primary-color, #059669) !important;
+}
+
+/* Desktop Navigation Menu Item - Dynamic Hover & Active Accent */
+.nav-menu-pill {
+  transition: all 0.2s ease !important;
+}
+
+.nav-menu-pill:hover {
+  color: var(--primary-color, #059669) !important;
+  background-color: var(--primary-light, rgba(5, 150, 105, 0.08)) !important;
+}
+
+.nav-menu-pill:hover svg {
+  color: var(--primary-color, #059669) !important;
+  transform: scale(1.08);
+}
+
 

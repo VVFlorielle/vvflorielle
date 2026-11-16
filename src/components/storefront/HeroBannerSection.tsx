@@ -33,7 +33,7 @@ export const HeroBannerSection: React.FC<HeroBannerSectionProps> = ({
           {/* Badge Centered */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/95 text-emerald-800 text-xs font-bold border border-emerald-300/80 shadow-xs mx-auto">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-            <span>{heroConfig.badge || 'Tiệm Hoa Tươi Nghệ Thuật V&V Florielle'}</span>
+            <span>{heroConfig.badge || 'Tiệm Hoa Nghệ Thuật V&V Florielle'}</span>
           </div>
 
           {/* Welcome Title Centered */}
@@ -83,7 +83,7 @@ export const HeroBannerSection: React.FC<HeroBannerSectionProps> = ({
           <div className="pt-3 border-t border-emerald-100/80 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[11px] sm:text-xs text-slate-600 font-medium">
             <div className="flex items-center gap-1.5">
               <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Hoa tươi loại 1 nhập mới mỗi ngày</span>
+              <span>Hoa tươi loại 1, hoa sáp &amp; lụa cao cấp</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Truck className="w-4 h-4 text-emerald-600 shrink-0" />

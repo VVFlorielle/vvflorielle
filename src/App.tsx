@@ -15,6 +15,7 @@ import { ManagementHeader } from './components/management/ManagementHeader';
 import { ManagementBottomDock } from './components/management/ManagementBottomDock';
 import { AdminWeatherAssistant } from './components/management/AdminWeatherAssistant';
 import { QrScannerModal } from './components/management/QrScannerModal';
+import { AdminLockScreenModal } from './components/management/AdminLockScreenModal';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
@@ -26,9 +27,12 @@ import { MascotAssistant } from './components/MascotAssistant';
 import { InfoPopups, PopupType } from './components/InfoPopups';
 import { GlobalInAppToast } from './components/GlobalInAppToast';
 import { useBodyScrollLock } from './utils/scrollLock';
+import { useResponsiveLayout } from './utils/responsiveLayout';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 export const AppContent: React.FC = () => {
+  useResponsiveLayout();
+
   const {
     currentView,
     toasts,
@@ -41,7 +45,8 @@ export const AppContent: React.FC = () => {
     completeOrder,
     selectedProduct,
     isCartOpen,
-    isAuthModalOpen
+    isAuthModalOpen,
+    isSessionLocked
   } = useStore();
   const [activePopup, setActivePopup] = useState<PopupType>(null);
   const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
@@ -52,11 +57,14 @@ export const AppContent: React.FC = () => {
     isCartOpen ||
     isAuthModalOpen ||
     activePopup ||
-    isQrScannerOpen
+    isQrScannerOpen ||
+    isSessionLocked
   );
   useBodyScrollLock(isAnyModalOpen);
 
-  const pendingDepositOrdersCount = orders.filter((o) => !o.isDepositPaid && o.status !== 'CANCELLED').length;
+  const pendingDepositOrdersCount = (orders || []).filter(
+    (o) => !o.isDepositPaid && (o.status === 'WAITING_DEPOSIT' || o.status === 'PENDING')
+  ).length;
 
   // Synchronized scroll-dimming for sticky top navigation & announcement banner (60fps rAF throttled, zero jank)
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
@@ -118,7 +126,7 @@ export const AppContent: React.FC = () => {
 
       {/* Top Navigation: ManagementHeader for Admin/Owner OR Public Floating Header for Customers */}
       {isManagementView ? (
-        <div className={`fixed top-2 sm:top-3 left-0 right-0 z-40 w-full pointer-events-none transition-all duration-300 ${
+        <div className={`fixed top-2 sm:top-3 left-0 right-0 z-40 w-full pointer-events-none transition-all duration-300 management-header-wrapper ${
           isAnyModalOpen ? 'opacity-0 pointer-events-none -translate-y-2' : 'opacity-100'
         }`}>
           <div className="pointer-events-auto">
@@ -129,7 +137,7 @@ export const AppContent: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className={`fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5 transition-all duration-200 ${
+        <div className={`fixed top-2 sm:top-3 left-0 right-0 z-50 w-full pointer-events-none flex flex-col gap-2 sm:gap-2.5 transition-all duration-200 public-header-wrapper ${
           isAnyModalOpen ? 'opacity-0 pointer-events-none -translate-y-2' : 'opacity-100'
         }`}>
           <div className="pointer-events-auto relative z-20">
@@ -141,8 +149,8 @@ export const AppContent: React.FC = () => {
         </div>
       )}
 
-      {/* Active View (Clean dedicated layout for management; original compact padding for homepage hero, spacious top padding for subpage hero titles so fixed Header & Marquee never overlap) */}
-      <main className={`flex-1 ${isManagementView ? 'pt-[68px] sm:pt-[84px] pb-8' : currentView === 'store' ? 'pt-24 sm:pt-32 pb-2' : 'pt-[124px] sm:pt-[156px] pb-2'}`}>
+      {/* Active View (Clean dedicated layout for management; spacious top padding for homepage hero & subpages so fixed Header & Marquee never overlap or tuck underneath) */}
+      <main className={`flex-1 ${isManagementView ? 'pt-[68px] sm:pt-[84px] pb-8' : currentView === 'store' ? 'pt-[118px] sm:pt-32 pb-2' : 'pt-[124px] sm:pt-[156px] pb-2'}`}>
         {currentView === 'store' && <PublicStore />}
         {currentView === 'catalog' && <CatalogPage />}
         {currentView === 'about' && <AboutPage />}
@@ -209,6 +217,9 @@ export const AppContent: React.FC = () => {
 
       {/* Global In-App Center Toast & Alert Notification (Fixed Center, Frosted Glass Backdrop) */}
       <GlobalInAppToast />
+
+      {/* Global Auto-Lock Screen on 30-min Inactivity (Mounted at root with 0 top gaps) */}
+      <AdminLockScreenModal />
     </div>
   );
 };

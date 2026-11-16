@@ -19,7 +19,8 @@ import {
   Megaphone,
   LayoutTemplate,
   TrendingUp,
-  Palette
+  Palette,
+  HardDrive
 } from 'lucide-react';
 import { CustomerUser, Order, OrderStatus, FlowerProduct, ContactChannel, PromotionItem } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
@@ -46,6 +47,8 @@ import {
   EditCustomerNotesModal,
   CustomerFormModal
 } from '../components/management/ManagementModals';
+import { StorageManagerModal } from '../components/management/StorageManagerModal';
+import { BroadcastBannerModal } from '../components/management/BroadcastBannerModal';
 
 // Subpages
 import { OrdersSubpage } from '../components/management/subpages/OrdersSubpage';
@@ -71,9 +74,13 @@ export const AdminPortal: React.FC = () => {
     verifyPinResetOtp,
     orders,
     updateOrderStatus,
+    acceptOrderAndRequestDeposit,
+    rejectOrder,
     approveOrderDeposit,
+    rejectOrderDeposit,
     adjustOrderShippingFee,
     completeOrder,
+    syncBillToGoogleDrive,
     products,
     addProduct,
     updateProduct,
@@ -108,6 +115,9 @@ export const AdminPortal: React.FC = () => {
     toggleMarqueeItem,
     activeAdminTab: activeTab,
     setActiveAdminTab: setActiveTab,
+    broadcastStoreAnnouncement,
+    clearStoreAnnouncement,
+    activeBannerNotification,
     showToast
   } = useStore();
 
@@ -149,6 +159,7 @@ export const AdminPortal: React.FC = () => {
 
   // Modals state
   const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showStorageModal, setShowStorageModal] = useState(false);
   const [showShippingModal, setShowShippingModal] = useState(false);
   const [showQuickVoucherModal, setShowQuickVoucherModal] = useState(false);
   const [showMascotModal, setShowMascotModal] = useState(false);
@@ -166,6 +177,7 @@ export const AdminPortal: React.FC = () => {
   const [adjustingCustomer, setAdjustingCustomer] = useState<CustomerUser | null>(null);
   const [customerForEditForm, setCustomerForEditForm] = useState<CustomerUser | null>(null);
   const [isCustomerFormOpen, setIsCustomerFormOpen] = useState(false);
+  const [showBroadcastModal, setShowBroadcastModal] = useState(false);
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -177,7 +189,9 @@ export const AdminPortal: React.FC = () => {
     .reduce((sum, o) => sum + o.totalAmount, 0);
   const arrangingCount = orders.filter((o) => o.status === 'ARRANGING' || o.status === 'PENDING').length;
   const completedCount = orders.filter((o) => o.status === 'COMPLETED').length;
-  const pendingDepositOrders = orders.filter((o) => !o.isDepositPaid && o.status !== 'CANCELLED').length;
+  const pendingDepositOrders = (orders || []).filter(
+    (o) => !o.isDepositPaid && (o.status === 'WAITING_DEPOSIT' || o.status === 'PENDING')
+  ).length;
 
   // Customer order history helper
   const getCustomerOrderHistory = (custPhone: string) => {
@@ -328,9 +342,18 @@ export const AdminPortal: React.FC = () => {
           onClick: () => navigateToTab('marquee')
         },
         {
+          id: 'action-broadcast-banner',
+          title: 'Phát Thông Báo Khẩn Cấp Toàn Web',
+          description: 'Cảnh báo thời tiết bão, tiệm quá tải đơn hoặc sự kiện x2 điểm chạy banner khẩn cấp toàn web.',
+          icon: <Megaphone className="w-4 h-4 text-rose-600" />,
+          actionType: 'modal',
+          actionLabel: 'Phát sóng',
+          onClick: () => setShowBroadcastModal(true)
+        },
+        {
           id: 'action-settings',
-          title: 'Cấu hình showroom & Bản đồ',
-          description: 'Thiết lập tên tiệm, địa chỉ showroom 105 Doãn Kế Thiện và giờ mở cửa.',
+          title: 'Địa Chỉ, Hotline & Giờ Mở Cửa',
+          description: 'Cập nhật địa chỉ tiệm, số điện thoại Hotline, Zalo, Email và khung giờ mở cửa toàn hệ thống.',
           icon: <Settings className="w-4 h-4" />,
           actionType: 'page',
           actionLabel: 'Truy cập',
@@ -360,13 +383,22 @@ export const AdminPortal: React.FC = () => {
           actionType: 'page',
           actionLabel: 'Truy cập',
           onClick: () => navigateToTab('security')
+        },
+        {
+          id: 'action-storage-manager',
+          title: 'Kho Ảnh Bill & Đồng Bộ Google Drive',
+          description: 'Theo dõi dung lượng lưu trữ web (< 2MB), chu kỳ 5-10 ngày tự động dọn dẹp và sao lưu biên lai lên Google Drive.',
+          icon: <HardDrive className="w-4 h-4 text-indigo-600" />,
+          actionType: 'modal',
+          actionLabel: 'Mở Quản Lý',
+          onClick: () => setShowStorageModal(true)
         }
       ]
     }
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-32 sm:pb-36 space-y-6 select-none">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-4 pb-14 sm:pb-16 space-y-6 select-none">
       {/* 1. TOP OVERVIEW HERO BANNER (Chỉ hiển thị tại Dashboard Tổng Quan giống PhotoTiinLove, không đè lên CMS và trang con) */}
       {(activeTab === 'dashboard' || activeTab === 'pricing') && (
         <ManagementOverviewHero
@@ -447,11 +479,15 @@ export const AdminPortal: React.FC = () => {
           role="ADMIN"
           formatPrice={formatPrice}
           updateOrderStatus={updateOrderStatus}
+          acceptOrderAndRequestDeposit={acceptOrderAndRequestDeposit}
+          rejectOrder={rejectOrder}
           approveOrderDeposit={approveOrderDeposit}
+          rejectOrderDeposit={rejectOrderDeposit}
           completeOrder={completeOrder}
           onViewBill={(ord) => setViewingBillOrder(ord)}
           onEditShipping={(ord) => setEditShippingOrder(ord)}
           initialSearch={orderSearchForSubpage}
+          onOpenStorageManager={() => setShowStorageModal(true)}
         />
       )}
 
@@ -509,6 +545,11 @@ export const AdminPortal: React.FC = () => {
             setIsCustomerFormOpen(true);
           }}
           onDeleteCustomer={(id) => deleteCustomerByAdmin(id)}
+          onToggleBlockCustomer={(cust) => {
+            const nextStatus = cust.status === 'BLOCKED' ? 'ACTIVE' : 'BLOCKED';
+            updateCustomerByAdmin(cust.id, { status: nextStatus });
+            showToast(`Đã ${nextStatus === 'BLOCKED' ? 'tạm khóa' : 'mở khóa'} tài khoản "${cust.fullName}"`, 'info');
+          }}
         />
       )}
 
@@ -644,6 +685,19 @@ export const AdminPortal: React.FC = () => {
           approveOrderDeposit(orderId);
           showToast(`Đã duyệt cọc đơn #${orderId}!`, 'success');
         }}
+        onRejectDeposit={(orderId, reason) => {
+          rejectOrderDeposit(orderId, reason);
+        }}
+        onSyncBillToDrive={async (orderId) => {
+          const res = await syncBillToGoogleDrive(orderId);
+          return { success: res.success, driveUrl: res.url, error: res.error };
+        }}
+        isDriveConfigured={Boolean(settings.googleDriveWebhookUrl)}
+      />
+
+      <StorageManagerModal
+        isOpen={showStorageModal}
+        onClose={() => setShowStorageModal(false)}
       />
 
       <EditShippingFeeModal
@@ -760,6 +814,20 @@ export const AdminPortal: React.FC = () => {
         onConfirm={(id, delta, reason) => {
           adjustCustomerPoints(id, delta, reason);
           showToast(`Đã điều chỉnh điểm cho khách hàng!`, 'success');
+        }}
+      />
+
+      <BroadcastBannerModal
+        isOpen={showBroadcastModal}
+        onClose={() => setShowBroadcastModal(false)}
+        currentAnnouncement={activeBannerNotification?.message || activeBannerNotification?.title}
+        onBroadcast={(title, msg, type) => {
+          broadcastStoreAnnouncement(title, msg, type);
+          showToast('Đã phát sóng thông báo khẩn cấp tới toàn bộ khách hàng!', 'success');
+        }}
+        onClearAnnouncement={() => {
+          clearStoreAnnouncement();
+          showToast('Đã gỡ thông báo khẩn cấp!', 'info');
         }}
       />
     </div>

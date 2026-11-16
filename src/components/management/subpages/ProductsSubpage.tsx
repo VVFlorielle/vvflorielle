@@ -9,7 +9,8 @@ import {
   Search,
   Flower2,
   AlertCircle,
-  Tag as TagIcon
+  Tag as TagIcon,
+  Download
 } from 'lucide-react';
 import { FlowerProduct, FlowerCategory, CategoryId } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
@@ -110,26 +111,70 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
     return matchesSearch && matchesCategory;
   });
 
+  const handleExportCatalogCsv = () => {
+    if (filteredProducts.length === 0) return;
+    const headers = ['Mã Hoa', 'Tên Mẫu Hoa', 'Danh Mục', 'Giá Bán (VNĐ)', 'Giá Gốc (VNĐ)', 'Hoa Thành Phần', 'Huy Hiệu/Tag', 'Trạng Thái', 'Số Ảnh'];
+    const rows = filteredProducts.map((p) => [
+      `"${p.id}"`,
+      `"${p.name}"`,
+      `"${p.categoryId}"`,
+      `"${p.price}"`,
+      `"${p.originalPrice || p.price}"`,
+      `"${(p.flowerTypes || []).join('; ')}"`,
+      `"${p.tag || ''}"`,
+      `"${p.isAvailable !== false ? 'Còn hoa' : 'Tạm hết'}"`,
+      `"${p.imageUrl ? 1 : 0}"`
+    ].join(','));
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Bang_Gia_Hoa_Tuoi_VVFlorielle_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const discountedCount = products.filter(
     (p) => p.originalPrice && p.originalPrice > p.price
   ).length;
 
   return (
     <div className="glass-panel p-5 sm:p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200 select-none">
-      {/* Header căn giữa chuẩn Phototiinlove */}
-      <div className="relative flex flex-col sm:flex-row items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
-        <div className="hidden sm:block w-36 shrink-0" />
-        <div className="text-center mx-auto px-2">
-          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-            KHO HOA TƯƠI & BẢNG GIÁ
-          </small>
-          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
-            {title}
-          </h2>
-        </div>
+      {/* 1. Header căn giữa chuẩn Phototiinlove */}
+      <div className="pb-3 border-b border-slate-200/80 text-center">
+        <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
+          KHO HOA TƯƠI &amp; BẢNG GIÁ
+        </small>
+        <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
+          {title}
+        </h2>
+      </div>
 
-        {/* Action Buttons: Bulk Discount & Add Product */}
-        <div className="flex items-center gap-2 shrink-0">
+      {/* 2. Action Toolbar: Xuất CSV, Giảm giá & Thêm sản phẩm */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2">
+        <div className="text-xs text-slate-500 font-semibold">
+          Tổng cộng <span className="font-bold text-slate-800">{products.length}</span> mẫu hoa nghệ thuật
+        </div>
+        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+          {/* Export Catalog CSV */}
+          <button
+            type="button"
+            onClick={handleExportCatalogCsv}
+            disabled={filteredProducts.length === 0}
+            className={`btn-secondary text-xs py-1.5 sm:py-2 px-3 rounded-xl flex items-center gap-1.5 cursor-pointer text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs font-bold ${
+              filteredProducts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            title="Xuất bảng giá và danh mục mẫu hoa ra file CSV Excel"
+          >
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="hidden sm:inline">Xuất Bảng Giá ({filteredProducts.length})</span>
+            <span className="sm:hidden">CSV</span>
+          </button>
+
           {/* Bulk Event Discount Button */}
           <button
             type="button"
@@ -155,17 +200,17 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
         </div>
       </div>
 
-      {/* 2. Control & Search Row */}
+      {/* 3. Control & Search Row */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/90 border border-slate-200/70">
-        {/* Search Input */}
+        {/* Search Input (Không bị icon kính lúp đè chữ) */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Tìm theo tên mẫu hoa hoặc hoa thành phần..."
-            className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-medium focus:border-emerald-500 focus:outline-none"
+            className="w-full !pl-10 !pr-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-medium focus:border-emerald-500 focus:outline-none"
           />
         </div>
 

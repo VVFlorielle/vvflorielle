@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Lock,
   KeyRound,
@@ -11,10 +11,20 @@ import {
   RefreshCw,
   Image as ImageIcon,
   Copy,
-  ExternalLink
+  ExternalLink,
+  ShieldAlert,
+  AlertTriangle,
+  History,
+  Timer,
+  Download,
+  Laptop,
+  Smartphone
 } from 'lucide-react';
+import { useStore } from '../../../context/StoreContext';
 import { ShopSettings } from '../../../types';
 import { VIETNAMESE_BANKS } from '../../../data/mockData';
+import { compressImage } from '../../../utils/imageCompressor';
+import { useBodyScrollLock } from '../../../utils/scrollLock';
 
 interface SecuritySubpageProps {
   onBackToDashboard: () => void;
@@ -39,6 +49,8 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
   settings,
   updateSettings
 }) => {
+  const { requestBankChangeOtp, verifyBankChangeAndSave, securityAuditLogs } = useStore();
+
   // Password state
   const [currentPassForPass, setCurrentPassForPass] = useState('');
   const [newPasswordInput, setNewPasswordInput] = useState('');
@@ -66,6 +78,66 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
   const [testAmount, setTestAmount] = useState<number>(340000);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // 2FA Bank Protection State (PIN + OTP Gmail)
+  const [isBank2FaModalOpen, setIsBank2FaModalOpen] = useState(false);
+  const [bankPinInput, setBankPinInput] = useState('');
+  const [bankOtpInput, setBankOtpInput] = useState('');
+  const [bankOtpCooldown, setBankOtpCooldown] = useState(0);
+
+  useBodyScrollLock(isBank2FaModalOpen);
+
+  useEffect(() => {
+    if (bankOtpCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setBankOtpCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [bankOtpCooldown]);
+
+  // Audit Trail Filter & Export (Remediation)
+  const [auditSeverityFilter, setAuditSeverityFilter] = useState<'ALL' | 'CRITICAL' | 'WARNING' | 'INFO'>('ALL');
+  const [auditSearch, setAuditSearch] = useState('');
+
+  const filteredAuditLogs = securityAuditLogs.filter((log) => {
+    const matchSeverity = auditSeverityFilter === 'ALL' || log.severity === auditSeverityFilter;
+    const matchSearch =
+      !auditSearch.trim() ||
+      log.actor.toLowerCase().includes(auditSearch.toLowerCase()) ||
+      log.eventType.toLowerCase().includes(auditSearch.toLowerCase()) ||
+      log.description.toLowerCase().includes(auditSearch.toLowerCase());
+    return matchSeverity && matchSearch;
+  });
+
+  const handleExportAuditLogsCsv = () => {
+    if (filteredAuditLogs.length === 0) return;
+    const headers = ['Mã Bản Ghi', 'Thời Gian', 'Mức Độ', 'Loại Sự Kiện', 'Tác Nhân', 'Nội Dung Chi Tiết'];
+    const rows = filteredAuditLogs.map((log) => [
+      `"${log.id}"`,
+      `"${log.timestamp}"`,
+      `"${log.severity}"`,
+      `"${log.eventType}"`,
+      `"${log.actor}"`,
+      `"${log.description.replace(/"/g, '""')}"`
+    ].join(','));
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Nhat_Ky_An_Ninh_VVFlorielle_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Đã xuất file nhật ký an ninh CSV thành công!', 'success');
+  };
+
+  const handleRevokeTrustedDevices = () => {
+    localStorage.removeItem('vvf_trusted_device');
+    showToast('Đã thu hồi mọi thiết bị tin cậy! Mọi phiên đăng nhập sau sẽ bắt buộc xác thực OTP 2FA.', 'success');
+  };
+
   const handleBankSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = VIETNAMESE_BANKS.find((b) => b.id === e.target.value);
     if (selected) {
@@ -74,21 +146,33 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
     }
   };
 
-  const handleQrFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQrFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        showToast('Ảnh không được vượt quá 5MB!', 'error');
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('Ảnh không được vượt quá 10MB!', 'error');
         return;
       }
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const result = evt.target?.result as string;
-        setBankQrImageUrl(result);
+      try {
+        const compressed = await compressImage(file, {
+          maxWidth: 1000,
+          maxHeight: 1000,
+          quality: 0.85,
+          maxSizeBytes: 150 * 1024
+        });
+        setBankQrImageUrl(compressed);
         setUseAutoVietQr(false);
-        showToast('Đã tải ảnh mã QR lên thành công!', 'success');
-      };
-      reader.readAsDataURL(file);
+        showToast('Đã tải và tối ưu ảnh mã QR thành công!', 'success');
+      } catch {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const result = evt.target?.result as string;
+          setBankQrImageUrl(result);
+          setUseAutoVietQr(false);
+          showToast('Đã tải ảnh mã QR lên thành công!', 'success');
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -102,16 +186,41 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
       showToast('Vui lòng nhập tên chủ tài khoản!', 'error');
       return;
     }
-    if (updateSettings) {
-      updateSettings({
-        bankId,
-        bankName,
-        bankAccount: bankAccount.trim(),
-        bankHolder: bankHolder.trim().toUpperCase(),
-        bankQrImageUrl: bankQrImageUrl.trim(),
-        useAutoVietQr
-      });
-      showToast('Đã lưu cấu hình tài khoản ngân hàng & mã VietQR vào phân hệ bảo mật!', 'success');
+    // Open 2FA Verification Modal for Level 2 Protection!
+    setIsBank2FaModalOpen(true);
+  };
+
+  const handleRequestBankOtp = () => {
+    if (bankOtpCooldown > 0) return;
+    const success = requestBankChangeOtp();
+    if (success) {
+      setBankOtpCooldown(60);
+    }
+  };
+
+  const handleConfirmBank2FaSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bankPinInput.trim()) {
+      showToast('Vui lòng nhập mã PIN bảo mật quản trị!', 'error');
+      return;
+    }
+    if (!bankOtpInput.trim()) {
+      showToast('Vui lòng nhập mã OTP 6 số xác thực!', 'error');
+      return;
+    }
+    const newConfig: Partial<ShopSettings> = {
+      bankId,
+      bankName,
+      bankAccount: bankAccount.trim(),
+      bankHolder: bankHolder.trim().toUpperCase(),
+      bankQrImageUrl: bankQrImageUrl.trim(),
+      useAutoVietQr
+    };
+    const success = verifyBankChangeAndSave(bankPinInput.trim(), bankOtpInput.trim(), newConfig);
+    if (success) {
+      setIsBank2FaModalOpen(false);
+      setBankPinInput('');
+      setBankOtpInput('');
     }
   };
 
@@ -354,19 +463,132 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
         </div>
 
         {/* Action Button */}
-        <div className="pt-2 flex items-center justify-between">
-          <p className="text-[11px] text-rose-700 font-medium">
-            ⚠️ Lưu ý: Mọi thay đổi tại đây sẽ cập nhật ngay lập tức đến toàn bộ mã QR thanh toán trên website.
+        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-[11px] text-rose-700 font-medium flex items-center gap-1.5">
+            <ShieldAlert className="w-4 h-4 shrink-0 text-rose-600" />
+            <span>Khu vực tử huyệt dòng tiền: Mọi thay đổi STK thụ hưởng bắt buộc xác thực cấp 2 (Mã PIN + OTP qua Gmail).</span>
           </p>
           <button
             type="submit"
-            className="btn-primary text-xs py-2.5 px-6 rounded-xl cursor-pointer flex items-center gap-2 shadow-md hover:shadow-lg font-bold"
+            className="btn-primary text-xs py-2.5 px-6 rounded-xl cursor-pointer flex items-center justify-center gap-2 shadow-md hover:shadow-lg font-bold shrink-0 bg-emerald-700 hover:bg-emerald-800"
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>Lưu Cấu Hình Ngân Hàng &amp; QR Bảo Mật</span>
+            <span>Xác Thực Cấp 2 &amp; Lưu STK VietQR</span>
           </button>
         </div>
       </form>
+
+      {/* 2FA MODAL XÁC THỰC THAY ĐỔI TÀI KHOẢN NGÂN HÀNG VIETQR */}
+      {isBank2FaModalOpen && (
+        <div
+          className="fixed inset-0 z-[100050] flex items-center justify-center p-3 sm:p-5 bg-slate-900/25 backdrop-blur-sm select-none animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsBank2FaModalOpen(false);
+          }}
+        >
+          <div
+            className="relative bg-white rounded-[32px] max-w-md w-full p-5 sm:p-6 shadow-2xl border border-emerald-100 space-y-4 max-h-[92dvh] sm:max-h-[88vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsBank2FaModalOpen(false)}
+              className="absolute right-4 top-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Đóng"
+            >
+              ✕
+            </button>
+
+            <div className="text-center space-y-1.5 pb-2 border-b border-slate-100">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center shadow-xs">
+                <ShieldCheck className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="font-extrabold text-base text-slate-900 tracking-tight">
+                Bảo Mật Cấp 2 - Xác Thực Thay Đổi STK
+              </h3>
+              <p className="text-xs text-slate-500">
+                Xác minh bảo mật nghiêm ngặt trước khi cập nhật số tài khoản nhận tiền
+              </p>
+            </div>
+
+            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-xs space-y-1">
+              <p className="font-bold flex items-center gap-1.5">
+                <Lock className="w-4 h-4 text-amber-700" />
+                <span>Bảo Vệ Tử Huyệt Dòng Tiền V&amp;V Florielle</span>
+              </p>
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                Để bảo vệ an toàn tuyệt đối cho số tài khoản thụ hưởng nhận cọc của tiệm, thao tác này bắt buộc xác thực qua <strong>Mã PIN Quản Trị</strong> và <strong>Mã OTP gửi về Gmail an ninh</strong> (traivuho@gmail.com).
+              </p>
+            </div>
+
+            <form onSubmit={handleConfirmBank2FaSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  1. Mã PIN Quản Trị (6 số) *
+                </label>
+                <input
+                  type="password"
+                  required
+                  maxLength={8}
+                  placeholder="••••••"
+                  value={bankPinInput}
+                  onChange={(e) => setBankPinInput(e.target.value)}
+                  className="glass-input w-full text-center font-mono tracking-widest text-sm py-2.5 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold text-slate-700">
+                    2. Mã Xác Thực OTP 2FA (6 số) *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleRequestBankOtp}
+                    disabled={bankOtpCooldown > 0}
+                    className={`text-[11px] font-bold px-2 py-0.5 rounded-lg transition-all ${
+                      bankOtpCooldown > 0
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 cursor-pointer'
+                    }`}
+                  >
+                    {bankOtpCooldown > 0 ? `Gửi lại sau (${bankOtpCooldown}s)` : 'Gửi mã OTP qua Gmail'}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  placeholder="••••••"
+                  value={bankOtpInput}
+                  onChange={(e) => setBankOtpInput(e.target.value)}
+                  className="glass-input w-full text-center font-mono tracking-widest text-sm py-2.5 rounded-xl"
+                />
+                <span className="text-[10px] text-slate-500 block mt-1">
+                  Mã OTP có hiệu lực trong 5 phút. Vui lòng kiểm tra hộp thư đến của traivuho@gmail.com.
+                </span>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsBank2FaModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary py-2 px-5 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-800 flex items-center gap-1.5 shadow-md cursor-pointer"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Xác Nhận &amp; Cập Nhật STK</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* CARD 2: ĐỔI MẬT KHẨU ĐĂNG NHẬP QUẢN TRỊ */}
       <form
@@ -566,6 +788,126 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
           </button>
         </div>
       </form>
+
+      {/* CARD 5: NHẬT KÝ AN NINH & KIỂM TOÁN HỆ THỐNG (SECURITY AUDIT TRAIL) */}
+      <div className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px] border border-slate-200">
+        <div className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+              <History className="w-4 h-4 text-emerald-700" />
+              <span>Nhật Ký An Ninh &amp; Kiểm Toán Hệ Thống (Security Audit Trail)</span>
+            </h3>
+            <p className="text-xs text-slate-500">
+              Ghi nhận tự động mọi biến động bảo mật, đăng nhập và thay đổi cấu hình trọng yếu
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={handleExportAuditLogsCsv}
+              disabled={filteredAuditLogs.length === 0}
+              className={`btn-secondary py-1.5 px-3 text-xs rounded-xl flex items-center gap-1.5 cursor-pointer text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs ${
+                filteredAuditLogs.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              title="Xuất file nhật ký an ninh ra CSV"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="font-bold">Xuất CSV ({filteredAuditLogs.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleRevokeTrustedDevices}
+              className="btn-secondary py-1.5 px-3 text-xs rounded-xl flex items-center gap-1.5 cursor-pointer text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors shadow-2xs font-bold"
+              title="Xóa bộ nhớ thiết bị tin cậy trên trình duyệt, buộc xác thực OTP 2FA cho phiên tiếp theo"
+            >
+              <Laptop className="w-3.5 h-3.5 text-rose-600" />
+              <span>Thu Hồi Thiết Bị 2FA</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Severity Filter & Search Bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-100 text-xs">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {(['ALL', 'CRITICAL', 'WARNING', 'INFO'] as const).map((sev) => (
+              <button
+                key={sev}
+                type="button"
+                onClick={() => setAuditSeverityFilter(sev)}
+                className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer text-[11px] ${
+                  auditSeverityFilter === sev
+                    ? sev === 'CRITICAL'
+                      ? 'bg-rose-600 text-white shadow-2xs'
+                      : sev === 'WARNING'
+                      ? 'bg-amber-600 text-white shadow-2xs'
+                      : sev === 'INFO'
+                      ? 'bg-emerald-600 text-white shadow-2xs'
+                      : 'bg-purple-700 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {sev === 'ALL' && `Tất cả (${securityAuditLogs.length})`}
+                {sev === 'CRITICAL' && '🔴 Báo động (CRITICAL)'}
+                {sev === 'WARNING' && '🟡 Cảnh báo (WARNING)'}
+                {sev === 'INFO' && '🟢 Thông tin (INFO)'}
+              </button>
+            ))}
+          </div>
+
+          <div className="w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Tìm theo tác nhân, sự kiện..."
+              value={auditSearch}
+              onChange={(e) => setAuditSearch(e.target.value)}
+              className="glass-input w-full text-xs py-1.5 px-3 rounded-xl"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+          {filteredAuditLogs.length === 0 ? (
+            <div className="text-center py-6 text-xs text-slate-400">
+              Không tìm thấy bản ghi an ninh nào phù hợp với bộ lọc.
+            </div>
+          ) : (
+            filteredAuditLogs.map((log) => {
+              const badgeColor =
+                log.severity === 'CRITICAL'
+                  ? 'bg-rose-100 text-rose-800 border-rose-200'
+                  : log.severity === 'WARNING'
+                  ? 'bg-amber-100 text-amber-800 border-amber-200'
+                  : 'bg-emerald-100 text-emerald-800 border-emerald-200';
+
+              return (
+                <div
+                  key={log.id}
+                  className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/80 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 hover:bg-slate-100/70 transition-colors"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}`}>
+                        {log.severity}
+                      </span>
+                      <span className="font-semibold text-slate-800 font-mono text-[11px]">
+                        [{log.eventType}]
+                      </span>
+                      <span className="text-[11px] text-slate-500 font-medium">
+                        Tác nhân: <strong className="text-slate-700">{log.actor}</strong>
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-snug">{log.description}</p>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-mono shrink-0 whitespace-nowrap self-end sm:self-center">
+                    {log.timestamp}
+                  </span>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
     </div>
   );
 };

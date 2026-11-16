@@ -50,11 +50,11 @@ export const ScrollToTopButton: React.FC = () => {
       <button
         type="button"
         onClick={scrollToTop}
-        className="w-9 h-9 sm:w-11 sm:h-11 rounded-full aspect-square bg-white/95 backdrop-blur-2xl border border-emerald-300/80 shadow-[0_4px_16px_rgba(5,150,105,0.22)] text-emerald-800 hover:text-emerald-950 hover:bg-emerald-50 active:scale-90 transition-all flex items-center justify-center cursor-pointer group p-0"
+        className="w-9 h-9 sm:w-11 sm:h-11 rounded-full aspect-square btn-scroll-to-top active:scale-90 flex items-center justify-center cursor-pointer group p-0"
         title="Cuộn lên đầu trang"
         aria-label="Cuộn lên đầu trang"
       >
-        <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-y-0.5 transition-transform text-emerald-700" />
+        <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-y-0.5 transition-transform" />
       </button>
     </div>
   );

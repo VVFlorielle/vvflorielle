@@ -84,6 +84,9 @@ export const RevenueSubpage: React.FC<RevenueSubpageProps> = ({
 
     // Filter by date range and search query
     const res = orders.filter((ord) => {
+      // Exclude cancelled/rejected orders from revenue calculation
+      if (ord.status === 'CANCELLED') return false;
+
       // Extract YYYY-MM-DD from order.createdAt or assume today if invalid
       let ordDate = todayStr;
       if (ord.createdAt) {
@@ -267,30 +270,18 @@ export const RevenueSubpage: React.FC<RevenueSubpageProps> = ({
 
   return (
     <div className="glass-panel p-4 sm:p-6 space-y-6 rounded-[28px] animate-in fade-in duration-200">
-      {/* Header căn giữa chuẩn Phototiinlove */}
-      <div className="relative flex flex-col sm:flex-row items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
-        <div className="hidden sm:block w-32 shrink-0" />
-        <div className="text-center mx-auto px-2">
-          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-            TÀI CHÍNH & DÒNG TIỀN
-          </small>
-          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight flex items-center justify-center gap-2">
-            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
-            <span>{title}</span>
-          </h2>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleExportCSV}
-          className="btn-primary text-xs py-1.5 sm:py-2 px-3.5 sm:px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
-        >
-          <Download className="w-4 h-4" />
-          <span>Xuất Báo Cáo CSV</span>
-        </button>
+      {/* 1. Header căn giữa chuẩn Phototiinlove */}
+      <div className="pb-3 border-b border-slate-200/80 text-center">
+        <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
+          TÀI CHÍNH &amp; DÒNG TIỀN
+        </small>
+        <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight flex items-center justify-center gap-2">
+          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
+          <span>{title}</span>
+        </h2>
       </div>
 
-      {/* Filter Toolbar (Matching phototiinlove) */}
+      {/* 2. Filter Toolbar & Xuất Báo Cáo (Matching phototiinlove) */}
       <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/90 shadow-2xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Quick Date Presets */}
@@ -305,16 +296,16 @@ export const RevenueSubpage: React.FC<RevenueSubpageProps> = ({
               { id: 'week', label: '7 ngày qua' },
               { id: 'month', label: 'Tháng này' },
               { id: 'lastMonth', label: 'Tháng trước' },
-              { id: 'custom', label: 'Tùy chỉnh' }
+              { id: 'custom', label: 'Tùy chọn...' }
             ].map((p) => (
               <button
                 key={p.id}
                 type="button"
-                onClick={() => setDateRange(p.id as DateRangeType)}
+                onClick={() => setDateRange(p.id as any)}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
                   dateRange === p.id
-                    ? 'bg-purple-700 text-white shadow-xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    ? 'bg-emerald-700 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
                 }`}
               >
                 {p.label}
@@ -322,23 +313,35 @@ export const RevenueSubpage: React.FC<RevenueSubpageProps> = ({
             ))}
           </div>
 
-          {/* Payment Method Filter */}
-          <div className="flex items-center gap-1 text-xs">
-            <span className="text-slate-500 font-semibold mr-1">Thanh toán:</span>
-            {(['ALL', 'VIETQR', 'COD'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setPaymentMethodFilter(m)}
-                className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
-                  paymentMethodFilter === m
-                    ? 'bg-emerald-700 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {m === 'ALL' ? 'Tất cả' : m === 'VIETQR' ? 'VietQR' : 'Tiền mặt/COD'}
-              </button>
-            ))}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Payment Method Filter */}
+            <div className="flex items-center gap-1 text-xs">
+              <span className="text-slate-500 font-semibold mr-1">Thanh toán:</span>
+              {(['ALL', 'VIETQR', 'COD'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setPaymentMethodFilter(m)}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+                    paymentMethodFilter === m
+                      ? 'bg-emerald-700 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {m === 'ALL' ? 'Tất cả' : m === 'VIETQR' ? 'VietQR' : 'Tiền mặt/COD'}
+                </button>
+              ))}
+            </div>
+
+            {/* Export CSV Button */}
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              className="btn-primary text-xs py-1.5 sm:py-2 px-3.5 sm:px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <Download className="w-4 h-4" />
+              <span>Xuất Báo Cáo CSV</span>
+            </button>
           </div>
         </div>
 

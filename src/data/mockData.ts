@@ -101,7 +101,7 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     originalPrice: 1550000,
     imageUrl: '/products/fl-01.webp',
     tag: 'Bán chạy',
-    flowerTypes: ["Hoa hướng dương Đà Lạt", "Lan vũ nữ vàng", "Hồng môn đỏ", "Lá cau phụ kiện"],
+    flowerTypes: ["Hoa hướng dương vàng", "Lan vũ nữ vàng", "Hồng môn đỏ", "Lá cau phụ kiện"],
     meaning: 'Chúc mừng gia chủ buôn may bán đắt, phát tài phát lộc bền lâu.',
     description: "Thiết kế 2 tầng hoành tráng, phối tone vàng đỏ rực rỡ tượng trưng cho khởi đầu hồng phát, vạn sự hanh thông và tài lộc dồi dào.",
     gradientTheme: {"bg": "from-amber-50 to-orange-50/30", "accent": "text-amber-700", "tagBg": "bg-amber-500"},
@@ -357,7 +357,7 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     originalPrice: 520000,
     imageUrl: '/products/fl-17.webp',
     tag: 'Mới',
-    flowerTypes: ["Cẩm tú cầu Đà Lạt xanh lam ngọc", "Baby trắng", "Lá mimosa"],
+    flowerTypes: ["Cẩm tú cầu xanh lam ngọc", "Baby trắng", "Lá mimosa"],
     meaning: 'Lòng biết ơn chân thành và niềm tin hy vọng vào một tương lai tươi sáng.',
     description: "Cẩm tú cầu đóa tròn xoe màu xanh ngọc bích êm dịu, ôm ấp tình cảm chân thành sâu lắng tặng người đặc biệt.",
     gradientTheme: {"bg": "from-rose-50 to-pink-50/30", "accent": "text-rose-700", "tagBg": "bg-rose-500"},
@@ -437,7 +437,7 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     originalPrice: 690000,
     imageUrl: '/products/fl-22.webp',
     tag: 'Bán chạy',
-    flowerTypes: ["Hồng kem dâu Đà Lạt loại 1", "Cúc tana", "Lá bạc", "Nơ voan hồng"],
+    flowerTypes: ["Hồng kem dâu tuyển chọn loại 1", "Cúc tana", "Lá bạc", "Nơ voan hồng"],
     meaning: 'Tình yêu đầu ngọt ngào, e ấp và trong sáng như những giấc mơ tuổi thanh xuân.',
     description: "Tone hồng pastel phấn mịn như làn mây, giấy gói phong cách Hàn Quốc trẻ trung tôn vinh nét dịu dàng của người yêu.",
     gradientTheme: {"bg": "from-red-50 to-rose-50/30", "accent": "text-red-700", "tagBg": "bg-red-500"},
@@ -469,7 +469,7 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
     originalPrice: 600000,
     imageUrl: '/products/fl-24.webp',
     tag: 'Mới',
-    flowerTypes: ["Hồng trắng cồ Đà Lạt", "Baby Hà Lan", "Nơ voan trắng tinh khôi"],
+    flowerTypes: ["Hồng trắng cồ tuyển chọn loại 1", "Baby Hà Lan", "Nơ voan trắng tinh khôi"],
     meaning: 'Tình yêu chân thành, thanh tao, không toan tính và thuần khiết.',
     description: "Những đóa hồng trắng muốt e ấp trong lớp giấy mờ sương, gửi gắm lời hẹn ước gắn bó dài lâu đầy trân trọng.",
     gradientTheme: {"bg": "from-red-50 to-rose-50/30", "accent": "text-red-700", "tagBg": "bg-red-500"},
@@ -961,12 +961,15 @@ export const INITIAL_PRODUCTS: FlowerProduct[] = [
 
 export const INITIAL_SHOP_SETTINGS: ShopSettings = {
   name: 'V&V Florielle',
-  slogan: 'Boutique Florist & Hoa Tươi Thiết Kế Cầu Giấy Hà Nội',
+  slogan: 'Tiệm Hoa Nghệ Thuật & Thiết Kế Hoa (Hoa Tươi • Hoa Sáp • Hoa Lụa)',
   hotline: '0906.721.442',
   zalo: '0906.721.442',
   address: '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
   email: 'vvflorielle@gmail.com',
-  openingHours: '06:30 - 21:30 (Mở cửa tất cả các ngày)',
+  openingHours: '07:30 - 22:00',
+  logoHorizontalUrl: '/logo-vvflorielle-horizontal.webp',
+  logoVerticalUrl: '/logo.png',
+  faviconUrl: '/logo-vvflorielle-square.webp',
   bankName: 'Vietcombank',
   bankId: 'VCB',
   bankAccount: '1029384756',
@@ -983,9 +986,29 @@ export const INITIAL_SHOP_SETTINGS: ShopSettings = {
   mascotImageUrl: '/images/mascot/mascot-1.webp',
   floralCornerTopImage: '/images/floral/floral-corner-rose-peony.webp',
   floralCornerBottomImage: '/images/floral/floral-corner-peach-lisianthus.webp',
+  primaryColor: '#059669',
+  secondaryColor: '#047857',
+  fontFamily: 'Playfair Display',
   customDomain: 'https://vvflorielle.vn',
   voiceAlertsEnabled: true,
-  autoApproveWaitMinutes: 2
+  autoApproveWaitMinutes: 2,
+  depositRate: 50,
+  depositRequired: true,
+  minOrderForDeposit: 0,
+  enableAutoApproveDeposit: false,
+  pointsPerAmount: 10000,
+  pointsMultiplier: 1,
+  rainSurcharge: 5000,
+  coldSurcharge: 5000,
+  stormSurcharge: 10000,
+  nightShiftSurcharge: 10000,
+  noonShiftSurcharge: 5000,
+  googleDriveWebhookUrl: 'https://script.google.com/macros/s/AKfycbzy5CD4a1T1ez4c6MvSdEZdF5SsKcHf9lesfad8Z2qNLukID18ytU2W-VUH2YFaX02gpw/exec',
+  googleDriveFolderUrl: 'https://drive.google.com/drive/folders/1icGtru1WHHVF48k9M1wL9Fei-wLsg4Bq?usp=sharing',
+  googleDriveFolderId: '1icGtru1WHHVF48k9M1wL9Fei-wLsg4Bq',
+  billArchiveRetentionDays: 7,
+  autoArchiveToDriveEnabled: true,
+  autoPurgeLocalBase64Enabled: true
 };
 
 export const AVAILABLE_MASCOTS = [
@@ -1019,16 +1042,26 @@ export const AVAILABLE_FLORAL_CORNERS = [
  */
 export function calculateTieredShippingFee(
   shippingKm: number,
-  _flowerSubtotal?: number,
-  _settings?: Partial<ShopSettings>
+  flowerSubtotal?: number,
+  settings?: Partial<ShopSettings>
 ): number {
-  if (shippingKm <= 0) return 10000;
-  if (shippingKm < 2) return 10000;
+  if (shippingKm <= 0) return 0;
+
+  // Freeship threshold check
+  const threshold = settings?.freeShipThreshold ?? 500000;
+  const freeRadius = settings?.freeShipRadiusKm ?? 3;
+  if (flowerSubtotal && flowerSubtotal >= threshold && shippingKm <= freeRadius) {
+    return 0;
+  }
+
+  // Tiered pricing
+  if (shippingKm < 2) return settings?.standardShipFee ?? 10000;
   if (shippingKm < 5) return 20000;
   if (shippingKm < 10) return 30000;
   if (shippingKm <= 15) return 45000;
   const extraKm = Math.ceil(shippingKm - 15);
-  return 45000 + extraKm * 5000;
+  const perKm = settings?.shippingFeePerKm ?? 5000;
+  return 45000 + extraKm * perKm;
 }
 
 export const INITIAL_CONTACT_CHANNELS: ContactChannel[] = [
@@ -1129,7 +1162,10 @@ export const INITIAL_ORDERS: Order[] = [
     depositAmount: 435000,
     remainingAmount: 435000,
     paymentStatus: 'PARTIAL_PAID',
+    isDepositPaid: true,
+    depositStatus: 'APPROVED',
     paymentApprovedBy: 'ADMIN',
+    depositApprovedBy: 'ADMIN',
     paymentApprovedAt: '2026-10-29 08:45',
     status: 'ARRANGING',
     createdAt: '2026-10-29 08:30',
@@ -1165,7 +1201,10 @@ export const INITIAL_ORDERS: Order[] = [
     depositAmount: 2710000,
     remainingAmount: 0,
     paymentStatus: 'PAID',
+    isDepositPaid: true,
+    depositStatus: 'APPROVED',
     paymentApprovedBy: 'AUTO_ASSISTANT',
+    depositApprovedBy: 'AUTO_ASSISTANT',
     paymentApprovedAt: '2026-10-28 16:47',
     status: 'ARRANGING',
     createdAt: '2026-10-28 16:45',
@@ -1201,6 +1240,9 @@ export const INITIAL_ORDERS: Order[] = [
     depositAmount: 345000,
     remainingAmount: 345000,
     paymentStatus: 'PAID',
+    isDepositPaid: true,
+    depositStatus: 'APPROVED',
+    depositApprovedBy: 'ADMIN',
     status: 'COMPLETED',
     createdAt: '2026-10-28 10:15',
     pointsAwarded: 68,
@@ -1211,6 +1253,7 @@ export const INITIAL_ORDERS: Order[] = [
 export const INITIAL_CUSTOMERS: CustomerUser[] = [
   {
     id: 'cust-01',
+    accountCode: 'VVF-CUST-849201',
     phone: '0912345678',
     fullName: 'Trần Văn Minh',
     email: 'tranvanminh@gmail.com',
@@ -1223,9 +1266,11 @@ export const INITIAL_CUSTOMERS: CustomerUser[] = [
     ordersCount: 4,
     registeredAt: '2026-08-15',
     birthday: '1992-11-20',
+    isBirthdateLocked: true,
     notes: 'Thích cắm hoa tone pastel, thường đặt tặng sinh nhật đối tác.',
     status: 'ACTIVE',
     favoriteFlowers: ['Hoa hồng Ecuador', 'Cát tường', 'Lá bạc'],
+    tags: ['Tone Pastel', 'Đối Tác Thân Thiết'],
     savedAddresses: [
       {
         id: 'addr-1',
@@ -1245,10 +1290,55 @@ export const INITIAL_CUSTOMERS: CustomerUser[] = [
         distanceKm: 5,
         isDefault: false
       }
+    ],
+    userVouchers: [
+      {
+        id: 'uv-welcome',
+        code: 'FREESHIP30K',
+        title: 'Ưu Đãi Chào Bạn Mới (Freeship 30K)',
+        discountAmount: 30000,
+        minOrder: 300000,
+        validUntil: '31/12/2026',
+        discountType: 'FREESHIP',
+        voucherScope: 'SHIPPING',
+        campaignType: 'STANDARD',
+        maxDiscount: 30000,
+        isUsed: false,
+        source: 'WELCOME'
+      },
+      {
+        id: 'uv-birthday',
+        code: 'VVF-BIRTHDAY',
+        title: 'Mừng Sinh Nhật Hội Viên (Freeship 35K)',
+        discountAmount: 35000,
+        minOrder: 0,
+        validUntil: '30/11/2026',
+        discountType: 'FREESHIP',
+        voucherScope: 'SHIPPING',
+        campaignType: 'BIRTHDAY',
+        maxDiscount: 35000,
+        maxShippingRadiusKm: 20,
+        isUsed: false,
+        source: 'SYSTEM_AIRDROP'
+      },
+      {
+        id: 'uv-week',
+        code: 'VVF-WEEK10K',
+        title: 'Voucher Hoa Tươi Đầu Tuần 10K',
+        discountAmount: 10000,
+        minOrder: 199000,
+        validUntil: '23:59:59 Chủ Nhật',
+        discountType: 'FIXED',
+        voucherScope: 'FLOWER',
+        campaignType: 'WEEKLY',
+        isUsed: false,
+        source: 'SYSTEM_AIRDROP'
+      }
     ]
   },
   {
     id: 'cust-02',
+    accountCode: 'VVF-CUST-672153',
     phone: '0903112233',
     fullName: 'Công ty Cổ phần TechGlobal',
     email: 'admin@techglobal.vn',
@@ -1262,10 +1352,12 @@ export const INITIAL_CUSTOMERS: CustomerUser[] = [
     registeredAt: '2026-05-10',
     notes: 'Khách hàng doanh nghiệp VIP, chuyên đặt kệ khai trương 2-3 tầng.',
     status: 'ACTIVE',
-    favoriteFlowers: ['Hoa hướng dương', 'Lan hồ điệp', 'Thiên điểu']
+    favoriteFlowers: ['Hoa hướng dương', 'Lan hồ điệp', 'Thiên điểu'],
+    tags: ['Doanh Nghiệp VIP', 'Kệ Khai Trương']
   },
   {
     id: 'cust-03',
+    accountCode: 'VVF-CUST-489312',
     phone: '0945678901',
     fullName: 'Lê Hoàng Nam',
     email: 'nam.lehoang@gmail.com',
@@ -1278,12 +1370,15 @@ export const INITIAL_CUSTOMERS: CustomerUser[] = [
     ordersCount: 3,
     registeredAt: '2026-09-02',
     birthday: '1995-04-12',
+    isBirthdateLocked: true,
     notes: 'Đặt hoa tặng gia đình, yêu cầu chụp hình trước khi giao.',
     status: 'ACTIVE',
-    favoriteFlowers: ['Giỏ hoa mây vintage', 'Lan hồ điệp trắng']
+    favoriteFlowers: ['Giỏ hoa mây vintage', 'Lan hồ điệp trắng'],
+    tags: ['Yêu Cầu Chụp Ảnh', 'Hoa Vintage']
   },
   {
     id: 'cust-04',
+    accountCode: 'VVF-CUST-392815',
     phone: '0988776655',
     fullName: 'Nguyễn Thúy Hằng',
     email: 'thuyhang.nguyen@outlook.com',
@@ -1297,13 +1392,15 @@ export const INITIAL_CUSTOMERS: CustomerUser[] = [
     registeredAt: '2026-10-25',
     notes: 'Khách hàng mới cần xác thực OTP để nhận 100% giá trị điểm.',
     status: 'ACTIVE',
-    favoriteFlowers: ['Hoa baby trắng', 'Hoa hồng đỏ']
+    favoriteFlowers: ['Hoa baby trắng', 'Hoa hồng đỏ'],
+    tags: ['Khách Hàng Mới', 'Cần Hỗ Trợ']
   }
 ];
 
 export const INITIAL_CUSTOMER: CustomerUser = INITIAL_CUSTOMERS[0];
 
 export const INITIAL_PROMOTIONS: PromotionItem[] = [
+  // 1. Voucher Chào Bạn Mới (Freeship)
   {
     id: 'promo-01',
     code: 'FREESHIP30K',
@@ -1314,49 +1411,368 @@ export const INITIAL_PROMOTIONS: PromotionItem[] = [
     badge: 'Chào Bạn Mới',
     validUntil: '31/12/2026',
     discountType: 'FREESHIP',
+    voucherScope: 'SHIPPING',
+    campaignType: 'STANDARD',
     maxDiscount: 30000,
     isActive: true,
-    isWelcomeVoucher: true
+    isWelcomeVoucher: true,
+    showOnPublicWeb: true
   },
+  // 2. Voucher Tuần (Hết hạn 23:59:59 Chủ Nhật)
+  {
+    id: 'promo-week-10k',
+    code: 'VVF-WEEK10K',
+    title: 'Voucher Hoa Tươi Đầu Tuần 10K',
+    description: 'Giảm 10.000đ cho mọi đơn hoa từ 199.000đ trong tuần. Tự động gia hạn mỗi sáng Thứ Hai.',
+    discountAmount: 10000,
+    minOrder: 199000,
+    badge: 'Voucher Tuần',
+    validUntil: 'Chủ Nhật Hàng Tuần',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'WEEKLY',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 500,
+    usedCount: 42
+  },
+  // 3. Voucher Tháng (10 Ngày Đầu Tháng)
+  {
+    id: 'promo-month-20k',
+    code: 'VVF-MONTH20K',
+    title: 'Đón Tháng Mới Hoa Rực Rỡ 20K',
+    description: 'Giảm 20.000đ cho đơn hoa từ 299.000đ áp dụng trong 10 ngày đầu tháng.',
+    discountAmount: 20000,
+    minOrder: 299000,
+    badge: 'Voucher Tháng',
+    validUntil: '10 Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'MONTHLY',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 300,
+    usedCount: 68
+  },
+  // 4. Voucher Mùng 1 & Rằm & Lương Về
+  {
+    id: 'promo-mung-1',
+    code: 'VVF-MUNG1',
+    title: 'Hoa Tươi Mùng 1 Phát Tài',
+    description: 'Giảm 15.000đ cho đơn hoa dâng lễ, bình hoa gia tiên từ 200.000đ vào ngày Mùng 1 Âm Lịch.',
+    discountAmount: 15000,
+    minOrder: 200000,
+    badge: 'Mùng 1 May Mắn',
+    validUntil: 'Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'HOLIDAY',
+    isActive: true,
+    showOnPublicWeb: true
+  },
+  {
+    id: 'promo-ram-15',
+    code: 'VVF-RAM15',
+    title: 'Hoa Tươi Rằm 15 An Yên',
+    description: 'Giảm 15.000đ cho đơn hoa thắp hương, cúng rằm từ 200.000đ vào ngày Rằm 15 Âm Lịch.',
+    discountAmount: 15000,
+    minOrder: 200000,
+    badge: 'Rằm 15 Bình An',
+    validUntil: 'Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'HOLIDAY',
+    isActive: true,
+    showOnPublicWeb: true
+  },
+  {
+    id: 'promo-payday',
+    code: 'VVF-PAYDAY',
+    title: 'Đại Tiệc Hoa Tươi Lương Về',
+    description: 'Giảm 25.000đ cho đơn hoa từ 350.000đ dịp cuối tháng và đầu tháng khi lương về.',
+    discountAmount: 25000,
+    minOrder: 350000,
+    badge: 'Payday Ting Ting',
+    validUntil: '05 Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'HOLIDAY',
+    isActive: true,
+    showOnPublicWeb: true
+  },
+  // 5. Chuỗi 5 tầng Voucher Ngày Đôi (Tổng 210 Lượt)
+  {
+    id: 'promo-dd-15',
+    code: 'VVF-DD15',
+    title: 'Đại Tiệc Ngày Đôi - Tầng 1 (Giảm 15K)',
+    description: 'Giảm 15.000đ cho đơn hoa từ 199.000đ trong sự kiện Ngày Đôi (01/01... 11/11, 12/12). Giới hạn 50 lượt.',
+    discountAmount: 15000,
+    minOrder: 199000,
+    badge: 'Ngày Đôi 15K',
+    validUntil: 'Ngày Đôi Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'DOUBLE_DAY',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 50,
+    usedCount: 18
+  },
+  {
+    id: 'promo-dd-20',
+    code: 'VVF-DD20',
+    title: 'Đại Tiệc Ngày Đôi - Tầng 2 (Giảm 20K)',
+    description: 'Giảm 20.000đ cho đơn hoa từ 299.000đ trong sự kiện Ngày Đôi. Giới hạn 50 lượt.',
+    discountAmount: 20000,
+    minOrder: 299000,
+    badge: 'Ngày Đôi 20K',
+    validUntil: 'Ngày Đôi Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'DOUBLE_DAY',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 50,
+    usedCount: 22
+  },
+  {
+    id: 'promo-dd-25',
+    code: 'VVF-DD25',
+    title: 'Đại Tiệc Ngày Đôi - Tầng 3 (Giảm 25K)',
+    description: 'Giảm 25.000đ cho đơn hoa từ 399.000đ trong sự kiện Ngày Đôi. Giới hạn 40 lượt.',
+    discountAmount: 25000,
+    minOrder: 399000,
+    badge: 'Ngày Đôi 25K',
+    validUntil: 'Ngày Đôi Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'DOUBLE_DAY',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 40,
+    usedCount: 14
+  },
+  {
+    id: 'promo-dd-30',
+    code: 'VVF-DD30',
+    title: 'Đại Tiệc Ngày Đôi - Tầng 4 (Giảm 30K)',
+    description: 'Giảm 30.000đ cho đơn hoa từ 499.000đ trong sự kiện Ngày Đôi. Giới hạn 40 lượt.',
+    discountAmount: 30000,
+    minOrder: 499000,
+    badge: 'Ngày Đôi 30K',
+    validUntil: 'Ngày Đôi Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'DOUBLE_DAY',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 40,
+    usedCount: 11
+  },
+  {
+    id: 'promo-dd-35',
+    code: 'VVF-DD35',
+    title: 'Đại Tiệc Ngày Đôi - Tầng 5 VIP (Giảm 35K)',
+    description: 'Giảm 35.000đ cho đơn hoa từ 599.000đ trong sự kiện Ngày Đôi. Giới hạn 30 lượt.',
+    discountAmount: 35000,
+    minOrder: 599000,
+    badge: 'Ngày Đôi 35K',
+    validUntil: 'Ngày Đôi Hàng Tháng',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'DOUBLE_DAY',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 30,
+    usedCount: 9
+  },
+  // 6. Flash Deals Khung Giờ Vàng
+  {
+    id: 'promo-flash-12',
+    code: 'VVF-FLASH12',
+    title: 'Giờ Vàng Nghỉ Trưa (12h - 14h)',
+    description: 'Giảm 15.000đ cho đơn hoa từ 200.000đ trong khung giờ 12:00 - 14:00 hàng ngày. Giới hạn 50 lượt.',
+    discountAmount: 15000,
+    minOrder: 200000,
+    badge: 'Flash 12h-14h',
+    validUntil: 'Hàng Ngày',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'FLASH_DEAL',
+    hourlyDealStart: '12:00',
+    hourlyDealEnd: '14:00',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 50,
+    usedCount: 23
+  },
+  {
+    id: 'promo-flash-20',
+    code: 'VVF-FLASH20',
+    title: 'Giờ Vàng Đêm Muộn (20h - 22h)',
+    description: 'Giảm 20.000đ cho đơn hoa từ 300.000đ trong khung giờ 20:00 - 22:00 hàng ngày. Giới hạn 50 lượt.',
+    discountAmount: 20000,
+    minOrder: 300000,
+    badge: 'Flash 20h-22h',
+    validUntil: 'Hàng Ngày',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'FLASH_DEAL',
+    hourlyDealStart: '20:00',
+    hourlyDealEnd: '22:00',
+    isActive: true,
+    showOnPublicWeb: true,
+    usageLimit: 50,
+    usedCount: 16
+  },
+  // 7. Voucher Sinh Nhật Hội Viên
+  {
+    id: 'promo-birthday',
+    code: 'VVF-BIRTHDAY',
+    title: 'Mừng Sinh Nhật Hội Viên (Freeship 35K)',
+    description: 'Đặc quyền hội viên trong tháng sinh nhật: Miễn phí giao hàng tối đa 35.000đ cho bán kính < 20km.',
+    discountAmount: 35000,
+    minOrder: 0,
+    badge: 'Sinh Nhật Hội Viên',
+    validUntil: 'Tháng Sinh Nhật',
+    discountType: 'FREESHIP',
+    voucherScope: 'SHIPPING',
+    campaignType: 'BIRTHDAY',
+    maxDiscount: 35000,
+    maxShippingRadiusKm: 20,
+    isActive: true,
+    showOnPublicWeb: false
+  },
+  // 8. Đổi Điểm Thưởng Tích Lũy (Loyalty) - 8 Mốc Toàn Diện Lên Đến 1.000.000đ
   {
     id: 'promo-02',
     code: 'SHIP10K',
     title: 'Voucher Vận Chuyển 10K',
-    description: 'Đổi bằng 100 điểm thưởng tích lũy. Giảm 10.000đ phí giao hàng cho đơn bất kỳ.',
+    description: 'Đổi bằng 100 điểm thưởng tích lũy. Giảm 10.000đ phí giao hàng cho đơn từ 150.000đ.',
     discountAmount: 10000,
     minOrder: 150000,
     badge: 'Đổi 100 Điểm',
     validUntil: '31/12/2026',
     discountType: 'FREESHIP',
+    voucherScope: 'SHIPPING',
+    campaignType: 'LOYALTY_REDEEM',
     isActive: true,
-    pointsToRedeem: 100
+    pointsToRedeem: 100,
+    showOnPublicWeb: false
   },
   {
     id: 'promo-03',
     code: 'SHIP20K',
     title: 'Voucher Vận Chuyển 20K',
-    description: 'Đổi bằng 200 điểm thưởng tích lũy. Giảm 20.000đ phí giao hàng cho đơn bất kỳ.',
+    description: 'Đổi bằng 200 điểm thưởng tích lũy. Giảm 20.000đ phí giao hàng cho đơn từ 250.000đ.',
     discountAmount: 20000,
     minOrder: 250000,
     badge: 'Đổi 200 Điểm',
     validUntil: '31/12/2026',
     discountType: 'FREESHIP',
+    voucherScope: 'SHIPPING',
+    campaignType: 'LOYALTY_REDEEM',
     isActive: true,
-    pointsToRedeem: 200
+    pointsToRedeem: 200,
+    showOnPublicWeb: false
   },
   {
     id: 'promo-04',
     code: 'SHIP30K',
-    title: 'Voucher Vận Chuyển 30K',
-    description: 'Đổi bằng 300 điểm thưởng tích lũy. Giảm 30.000đ phí giao hàng cho đơn bất kỳ.',
+    title: 'Voucher Vận Chuyển 30K (Freeship)',
+    description: 'Đổi bằng 300 điểm thưởng tích lũy. Miễn phí giao hàng tới 30.000đ cho đơn từ 350.000đ.',
     discountAmount: 30000,
     minOrder: 350000,
     badge: 'Đổi 300 Điểm',
     validUntil: '31/12/2026',
     discountType: 'FREESHIP',
+    voucherScope: 'SHIPPING',
+    campaignType: 'LOYALTY_REDEEM',
     isActive: true,
-    pointsToRedeem: 300
+    pointsToRedeem: 300,
+    showOnPublicWeb: false
   },
+  {
+    id: 'promo-loyalty-50k',
+    code: 'HOA50K',
+    title: 'Voucher Giảm Hoa 50K',
+    description: 'Đổi bằng 500 điểm thưởng tích lũy. Giảm 50.000đ trực tiếp vào giá hoa cho đơn từ 500.000đ.',
+    discountAmount: 50000,
+    minOrder: 500000,
+    badge: 'Đổi 500 Điểm',
+    validUntil: '31/12/2026',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'LOYALTY_REDEEM',
+    isActive: true,
+    pointsToRedeem: 500,
+    showOnPublicWeb: false
+  },
+  {
+    id: 'promo-loyalty-100k',
+    code: 'HOA100K',
+    title: 'Voucher Giảm Hoa 100K',
+    description: 'Đổi bằng 1.000 điểm thưởng tích lũy. Giảm 100.000đ trực tiếp vào giá hoa cho đơn từ 900.000đ.',
+    discountAmount: 100000,
+    minOrder: 900000,
+    badge: 'Đổi 1.000 Điểm',
+    validUntil: '31/12/2026',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'LOYALTY_REDEEM',
+    isActive: true,
+    pointsToRedeem: 1000,
+    showOnPublicWeb: false
+  },
+  {
+    id: 'promo-loyalty-200k',
+    code: 'HOA200K',
+    title: 'Voucher Giảm Hoa 200K',
+    description: 'Đổi bằng 2.000 điểm thưởng tích lũy. Giảm 200.000đ trực tiếp vào giá hoa cho đơn từ 1.800.000đ.',
+    discountAmount: 200000,
+    minOrder: 1800000,
+    badge: 'Đổi 2.000 Điểm',
+    validUntil: '31/12/2026',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'LOYALTY_REDEEM',
+    isActive: true,
+    pointsToRedeem: 2000,
+    showOnPublicWeb: false
+  },
+  {
+    id: 'promo-loyalty-500k',
+    code: 'HOA500K',
+    title: 'Voucher Giảm Hoa 500K (VIP Vàng)',
+    description: 'Đổi bằng 5.000 điểm thưởng tích lũy. Giảm 500.000đ trực tiếp vào giá hoa cho đơn từ 3.500.000đ.',
+    discountAmount: 500000,
+    minOrder: 3500000,
+    badge: 'Đổi 5.000 Điểm',
+    validUntil: '31/12/2026',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'LOYALTY_REDEEM',
+    isActive: true,
+    pointsToRedeem: 5000,
+    showOnPublicWeb: false
+  },
+  {
+    id: 'promo-loyalty-1m',
+    code: 'HOA1M',
+    title: 'Voucher VIP Đỉnh Cao Giảm 1.000.000đ',
+    description: 'Đổi bằng 10.000 điểm thưởng tích lũy. Giảm 1.000.000đ trực tiếp vào giá hoa cho đơn từ 6.000.000đ.',
+    discountAmount: 1000000,
+    minOrder: 6000000,
+    badge: 'Đổi 10.000 Điểm',
+    validUntil: '31/12/2026',
+    discountType: 'FIXED',
+    voucherScope: 'FLOWER',
+    campaignType: 'LOYALTY_REDEEM',
+    isActive: true,
+    pointsToRedeem: 10000,
+    showOnPublicWeb: false
+  },
+  // 9. Voucher Khai Trương / VIP Lớn
   {
     id: 'promo-05',
     code: 'FLORIELLE10',
@@ -1367,8 +1783,11 @@ export const INITIAL_PROMOTIONS: PromotionItem[] = [
     badge: 'VIP 10%',
     validUntil: '31/12/2026',
     discountType: 'PERCENT',
+    voucherScope: 'FLOWER',
+    campaignType: 'STANDARD',
     maxDiscount: 100000,
-    isActive: true
+    isActive: true,
+    showOnPublicWeb: true
   }
 ];
 
@@ -1418,9 +1837,9 @@ export const INITIAL_ARTICLES: BlogArticle[] = [
 ];
 
 export const INITIAL_HERO_CONFIG: HeroBannerConfig = {
-  badge: 'Tiệm Hoa Tươi Nghệ Thuật V&V Florielle',
+  badge: 'Tiệm Hoa Nghệ Thuật V&V Florielle',
   title: 'Chào Mừng Đến Với Tiệm Hoa V&V Florielle - Nghệ Thuật Trao Gửi Yêu Thương',
-  subtitle: 'Hoa Tươi Giao Ngay Tại Hà Nội • 100% hoa tươi loại một nhập mới mỗi ngày từ đơn vị vườn hoa & hoa ngoại nhập khẩu cao cấp.  • Giao hỏa tốc chỉ từ 15 phút nội thành Hà Nội và 60 phút ngoại thành  •  Chụp ảnh gửi mẫu hoàn thiện qua Zalo trước khi giao.',
+  subtitle: 'Thiết Kế Hoa Nghệ Thuật Hà Nội • Tuyển chọn hoa tươi loại 1, hoa sáp thơm & hoa lụa cao cấp thiết kế tinh tế. • Giao hỏa tốc chỉ từ 15 phút nội thành Hà Nội và 60 phút ngoại thành • Florist chụp ảnh gửi mẫu hoàn thiện duyệt trước khi giao.',
   ctaText: 'Khám Phá Mẫu Hoa Mới',
   ctaSecondaryText: 'Tư Vấn Thiết Kế Riêng',
   backgroundImage: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1600&q=80',
@@ -1430,7 +1849,7 @@ export const INITIAL_HERO_CONFIG: HeroBannerConfig = {
 export const INITIAL_MARQUEE_ANNOUNCEMENTS: MarqueeItem[] = [
   {
     id: 'marq-01',
-    text: 'Hoa tươi giao ngay tại Hà Nội • Giao hỏa tốc từ 15 phút nội thành & 60 phút ngoại thành • Chụp ảnh gửi mẫu hoàn thiện',
+    text: 'Thiết kế hoa nghệ thuật giao ngay tại Hà Nội • Hoa tươi, hoa sáp & hoa lụa cao cấp • Giao hỏa tốc từ 15 phút nội thành • Chụp ảnh duyệt mẫu thực tế',
     tag: 'CỬA HÀNG',
     isEnabled: true,
     order: 1

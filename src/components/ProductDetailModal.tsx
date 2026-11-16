@@ -11,7 +11,9 @@ import {
   Plus,
   Minus,
   Sparkles,
-  ImageOff
+  ImageOff,
+  Share2,
+  Copy
 } from 'lucide-react';
 import { useBodyScrollLock } from '../utils/scrollLock';
 
@@ -32,15 +34,37 @@ const QUICK_MESSAGES = [
 ];
 
 export const ProductDetailModal: React.FC = () => {
-  const { selectedProduct, setSelectedProduct, addToCart, setIsCartOpen, products } = useStore();
+  const { selectedProduct, setSelectedProduct, addToCart, setIsCartOpen, products, showToast } = useStore();
   useBodyScrollLock(Boolean(selectedProduct));
 
   const [quantity, setQuantity] = useState(1);
   const [selectedRibbon, setSelectedRibbon] = useState(RIBBON_OPTIONS[0].name);
   const [cardMessage, setCardMessage] = useState('');
   const [imageError, setImageError] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   if (!selectedProduct) return null;
+
+  const productShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/#product/${selectedProduct.id}` : '';
+
+  const handleShareZalo = () => {
+    const url = `https://zalo.me/share?url=${encodeURIComponent(productShareUrl)}&text=${encodeURIComponent(`Mẫu hoa ${selectedProduct.name} tuyệt đẹp tại V&V Florielle`)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleShareFacebook = () => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productShareUrl)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleCopyLink = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(productShareUrl);
+      setIsCopied(true);
+      showToast('Đã sao chép liên kết mẫu hoa vào khay nhớ tạm!', 'success');
+      setTimeout(() => setIsCopied(false), 2000);
+    }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -159,7 +183,7 @@ export const ProductDetailModal: React.FC = () => {
               </h2>
 
               <div className="flex items-baseline gap-2 mb-3">
-                <span className="text-xl font-extrabold text-emerald-700">
+                <span className="text-xl font-black text-[#ee4d2d] fixed-semantic product-price tracking-tight">
                   {formatPrice(selectedProduct.price)}
                 </span>
                 {selectedProduct.originalPrice && selectedProduct.originalPrice > selectedProduct.price && (
@@ -270,19 +294,65 @@ export const ProductDetailModal: React.FC = () => {
               </div>
 
               <button
+                type="button"
                 onClick={() => handleAddToCart(false)}
-                className="btn-secondary text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1.5 border border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                className="btn-add-cart text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1.5 rounded-xl transition-all cursor-pointer font-bold shadow-2xs border"
+                style={{
+                  borderColor: 'var(--primary-border, rgba(16, 185, 129, 0.35))',
+                  backgroundColor: 'var(--primary-light, #ecfdf5)',
+                  color: 'var(--primary-color, #059669)',
+                }}
               >
-                <ShoppingBag className="w-3.5 h-3.5" />
+                <ShoppingBag className="w-3.5 h-3.5" style={{ color: 'var(--primary-color, #059669)' }} />
                 <span>Thêm vào giỏ</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => handleAddToCart(true)}
-                className="btn-primary text-xs py-2 px-4 flex-1 flex items-center justify-center gap-1.5 shadow-md"
+                className="btn-primary text-xs py-2 px-4 flex-1 flex items-center justify-center gap-1.5 shadow-md rounded-xl font-bold cursor-pointer transition-all active:scale-95"
+                style={{
+                  background: 'linear-gradient(135deg, var(--primary-color, #059669) 0%, var(--primary-hover, #047857) 100%)',
+                  boxShadow: '0 4px 14px var(--primary-glow, rgba(16, 185, 129, 0.25))',
+                }}
               >
                 <span>Mua ngay</span>
               </button>
+            </div>
+
+            {/* Quick Social Share Bar */}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span className="text-[11px] font-medium flex items-center gap-1">
+                <Share2 className="w-3.5 h-3.5 text-slate-400" />
+                <span>Chia sẻ mẫu hoa:</span>
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleShareZalo}
+                  className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#0068FF] text-[11px] font-bold border border-blue-200 flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Chia sẻ qua Zalo"
+                >
+                  <span>Zalo</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShareFacebook}
+                  className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-[11px] font-bold border border-sky-200 flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Chia sẻ lên Facebook"
+                >
+                  <span>Facebook</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold border border-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Sao chép liên kết"
+                >
+                  {isCopied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                  <span>{isCopied ? 'Đã chép' : 'Copy link'}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -319,7 +389,7 @@ export const ProductDetailModal: React.FC = () => {
                     <h4 className="text-[11px] font-bold text-slate-800 line-clamp-1 group-hover:text-emerald-700">
                       {rel.name}
                     </h4>
-                    <div className="text-[11px] font-extrabold text-emerald-700">
+                    <div className="text-[11px] font-black text-[#ee4d2d] fixed-semantic product-price tracking-tight">
                       {formatPrice(rel.price)}
                     </div>
                   </div>

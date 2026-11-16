@@ -9,7 +9,15 @@ import {
   Sparkles,
   CheckCircle2,
   Flower2,
-  ArrowLeft
+  ArrowLeft,
+  ShieldCheck,
+  ShieldAlert,
+  Coins,
+  CloudRain,
+  Moon,
+  Sun,
+  Percent,
+  AlertTriangle
 } from 'lucide-react';
 import { ShopSettings, ContactChannel } from '../../../types';
 import { AVAILABLE_MASCOTS, AVAILABLE_FLORAL_CORNERS } from '../../../data/mockData';
@@ -136,6 +144,36 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
             />
           </div>
 
+          {/* Opening Hours & Operational Status Badge */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-[11px] text-slate-500 block mb-1">Khung giờ mở cửa hàng ngày</label>
+              <input
+                type="text"
+                value={editSettings.openingHours || '07:30 - 22:00'}
+                onChange={(e) => setEditSettings({ ...editSettings, openingHours: e.target.value })}
+                placeholder="VD: 07:30 - 22:00"
+                className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+              />
+              <span className="text-[10px] text-slate-400">Định dạng chuẩn: Giờ:Phút - Giờ:Phút (VD: 07:30 - 22:00)</span>
+            </div>
+
+            <div>
+              <label className="text-[11px] text-slate-500 block mb-1">Huy hiệu trạng thái tiệm (Nút liên hệ)</label>
+              <select
+                value={editSettings.storeOperationalStatus || 'AUTO'}
+                onChange={(e) => setEditSettings({ ...editSettings, storeOperationalStatus: e.target.value as any })}
+                className="glass-input w-full text-xs py-2 rounded-xl font-semibold"
+              >
+                <option value="AUTO">⚡ Tự động theo giờ (Mở Cửa / Tạm Nghỉ / Đóng Cửa)</option>
+                <option value="OPEN">🟢 Mở Cửa (Luôn mở nhận đơn)</option>
+                <option value="BREAK">🟠 Tạm Nghỉ (Nghỉ giữa ca / Quá tải đơn)</option>
+                <option value="CLOSED">🔴 Đóng Cửa (Nghỉ lễ / Hết hoa)</option>
+              </select>
+              <span className="text-[10px] text-slate-400">Hiển thị gọn: &quot;Mở Cửa&quot;, &quot;Tạm Nghỉ&quot; hoặc &quot;Đóng Cửa&quot;</span>
+            </div>
+          </div>
+
           {/* Protected Bank & VietQR Redirection Notice */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-emerald-500/10 border border-amber-300/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="space-y-1">
@@ -246,6 +284,292 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
                 <span className="text-[10px] text-slate-400">Vượt quá sẽ chặn đặt online &amp; chuyển sang gọi Hotline</span>
+              </div>
+            </div>
+
+            {/* Deposit Policy & Financial Risk Controls */}
+            <div className="pt-4 border-t border-slate-200/60 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                <div>
+                  <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Chính Sách Đặt Cọc &amp; Phòng Chống Gian Lận Bill VietQR</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    Cấu hình tỷ lệ cọc bắt buộc, ngưỡng đơn áp dụng và cơ chế kiểm soát duyệt tiền chuyển khoản.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editSettings.depositRequired ?? true}
+                      onChange={(e) => setEditSettings({ ...editSettings, depositRequired: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                  <span className="text-xs font-bold text-slate-800">
+                    {editSettings.depositRequired !== false ? 'Bắt buộc cọc trước' : 'Không bắt cọc (COD 100%)'}
+                  </span>
+                </div>
+              </div>
+
+              {editSettings.depositRequired !== false ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-white/90 border border-slate-200/90 shadow-2xs">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                      Tỉ lệ đặt cọc đơn hàng
+                    </label>
+                    <div className="grid grid-cols-4 gap-1">
+                      {[30, 50, 70, 100].map((rate) => {
+                        const isSelected = (editSettings.depositRate ?? 50) === rate;
+                        return (
+                          <button
+                            key={rate}
+                            type="button"
+                            onClick={() => setEditSettings({ ...editSettings, depositRate: rate })}
+                            className={`py-1.5 text-xs font-bold rounded-lg border transition-all ${
+                              isSelected
+                                ? 'bg-purple-700 text-white border-purple-700 shadow-xs'
+                                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                            }`}
+                          >
+                            {rate}%
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Khách cọc {editSettings.depositRate ?? 50}%, phần còn lại trả khi nhận hoa.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                      Ngưỡng đơn tối thiểu cần cọc (đ)
+                    </label>
+                    <input
+                      type="number"
+                      step={50000}
+                      value={editSettings.minOrderForDeposit ?? 0}
+                      onChange={(e) => setEditSettings({ ...editSettings, minOrderForDeposit: Number(e.target.value) })}
+                      className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                      placeholder="0 (Mọi đơn đều cần cọc)"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Đơn dưới mức này cho phép nhận hoa mới trả tiền (0đ = bắt buộc mọi đơn).
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                      Chế độ duyệt cọc tự động
+                    </label>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="checkbox"
+                        id="enableAutoApproveDepositToggle"
+                        checked={editSettings.enableAutoApproveDeposit ?? false}
+                        onChange={(e) =>
+                          setEditSettings({ ...editSettings, enableAutoApproveDeposit: e.target.checked })
+                        }
+                        className="rounded text-rose-600 focus:ring-rose-500 cursor-pointer"
+                      />
+                      <label
+                        htmlFor="enableAutoApproveDepositToggle"
+                        className="text-xs font-bold text-slate-800 cursor-pointer"
+                      >
+                        Bật AI duyệt cọc tự động
+                      </label>
+                    </div>
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Sau {editSettings.autoApproveWaitMinutes ?? 2} phút hệ thống tự duyệt bill.
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>
+                    Chính sách đang bật COD 100% cho mọi đơn: Khách hàng không cần thanh toán chuyển khoản trước khi tiệm cắm hoa.
+                  </span>
+                </div>
+              )}
+
+              {/* Security Advisory Callout */}
+              <div
+                className={`p-3.5 rounded-2xl border text-xs leading-relaxed flex items-start gap-3 ${
+                  editSettings.enableAutoApproveDeposit
+                    ? 'bg-rose-50/90 border-rose-200 text-rose-900'
+                    : 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
+                }`}
+              >
+                {editSettings.enableAutoApproveDeposit ? (
+                  <>
+                    <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="font-bold text-rose-950 block mb-0.5">
+                        ⚠️ Cảnh báo an toàn tài chính (Đang BẬT Tự Động Duyệt Cọc):
+                      </strong>
+                      Hệ thống sẽ tự động xác nhận đơn đã cọc tiền sau{' '}
+                      <strong>{editSettings.autoApproveWaitMinutes ?? 2} phút</strong> ngay cả khi Chủ quán / Admin chưa
+                      mở app ngân hàng Vietcombank để đối soát tiền thực. Chỉ nên bật khi tiệm quá tải đơn vào giờ cao
+                      điểm và khách hàng là khách quen.
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="font-bold text-emerald-900 block mb-0.5">
+                        🛡️ Đang kích hoạt Chế Độ Kiểm Soát Chặt Chẽ (Khuyến nghị chuẩn):
+                      </strong>
+                      Mọi đơn hàng thanh toán cọc VietQR bắt buộc phải được Chủ quán hoặc Quản trị viên đối soát tài
+                      khoản ngân hàng thực tế và bấm nút <strong>"Duyệt Cọc"</strong> trong Quản lý Đơn hàng trước khi
+                      chuyển trạng thái sang cắm hoa. Đảm bảo triệt để 100% không bị bill giả mạo lừa gạt.
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Surcharges & Points Multiplier Card */}
+            <div className="pt-4 border-t border-slate-200/60 space-y-4">
+              <div>
+                <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                  <Coins className="w-4 h-4 text-amber-500" />
+                  <span>Bảng Mức Phụ Phí Vận Hành &amp; Tỉ Lệ Tích Điểm Thưởng</span>
+                </h4>
+                <p className="text-[11px] text-slate-500">
+                  Tùy chỉnh định mức phụ thu thời tiết khắc nghiệt, ca giao đặc biệt và quy chế tích điểm cho khách.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 p-3.5 rounded-2xl bg-white/90 border border-slate-200/90 shadow-2xs">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mb-1">
+                    <CloudRain className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Phụ phí Mưa (đ)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step={1000}
+                    value={editSettings.rainSurcharge ?? 5000}
+                    onChange={(e) => setEditSettings({ ...editSettings, rainSurcharge: Number(e.target.value) })}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  />
+                  <span className="text-[10px] text-slate-400">Hỗ trợ bọc bạt che hoa</span>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mb-1">
+                    <CloudRain className="w-3.5 h-3.5 text-cyan-600" />
+                    <span>Phụ phí Rét lạnh (đ)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step={1000}
+                    value={editSettings.coldSurcharge ?? 5000}
+                    onChange={(e) => setEditSettings({ ...editSettings, coldSurcharge: Number(e.target.value) })}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  />
+                  <span className="text-[10px] text-slate-400">Giữ ấm cánh hoa tươi</span>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mb-1">
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Phụ phí Bão gió (đ)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step={1000}
+                    value={editSettings.stormSurcharge ?? 10000}
+                    onChange={(e) => setEditSettings({ ...editSettings, stormSurcharge: Number(e.target.value) })}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  />
+                  <span className="text-[10px] text-slate-400">Giao hoa an toàn bão</span>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mb-1">
+                    <Moon className="w-3.5 h-3.5 text-indigo-500" />
+                    <span>Ca Đêm &gt;21h (đ)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step={1000}
+                    value={editSettings.nightShiftSurcharge ?? 10000}
+                    onChange={(e) => setEditSettings({ ...editSettings, nightShiftSurcharge: Number(e.target.value) })}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  />
+                  <span className="text-[10px] text-slate-400">Khung giờ 21:00 - 23:00</span>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mb-1">
+                    <Sun className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Ca Trưa 11h-13h (đ)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step={1000}
+                    value={editSettings.noonShiftSurcharge ?? 5000}
+                    onChange={(e) => setEditSettings({ ...editSettings, noonShiftSurcharge: Number(e.target.value) })}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono"
+                  />
+                  <span className="text-[10px] text-slate-400">Khung giờ trưa gắt</span>
+                </div>
+              </div>
+
+              {/* Point Earning Configuration */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-amber-50/50 border border-amber-200/70">
+                <div>
+                  <label className="text-[11px] font-bold text-amber-950 flex items-center gap-1 mb-1">
+                    <Coins className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Mức chi tiêu quy đổi 1 điểm thưởng (đ)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step={1000}
+                    value={editSettings.pointsPerAmount ?? 10000}
+                    onChange={(e) => setEditSettings({ ...editSettings, pointsPerAmount: Number(e.target.value) })}
+                    className="glass-input w-full text-xs py-2 rounded-xl font-mono bg-white"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Mặc định 10.000đ = 1 điểm. Đơn 500.000đ tích được 50 điểm (~50.000đ khi đổi voucher).
+                  </span>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-amber-950 flex items-center gap-1 mb-1">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Hệ số nhân điểm sự kiện (Multiplier)</span>
+                  </label>
+                  <div className="flex gap-2">
+                    {[1, 1.5, 2, 3].map((mul) => {
+                      const isSel = (editSettings.pointsMultiplier ?? 1) === mul;
+                      return (
+                        <button
+                          key={mul}
+                          type="button"
+                          onClick={() => setEditSettings({ ...editSettings, pointsMultiplier: mul })}
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-xl border transition-all ${
+                            isSel
+                              ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                              : 'bg-white text-slate-700 border-amber-200 hover:bg-amber-100/60'
+                          }`}
+                        >
+                          x{mul}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Chọn x2 vào các dịp lễ 14/2, 8/3, 20/10 để kích cầu khách đặt sớm.
+                  </span>
+                </div>
               </div>
             </div>
 

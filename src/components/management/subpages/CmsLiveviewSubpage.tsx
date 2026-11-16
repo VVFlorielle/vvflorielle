@@ -28,6 +28,7 @@ import {
   Pencil
 } from 'lucide-react';
 import { useBodyScrollLock } from '../../../utils/scrollLock';
+import { useStore } from '../../../context/StoreContext';
 import { HeroBannerConfig, FlowerCategory, PromotionItem, BlogArticle } from '../../../types';
 
 export interface CmsPreviewEditor {
@@ -131,6 +132,7 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
   showToast,
   title = 'Trình Quản Lý Giao Diện & Live Webview'
 }) => {
+  const { settings, updateSettings } = useStore();
   // Navigation & Workspace State
   const [selectedPage, setSelectedPage] = useState<CmsPageId>('home');
   const [desktopWorkspaceOpen, setDesktopWorkspaceOpen] = useState(false);
@@ -440,7 +442,7 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                     </h2>
                     <p className="text-sm text-emerald-100/90 leading-relaxed">
                       {draftHero.subtitle ||
-                        'Mỗi bó hoa là một tác phẩm nghệ thuật, chọn lọc từ các nông trại hoa Đà Lạt và hoa nhập khẩu cao cấp.'}
+                        'Mỗi bó hoa là một tác phẩm nghệ thuật, chọn lọc từ nguồn hoa tươi loại 1 tuyển chọn mỗi sáng và hoa nhập khẩu cao cấp.'}
                     </p>
                     <div className="pt-2 flex flex-wrap gap-2.5">
                       <button
@@ -951,6 +953,52 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
                 placeholder="https://..."
               />
             </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Cụm 2 Vòng Hoa Góc Tiêu Đề Đầu Trang</label>
+              <div className="space-y-1.5">
+                <select
+                  value={settings.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp'}
+                  onChange={(e) => updateSettings({ floralCornerTopImage: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-emerald-600 bg-white font-medium"
+                >
+                  <option value="/images/floral/floral-corner-rose-peony.webp">🌹 Mẫu Hoa Hồng &amp; Mẫu Đơn Pastel (Mặc định)</option>
+                  <option value="/images/floral/floral-corner-peach-lisianthus.webp">🌸 Mẫu Cát Tường &amp; Đào Mơ Dịu Dàng</option>
+                  <option value="">🚫 Không hiển thị vòng hoa (Phong cách tối giản)</option>
+                </select>
+                <div className="flex items-center gap-2">
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold cursor-pointer transition-colors text-[11px]">
+                    <span>Tải ảnh cụm hoa riêng (.png, .webp)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            if (ev.target?.result) {
+                              updateSettings({ floralCornerTopImage: ev.target.result as string });
+                              showToast?.('Đã cập nhật cụm hoa góc đầu trang mới!', 'success');
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {settings.floralCornerTopImage && (
+                    <button
+                      type="button"
+                      onClick={() => updateSettings({ floralCornerTopImage: '' })}
+                      className="text-[11px] text-rose-600 hover:underline cursor-pointer"
+                    >
+                      Gỡ bỏ
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         );
 
@@ -1314,7 +1362,7 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
   };
 
   return (
-    <main className="portal cms-portal-container pb-28">
+    <main className="portal cms-portal-container pb-6">
       {/* 1. CMS Welcome Section (Chưa mở Workspace) */}
       {!desktopWorkspaceOpen && (
         <section className="cms-editor-welcome" aria-label="Chọn khu vực muốn chỉnh sửa">

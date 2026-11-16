@@ -15,7 +15,8 @@ import {
   Users,
   Coins,
   Palette,
-  PackageCheck
+  PackageCheck,
+  Settings
 } from 'lucide-react';
 
 interface ManagementHeaderProps {
@@ -80,6 +81,13 @@ const SYSTEM_SHORTCUTS: AdminShortcut[] = [
     tab: 'orders',
     icon: PackageCheck,
     keywords: ['đơn hàng', 'đơn cọc', 'florist', 'shipper', 'don hang', 'don coc', 'cọc']
+  },
+  {
+    id: 'settings',
+    label: 'Cấu hình Địa Chỉ, Hotline, Zalo & Giờ Mở Cửa',
+    tab: 'settings',
+    icon: Settings,
+    keywords: ['địa chỉ', 'dia chi', 'hotline', 'sđt', 'so dien thoai', 'sdt', 'zalo', 'giờ mở cửa', 'gio mo cua', 'showroom', 'cửa hàng', 'cua hang', 'thông tin tiệm', 'thong tin tiem']
   }
 ];
 
@@ -93,12 +101,13 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
     unreadNotificationCount,
     markNotificationAsRead,
     clearAllNotifications,
-    activeAdminUser
+    activeAdminUser,
+    settings
   } = useStore();
 
   const isOwner = role === 'owner';
-  const pendingDepositOrders = orders.filter(
-    (o) => !o.isDepositPaid && o.status !== 'CANCELLED'
+  const pendingDepositOrders = (orders || []).filter(
+    (o) => !o.isDepositPaid && (o.status === 'WAITING_DEPOSIT' || o.status === 'PENDING')
   ).length;
 
   const [isAccountPopoverOpen, setIsAccountPopoverOpen] = useState(false);
@@ -625,8 +634,8 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
             title="V&V Florielle - Bấm để chuyển nhanh ra xem giao diện website"
           >
             <img
-              src="/logo-vvflorielle-horizontal.webp"
-              alt="V&V Florielle"
+              src={settings?.logoHorizontalUrl || '/logo-vvflorielle-horizontal.webp'}
+              alt={settings?.name || "V&V Florielle"}
               className="h-10 min-[375px]:h-11 sm:h-14 md:h-16 w-auto max-w-[170px] sm:max-w-[240px] md:max-w-[280px] object-contain filter drop-shadow-[0_2px_10px_rgba(0,0,0,0.12)] transition-transform duration-300"
             />
           </button>

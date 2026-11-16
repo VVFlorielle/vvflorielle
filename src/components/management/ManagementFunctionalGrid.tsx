@@ -72,9 +72,10 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
           onClick={() => setSelectedGroupFilter('ALL')}
           className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
             selectedGroupFilter === 'ALL'
-              ? 'bg-emerald-600 text-white shadow-xs'
+              ? 'theme-active-tab text-white shadow-xs'
               : 'bg-white/90 text-slate-700 border border-slate-200 hover:bg-slate-50'
           }`}
+          style={selectedGroupFilter === 'ALL' ? { backgroundColor: 'var(--primary-color, #059669)', color: '#ffffff' } : undefined}
         >
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span>Tất cả</span>
@@ -97,9 +98,10 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
               onClick={() => setSelectedGroupFilter(gId)}
               className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-emerald-600 text-white shadow-xs'
+                  ? 'theme-active-tab text-white shadow-xs'
                   : 'bg-white/90 text-slate-700 border border-slate-200 hover:bg-slate-50'
               }`}
+              style={isSelected ? { backgroundColor: 'var(--primary-color, #059669)', color: '#ffffff' } : undefined}
             >
               <span className="text-xs shrink-0 flex items-center">{group.groupIcon}</span>
               <span>{cleanShortTitle}</span>
@@ -125,23 +127,31 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
               className="glass-panel p-4 sm:p-6 rounded-[24px] sm:rounded-[28px] border border-amber-100/80 bg-white/90 shadow-sm space-y-3 sm:space-y-4"
               aria-label={group.groupTitle}
             >
-              {/* Group Header (Hỗ trợ chạm thu gọn/mở rộng) */}
+              {/* Group Header (Căn chính giữa chuẩn chỉn chu, hỗ trợ chạm thu gọn/mở rộng) */}
               <div
                 onClick={() => toggleGroupCollapse(gId)}
-                className="flex items-center justify-between cursor-pointer select-none border-b border-slate-100 pb-2.5"
+                className="relative flex items-center justify-between cursor-pointer select-none border-b border-slate-100 pb-2.5"
                 title="Bấm để thu gọn / mở rộng nhóm"
               >
-                <div className="flex items-center gap-2">
+                <div className="w-6 sm:w-8 shrink-0" />
+                <div className="flex items-center gap-2 mx-auto">
                   <span className="text-base sm:text-lg">{group.groupIcon}</span>
                   <h3 className="text-sm sm:text-base font-extrabold text-slate-800 tracking-tight">
                     {group.groupTitle.replace(/[^\p{L}\p{N}\s&]/gu, '').trim()}
                   </h3>
-                  <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 ml-1">
+                  <span
+                    className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full border ml-1"
+                    style={{
+                      backgroundColor: 'var(--primary-light, #ecfdf5)',
+                      color: 'var(--primary-color, #059669)',
+                      borderColor: 'var(--primary-border, rgba(16, 185, 129, 0.35))'
+                    }}
+                  >
                     {group.items.length} mục
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 text-slate-400 hover:text-slate-600">
+                <div className="flex items-center gap-1 text-slate-400 hover:text-slate-600 shrink-0">
                   {isCollapsed ? (
                     <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
                   ) : (
@@ -161,12 +171,12 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
                       <article
                         key={item.id}
                         onClick={item.onClick}
-                        className="group relative p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/95 hover:bg-white border border-amber-200/90 hover:border-amber-400 shadow-[0_2px_10px_rgba(251,146,60,0.06)] hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between active:scale-[0.98] text-center"
+                        className="group relative p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/95 hover:bg-white border border-slate-200/90 hover:border-[var(--primary-color)]/50 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_var(--primary-glow,rgba(5,150,105,0.12))] transition-all duration-200 cursor-pointer flex flex-col justify-between active:scale-[0.98] text-center"
                         title={item.title}
                       >
                         {/* Title (In đậm căn giữa chuẩn PhotoTiin) */}
                         <div className="mb-1.5 sm:mb-2">
-                          <b className="block text-xs sm:text-[14.5px] font-bold text-slate-800 group-hover:text-amber-800 transition-colors line-clamp-1 leading-snug">
+                          <b className="block text-xs sm:text-[14.5px] font-bold text-slate-800 group-hover:text-[var(--primary-color)] transition-colors line-clamp-1 leading-snug">
                             {item.title}
                           </b>
                           {/* Description (Rút gọn 1 dòng trên mobile để cực kỳ ngăn nắp) */}
@@ -175,14 +185,15 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
                           </p>
                         </div>
 
-                        {/* Action Button / Pill at bottom (Chuẩn PhotoTiinLove) */}
+                        {/* Action Button / Pill at bottom (Đồng bộ theo màu thương hiệu Branding, viền sắc nét nhẹ nhàng) */}
                         <div className="pt-1.5 sm:pt-2 border-t border-slate-100/90 flex justify-center mt-auto">
                           <span
-                            className={`w-full max-w-[140px] sm:max-w-none text-center py-1 sm:py-1.5 px-3 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all shadow-2xs ${
-                              isModal
-                                ? 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/90'
-                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200/90'
-                            }`}
+                            className="management-action-btn w-full max-w-[140px] sm:max-w-none text-center py-1 sm:py-1.5 px-3 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all duration-200 shadow-2xs border"
+                            style={{
+                              borderColor: 'var(--primary-border, rgba(16, 185, 129, 0.35))',
+                              backgroundColor: 'var(--primary-light, #ecfdf5)',
+                              color: 'var(--primary-color, #059669)'
+                            }}
                           >
                             {actionLabel}
                           </span>

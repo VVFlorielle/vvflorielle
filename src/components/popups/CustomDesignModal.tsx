@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { Order } from '../../types';
+import { compressImage } from '../../utils/imageCompressor';
 
 interface CustomDesignModalProps {
   onClose: () => void;
@@ -29,19 +30,30 @@ export const CustomDesignModal: React.FC<CustomDesignModalProps> = ({ onClose })
   const [cdSampleImage, setCdSampleImage] = useState<string | null>(null);
   const [cdSubmittedOrder, setCdSubmittedOrder] = useState<Order | null>(null);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Kích thước ảnh tối đa 5MB!', 'error');
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Kích thước ảnh tối đa 10MB!', 'error');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setCdSampleImage(reader.result as string);
-      showToast('Đã tải ảnh mẫu hoa lên thành công!', 'success');
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file, {
+        maxWidth: 1200,
+        maxHeight: 1200,
+        quality: 0.85,
+        maxSizeBytes: 200 * 1024
+      });
+      setCdSampleImage(compressed);
+      showToast('Đã tải và tối ưu ảnh mẫu hoa thành công!', 'success');
+    } catch {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCdSampleImage(reader.result as string);
+        showToast('Đã tải ảnh mẫu hoa lên thành công!', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleCustomDesignSubmit = (e: React.FormEvent) => {
@@ -243,7 +255,7 @@ export const CustomDesignModal: React.FC<CustomDesignModalProps> = ({ onClose })
               Bấm để chọn ảnh mẫu từ điện thoại hoặc máy tính
             </span>
             <span className="text-[10px] text-slate-400">
-              Hỗ trợ định dạng JPG, PNG, WEBP (Tối đa 5MB)
+              Hỗ trợ định dạng JPG, PNG, WEBP (Tối đa 10MB) • Tự động nén WebP siêu nhẹ
             </span>
             <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
           </label>

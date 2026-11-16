@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Sun,
   CloudRain,
@@ -254,7 +255,7 @@ export const AdminWeatherAssistant: React.FC = () => {
           top: `${pos.y}px`,
           touchAction: 'none',
         }}
-        className={`fixed z-40 select-none group cursor-grab active:cursor-grabbing ${
+        className={`admin-weather-assistant fixed z-40 select-none group cursor-grab active:cursor-grabbing ${
           isDragging ? '' : 'transition-opacity duration-300'
         } ${
           isIdle ? 'opacity-25 sm:opacity-90 hover:opacity-100 scale-90 sm:scale-100' : 'opacity-100 scale-100'
@@ -322,30 +323,34 @@ export const AdminWeatherAssistant: React.FC = () => {
         })()}
       </div>
 
-      {/* 2. MODAL DIALOG (HORIZONTAL 2-COLUMNS ON DESKTOP, VERTICAL WITH DOCK CLEARANCE ON MOBILE) */}
-      {isOpen && (
+      {/* 2. MODAL DIALOG (HORIZONTAL 2-COLUMNS ON DESKTOP, COMPACT MODAL ON MOBILE) */}
+      {isOpen && createPortal(
         <div
-          className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-5 pb-24 sm:pb-8 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 select-none overflow-y-auto"
+          className="glass-overlay z-[100000]"
           onClick={(e) => {
             // Dismiss automatically when clicking outside modal card
             if (e.target === e.currentTarget) setIsOpen(false);
           }}
         >
           <div
-            className="glass-panel w-full max-w-lg md:max-w-4xl lg:max-w-5xl rounded-[28px] sm:rounded-[32px] shadow-2xl border border-white/90 bg-white/95 overflow-hidden flex flex-col my-auto max-h-[calc(100dvh-120px)] sm:max-h-[85vh]"
+            className="glass-panel w-full max-w-lg md:max-w-4xl lg:max-w-5xl rounded-[28px] sm:rounded-[36px] shadow-2xl border border-white/90 bg-white/95 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header (Fixed Top) */}
-            <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
+            {/* Modal Header (Fixed Top, Slim & Frameless Mascot Icon) */}
+            <div className="p-3 sm:p-4 pb-2.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-100/80 flex items-center justify-center p-1 border border-emerald-200">
-                  <img src={weatherState.mascotIcon || '/images/mascot/mascot-4.webp'} alt="Mascot" className="w-full h-full object-contain" />
+                <div className="w-10 h-10 flex items-center justify-center shrink-0 drop-shadow-md">
+                  <img
+                    src={weatherState.mascotIcon || '/images/mascot/mascot-4.webp'}
+                    alt="Mascot"
+                    className="w-full h-full object-contain filter drop-shadow hover:scale-105 transition-transform"
+                  />
                 </div>
                 <div>
                   <h3 className="font-extrabold text-sm sm:text-base text-slate-900 flex items-center gap-1.5">
                     <span>Trợ Lý Vận Hành &amp; Thời Tiết Tiệm Hoa Flori</span>
                   </h3>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] sm:text-xs text-slate-500 line-clamp-1">
                     Cấu hình giờ mở cửa tiệm, phụ phí thời tiết &amp; phụ phí ngoài giờ giao hoa
                   </p>
                 </div>
@@ -752,7 +757,8 @@ export const AdminWeatherAssistant: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

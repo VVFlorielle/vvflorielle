@@ -36,6 +36,7 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
   const [manualInput, setManualInput] = useState('');
   const [scannedOrder, setScannedOrder] = useState<Order | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Active delivery orders (not completed and not cancelled)
   const deliveryOrders = orders.filter((o) => o.status !== 'COMPLETED' && o.status !== 'CANCELLED');
@@ -67,11 +68,13 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
   };
 
   const handleConfirmDelivery = () => {
-    if (!scannedOrder) return;
+    if (!scannedOrder || isSubmitting) return;
+    setIsSubmitting(true);
     onCompleteOrder(scannedOrder.id);
     setIsSuccess(true);
     setTimeout(() => {
       onClose();
+      setIsSubmitting(false);
     }, 1400);
   };
 
@@ -81,7 +84,7 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
     : 0;
 
   return (
-    <div className="fixed inset-0 z-[9995] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200 select-none">
+    <div className="fixed inset-0 z-[100050] flex items-center justify-center p-3 sm:p-5 bg-slate-900/25 backdrop-blur-sm animate-in fade-in duration-200 select-none">
       <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/60 p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
         {/* Close Button */}
         <button
@@ -288,11 +291,12 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
                   </button>
                   <button
                     type="button"
+                    disabled={isSubmitting}
                     onClick={handleConfirmDelivery}
-                    className="flex-[2] py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-md shadow-emerald-700/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-[2] py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 text-white font-extrabold text-xs shadow-md shadow-emerald-700/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Xác Nhận Đã Giao & Cộng {pointsEarned} Điểm</span>
+                    <span>{isSubmitting ? 'Đang hoàn tất...' : `Xác Nhận Đã Giao & Cộng ${pointsEarned} Điểm`}</span>
                   </button>
                 </div>
               </>

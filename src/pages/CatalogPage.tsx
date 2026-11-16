@@ -103,17 +103,17 @@ export const CatalogPage: React.FC = () => {
         {/* 2. Tiêu đề và mô tả danh mục linh hoạt */}
         <div className="relative z-10 space-y-3 max-w-4xl mx-auto text-center flex flex-col items-center">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-emerald-950 tracking-tight text-center leading-snug sm:leading-tight max-w-2xl mx-auto">
-            {currentCat && selectedCategory !== 'all' ? currentCat.name : 'Bộ Sưu Tập Mẫu Hoa Tươi Nghệ Thuật'}
+            {currentCat && selectedCategory !== 'all' ? currentCat.name : 'Bộ Sưu Tập Hoa Nghệ Thuật & Thiết Kế Hoa'}
           </h1>
           <p className="text-xs sm:text-base text-slate-600 leading-relaxed max-w-2xl text-center mx-auto">
             {currentCat && selectedCategory !== 'all'
               ? `${currentCat.description}. ${currentCat.tagline || ''}`
-              : 'Tuyển chọn các thiết kế hoa tươi loại 1 từ Đà Lạt & hoa ngoại nhập khẩu Ecuador. Cắm hoa thủ công tinh tế, trao gửi trọn vẹn yêu thương và lời chúc tốt đẹp nhất.'}
+              : 'Tuyển chọn các thiết kế hoa tươi loại 1, hoa sáp thơm nghệ thuật & hoa lụa cao cấp bền đẹp. Thiết kế thủ công tinh tế, trao gửi trọn vẹn yêu thương và lời chúc tốt đẹp nhất.'}
           </p>
 
           <div className="pt-1 flex flex-wrap items-center justify-center gap-3">
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 border border-emerald-300/80 shadow-xs">
-              {filteredProducts.length} mẫu hoa tươi có sẵn
+              {filteredProducts.length} mẫu hoa thiết kế có sẵn
             </span>
             {selectedCategory !== 'all' && (
               <button

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Search, Eye, Award, KeyRound, Edit3, Trash2, ArrowLeft, UserPlus } from 'lucide-react';
+import { Search, Eye, Award, KeyRound, Edit3, Trash2, ArrowLeft, UserPlus, Download, Ban, ShieldCheck, CheckCircle2, Gift } from 'lucide-react';
 import { CustomerUser, Order } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
+import { PrivilegeVoucherModal } from '../PrivilegeVoucherModal';
 
 interface CustomersSubpageProps {
   customers: CustomerUser[];
@@ -13,6 +14,7 @@ interface CustomersSubpageProps {
   onResetPassword: (cust: CustomerUser) => void;
   onEditNotes: (cust: CustomerUser) => void;
   onEditCustomer?: (cust: CustomerUser) => void;
+  onToggleBlockCustomer?: (cust: CustomerUser) => void;
   onOpenAddCustomer?: () => void;
   onDeleteCustomer: (id: string) => void;
   title?: string;
@@ -28,54 +30,96 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
   onResetPassword,
   onEditNotes,
   onEditCustomer,
+  onToggleBlockCustomer,
   onOpenAddCustomer,
   onDeleteCustomer,
   title = 'Quản Lý Khách Hàng & Hạng Thành Viên VIP'
 }) => {
   const [customerSearch, setCustomerSearch] = useState('');
   const [customerTierFilter, setCustomerTierFilter] = useState('ALL');
+  const [customerStatusFilter, setCustomerStatusFilter] = useState<'ALL' | 'ACTIVE' | 'BLOCKED' | 'DELETED'>('ALL');
   const [customerToDelete, setCustomerToDelete] = useState<CustomerUser | null>(null);
+  const [isPrivilegeModalOpen, setIsPrivilegeModalOpen] = useState(false);
+  const [selectedCustForPrivilege, setSelectedCustForPrivilege] = useState<CustomerUser | null>(null);
 
   const filteredCustomers = customers.filter((c) => {
     const matchSearch =
       c.fullName.toLowerCase().includes(customerSearch.toLowerCase()) ||
       c.phone.includes(customerSearch) ||
+      (c.accountCode && c.accountCode.toLowerCase().includes(customerSearch.toLowerCase())) ||
       (c.email && c.email.toLowerCase().includes(customerSearch.toLowerCase())) ||
       (c.notes && c.notes.toLowerCase().includes(customerSearch.toLowerCase()));
     const matchTier = customerTierFilter === 'ALL' || c.tier === customerTierFilter;
-    return matchSearch && matchTier;
+    const matchStatus =
+      customerStatusFilter === 'ALL' ||
+      (customerStatusFilter === 'ACTIVE' && (c.status === 'ACTIVE' || !c.status)) ||
+      c.status === customerStatusFilter;
+    return matchSearch && matchTier && matchStatus;
   });
+
+  const handleExportCustomersCsv = () => {
+    if (filteredCustomers.length === 0) return;
+    const headers = [
+      'Mã Định Danh',
+      'Họ Và Tên',
+      'Số Điện Thoại',
+      'Email',
+      'Hạng Hội Viên',
+      'Điểm Tích Lũy',
+      'Tổng Chi Tiêu (VNĐ)',
+      'Số Đơn Đã Đặt',
+      'Xác Thực OTP',
+      'Trạng Thái',
+      'Ngày Đăng Ký',
+      'Địa Chỉ',
+      'Nhãn Gu Khách Hàng (Tags)',
+      'Ghi Chú Florist'
+    ];
+
+    const rows = filteredCustomers.map((c) => [
+      `"${c.accountCode || ''}"`,
+      `"${c.fullName || ''}"`,
+      `"${c.phone || ''}"`,
+      `"${c.email || ''}"`,
+      `"${c.tier || ''}"`,
+      `"${c.points || 0}"`,
+      `"${c.totalSpent || 0}"`,
+      `"${c.ordersCount || 0}"`,
+      `"${c.isVerified ? 'Đã xác thực' : 'Thành viên thường'}"`,
+      `"${c.status || 'ACTIVE'}"`,
+      `"${c.registeredAt || ''}"`,
+      `"${(c.address || '').replace(/"/g, '""')}"`,
+      `"${((c.tags || []).join(', ')).replace(/"/g, '""')}"`,
+      `"${(c.notes || '').replace(/"/g, '""')}"`
+    ].join(','));
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Danh_Sach_Hoi_Vien_VVFlorielle_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="glass-panel p-4 sm:p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200">
-      {/* Header căn giữa chuẩn Phototiinlove (Không nút back thừa, tiêu đề căn giữa cân đối) */}
-      <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
-        <div className="w-10 sm:w-28 shrink-0" />
-        <div className="text-center mx-auto px-2">
-          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-purple-700">
-            KHÁCH HÀNG & HỘI VIÊN
-          </small>
-          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
-            {title}
-          </h2>
-        </div>
-        <div className="flex items-center justify-end shrink-0">
-          {onOpenAddCustomer && (
-            <button
-              type="button"
-              onClick={onOpenAddCustomer}
-              className="btn-primary text-xs py-1.5 sm:py-2 px-3 sm:px-3.5 rounded-xl bg-purple-700 hover:bg-purple-800 shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span className="hidden sm:inline">Thêm Khách Hàng Mới</span>
-              <span className="sm:hidden">Thêm Khách</span>
-            </button>
-          )}
-        </div>
+      {/* 1. Header căn giữa chuẩn Phototiinlove */}
+      <div className="pb-3 border-b border-slate-200/80 text-center">
+        <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-purple-700">
+          KHÁCH HÀNG &amp; HỘI VIÊN
+        </small>
+        <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
+          {title}
+        </h2>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
-        <div>
+      {/* 2. Tiêu đề phụ & Mô tả căn giữa kèm Action Bar hàng 2 */}
+      <div className="flex flex-col gap-3 border-b border-slate-200 pb-3">
+        <div className="text-center space-y-0.5">
           <h3 className="font-bold text-base text-slate-800">
             Quản Lý Khách Hàng Thân Thiết ({customers.length})
           </h3>
@@ -84,23 +128,74 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
           </p>
         </div>
 
-        {/* Tier Filters */}
-        <div className="flex items-center gap-1.5 flex-wrap text-xs">
-          {['ALL', 'Thành viên mới', 'Bạc', 'Vàng', 'Kim Cương'].map((tier) => (
+        {/* Action Buttons & Tier Filters */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+          <div className="flex items-center gap-2">
             <button
-              key={tier}
-              onClick={() => setCustomerTierFilter(tier)}
-              className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
-                customerTierFilter === tier
-                  ? 'bg-purple-700 text-white font-semibold shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              type="button"
+              onClick={handleExportCustomersCsv}
+              disabled={filteredCustomers.length === 0}
+              className={`btn-secondary text-xs py-1.5 sm:py-2 px-3 rounded-xl flex items-center gap-1.5 cursor-pointer text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs font-bold ${
+                filteredCustomers.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
+              title="Xuất danh sách hội viên ra file CSV"
             >
-              {tier === 'ALL' ? 'Tất cả hạng' : tier}
+              <Download className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Xuất CSV ({filteredCustomers.length})</span>
+              <span className="sm:hidden">CSV</span>
             </button>
-          ))}
+
+            {onOpenAddCustomer && (
+              <button
+                type="button"
+                onClick={onOpenAddCustomer}
+                className="btn-primary text-xs py-1.5 sm:py-2 px-3 sm:px-3.5 rounded-xl bg-purple-700 hover:bg-purple-800 shadow-md flex items-center gap-1.5 cursor-pointer shrink-0 font-bold"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span className="hidden sm:inline">Thêm Khách Hàng Mới</span>
+                <span className="sm:hidden">Thêm Khách</span>
+              </button>
+            )}
+          </div>
+
+          {/* Tier & Status Filters */}
+          <div className="flex flex-col sm:items-end gap-1.5 text-xs">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {['ALL', 'Thành viên mới', 'Bạc', 'Vàng', 'Kim Cương'].map((tier) => (
+                <button
+                  key={tier}
+                  onClick={() => setCustomerTierFilter(tier)}
+                  className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
+                    customerTierFilter === tier
+                      ? 'bg-purple-700 text-white font-semibold shadow-sm'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {tier === 'ALL' ? 'Tất cả hạng' : tier}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+            {(['ALL', 'ACTIVE', 'BLOCKED', 'DELETED'] as const).map((st) => (
+              <button
+                key={st}
+                onClick={() => setCustomerStatusFilter(st)}
+                className={`px-2.5 py-0.5 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
+                  customerStatusFilter === st
+                    ? 'bg-slate-800 text-white font-bold shadow-2xs'
+                    : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200/60'
+                }`}
+              >
+                {st === 'ALL' && 'Tất cả trạng thái'}
+                {st === 'ACTIVE' && '✓ Hoạt động'}
+                {st === 'BLOCKED' && '🚫 Tạm khóa'}
+                {st === 'DELETED' && 'Ẩn danh (NĐ13)'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
+    </div>
 
       {/* Search box (Fixed padding and perfectly centered icon, no overlap) */}
       <div className="relative max-w-md">
@@ -139,6 +234,9 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
                         <h4 className="font-bold text-sm text-slate-900 truncate max-w-[150px] sm:max-w-none">
                           {cust.fullName}
                         </h4>
+                        <span className="font-mono text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">
+                          {cust.accountCode || `VVF-CUST-${cust.id.slice(-6)}`}
+                        </span>
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
                             cust.tier === 'Kim Cương'
@@ -161,6 +259,16 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
                         >
                           {cust.isVerified ? 'Hội viên xác thực' : 'Thành viên thường'}
                         </span>
+                        {cust.status === 'BLOCKED' && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 shrink-0">
+                            🚫 TẠM KHÓA
+                          </span>
+                        )}
+                        {cust.status === 'DELETED' && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 border border-slate-300 shrink-0">
+                            ẨN DANH (NĐ13)
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 truncate">
                         <span className="font-mono font-medium">{cust.phone}</span>
@@ -168,6 +276,19 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
                       </div>
                       {cust.address && (
                         <div className="text-[11px] text-slate-400 mt-0.5 truncate">{cust.address}</div>
+                      )}
+                      {cust.tags && cust.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {cust.tags.map((tag, tIdx) => (
+                            <span
+                              key={tIdx}
+                              className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200/80 flex items-center gap-1 shadow-2xs"
+                            >
+                              <span>🏷️</span>
+                              <span>{tag}</span>
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -227,6 +348,19 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
 
                     <button
                       type="button"
+                      onClick={() => {
+                        setSelectedCustForPrivilege(cust);
+                        setIsPrivilegeModalOpen(true);
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-pink-50 text-pink-700 hover:bg-pink-100 font-semibold text-[11px] flex items-center gap-1 cursor-pointer border border-pink-200"
+                      title="Cấp voucher đặc quyền trực tiếp vào ví hội viên"
+                    >
+                      <Gift className="w-3 h-3 text-pink-600" />
+                      <span>Tặng Mã</span>
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => onResetPassword(cust)}
                       className="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 hover:bg-amber-100 font-semibold text-[11px] flex items-center gap-1 border border-amber-200 cursor-pointer"
                       title="Cấp lại mật khẩu tạm thời cho khách hàng"
@@ -249,6 +383,21 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
+
+                    {onToggleBlockCustomer && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleBlockCustomer(cust)}
+                        className={`p-1 rounded-lg cursor-pointer transition-colors ${
+                          cust.status === 'BLOCKED'
+                            ? 'text-emerald-600 hover:bg-emerald-50'
+                            : 'text-amber-600 hover:bg-amber-50'
+                        }`}
+                        title={cust.status === 'BLOCKED' ? 'Mở khóa tài khoản' : 'Tạm khóa tài khoản'}
+                      >
+                        <Ban className="w-3.5 h-3.5" />
+                      </button>
+                    )}
 
                     <button
                       type="button"
@@ -280,6 +429,16 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
         message={`Bạn có chắc chắn muốn xóa khách hàng "${customerToDelete?.fullName}" (${customerToDelete?.phone}) khỏi hệ thống không? Toàn bộ điểm tích lũy và hồ sơ sẽ bị xóa vĩnh viễn.`}
         confirmText="Xóa Khách Hàng"
         type="danger"
+      />
+
+      {/* Cấp Voucher Đặc Quyền Trực Tiếp Cho Hội Viên */}
+      <PrivilegeVoucherModal
+        isOpen={isPrivilegeModalOpen}
+        onClose={() => {
+          setIsPrivilegeModalOpen(false);
+          setSelectedCustForPrivilege(null);
+        }}
+        initialCustomerId={selectedCustForPrivilege?.id}
       />
     </div>
   );

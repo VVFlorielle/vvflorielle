@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
-import { User, ShoppingBag, Gift } from 'lucide-react';
+import { User, ShoppingBag, Gift, ShieldCheck, Download, Trash2, ShieldAlert, FileText } from 'lucide-react';
 import { OrderStatus, SavedAddress } from '../types';
+import { compressImage } from '../utils/imageCompressor';
 
 import { CustomerHeroCard } from '../components/customer/CustomerHeroCard';
 import { CustomerOrdersTab } from '../components/customer/CustomerOrdersTab';
@@ -12,7 +13,8 @@ import {
   AddEditAddressModal,
   CustomerOtpModal,
   ChangePasswordModal,
-  ChangeIdentityModal
+  ChangeIdentityModal,
+  AccountErasureModal
 } from '../components/customer/CustomerModals';
 
 export const CustomerPortal: React.FC = () => {
@@ -29,6 +31,12 @@ export const CustomerPortal: React.FC = () => {
     verifyCustomerOtp,
     changeCustomerPassword,
     changeCustomerIdentityWithOtp,
+    requestIdentityChangeStep1Otp,
+    verifyIdentityChangeStep1Otp,
+    requestIdentityChangeStep2Otp,
+    confirmIdentityChangeStep2,
+    requestCustomerAccountErasure,
+    exportCustomerPersonalDataJson,
     uploadOrderBill,
     updateCustomerProfile,
     addSavedAddress,
@@ -38,7 +46,7 @@ export const CustomerPortal: React.FC = () => {
     showToast
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'rewards'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'rewards' | 'privacy'>('orders');
   const [statusFilter, setStatusFilter] = useState<'ALL' | OrderStatus>('ALL');
 
   // Modal display states
@@ -47,13 +55,12 @@ export const CustomerPortal: React.FC = () => {
   const [isAddEditAddressFormOpen, setIsAddEditAddressFormOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpInput, setOtpInput] = useState('');
+  const [pendingRedeemPromoId, setPendingRedeemPromoId] = useState<string | null>(null);
   const [isChangePassOpen, setIsChangePassOpen] = useState(false);
   const [oldPass, setOldPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [isChangeIdentityOpen, setIsChangeIdentityOpen] = useState<'phone' | 'email' | null>(null);
-  const [newIdentityValue, setNewIdentityValue] = useState('');
-  const [identityOtp, setIdentityOtp] = useState('');
-  const [isIdentityOtpSent, setIsIdentityOtpSent] = useState(false);
+  const [isAccountErasureOpen, setIsAccountErasureOpen] = useState(false);
 
   // Profile Form States
   const [editFullName, setEditFullName] = useState(customer?.fullName || '');
@@ -135,9 +142,19 @@ export const CustomerPortal: React.FC = () => {
     if (!otpInput.trim()) return;
     const ok = verifyCustomerOtp(otpInput.trim());
     if (ok) {
+      if (pendingRedeemPromoId) {
+        redeemVoucherWithPoints(pendingRedeemPromoId);
+        setPendingRedeemPromoId(null);
+      }
       setIsOtpModalOpen(false);
       setOtpInput('');
     }
+  };
+
+  const handleRequestHighValueOtp = (promoId: string) => {
+    setPendingRedeemPromoId(promoId);
+    requestCustomerOtp();
+    setIsOtpModalOpen(true);
   };
 
   const handleChangePassSubmit = (e: React.FormEvent) => {
@@ -151,36 +168,16 @@ export const CustomerPortal: React.FC = () => {
     }
   };
 
-  const handleSendIdentityOtp = () => {
-    if (!newIdentityValue.trim()) {
-      showToast('Vui lòng nhập giá trị mới!', 'error');
-      return;
-    }
-    requestCustomerOtp(newIdentityValue.trim());
-    setIsIdentityOtpSent(true);
-  };
-
-  const handleIdentitySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isChangeIdentityOpen || !newIdentityValue.trim() || !identityOtp.trim()) return;
-    const ok = changeCustomerIdentityWithOtp(isChangeIdentityOpen, newIdentityValue.trim(), identityOtp.trim());
-    if (ok) {
-      setIsChangeIdentityOpen(null);
-      setNewIdentityValue('');
-      setIdentityOtp('');
-      setIsIdentityOtpSent(false);
-    }
-  };
-
-  const handleUploadOrderBill = (orderId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadOrderBill = async (orderId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        uploadOrderBill(orderId, dataUrl);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedDataUrl = await compressImage(file, 1000, 1000, 0.72);
+        uploadOrderBill(orderId, compressedDataUrl);
+      } catch (err) {
+        console.error('Lỗi nén ảnh biên lai', err);
+        showToast('Không thể nén ảnh biên lai, vui lòng thử lại!', 'error');
+      }
     }
   };
 
@@ -256,7 +253,7 @@ export const CustomerPortal: React.FC = () => {
   };
 
   return (
-    <div className="container py-6 sm:py-8 space-y-6 max-w-6xl mx-auto px-4 sm:px-6">
+    <div className="container pt-6 sm:pt-8 pb-32 sm:pb-16 space-y-6 max-w-6xl mx-auto px-4 sm:px-6">
       {/* 1. Unified Membership & Profile Card */}
       <CustomerHeroCard
         customer={customer}
@@ -270,7 +267,6 @@ export const CustomerPortal: React.FC = () => {
         }}
         onOpenChangeIdentity={(mode) => {
           setIsChangeIdentityOpen(mode);
-          setNewIdentityValue(mode === 'phone' ? customer.phone : customer.email || '');
         }}
         onSwitchTab={(tab) => setActiveTab(tab)}
         activeTab={activeTab}
@@ -302,6 +298,18 @@ export const CustomerPortal: React.FC = () => {
             <Gift className="w-4 h-4" />
             <span>Đổi Quà Freeship</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('privacy')}
+            className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'privacy'
+                ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
+                : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Quyền Riêng Tư (NĐ 13/2023)</span>
+          </button>
         </div>
       </div>
 
@@ -322,8 +330,92 @@ export const CustomerPortal: React.FC = () => {
         <CustomerRewardsTab
           customer={customer}
           redeemVoucherWithPoints={redeemVoucherWithPoints}
+          onRequestHighValueOtp={handleRequestHighValueOtp}
           formatPrice={formatPrice}
         />
+      )}
+
+      {activeTab === 'privacy' && (
+        <div className="space-y-4 animate-in fade-in">
+          {/* Header Card */}
+          <div className="p-5 rounded-3xl bg-linear-to-r from-emerald-900 via-teal-900 to-slate-900 text-white shadow-xl relative overflow-hidden">
+            <div className="relative z-10 space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Nghị định 13/2023/NĐ-CP về Bảo vệ Dữ liệu Cá nhân</span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-extrabold">Minh Bạch &amp; Kiểm Soát Dữ Liệu Cá Nhân</h2>
+              <p className="text-xs text-emerald-100/80 max-w-2xl leading-relaxed">
+                Tiệm Hoa Tươi Nghệ Thuật V&amp;V Florielle cam kết bảo vệ dữ liệu cá nhân của quý khách theo các tiêu chuẩn pháp lý cao nhất của Việt Nam. Dữ liệu tài khoản của bạn được niêm phong chữ ký điện tử HMAC-SHA256 chống can thiệp trái phép.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Card 1: Right to Data Portability */}
+            <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                  <Download className="w-5 h-5" />
+                </div>
+                <h3 className="font-extrabold text-sm text-slate-900">Quyền Trích Xuất Dữ Liệu Cá Nhân (Data Portability)</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Tải về bản sao toàn bộ dữ liệu cá nhân của bạn đang lưu trữ trên hệ thống dưới định dạng JSON chuẩn: Hồ sơ hội viên, điểm thưởng, kho voucher, và toàn bộ lịch sử đơn đặt hoa.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={exportCustomerPersonalDataJson}
+                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer transition-all"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Tải Bản Sao Dữ Liệu (.JSON)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Card 2: Right to Erasure */}
+            <div className="p-5 rounded-3xl bg-white border border-rose-100 shadow-sm space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <h3 className="font-extrabold text-sm text-slate-900">Quyền Xóa / Rút Lại Đồng Ý (Right to Erasure)</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Xóa toàn bộ hồ sơ nhận diện cá nhân (Họ tên, SĐT, Email, Sổ địa chỉ). Dữ liệu sẽ được ẩn danh hóa vĩnh viễn theo Điều 16 Nghị định 13/2023/NĐ-CP. Thao tác này yêu cầu xác thực OTP chính chủ.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAccountErasureOpen(true)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Yêu Cầu Xóa / Ẩn Danh Hóa Tài Khoản</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Privacy Commitments */}
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
+            <div className="flex items-center gap-1.5 font-bold text-slate-800">
+              <FileText className="w-4 h-4 text-emerald-600" />
+              <span>Cam kết tuân thủ Nghị định 13/2023/NĐ-CP của V&amp;V Florielle:</span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              1. Tiệm hoa chỉ thu thập thông tin cần thiết phục vụ giao nhận hoa tươi, thanh toán VietQR và chăm sóc hội viên.
+              <br />
+              2. Không chia sẻ, buôn bán dữ liệu cá nhân cho bên thứ ba dưới bất kỳ hình thức nào.
+              <br />
+              3. Chứng từ đơn hoa được lưu trữ phục vụ nghĩa vụ hóa đơn tài chính theo Luật Quản lý Thuế Việt Nam với các trường thông tin cá nhân được bảo vệ nghiêm ngặt.
+            </p>
+          </div>
+        </div>
       )}
 
       {/* 4. Modals */}
@@ -347,12 +439,10 @@ export const CustomerPortal: React.FC = () => {
         onOpenChangePhone={() => {
           setIsEditProfileModalOpen(false);
           setIsChangeIdentityOpen('phone');
-          setNewIdentityValue(customer.phone);
         }}
         onOpenChangeEmail={() => {
           setIsEditProfileModalOpen(false);
           setIsChangeIdentityOpen('email');
-          setNewIdentityValue(customer.email || '');
         }}
       />
 
@@ -387,7 +477,11 @@ export const CustomerPortal: React.FC = () => {
 
       <CustomerOtpModal
         isOpen={isOtpModalOpen}
-        onClose={() => setIsOtpModalOpen(false)}
+        onClose={() => {
+          setIsOtpModalOpen(false);
+          setPendingRedeemPromoId(null);
+          setOtpInput('');
+        }}
         otpInput={otpInput}
         setOtpInput={setOtpInput}
         onSubmit={handleVerifyOtpSubmit}
@@ -406,13 +500,20 @@ export const CustomerPortal: React.FC = () => {
       <ChangeIdentityModal
         isOpen={isChangeIdentityOpen}
         onClose={() => setIsChangeIdentityOpen(null)}
-        newIdentityValue={newIdentityValue}
-        setNewIdentityValue={setNewIdentityValue}
-        identityOtp={identityOtp}
-        setIdentityOtp={setIdentityOtp}
-        isIdentityOtpSent={isIdentityOtpSent}
-        onSendOtp={handleSendIdentityOtp}
-        onSubmit={handleIdentitySubmit}
+        currentValue={isChangeIdentityOpen === 'phone' ? customer.phone : customer.email}
+        onRequestStep1Otp={requestIdentityChangeStep1Otp}
+        onVerifyStep1Otp={verifyIdentityChangeStep1Otp}
+        onRequestStep2Otp={requestIdentityChangeStep2Otp}
+        onConfirmStep2={confirmIdentityChangeStep2}
+      />
+
+      <AccountErasureModal
+        isOpen={isAccountErasureOpen}
+        onClose={() => setIsAccountErasureOpen(false)}
+        customerAccountCode={customer.accountCode}
+        customerTargetInfo={customer.phone || customer.email || 'bạn'}
+        onRequestOtp={() => requestCustomerOtp()}
+        onConfirmErasure={(otp) => requestCustomerAccountErasure(otp)}
       />
     </div>
   );

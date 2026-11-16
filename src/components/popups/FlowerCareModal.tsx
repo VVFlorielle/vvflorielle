@@ -130,7 +130,7 @@ export const FlowerCareModal: React.FC<FlowerCareModalProps> = ({ onClose }) => 
           <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-1">
             <div className="flex items-center gap-1.5 font-bold text-xs text-amber-900">
               <Sun className="w-3.5 h-3.5 text-amber-600" />
-              <span>Hoa Hướng Dương Đà Lạt</span>
+              <span>Hoa Hướng Dương Tuyển Chọn</span>
             </div>
             <p className="text-[11px] text-slate-600 leading-relaxed">
               Niềm tin mãnh liệt, năng lượng tích cực rực rỡ và lời chúc tương lai tươi sáng, thịnh vượng bền vững.

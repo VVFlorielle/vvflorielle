@@ -57,7 +57,7 @@ export const ContactPage: React.FC = () => {
         <div className="relative z-10 max-w-3xl mx-auto space-y-2.5 text-center flex flex-col items-center">
           <span className="inline-flex items-center justify-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10.5px] font-black tracking-wider uppercase mx-auto">
             <Sparkles className="w-3 h-3 text-emerald-600" />
-            105 Doãn Kế Thiện, Cầu Giấy, Hà Nội
+            {settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội'}
           </span>
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-950 tracking-tight text-center">
             Liên Hệ V&amp;V Florielle
@@ -90,7 +90,7 @@ export const ContactPage: React.FC = () => {
                   <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-slate-800 block">Địa chỉ tiệm hoa:</strong>
-                    <span className="text-slate-600 leading-relaxed font-medium">105 Doãn Kế Thiện, Mai Dịch, Cầu Giấy, Hà Nội</span>
+                    <span className="text-slate-600 leading-relaxed font-medium">{settings.address || '105 Doãn Kế Thiện, Mai Dịch, Cầu Giấy, Hà Nội'}</span>
                   </div>
                 </div>
 
@@ -159,7 +159,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-extrabold text-sm sm:text-base text-slate-900">Bản Đồ Chỉ Đường</h3>
-                    <p className="text-[10.5px] text-slate-400">105 Doãn Kế Thiện, Cầu Giấy, Hà Nội</p>
+                    <p className="text-[10.5px] text-slate-400">{settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội'}</p>
                   </div>
                 </div>
 
@@ -319,7 +319,7 @@ export const ContactPage: React.FC = () => {
                         Tiệm Hoa Nghệ Thuật V&V Florielle
                       </p>
                       <p className="text-[11px] text-slate-400 max-w-[220px] leading-relaxed mx-auto">
-                        105 Doãn Kế Thiện, Cầu Giấy • Chụp ảnh gửi mẫu duyệt qua Zalo trước khi giao
+                        {settings.address || '105 Doãn Kế Thiện, Cầu Giấy'} • Chụp ảnh gửi mẫu duyệt qua Zalo trước khi giao
                       </p>
                     </div>
                   </div>

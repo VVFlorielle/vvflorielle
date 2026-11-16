@@ -32,10 +32,21 @@ import {
   CloudRain,
   Snowflake,
   ShieldCheck,
-  Building
+  Building,
+  Navigation,
+  RefreshCw,
+  Coins,
+  Zap,
+  Flame,
+  Tag,
+  Check,
+  Info,
+  ChevronRight
 } from 'lucide-react';
 import { PaymentType, SavedAddress } from '../types';
 import { useBodyScrollLock } from '../utils/scrollLock';
+import { compressImage } from '../utils/imageCompressor';
+import { resolveCurrentLocation, resolveCurrentLocationWithAddress } from '../utils/geolocation';
 import {
   HANOI_DISTRICTS,
   calculatePreciseKm,
@@ -54,6 +65,25 @@ const DELIVERY_TIME_SLOTS = [
   'Giao hỏa tốc trong 2H'
 ];
 
+const isSlotPassedToday = (slot: string, selectedDate: string): boolean => {
+  const todayStr = new Date().toLocaleDateString('en-CA');
+  if (selectedDate !== todayStr) return false;
+
+  if (slot.includes('Giao hỏa tốc')) {
+    const nowHour = new Date().getHours();
+    return nowHour >= 22;
+  }
+
+  const match = slot.match(/-\s*(\d{1,2}):(\d{2})/);
+  if (!match) return false;
+  const [_, endH, endM] = match;
+  const now = new Date();
+  const curMinutes = now.getHours() * 60 + now.getMinutes();
+  const slotEndMinutes = parseInt(endH, 10) * 60 + parseInt(endM, 10);
+
+  return curMinutes > slotEndMinutes - 30;
+};
+
 export const CartDrawer: React.FC = () => {
   const {
     cart,
@@ -71,7 +101,10 @@ export const CartDrawer: React.FC = () => {
     weatherState,
     addSavedAddress,
     specialHoursSurchargeRate,
-    shiftHours
+    shiftHours,
+    validateVoucherForOrder,
+    autoPickBestVouchers,
+    calculateMaxAllowedPoints
   } = useStore();
 
   useBodyScrollLock(isCartOpen);
@@ -125,9 +158,50 @@ export const CartDrawer: React.FC = () => {
   );
   const [detailStreet, setDetailStreet] = useState<string>('');
 
+  // GPS Geolocation state
+  const [isLocating, setIsLocating] = useState(false);
+  const [gpsCustomKm, setGpsCustomKm] = useState<number | null>(null);
+
+  const handleGetLocation = async () => {
+    setIsLocating(true);
+    try {
+      const res = await resolveCurrentLocationWithAddress();
+      setSelectedDistrictId(res.districtId);
+      setSelectedWardName(res.wardName);
+      setGpsCustomKm(res.distanceKm);
+
+      if (res.detailedAddress) {
+        setDetailStreet(res.detailedAddress);
+      }
+
+      const accInfo = res.accuracy ? ` (Độ chính xác: ±${Math.round(res.accuracy)}m)` : '';
+      if (!res.isWithinHanoi) {
+        showToast(
+          `Vị trí hiện tại cách tiệm ${res.distanceKm}km (ngoài phạm vi giao hoa Hà Nội). Vui lòng chọn địa chỉ người nhận tại Hà Nội!`,
+          'error'
+        );
+      } else if (res.warnOverDistance) {
+        showToast(
+          `Đã định vị & tự điền: ${res.detailedAddress || res.wardName}${accInfo} - ${res.distanceKm}km. Bạn có thể sửa thêm số phòng/ngõ nếu cần!`,
+          'info'
+        );
+      } else {
+        showToast(
+          `Đã định vị & tự điền địa chỉ: ${res.detailedAddress || res.wardName}${accInfo} - ${res.distanceKm}km`,
+          'success'
+        );
+      }
+    } catch (err: any) {
+      showToast(err?.message || 'Không thể lấy vị trí hiện tại.', 'error');
+    } finally {
+      setIsLocating(false);
+    }
+  };
+
   // If district changes, reset ward to first ward of that district
   const handleDistrictChange = (distId: string) => {
     setSelectedDistrictId(distId);
+    setGpsCustomKm(null); // Reset custom GPS km on manual selection
     const dist = HANOI_DISTRICTS.find((d) => d.id === distId);
     if (dist && dist.wards.length > 0) {
       setSelectedWardName(dist.wards[0].name);
@@ -136,8 +210,11 @@ export const CartDrawer: React.FC = () => {
 
   // Precise Distance Calculation (Km)
   const shippingKm = useMemo(() => {
+    if (gpsCustomKm !== null && gpsCustomKm > 0) {
+      return gpsCustomKm;
+    }
     return calculatePreciseKm(selectedDistrictId, selectedWardName, detailStreet);
-  }, [selectedDistrictId, selectedWardName, detailStreet]);
+  }, [selectedDistrictId, selectedWardName, detailStreet, gpsCustomKm]);
 
   // Checkout inputs
   const [senderName, setSenderName] = useState(customer?.fullName || '');
@@ -156,10 +233,21 @@ export const CartDrawer: React.FC = () => {
 
   // Delivery schedule
   const [deliveryDate, setDeliveryDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
+    return new Date().toLocaleDateString('en-CA');
   });
-  const [deliveryTimeSlot, setDeliveryTimeSlot] = useState(DELIVERY_TIME_SLOTS[1]);
+  const [deliveryTimeSlot, setDeliveryTimeSlot] = useState(() => {
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    const valid = DELIVERY_TIME_SLOTS.find((s) => !isSlotPassedToday(s, todayStr));
+    return valid || DELIVERY_TIME_SLOTS[DELIVERY_TIME_SLOTS.length - 1];
+  });
+
+  // Auto-switch to next available slot if current slot has passed
+  useEffect(() => {
+    const availableSlots = DELIVERY_TIME_SLOTS.filter((s) => !isSlotPassedToday(s, deliveryDate));
+    if (availableSlots.length > 0 && isSlotPassedToday(deliveryTimeSlot, deliveryDate)) {
+      setDeliveryTimeSlot(availableSlots[0]);
+    }
+  }, [deliveryDate]);
   const [generalCardMessage, setGeneralCardMessage] = useState('');
   const [orderNote, setOrderNote] = useState('');
 
@@ -191,6 +279,7 @@ export const CartDrawer: React.FC = () => {
 
   const handleSelectSavedAddress = (addr: SavedAddress) => {
     setSelectedSavedAddrId(addr.id);
+    setGpsCustomKm(null);
     if (addr.districtId) {
       setSelectedDistrictId(addr.districtId);
       if (addr.wardName) setSelectedWardName(addr.wardName);
@@ -205,10 +294,27 @@ export const CartDrawer: React.FC = () => {
   const [paymentChoice, setPaymentChoice] = useState<'COD' | 'VIETQR'>('VIETQR');
   const [vietQrOption, setVietQrOption] = useState<'DEPOSIT_50' | 'FULL'>('DEPOSIT_50');
 
-  // Voucher apply
+  // 2-Tier Voucher & Loyalty Point state (Shopee Standard)
   const [voucherCodeInput, setVoucherCodeInput] = useState('');
-  const [isVoucherPickerOpen, setIsVoucherPickerOpen] = useState(false);
-  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+  const [voucherModalTab, setVoucherModalTab] = useState<'FLOWER' | 'SHIPPING'>('FLOWER');
+
+  // Tầng 1: Voucher Hoa Tươi
+  const [appliedFlowerVoucher, setAppliedFlowerVoucher] = useState<{
+    code: string;
+    title: string;
+    discountAmount: number;
+  } | null>(null);
+
+  // Tầng 2: Voucher Vận Chuyển
+  const [appliedShippingVoucher, setAppliedShippingVoucher] = useState<{
+    code: string;
+    title: string;
+    discountAmount: number;
+  } | null>(null);
+
+  // Điểm tích lũy / Hoa Xu (Cap 50% tiền hoa)
+  const [isUsingPoints, setIsUsingPoints] = useState(false);
 
   // Calculations for selected items only
   const selectedCartItems = useMemo(() => {
@@ -232,42 +338,265 @@ export const CartDrawer: React.FC = () => {
 
   const specialHoursSurcharge = specialHoursCheck.surcharge;
 
-  const discountAmount = appliedVoucher ? appliedVoucher.discountAmount : 0;
-  const totalAmount = Math.max(0, flowerPrice + shippingFee + weatherSurcharge + specialHoursSurcharge - discountAmount);
+  // 50% max cap on points
+  const maxAllowedPoints = useMemo(() => {
+    return calculateMaxAllowedPoints(flowerPrice, customer?.points || 0);
+  }, [calculateMaxAllowedPoints, flowerPrice, customer?.points]);
 
-  // Apply voucher logic
+  const pointsDiscount = isUsingPoints && customer ? maxAllowedPoints.discountAmount : 0;
+  const flowerVoucherDiscount = appliedFlowerVoucher ? appliedFlowerVoucher.discountAmount : 0;
+  const shippingVoucherDiscount = appliedShippingVoucher ? appliedShippingVoucher.discountAmount : 0;
+
+  const totalDiscountAmount = flowerVoucherDiscount + shippingVoucherDiscount + pointsDiscount;
+  const finalFlowerCost = Math.max(0, flowerPrice - flowerVoucherDiscount - pointsDiscount);
+  const finalShippingCost = Math.max(0, shippingFee + weatherSurcharge + specialHoursSurcharge - shippingVoucherDiscount);
+  const totalAmount = finalFlowerCost + finalShippingCost;
+
+  // Next voucher milestone for Shopee progress bar
+  const nextVoucherMilestone = useMemo(() => {
+    if (flowerPrice <= 0) return null;
+    const candidates = promotions.filter(
+      (p) => p.minOrder && p.minOrder > flowerPrice && p.isActive !== false && (p.voucherScope === 'FLOWER' || (!p.voucherScope && p.discountType !== 'FREESHIP'))
+    );
+    if (candidates.length === 0) return null;
+    candidates.sort((a, b) => (a.minOrder || 0) - (b.minOrder || 0));
+    const next = candidates[0];
+    return {
+      additionalNeeded: (next.minOrder || 0) - flowerPrice,
+      discountAmount: next.discountAmount,
+      code: next.code
+    };
+  }, [flowerPrice, promotions]);
+
+  // 2-Tier Promo lists for Modal
+  const flowerPromos = useMemo(() => {
+    const list: Array<{
+      code: string;
+      title: string;
+      discountAmount: number;
+      discountType: string;
+      minOrder: number;
+      maxDiscount?: number;
+      badge?: string;
+      validUntil: string;
+      usageLimit?: number;
+      usedCount?: number;
+      hourlyDealStart?: string;
+      hourlyDealEnd?: string;
+    }> = [];
+    const seen = new Set<string>();
+
+    if (customer?.userVouchers) {
+      customer.userVouchers.forEach((uv) => {
+        const isFlower = uv.voucherScope === 'FLOWER' || (!uv.voucherScope && uv.discountType !== 'FREESHIP');
+        if (isFlower && !uv.isUsed && !seen.has(uv.code)) {
+          seen.add(uv.code);
+          list.push({
+            code: uv.code,
+            title: uv.title,
+            discountAmount: uv.discountAmount,
+            discountType: uv.discountType,
+            minOrder: uv.minOrder,
+            maxDiscount: uv.maxDiscount,
+            badge: 'Ví Của Bạn',
+            validUntil: uv.validUntil
+          });
+        }
+      });
+    }
+
+    promotions.forEach((p) => {
+      const isFlower = p.voucherScope === 'FLOWER' || (!p.voucherScope && p.discountType !== 'FREESHIP');
+      if (isFlower && p.isActive && !seen.has(p.code)) {
+        seen.add(p.code);
+        list.push({
+          code: p.code,
+          title: p.title,
+          discountAmount: p.discountAmount,
+          discountType: p.discountType,
+          minOrder: p.minOrder,
+          maxDiscount: p.maxDiscount,
+          badge: p.badge,
+          validUntil: p.validUntil,
+          usageLimit: p.usageLimit,
+          usedCount: p.usedCount,
+          hourlyDealStart: p.hourlyDealStart,
+          hourlyDealEnd: p.hourlyDealEnd
+        });
+      }
+    });
+
+    return list;
+  }, [customer?.userVouchers, promotions]);
+
+  const shippingPromos = useMemo(() => {
+    const list: Array<{
+      code: string;
+      title: string;
+      discountAmount: number;
+      discountType: string;
+      minOrder: number;
+      maxDiscount?: number;
+      badge?: string;
+      validUntil: string;
+      usageLimit?: number;
+      usedCount?: number;
+      hourlyDealStart?: string;
+      hourlyDealEnd?: string;
+      maxShippingRadiusKm?: number;
+    }> = [];
+    const seen = new Set<string>();
+
+    if (customer?.userVouchers) {
+      customer.userVouchers.forEach((uv) => {
+        const isShip = uv.voucherScope === 'SHIPPING' || uv.discountType === 'FREESHIP';
+        if (isShip && !uv.isUsed && !seen.has(uv.code)) {
+          seen.add(uv.code);
+          list.push({
+            code: uv.code,
+            title: uv.title,
+            discountAmount: uv.discountAmount,
+            discountType: uv.discountType,
+            minOrder: uv.minOrder,
+            maxDiscount: uv.maxDiscount,
+            badge: 'Ví Của Bạn',
+            validUntil: uv.validUntil,
+            maxShippingRadiusKm: uv.maxShippingRadiusKm
+          });
+        }
+      });
+    }
+
+    promotions.forEach((p) => {
+      const isShip = p.voucherScope === 'SHIPPING' || p.discountType === 'FREESHIP';
+      if (isShip && p.isActive && !seen.has(p.code)) {
+        seen.add(p.code);
+        list.push({
+          code: p.code,
+          title: p.title,
+          discountAmount: p.discountAmount,
+          discountType: p.discountType,
+          minOrder: p.minOrder,
+          maxDiscount: p.maxDiscount,
+          badge: p.badge,
+          validUntil: p.validUntil,
+          usageLimit: p.usageLimit,
+          usedCount: p.usedCount,
+          maxShippingRadiusKm: p.maxShippingRadiusKm
+        });
+      }
+    });
+
+    return list;
+  }, [customer?.userVouchers, promotions]);
+
+  // Apply single voucher code with 2-tier detection
   const handleApplyVoucherCode = (codeToApply?: string) => {
     const code = (codeToApply || voucherCodeInput).trim().toUpperCase();
     if (!code) return;
 
-    const matched = promotions.find((p) => p.code.toUpperCase() === code && p.isActive);
-    if (!matched) {
-      showToast('Mã voucher không tồn tại hoặc đã hết hạn!', 'error');
+    const res = validateVoucherForOrder(code, {
+      flowerPrice,
+      shippingFee,
+      itemCount: selectedCartItems.length,
+      distanceKm: shippingKm,
+      customer
+    });
+
+    if (!res.valid) {
+      showToast(res.reason || 'Không thể áp dụng voucher này!', 'error');
       return;
     }
 
-    if (flowerPrice < matched.minOrder) {
-      showToast(`Mã này chỉ áp dụng cho đơn hoa từ ${new Intl.NumberFormat('vi-VN').format(matched.minOrder)}đ!`, 'error');
-      return;
+    if (res.voucherScope === 'SHIPPING') {
+      setAppliedShippingVoucher({
+        code: res.promo?.code || code,
+        title: res.promo?.title || 'Ưu đãi phí vận chuyển',
+        discountAmount: res.discountAmount
+      });
+      showToast(`Áp dụng mã vận chuyển ${res.promo?.code || code}: Giảm ${formatPrice(res.discountAmount)}`, 'success');
+    } else {
+      setAppliedFlowerVoucher({
+        code: res.promo?.code || code,
+        title: res.promo?.title || 'Ưu đãi hoa tươi',
+        discountAmount: res.discountAmount
+      });
+      showToast(`Áp dụng mã hoa ${res.promo?.code || code}: Giảm ${formatPrice(res.discountAmount)}`, 'success');
     }
 
-    let discount = matched.discountAmount;
-    if (matched.code === 'FREESHIP30K' || matched.discountType === 'FREESHIP') {
-      discount = Math.min(matched.discountAmount || 30000, shippingFee);
-    } else if (matched.discountType === 'PERCENT') {
-      discount = Math.min(matched.maxDiscount || 100000, Math.round((flowerPrice * matched.discountAmount) / 100));
-    }
-
-    setAppliedVoucher({ code: matched.code, discountAmount: discount });
-    setIsVoucherPickerOpen(false);
     setVoucherCodeInput('');
-    showToast(`Áp dụng voucher ${matched.code} thành công! Giảm ${new Intl.NumberFormat('vi-VN').format(discount)}đ`);
   };
 
-  const handleRemoveVoucher = () => {
-    setAppliedVoucher(null);
-    showToast('Đã gỡ mã ưu đãi', 'info');
+  const handleRemoveFlowerVoucher = () => {
+    setAppliedFlowerVoucher(null);
+    showToast('Đã gỡ mã ưu đãi hoa', 'info');
   };
+
+  const handleRemoveShippingVoucher = () => {
+    setAppliedShippingVoucher(null);
+    showToast('Đã gỡ mã ưu đãi vận chuyển', 'info');
+  };
+
+  // Auto-pick best 2 vouchers
+  const handleAutoPickBest = () => {
+    const best = autoPickBestVouchers(flowerPrice, shippingFee, selectedCartItems.length, shippingKm, customer);
+    if (!best.flowerVoucher && !best.shippingVoucher) {
+      showToast('Chưa có mã ưu đãi nào phù hợp với đơn hiện tại!', 'info');
+      return;
+    }
+    let appliedCount = 0;
+    if (best.flowerVoucher) {
+      setAppliedFlowerVoucher({
+        code: best.flowerVoucher.code,
+        title: best.flowerVoucher.title,
+        discountAmount: best.flowerDiscount
+      });
+      appliedCount++;
+    }
+    if (best.shippingVoucher) {
+      setAppliedShippingVoucher({
+        code: best.shippingVoucher.code,
+        title: best.shippingVoucher.title,
+        discountAmount: best.shippingDiscount
+      });
+      appliedCount++;
+    }
+    showToast(`⚡ Đã tự động áp dụng combo ${appliedCount} voucher hời nhất!`, 'success');
+  };
+
+  // Dynamic Voucher Re-validation
+  useEffect(() => {
+    if (appliedFlowerVoucher) {
+      const res = validateVoucherForOrder(appliedFlowerVoucher.code, {
+        flowerPrice,
+        shippingFee,
+        itemCount: selectedCartItems.length,
+        distanceKm: shippingKm,
+        customer
+      });
+      if (!res.valid) {
+        setAppliedFlowerVoucher(null);
+        showToast(`Mã hoa ${appliedFlowerVoucher.code} đã tự động gỡ do đơn không còn đủ điều kiện.`, 'info');
+      } else if (res.discountAmount !== appliedFlowerVoucher.discountAmount) {
+        setAppliedFlowerVoucher((prev) => (prev ? { ...prev, discountAmount: res.discountAmount } : null));
+      }
+    }
+    if (appliedShippingVoucher) {
+      const res = validateVoucherForOrder(appliedShippingVoucher.code, {
+        flowerPrice,
+        shippingFee,
+        itemCount: selectedCartItems.length,
+        distanceKm: shippingKm,
+        customer
+      });
+      if (!res.valid) {
+        setAppliedShippingVoucher(null);
+        showToast(`Mã vận chuyển ${appliedShippingVoucher.code} đã tự động gỡ do đơn không còn đủ điều kiện.`, 'info');
+      } else if (res.discountAmount !== appliedShippingVoucher.discountAmount) {
+        setAppliedShippingVoucher((prev) => (prev ? { ...prev, discountAmount: res.discountAmount } : null));
+      }
+    }
+  }, [flowerPrice, shippingFee, selectedCartItems.length, shippingKm, customer, validateVoucherForOrder, showToast]);
 
   // Success state
   const [createdOrder, setCreatedOrder] = useState<any>(null);
@@ -307,6 +636,12 @@ export const CartDrawer: React.FC = () => {
 
     if (selectedCartItems.length === 0) {
       showToast('Vui lòng chọn ít nhất 1 mẫu hoa để đặt mua!', 'error');
+      return;
+    }
+
+    const unavailableItem = selectedCartItems.find((item) => item.product.isAvailable === false);
+    if (unavailableItem) {
+      showToast(`Mẫu hoa "${unavailableItem.product.name}" hiện đang tạm hết hoa tươi! Vui lòng bỏ chọn để tiếp tục.`, 'error');
       return;
     }
 
@@ -387,8 +722,14 @@ export const CartDrawer: React.FC = () => {
       items: orderItems,
       flowerPrice,
       shippingDistanceKm: shippingKm,
-      discountAmount,
-      voucherCode: appliedVoucher?.code,
+      discountAmount: totalDiscountAmount,
+      voucherCode: [appliedFlowerVoucher?.code, appliedShippingVoucher?.code].filter(Boolean).join(' + ') || undefined,
+      flowerVoucherCode: appliedFlowerVoucher?.code,
+      flowerDiscountAmount: flowerVoucherDiscount,
+      shippingVoucherCode: appliedShippingVoucher?.code,
+      shippingDiscountAmount: shippingVoucherDiscount,
+      pointsUsed: isUsingPoints ? maxAllowedPoints.maxPoints : 0,
+      pointsDiscountAmount: pointsDiscount,
       paymentMethod: finalPaymentMethod,
       paymentType: finalPaymentType,
       note: orderNote.trim() || undefined,
@@ -406,22 +747,23 @@ export const CartDrawer: React.FC = () => {
     // Remove only the purchased items from cart (Shopee style)
     selectedCartItems.forEach((item) => removeFromCart(item.product.id));
 
-    showToast('Tạo đơn hoa thành công! Vui lòng quét mã VietQR để cọc đơn.', 'success');
+    showToast('Gửi đơn hoa thành công! Tiệm đang kiểm tra kho hoa và sẽ duyệt đơn cho bạn.', 'success');
   };
 
-  const handleBillFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBillFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        setBillPreview(dataUrl);
+      try {
+        const compressedDataUrl = await compressImage(file, 1000, 1000, 0.72);
+        setBillPreview(compressedDataUrl);
         if (createdOrder) {
-          uploadOrderBill(createdOrder.id, dataUrl);
+          uploadOrderBill(createdOrder.id, compressedDataUrl);
           setIsBillUploaded(true);
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Lỗi nén ảnh biên lai', err);
+        showToast('Không thể nén ảnh biên lai, vui lòng thử lại!', 'error');
+      }
     }
   };
 
@@ -458,11 +800,11 @@ export const CartDrawer: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-[100000] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-2.5 pb-28 sm:p-5 sm:pb-8 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100000] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 md:p-6 overflow-y-auto animate-in fade-in duration-200"
       onClick={handleClose}
     >
       <div
-        className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl max-h-[calc(100dvh-130px)] sm:max-h-[88vh] bg-white/95 backdrop-blur-3xl rounded-[28px] sm:rounded-[36px] border border-white/95 shadow-[0_25px_60px_rgba(0,0,0,0.28),inset_0_2px_4px_rgba(255,255,255,0.9)] p-4 sm:p-6 flex flex-col justify-between overflow-hidden animate-in zoom-in-95 duration-200 relative"
+        className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl max-h-[92dvh] sm:max-h-[88vh] my-auto bg-white/95 backdrop-blur-3xl rounded-[28px] sm:rounded-[36px] border border-white/95 shadow-[0_25px_60px_rgba(0,0,0,0.28),inset_0_2px_4px_rgba(255,255,255,0.9)] p-4 sm:p-6 flex flex-col justify-between overflow-hidden animate-in zoom-in-95 duration-200 relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
@@ -502,11 +844,11 @@ export const CartDrawer: React.FC = () => {
                 </div>
 
                 {/* Quick District Selector Bar */}
-                <div className="flex items-center gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <select
                     value={selectedDistrictId}
                     onChange={(e) => handleDistrictChange(e.target.value)}
-                    className="py-1.5 px-2.5 rounded-xl border border-emerald-300 bg-white font-bold text-xs text-slate-800 focus:outline-none shadow-2xs"
+                    className="w-full py-1.5 px-2.5 rounded-xl border border-emerald-300 bg-white font-bold text-xs text-slate-800 focus:outline-none shadow-2xs"
                   >
                     {HANOI_DISTRICTS.map((d) => (
                       <option key={d.id} value={d.id}>
@@ -517,8 +859,11 @@ export const CartDrawer: React.FC = () => {
 
                   <select
                     value={selectedWardName}
-                    onChange={(e) => setSelectedWardName(e.target.value)}
-                    className="flex-1 py-1.5 px-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none shadow-2xs truncate"
+                    onChange={(e) => {
+                      setSelectedWardName(e.target.value);
+                      setGpsCustomKm(null);
+                    }}
+                    className="w-full py-1.5 px-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none shadow-2xs truncate"
                   >
                     {currentDistrict.wards.map((w) => (
                       <option key={w.name} value={w.name}>
@@ -604,7 +949,7 @@ export const CartDrawer: React.FC = () => {
 
                           <div className="flex-1 min-w-0">
                             <h4 className="font-bold text-xs text-slate-800 line-clamp-1">{item.product.name}</h4>
-                            <div className="text-emerald-700 font-extrabold text-xs mt-0.5">
+                            <div className="text-[#ee4d2d] font-black text-xs mt-0.5 fixed-semantic product-price tracking-tight">
                               {formatPrice(item.product.price)}
                             </div>
                             <div className="text-[11px] text-slate-400 truncate mt-0.5">
@@ -657,74 +1002,158 @@ export const CartDrawer: React.FC = () => {
                     })}
                   </div>
 
-                  {/* Shopee Voucher Selector */}
-                  <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950">
-                        <Ticket className="w-4 h-4 text-amber-600" />
-                        <span>V&amp;V Florielle Voucher</span>
+                  {/* Thanh nhắc nhở tiến trình mua thêm để đạt voucher hời hơn (chuẩn Shopee) */}
+                  {nextVoucherMilestone && (
+                    <div
+                      onClick={() => {
+                        setVoucherModalTab('FLOWER');
+                        setIsVoucherModalOpen(true);
+                      }}
+                      className="p-2.5 rounded-xl bg-gradient-to-r from-rose-50 to-orange-50 border border-rose-200/80 flex items-center justify-between text-xs text-rose-800 cursor-pointer hover:bg-rose-100/60 transition-colors shadow-2xs"
+                    >
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Sparkles className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span className="truncate">
+                          Mua thêm <strong>{formatPrice(nextVoucherMilestone.additionalNeeded)}</strong> để được dùng mã giảm <strong>{formatPrice(nextVoucherMilestone.discountAmount)}</strong>
+                        </span>
                       </div>
-                      {appliedVoucher ? (
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full">
-                            {appliedVoucher.code} (-{formatPrice(appliedVoucher.discountAmount)})
-                          </span>
-                          <button
-                            type="button"
-                            onClick={handleRemoveVoucher}
-                            className="p-0.5 text-slate-400 hover:text-rose-600"
-                            title="Gỡ mã"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
+                      <ChevronRight className="w-4 h-4 text-rose-500 shrink-0 ml-1" />
+                    </div>
+                  )}
+
+                  {/* 2-TIER VOUCHER & LOYALTY CARD (SHOPEE STANDARD) */}
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-50/80 to-rose-50/50 border border-amber-200/80 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-950">
+                        <Ticket className="w-4 h-4 text-amber-600" />
+                        <span>Kho Voucher Ưu Đãi (Mã Hoa + Freeship)</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAutoPickBest}
+                        className="text-[11px] font-bold text-amber-900 bg-amber-200/70 hover:bg-amber-300/80 px-2 py-0.5 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
+                        title="Tự động áp dụng combo hời nhất"
+                      >
+                        <Zap className="w-3 h-3 text-amber-700 fill-amber-700" />
+                        <span>Chọn mã hời nhất</span>
+                      </button>
+                    </div>
+
+                    {/* Mã Hoa Tươi */}
+                    <div className="p-2 rounded-xl bg-white/90 border border-rose-100 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Tag className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <div className="truncate">
+                          <span className="text-[10px] text-slate-500 block font-semibold">Mã Giảm Giá Hoa Tươi</span>
+                          {appliedFlowerVoucher ? (
+                            <span className="font-extrabold text-rose-600 truncate block">
+                              {appliedFlowerVoucher.code} (-{formatPrice(flowerVoucherDiscount)})
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 italic text-[11px]">Chưa chọn mã giảm hoa</span>
+                          )}
                         </div>
+                      </div>
+                      {appliedFlowerVoucher ? (
+                        <button
+                          type="button"
+                          onClick={handleRemoveFlowerVoucher}
+                          className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
+                          title="Gỡ mã hoa"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
                       ) : (
                         <button
                           type="button"
-                          onClick={() => setIsVoucherPickerOpen(!isVoucherPickerOpen)}
-                          className="text-xs font-bold text-amber-800 hover:underline flex items-center gap-1"
+                          onClick={() => {
+                            setVoucherModalTab('FLOWER');
+                            setIsVoucherModalOpen(true);
+                          }}
+                          className="text-[11px] font-bold text-rose-600 hover:underline shrink-0 cursor-pointer"
                         >
-                          <span>Chọn / Nhập mã</span>
-                          <ChevronDown className="w-3.5 h-3.5" />
+                          Chọn mã &gt;
                         </button>
                       )}
                     </div>
 
-                    {/* Voucher Picker Dropdown */}
-                    {isVoucherPickerOpen && !appliedVoucher && (
-                      <div className="space-y-2 pt-1 border-t border-amber-200">
-                        <div className="flex gap-1.5">
-                          <input
-                            type="text"
-                            placeholder="Nhập mã voucher (VD: FREESHIP30K)..."
-                            value={voucherCodeInput}
-                            onChange={(e) => setVoucherCodeInput(e.target.value.toUpperCase())}
-                            className="glass-input flex-1 text-xs py-1.5 px-2.5 rounded-xl uppercase font-bold"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleApplyVoucherCode()}
-                            className="btn-primary text-xs py-1.5 px-3 rounded-xl"
-                          >
-                            Áp dụng
-                          </button>
+                    {/* Mã Vận Chuyển */}
+                    <div className="p-2 rounded-xl bg-white/90 border border-emerald-100 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Navigation className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <div className="truncate">
+                          <span className="text-[10px] text-slate-500 block font-semibold">Mã Giảm Phí Vận Chuyển</span>
+                          {appliedShippingVoucher ? (
+                            <span className="font-extrabold text-emerald-700 truncate block">
+                              {appliedShippingVoucher.code} (-{formatPrice(shippingVoucherDiscount)})
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 italic text-[11px]">Chưa chọn mã vận chuyển</span>
+                          )}
                         </div>
+                      </div>
+                      {appliedShippingVoucher ? (
+                        <button
+                          type="button"
+                          onClick={handleRemoveShippingVoucher}
+                          className="p-1 text-slate-400 hover:text-emerald-700 cursor-pointer"
+                          title="Gỡ mã ship"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVoucherModalTab('SHIPPING');
+                            setIsVoucherModalOpen(true);
+                          }}
+                          className="text-[11px] font-bold text-emerald-700 hover:underline shrink-0 cursor-pointer"
+                        >
+                          Chọn mã &gt;
+                        </button>
+                      )}
+                    </div>
 
-                        <div className="space-y-1.5 pt-1">
-                          {promotions.filter((p) => p.isActive).map((p) => (
-                            <div
-                              key={p.id}
-                              onClick={() => handleApplyVoucherCode(p.code)}
-                              className="p-2 rounded-xl bg-white border border-amber-200 hover:border-amber-400 cursor-pointer flex items-center justify-between text-xs transition-colors"
-                            >
-                              <div>
-                                <strong className="text-amber-900 font-extrabold">{p.code}</strong>
-                                <span className="text-slate-500 text-[11px] block">{p.title}</span>
-                              </div>
-                              <span className="text-emerald-700 font-bold text-[11px]">Dùng ngay</span>
+                    {/* Khối Điểm Tích Lũy / Hoa Xu (Cap 50% tiền hoa) */}
+                    {customer ? (
+                      <div className="p-2 rounded-xl bg-amber-100/60 border border-amber-300/80 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <Coins className="w-4 h-4 text-amber-600 shrink-0" />
+                          <div>
+                            <div className="flex items-center gap-1.5 font-bold text-amber-950">
+                              <span>Dùng {maxAllowedPoints.maxPoints} Hoa Xu</span>
+                              <span className="text-rose-600 font-extrabold">(-{formatPrice(maxAllowedPoints.discountAmount)})</span>
                             </div>
-                          ))}
+                            <span className="text-[10px] text-slate-500 block">
+                              Ví có {customer.points} điểm • Giảm tối đa 50% tiền hoa
+                            </span>
+                          </div>
                         </div>
+                        <input
+                          type="checkbox"
+                          disabled={maxAllowedPoints.maxPoints === 0}
+                          checked={isUsingPoints && maxAllowedPoints.maxPoints > 0}
+                          onChange={(e) => setIsUsingPoints(e.target.checked)}
+                          className="w-4 h-4 text-emerald-600 rounded border-amber-300 focus:ring-emerald-500 cursor-pointer"
+                        />
+                      </div>
+                    ) : (
+                      <div className="p-2 rounded-xl bg-rose-50/70 border border-rose-200/80 flex items-center justify-between text-[11px] text-slate-600">
+                        <div className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                          <span>Đăng nhập để dùng Hoa Xu &amp; nhận Freeship 35K</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsCartOpen(false);
+                            setCurrentView('customer');
+                          }}
+                          className="text-rose-600 font-bold hover:underline shrink-0 text-[11px] cursor-pointer"
+                        >
+                          Đăng nhập &gt;
+                        </button>
                       </div>
                     )}
                   </div>
@@ -741,10 +1170,24 @@ export const CartDrawer: React.FC = () => {
                       <span>{shippingFee === 0 ? <strong className="text-emerald-700 font-bold">Freeship</strong> : formatPrice(shippingFee)}</span>
                     </div>
 
-                    {appliedVoucher && (
+                    {appliedFlowerVoucher && (
                       <div className="flex justify-between text-rose-600 font-bold">
-                        <span>Giảm giá Voucher ({appliedVoucher.code}):</span>
-                        <span>-{formatPrice(appliedVoucher.discountAmount)}</span>
+                        <span>Giảm giá hoa ({appliedFlowerVoucher.code}):</span>
+                        <span>-{formatPrice(flowerVoucherDiscount)}</span>
+                      </div>
+                    )}
+
+                    {appliedShippingVoucher && (
+                      <div className="flex justify-between text-emerald-700 font-bold">
+                        <span>Giảm phí vận chuyển ({appliedShippingVoucher.code}):</span>
+                        <span>-{formatPrice(shippingVoucherDiscount)}</span>
+                      </div>
+                    )}
+
+                    {pointsDiscount > 0 && (
+                      <div className="flex justify-between text-amber-700 font-bold">
+                        <span>Dùng Hoa Xu ({maxAllowedPoints.maxPoints} điểm):</span>
+                        <span>-{formatPrice(pointsDiscount)}</span>
                       </div>
                     )}
 
@@ -767,6 +1210,18 @@ export const CartDrawer: React.FC = () => {
                         <span className="font-bold">+{formatPrice(specialHoursSurcharge)}</span>
                       </div>
                     )}
+
+                    <div className="pt-2 border-t border-emerald-200/80 flex justify-between items-baseline text-sm">
+                      <span className="font-extrabold text-slate-900">Tổng thanh toán:</span>
+                      <div className="text-right">
+                        <span className="font-black text-rose-600 text-base">{formatPrice(totalAmount)}</span>
+                        {totalDiscountAmount > 0 && (
+                          <span className="text-[10px] text-emerald-700 font-bold block">
+                            (Tiết kiệm {formatPrice(totalDiscountAmount)})
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </>
               )}
@@ -886,15 +1341,42 @@ export const CartDrawer: React.FC = () => {
                     <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                     <span>2. Địa chỉ nhận hoa tại Hà Nội (Tính Km chuẩn Maps)</span>
                   </span>
-                  <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100/80 px-2 py-0.5 rounded-full">
-                    Xuất phát: 105 Doãn Kế Thiện
+                  <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100/80 px-2 py-0.5 rounded-full shrink-0">
+                    Xuất phát: {settings.address ? settings.address.replace(', Cầu Giấy, Hà Nội', '').replace(', Mai Dịch, Cầu Giấy, Hà Nội', '').replace(', Hà Nội', '') : '105 Doãn Kế Thiện'}
                   </span>
                 </div>
 
-                {/* Cascading dropdowns: District & Ward */}
-                <div className="grid grid-cols-2 gap-2">
+                {/* Nút Lấy Vị Trí Hiện Tại (GPS Geolocation) */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-emerald-50/90 border border-emerald-200 p-2.5 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-950 font-medium">
+                    <Navigation className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Đang ở nơi nhận hoa? Bấm để tự động tính km chuẩn xác:</span>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isLocating}
+                    onClick={handleGetLocation}
+                    className="py-1 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer transition-colors disabled:opacity-50 shrink-0 shadow-2xs"
+                    title="Lấy toạ độ GPS chính xác và tự động tính khoảng cách"
+                  >
+                    {isLocating ? (
+                      <>
+                        <RefreshCw className="w-3 h-3 animate-spin" />
+                        <span>Đang định vị...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Navigation className="w-3 h-3" />
+                        <span>📍 Lấy Vị Trí Hiện Tại</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Cascading dropdowns: District & Ward (2 hàng trên Mobile, 2 cột trên Desktop) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] text-slate-500 mb-0.5 block">Quận / Huyện Hà Nội *</label>
+                    <label className="text-[10px] text-slate-500 mb-0.5 block font-semibold">Quận / Huyện Hà Nội *</label>
                     <select
                       value={selectedDistrictId}
                       onChange={(e) => handleDistrictChange(e.target.value)}
@@ -908,10 +1390,13 @@ export const CartDrawer: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[10px] text-slate-500 mb-0.5 block">Phường / Xã *</label>
+                    <label className="text-[10px] text-slate-500 mb-0.5 block font-semibold">Phường / Xã *</label>
                     <select
                       value={selectedWardName}
-                      onChange={(e) => setSelectedWardName(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedWardName(e.target.value);
+                        setGpsCustomKm(null);
+                      }}
                       className="glass-input w-full text-xs py-1.5 px-2 rounded-lg"
                     >
                       {currentDistrict.wards.map((w) => (
@@ -925,7 +1410,7 @@ export const CartDrawer: React.FC = () => {
 
                 {/* Detail Address */}
                 <div>
-                  <label className="text-[10px] text-slate-500 mb-0.5 block">
+                  <label className="text-[10px] text-slate-500 mb-0.5 block font-semibold">
                     Địa chỉ chi tiết (Số nhà, tên ngõ, ngách, tên tòa nhà) *
                   </label>
                   <input
@@ -940,7 +1425,16 @@ export const CartDrawer: React.FC = () => {
 
                 {/* Auto Calculated Distance Badge */}
                 <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 text-xs">
-                  <span className="text-slate-600 text-[11px]">Khoảng cách tính theo Google Maps:</span>
+                  <span className="text-slate-600 text-[11px] flex items-center gap-1">
+                    {gpsCustomKm !== null ? (
+                      <>
+                        <Navigation className="w-3 h-3 text-emerald-600" />
+                        <span className="font-semibold text-emerald-800">Khoảng cách từ GPS thiết bị:</span>
+                      </>
+                    ) : (
+                      <span>Khoảng cách tính theo Google Maps:</span>
+                    )}
+                  </span>
                   <span className="font-extrabold text-emerald-800">
                     {shippingKm} km • Cước: {formatPrice(shippingFee)}
                   </span>
@@ -1046,6 +1540,7 @@ export const CartDrawer: React.FC = () => {
                     <input
                       type="date"
                       value={deliveryDate}
+                      min={new Date().toISOString().split('T')[0]}
                       onChange={(e) => setDeliveryDate(e.target.value)}
                       className="glass-input w-full text-xs py-1.5 px-2 rounded-lg"
                     />
@@ -1057,11 +1552,14 @@ export const CartDrawer: React.FC = () => {
                       onChange={(e) => setDeliveryTimeSlot(e.target.value)}
                       className="glass-input w-full text-xs py-1.5 px-2 rounded-lg"
                     >
-                      {DELIVERY_TIME_SLOTS.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {slot}
-                        </option>
-                      ))}
+                      {DELIVERY_TIME_SLOTS.map((slot) => {
+                        const isPassed = isSlotPassedToday(slot, deliveryDate);
+                        return (
+                          <option key={slot} value={slot} disabled={isPassed}>
+                            {slot} {isPassed ? '(Đã qua)' : ''}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
@@ -1092,69 +1590,81 @@ export const CartDrawer: React.FC = () => {
               </div>
 
               {/* 4. PHƯƠNG THỨC THANH TOÁN & TIỀN CỌC */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <div className="font-bold text-slate-900 text-xs flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>4. Phương thức thanh toán &amp; Cọc đơn</span>
-                  </span>
-                  <span className="text-[10px] text-emerald-700 font-bold">Chính sách cọc 50%</span>
-                </div>
+              {(() => {
+                const isDepositRequired = (settings.depositRequired !== false) && totalAmount >= (settings.minOrderForDeposit ?? 0);
+                const currentDepositRate = settings.depositRate ?? 50;
+                const calculatedDepositAmount = Math.round(totalAmount * (currentDepositRate / 100));
 
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentChoice('VIETQR')}
-                    className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-1 ${
-                      paymentChoice === 'VIETQR'
-                        ? 'bg-emerald-50 border-emerald-600 text-emerald-900 shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-600'
-                    }`}
-                  >
-                    <CreditCard className="w-4 h-4 text-emerald-600" />
-                    <span>Chuyển khoản VietQR</span>
-                  </button>
+                return (
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                    <div className="font-bold text-slate-900 text-xs flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>4. Phương thức thanh toán &amp; Cọc đơn</span>
+                      </span>
+                      <span className="text-[10px] text-emerald-700 font-bold">
+                        {isDepositRequired ? `Chính sách cọc ${currentDepositRate}%` : 'COD 100% (Không cần cọc)'}
+                      </span>
+                    </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setPaymentChoice('COD')}
-                    className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-1 ${
-                      paymentChoice === 'COD'
-                        ? 'bg-emerald-50 border-emerald-600 text-emerald-900 shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-600'
-                    }`}
-                  >
-                    <Banknote className="w-4 h-4 text-emerald-600" />
-                    <span>COD (Cọc 50% VietQR)</span>
-                  </button>
-                </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentChoice('VIETQR')}
+                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-1 ${
+                          paymentChoice === 'VIETQR'
+                            ? 'bg-emerald-50 border-emerald-600 text-emerald-900 shadow-xs'
+                            : 'bg-white border-slate-200 text-slate-600'
+                        }`}
+                      >
+                        <CreditCard className="w-4 h-4 text-emerald-600" />
+                        <span>Chuyển khoản VietQR</span>
+                      </button>
 
-                {paymentChoice === 'VIETQR' && (
-                  <div className="pt-1 flex gap-2">
-                    <label className="flex-1 p-2 rounded-lg border bg-white cursor-pointer flex items-center gap-2 text-xs">
-                      <input
-                        type="radio"
-                        name="vietqr"
-                        checked={vietQrOption === 'DEPOSIT_50'}
-                        onChange={() => setVietQrOption('DEPOSIT_50')}
-                        className="text-emerald-600"
-                      />
-                      <span>Cọc 50% ({formatPrice(Math.round(totalAmount * 0.5))})</span>
-                    </label>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentChoice('COD')}
+                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-1 ${
+                          paymentChoice === 'COD'
+                            ? 'bg-emerald-50 border-emerald-600 text-emerald-900 shadow-xs'
+                            : 'bg-white border-slate-200 text-slate-600'
+                        }`}
+                      >
+                        <Banknote className="w-4 h-4 text-emerald-600" />
+                        <span>{isDepositRequired ? `COD (Cọc ${currentDepositRate}% VietQR)` : 'COD (Nhận hoa trả tiền)'}</span>
+                      </button>
+                    </div>
 
-                    <label className="flex-1 p-2 rounded-lg border bg-white cursor-pointer flex items-center gap-2 text-xs">
-                      <input
-                        type="radio"
-                        name="vietqr"
-                        checked={vietQrOption === 'FULL'}
-                        onChange={() => setVietQrOption('FULL')}
-                        className="text-emerald-600"
-                      />
-                      <span>Thanh toán 100%</span>
-                    </label>
+                    {paymentChoice === 'VIETQR' && (
+                      <div className="pt-1 flex gap-2">
+                        {isDepositRequired && (
+                          <label className="flex-1 p-2 rounded-lg border bg-white cursor-pointer flex items-center gap-2 text-xs">
+                            <input
+                              type="radio"
+                              name="vietqr"
+                              checked={vietQrOption === 'DEPOSIT_50'}
+                              onChange={() => setVietQrOption('DEPOSIT_50')}
+                              className="text-emerald-600"
+                            />
+                            <span>Cọc {currentDepositRate}% ({formatPrice(calculatedDepositAmount)})</span>
+                          </label>
+                        )}
+
+                        <label className="flex-1 p-2 rounded-lg border bg-white cursor-pointer flex items-center gap-2 text-xs">
+                          <input
+                            type="radio"
+                            name="vietqr"
+                            checked={!isDepositRequired || vietQrOption === 'FULL'}
+                            onChange={() => setVietQrOption('FULL')}
+                            className="text-emerald-600"
+                          />
+                          <span>Thanh toán 100% ({formatPrice(totalAmount)})</span>
+                        </label>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
 
               {/* Submit Buttons */}
               <div className="pt-2 flex gap-2">
@@ -1170,108 +1680,125 @@ export const CartDrawer: React.FC = () => {
                   type="submit"
                   className="btn-primary flex-1 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
                 >
-                  <span>Xác nhận &amp; Quét mã VietQR cọc đơn</span>
+                  <span>Gửi đơn hoa tới tiệm kiểm tra &amp; duyệt</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </form>
           )}
 
-          {/* STEP 3: SUCCESS & VIETQR PAYMENT CODE */}
+          {/* STEP 3: SUCCESS & BOUTIQUE PROCESS */}
           {step === 'success' && createdOrder && (
             <div className="space-y-3.5 text-center">
               <div className="w-12 h-12 rounded-full bg-emerald-100 mx-auto flex items-center justify-center text-emerald-600">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-extrabold text-slate-900 text-sm">Đã tạo đơn hoa thành công!</h4>
+                <h4 className="font-extrabold text-slate-900 text-sm">Đã Gửi Đơn Hoa Tới Tiệm!</h4>
                 <p className="text-[11px] text-slate-500 mt-0.5">
                   Mã đơn hàng: <strong className="text-emerald-700 font-mono text-xs">#{createdOrder.id}</strong>
                 </p>
               </div>
 
-              {/* VietQR Box */}
-              <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-md space-y-3">
-                <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-100">
-                  <span className="font-bold text-slate-700">Quét mã VietQR để cọc đơn:</span>
-                  <span className="text-[10px] text-rose-600 font-mono font-bold flex items-center gap-1">
-                    <Timer className="w-3.5 h-3.5" />
-                    <span>Hết hạn: {Math.floor(countdownSeconds / 60)}:{(countdownSeconds % 60).toString().padStart(2, '0')}</span>
-                  </span>
+              {/* 3-Step Process Flow Visual */}
+              <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-left space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                  <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Quy trình phục vụ chuẩn V&amp;V Florielle:</span>
                 </div>
-
-                <div className="w-44 h-44 mx-auto rounded-2xl overflow-hidden border-2 border-emerald-500 p-1 bg-white shadow-inner">
-                  <img src={displayedQrUrl} alt="VietQR" className="w-full h-full object-contain" />
-                </div>
-
-                <div className="space-y-1.5 text-xs text-left bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500 text-[11px]">Ngân hàng:</span>
-                    <strong className="text-slate-800">{settings.bankName || 'Vietcombank'}</strong>
+                <div className="space-y-1.5 text-[11px] text-amber-950 font-medium">
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">1</span>
+                    <div><strong>Tiệm kiểm tra kho hoa &amp; lịch cắm:</strong> Florist đang xác nhận hoa trong kho và chuẩn bị phụ kiện (ước tính 3-5 phút).</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500 text-[11px]">Số tài khoản:</span>
-                    <div className="flex items-center gap-1">
-                      <strong className="text-slate-800 font-mono">{settings.bankAccount || '1029384756'}</strong>
-                      <button
-                        type="button"
-                        onClick={() => handleCopyText(settings.bankAccount || '1029384756', 'STK ngân hàng')}
-                        className="p-1 text-slate-400 hover:text-emerald-700"
-                        title="Sao chép"
-                      >
-                        <Copy className="w-3 h-3" />
-                      </button>
-                    </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">2</span>
+                    <div><strong>Tiệm duyệt đơn &amp; Báo cọc:</strong> Sau khi tiệm duyệt nhận đơn, hệ thống sẽ gửi thông báo để bạn quét mã VietQR cọc 50%.</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500 text-[11px]">Số tiền cọc:</span>
-                    <strong className="text-emerald-700 font-extrabold text-sm">{formatPrice(createdOrder.depositAmount)}</strong>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500 text-[11px]">Cú pháp:</span>
-                    <div className="flex items-center gap-1">
-                      <strong className="text-slate-800 font-mono text-[11px]">{memoText}</strong>
-                      <button
-                        type="button"
-                        onClick={() => handleCopyText(memoText, 'Cú pháp chuyển khoản')}
-                        className="p-1 text-slate-400 hover:text-emerald-700"
-                        title="Sao chép"
-                      >
-                        <Copy className="w-3 h-3" />
-                      </button>
-                    </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">3</span>
+                    <div><strong>Cắm hoa &amp; Giao tận tay:</strong> Nhận cọc xong, florist tiến hành cắm hoa và shipper giao nhanh chóng.</div>
                   </div>
                 </div>
               </div>
 
-              {/* Bill Upload */}
-              <div className="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/70 text-left space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
-                  <Camera className="w-4 h-4 text-emerald-600" />
-                  <span>Xác nhận đã thanh toán (Gửi ảnh Bill)</span>
-                </div>
-                {billPreview ? (
-                  <div className="space-y-2">
-                    <div className="relative rounded-xl overflow-hidden border border-emerald-300 max-h-36">
-                      <img src={billPreview} alt="Ảnh biên lai" className="w-full h-full object-cover" />
-                      <div className="absolute top-2 right-2 bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>Đã tải lên</span>
+              {/* Collapsible VietQR Preview for Early Deposit */}
+              <details className="text-left rounded-2xl bg-white border border-slate-200/90 p-3 shadow-xs">
+                <summary className="text-xs font-bold text-slate-700 cursor-pointer hover:text-emerald-700 flex items-center justify-between">
+                  <span>Xem trước thông tin VietQR (Nếu muốn cọc trước)</span>
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                </summary>
+
+                <div className="mt-3 space-y-3 pt-2 border-t border-slate-100">
+                  <div className="w-40 h-40 mx-auto rounded-2xl overflow-hidden border-2 border-emerald-500 p-1 bg-white shadow-inner">
+                    <img src={displayedQrUrl} alt="VietQR" className="w-full h-full object-contain" />
+                  </div>
+
+                  <div className="space-y-1 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500 text-[11px]">Ngân hàng:</span>
+                      <strong className="text-slate-800">{settings.bankName || 'Vietcombank'}</strong>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500 text-[11px]">Số tài khoản:</span>
+                      <div className="flex items-center gap-1">
+                        <strong className="text-slate-800 font-mono">{settings.bankAccount || '1029384756'}</strong>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(settings.bankAccount || '1029384756', 'STK ngân hàng')}
+                          className="p-1 text-slate-400 hover:text-emerald-700"
+                          title="Sao chép"
+                        >
+                          <Copy className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 p-2 rounded-lg bg-emerald-100/70 text-[11px] text-emerald-800 font-medium">
-                      <Timer className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <span>Trợ lý AI đang đối soát biên lai... Đơn sẽ tự động xác nhận trong vòng 2 phút nếu florist bận cắm hoa.</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500 text-[11px]">Số tiền cọc 50%:</span>
+                      <strong className="text-emerald-700 font-extrabold text-sm">{formatPrice(createdOrder.depositAmount)}</strong>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500 text-[11px]">Cú pháp:</span>
+                      <div className="flex items-center gap-1">
+                        <strong className="text-slate-800 font-mono text-[11px]">{memoText}</strong>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(memoText, 'Cú pháp chuyển khoản')}
+                          className="p-1 text-slate-400 hover:text-emerald-700"
+                          title="Sao chép"
+                        >
+                          <Copy className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                ) : (
-                  <label className="flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-emerald-300 bg-white hover:bg-emerald-50 cursor-pointer text-xs font-semibold text-emerald-800 transition-colors">
-                    <Upload className="w-4 h-4 text-emerald-600" />
-                    <span>Bấm chọn ảnh biên lai chuyển khoản</span>
-                    <input type="file" accept="image/*" onChange={handleBillFileChange} className="hidden" />
-                  </label>
-                )}
-              </div>
+
+                  {/* Bill Upload (Optional advance) */}
+                  <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200/70 text-left space-y-1.5">
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-900">
+                      <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Tải ảnh biên lai cọc (nếu đã chuyển khoản)</span>
+                    </div>
+                    {billPreview ? (
+                      <div className="space-y-1">
+                        <div className="relative rounded-lg overflow-hidden border border-emerald-300 max-h-28">
+                          <img src={billPreview} alt="Ảnh biên lai" className="w-full h-full object-cover" />
+                          <div className="absolute top-1 right-1 bg-emerald-700 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full flex items-center gap-1">
+                            <CheckCircle2 className="w-2.5 h-2.5" />
+                            <span>Đã tải</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="flex items-center justify-center gap-1.5 p-2 rounded-lg border border-dashed border-emerald-300 bg-white hover:bg-emerald-50 cursor-pointer text-[11px] font-semibold text-emerald-800 transition-colors">
+                        <Upload className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Chọn ảnh biên lai</span>
+                        <input type="file" accept="image/*" onChange={handleBillFileChange} className="hidden" />
+                      </label>
+                    )}
+                  </div>
+                </div>
+              </details>
 
               <div className="pt-2 flex gap-2">
                 <button
@@ -1282,44 +1809,337 @@ export const CartDrawer: React.FC = () => {
                   }}
                   className="btn-primary flex-1 py-2.5 text-xs font-semibold rounded-xl"
                 >
-                  Xem Đơn Hàng Của Tôi
+                  Theo Dõi Đơn Hàng Của Tôi
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Drawer Footer (Step 1 Cart Proceed - Shopee Style) */}
+        {/* CỤM ĐÁY 3 HÀNG CHUẨN SHOPEE (VOUCHER, HOA XU, MUA HÀNG) */}
         {step === 'cart' && cart.length > 0 && (
-          <div className="pt-3 border-t border-slate-200 space-y-2">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-500 font-medium">
-                Tổng thanh toán ({selectedItemIds.size} mẫu đã chọn):
-              </span>
-              <strong className="text-emerald-700 text-base font-black">
-                {formatPrice(totalAmount)}
-              </strong>
+          <div className="pt-2.5 border-t border-slate-200 bg-white/95 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 px-4 sm:px-6 pb-3 space-y-2 shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+            {/* HÀNG 1: SHOPEE VOUCHER BAR */}
+            <div
+              onClick={() => setIsVoucherModalOpen(true)}
+              className="flex items-center justify-between py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-50/70 via-rose-50/50 to-orange-50/60 border border-amber-200/90 cursor-pointer hover:bg-amber-100/50 transition-colors"
+            >
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Ticket className="w-4 h-4 text-rose-500 shrink-0" />
+                <span className="text-xs font-bold text-slate-800">Shopee Voucher</span>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                {appliedFlowerVoucher && (
+                  <span className="text-[10px] font-extrabold text-rose-700 bg-rose-100/90 border border-rose-300 px-2 py-0.5 rounded-md">
+                    -{formatPrice(flowerVoucherDiscount)}
+                  </span>
+                )}
+                {appliedShippingVoucher && (
+                  <span className="text-[10px] font-extrabold text-emerald-800 bg-emerald-100/90 border border-emerald-300 px-2 py-0.5 rounded-md">
+                    {shippingVoucherDiscount >= shippingFee ? 'Miễn Phí Vận Chuyển' : `-${formatPrice(shippingVoucherDiscount)}`}
+                  </span>
+                )}
+                {!appliedFlowerVoucher && !appliedShippingVoucher && (
+                  <span className="text-xs text-rose-600 font-semibold">Chọn hoặc nhập mã</span>
+                )}
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </div>
             </div>
 
-            <button
-              type="button"
-              disabled={selectedItemIds.size === 0}
-              onClick={() => {
-                if (selectedItemIds.size === 0) {
-                  showToast('Vui lòng chọn ít nhất 1 mẫu hoa để đặt mua!', 'error');
-                  return;
-                }
-                setStep('checkout');
-              }}
-              className={`w-full py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all ${
-                selectedItemIds.size > 0
-                  ? 'btn-primary shadow-md shadow-emerald-600/20 active:scale-98 cursor-pointer'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              <span>Mua Hàng ({selectedItemIds.size} mẫu) - {formatPrice(totalAmount)}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {/* HÀNG 2: HOA XU BAR WITH TOGGLE SWITCH */}
+            <div className="flex items-center justify-between py-1.5 px-3 rounded-xl bg-amber-50/60 border border-amber-200/80">
+              <div className="flex items-center gap-1.5">
+                <Coins className="w-4 h-4 text-amber-500 shrink-0" />
+                <span className="text-xs text-slate-700 font-semibold flex items-center gap-1">
+                  <span>Dùng {customer ? `${maxAllowedPoints.maxPoints.toLocaleString('vi-VN')} Shopee Xu` : 'Hoa Xu'}</span>
+                  {isUsingPoints && maxAllowedPoints.discountAmount > 0 && (
+                    <strong className="text-rose-600 font-bold">(-{formatPrice(maxAllowedPoints.discountAmount)})</strong>
+                  )}
+                  <span
+                    className="text-slate-400 hover:text-slate-600 cursor-help"
+                    title="1 Xu = 1₫. Tối đa giảm 50% tiền hoa theo chính sách quán"
+                  >
+                    (?)
+                  </span>
+                </span>
+              </div>
+
+              {customer ? (
+                <button
+                  type="button"
+                  disabled={maxAllowedPoints.maxPoints === 0}
+                  onClick={() => setIsUsingPoints(!isUsingPoints)}
+                  className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-200 cursor-pointer ${
+                    isUsingPoints && maxAllowedPoints.maxPoints > 0 ? 'bg-amber-500' : 'bg-slate-300'
+                  } ${maxAllowedPoints.maxPoints === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title={maxAllowedPoints.maxPoints === 0 ? 'Số dư không đủ điểm hoặc đã đạt giới hạn' : 'Bật/Tắt dùng Hoa Xu'}
+                >
+                  <div
+                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${
+                      isUsingPoints && maxAllowedPoints.maxPoints > 0 ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCartOpen(false);
+                    setCurrentView('customer');
+                  }}
+                  className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
+                >
+                  Đăng nhập &gt;
+                </button>
+              )}
+            </div>
+
+            {/* HÀNG 3: CHECKBOX TẤT CẢ, GIÁ TIỀN & NÚT MUA HÀNG */}
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="cart-select-all-bottom"
+                  checked={cart.length > 0 && selectedItemIds.size === cart.length}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500 cursor-pointer"
+                />
+                <label htmlFor="cart-select-all-bottom" className="text-xs font-semibold text-slate-700 cursor-pointer">
+                  Tất cả ({selectedItemIds.size})
+                </label>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="flex items-center justify-end gap-1.5 text-xs">
+                    <span className="text-[11px] text-slate-500 hidden sm:inline">
+                      🚚 {shippingFee === 0 ? '15k' : formatPrice(shippingFee)} |
+                    </span>
+                    <span className="font-black text-base sm:text-lg text-[#ee4d2d] fixed-semantic product-price tracking-tight">
+                      {formatPrice(totalAmount)}
+                    </span>
+                  </div>
+                  {totalDiscountAmount > 0 && (
+                    <span className="text-[10px] text-rose-600 font-bold block">
+                      Tiết kiệm {formatPrice(totalDiscountAmount)}
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  disabled={selectedItemIds.size === 0}
+                  onClick={() => {
+                    if (selectedItemIds.size === 0) {
+                      showToast('Vui lòng chọn ít nhất 1 mẫu hoa để đặt mua!', 'error');
+                      return;
+                    }
+                    setStep('checkout');
+                  }}
+                  className={`py-2 px-4 sm:px-5 text-xs font-black rounded-xl transition-all shadow-md active:scale-95 cursor-pointer ${
+                    selectedItemIds.size > 0
+                      ? 'bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-rose-500/25'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  }`}
+                >
+                  Mua hàng ({selectedItemIds.size})
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL KHO VOUCHER (CHUẨN SHOPEE: MÃ HOA + MÃ SHIP) */}
+        {isVoucherModalOpen && (
+          <div className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 animate-fade-in">
+            <div className="bg-white rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
+              {/* Header */}
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-amber-100 text-amber-800">
+                    <Ticket className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 text-sm">Kho Voucher V&amp;V Florielle</h3>
+                    <p className="text-[11px] text-slate-500">Áp dụng song song 1 mã hoa + 1 mã vận chuyển</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsVoucherModalOpen(false)}
+                  className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Input Code */}
+              <div className="p-3 bg-amber-50/40 border-b border-amber-100 flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Nhập mã voucher (VD: VVF-WEEK10K, FREESHIP30K)..."
+                  value={voucherCodeInput}
+                  onChange={(e) => setVoucherCodeInput(e.target.value.toUpperCase())}
+                  className="glass-input flex-1 text-xs py-2 px-3 rounded-xl uppercase font-bold"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleApplyVoucherCode()}
+                  className="btn-primary text-xs py-2 px-4 rounded-xl font-bold shrink-0 cursor-pointer"
+                >
+                  Áp dụng
+                </button>
+              </div>
+
+              {/* 2 Tabs */}
+              <div className="grid grid-cols-2 p-1.5 bg-slate-100/80 border-b border-slate-200 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setVoucherModalTab('FLOWER')}
+                  className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    voucherModalTab === 'FLOWER'
+                      ? 'bg-white text-rose-600 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Tag className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Voucher Hoa ({flowerPromos.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVoucherModalTab('SHIPPING')}
+                  className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    voucherModalTab === 'SHIPPING'
+                      ? 'bg-white text-emerald-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Navigation className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Vận Chuyển ({shippingPromos.length})</span>
+                </button>
+              </div>
+
+              {/* List */}
+              <div className="p-3 overflow-y-auto space-y-2.5 flex-1 divide-y divide-slate-100">
+                {(voucherModalTab === 'FLOWER' ? flowerPromos : shippingPromos).map((promo) => {
+                  const check = validateVoucherForOrder(promo.code, {
+                    flowerPrice,
+                    shippingFee,
+                    itemCount: selectedCartItems.length,
+                    distanceKm: shippingKm,
+                    customer
+                  });
+                  const isSelected =
+                    voucherModalTab === 'FLOWER'
+                      ? appliedFlowerVoucher?.code === promo.code
+                      : appliedShippingVoucher?.code === promo.code;
+
+                  return (
+                    <div
+                      key={promo.code}
+                      className={`pt-2.5 first:pt-0 p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 ${
+                        isSelected
+                          ? 'bg-emerald-50/80 border-emerald-400 ring-1 ring-emerald-400'
+                          : check.valid
+                          ? 'bg-white border-slate-200 hover:border-amber-300'
+                          : 'bg-slate-50/70 border-slate-200/80 opacity-70'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-mono font-black text-slate-900 text-xs px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200">
+                              {promo.code}
+                            </span>
+                            {promo.badge && (
+                              <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
+                                {promo.badge}
+                              </span>
+                            )}
+                            {promo.hourlyDealStart && (
+                              <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Flame className="w-3 h-3 text-amber-600 fill-amber-600" />
+                                <span>Flash {promo.hourlyDealStart}-{promo.hourlyDealEnd}</span>
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="font-bold text-xs text-slate-800">{promo.title}</h4>
+                          <p className="text-[11px] text-slate-500">
+                            Đơn tối thiểu {formatPrice(promo.minOrder)} • Hạn: {promo.validUntil}
+                          </p>
+                          {promo.usageLimit && (
+                            <p className="text-[10px] text-slate-400">
+                              Đã dùng {promo.usedCount || 0}/{promo.usageLimit} lượt toàn hệ thống
+                            </p>
+                          )}
+                          {!check.valid && (
+                            <p className="text-[11px] font-bold text-amber-700 flex items-center gap-1 mt-1">
+                              <Info className="w-3 h-3 shrink-0" />
+                              <span>{check.reason}</span>
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          {isSelected ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (voucherModalTab === 'FLOWER') handleRemoveFlowerVoucher();
+                                else handleRemoveShippingVoucher();
+                              }}
+                              className="px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-100 hover:bg-rose-200 rounded-xl transition-colors cursor-pointer"
+                            >
+                              Gỡ mã
+                            </button>
+                          ) : check.valid ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleApplyVoucherCode(promo.code);
+                                setIsVoucherModalOpen(false);
+                              }}
+                              className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-xs transition-colors cursor-pointer"
+                            >
+                              Dùng ngay
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled
+                              className="px-3 py-1.5 text-xs font-semibold text-slate-400 bg-slate-200 rounded-xl cursor-not-allowed"
+                            >
+                              Chưa đủ đ/k
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs">
+                <span className="text-slate-500">
+                  {voucherModalTab === 'FLOWER'
+                    ? appliedFlowerVoucher
+                      ? `Đang áp dụng: ${appliedFlowerVoucher.code}`
+                      : 'Chưa chọn mã hoa'
+                    : appliedShippingVoucher
+                    ? `Đang áp dụng: ${appliedShippingVoucher.code}`
+                    : 'Chưa chọn mã vận chuyển'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsVoucherModalOpen(false)}
+                  className="btn-primary text-xs py-1.5 px-4 rounded-xl cursor-pointer"
+                >
+                  Xong
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

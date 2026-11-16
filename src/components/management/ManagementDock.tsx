@@ -25,8 +25,8 @@ export const ManagementDock: React.FC<ManagementDockProps> = ({ role }) => {
   } = useStore();
 
   const isOwner = role === 'owner';
-  const pendingDepositOrders = orders.filter(
-    (o) => o.paymentStatus === 'PARTIAL_PAID' && o.depositApprovedBy !== 'ADMIN'
+  const pendingDepositOrders = (orders || []).filter(
+    (o) => !o.isDepositPaid && (o.status === 'WAITING_DEPOSIT' || o.status === 'PENDING')
   ).length;
 
   const handleReturnToStore = () => {

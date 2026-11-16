@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CustomerUser, SavedAddress } from '../../types';
+import { maskPhone, maskEmail } from '../../utils/formatters';
 import {
   User,
   Award,
@@ -13,7 +14,9 @@ import {
   KeyRound,
   ShieldCheck,
   Edit2,
-  Cake
+  Cake,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 interface CustomerHeroCardProps {
@@ -24,8 +27,8 @@ interface CustomerHeroCardProps {
   onOpenChangePass: () => void;
   onStartOtpVerification: () => void;
   onOpenChangeIdentity: (mode: 'phone' | 'email') => void;
-  onSwitchTab: (tab: 'orders' | 'rewards') => void;
-  activeTab: 'orders' | 'rewards';
+  onSwitchTab: (tab: 'orders' | 'rewards' | 'privacy') => void;
+  activeTab: 'orders' | 'rewards' | 'privacy';
 }
 
 export const CustomerHeroCard: React.FC<CustomerHeroCardProps> = ({
@@ -39,9 +42,18 @@ export const CustomerHeroCard: React.FC<CustomerHeroCardProps> = ({
   onSwitchTab,
   activeTab
 }) => {
+  const [showFullContact, setShowFullContact] = useState(false);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
+
+  const displayPhone = showFullContact ? customer.phone : maskPhone(customer.phone);
+  const displayEmail = customer.email
+    ? showFullContact
+      ? customer.email
+      : maskEmail(customer.email)
+    : 'Chưa liên kết Gmail';
 
   return (
     <div className="glass-panel p-6 sm:p-7 rounded-[30px] shadow-sm relative overflow-hidden border border-emerald-200/80 bg-gradient-to-br from-white/95 via-emerald-50/40 to-teal-50/50">
@@ -62,6 +74,9 @@ export const CustomerHeroCard: React.FC<CustomerHeroCardProps> = ({
                 </h2>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs">
                   {customer.tier}
+                </span>
+                <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300 shadow-xs" title="Mã định danh duy nhất của tài khoản khách hàng">
+                  {customer.accountCode || 'VVF-CUST-849201'}
                 </span>
                 {customer.isVerified ? (
                   <span className="text-[11px] font-bold text-emerald-700 bg-white/90 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-200 shadow-xs">
@@ -84,7 +99,15 @@ export const CustomerHeroCard: React.FC<CustomerHeroCardProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 mt-2.5 text-xs text-slate-600">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Phone className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                  <span className="truncate">{customer.phone}</span>
+                  <span className="truncate font-mono">{displayPhone}</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowFullContact((prev) => !prev)}
+                    className="text-slate-400 hover:text-emerald-700 shrink-0 p-0.5 cursor-pointer"
+                    title={showFullContact ? "Ẩn số để bảo mật" : "Hiện đầy đủ thông tin"}
+                  >
+                    {showFullContact ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  </button>
                   <button
                     onClick={() => onOpenChangeIdentity('phone')}
                     className="text-[10px] text-emerald-700 hover:underline shrink-0 ml-1 cursor-pointer"
@@ -95,7 +118,7 @@ export const CustomerHeroCard: React.FC<CustomerHeroCardProps> = ({
 
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Mail className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                  <span className="truncate">{customer.email || 'Chưa liên kết Gmail'}</span>
+                  <span className="truncate">{displayEmail}</span>
                   <button
                     onClick={() => onOpenChangeIdentity('email')}
                     className="text-[10px] text-emerald-700 hover:underline shrink-0 ml-1 cursor-pointer"
@@ -138,7 +161,7 @@ export const CustomerHeroCard: React.FC<CustomerHeroCardProps> = ({
               className="px-3 py-1.5 rounded-xl bg-white/90 hover:bg-white text-slate-700 hover:text-emerald-800 text-xs font-semibold border border-slate-200/80 shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Sổ Địa Chỉ ({customer.savedAddresses?.length || 0}/3)</span>
+              <span>Sổ Địa Chỉ ({customer.savedAddresses?.length || 0}/4)</span>
             </button>
 
             <button
@@ -181,7 +204,7 @@ export const CustomerHeroCard: React.FC<CustomerHeroCardProps> = ({
           </div>
 
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-            <span className="text-[11px] text-slate-500">Đổi điểm lấy mã Freeship 10k - 30k</span>
+            <span className="text-[11px] text-slate-500">Đổi voucher hoa & ship từ 10.000₫ đến 1.000.000₫</span>
             <button
               onClick={() => onSwitchTab('rewards')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${

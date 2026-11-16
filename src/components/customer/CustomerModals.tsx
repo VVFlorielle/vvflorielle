@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CustomerUser, SavedAddress } from '../../types';
 import {
   X,
@@ -14,7 +14,13 @@ import {
   Sparkles,
   KeyRound,
   Phone,
-  Mail
+  Mail,
+  Lock,
+  ShieldCheck,
+  AlertTriangle,
+  CheckCircle2,
+  ArrowRight,
+  Clock
 } from 'lucide-react';
 
 // 1. Edit Profile Modal
@@ -105,14 +111,52 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 <label className="text-xs font-semibold text-slate-700 block mb-1 flex items-center gap-1">
                   <Cake className="w-3.5 h-3.5 text-pink-500" />
                   <span>Ngày sinh nhật</span>
-                  <span className="text-[10px] text-slate-400 font-normal ml-auto">(Quà & freeship)</span>
+                  <span className="text-[10px] text-slate-400 font-normal ml-auto">(Quà &amp; freeship)</span>
                 </label>
-                <input
-                  type="date"
-                  value={editBirthday}
-                  onChange={(e) => setEditBirthday(e.target.value)}
-                  className="glass-input w-full text-xs py-2 px-3 rounded-xl text-slate-700"
-                />
+                {customer.birthday ? (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-100/90 border border-slate-200">
+                      <div className="flex items-center gap-1 font-mono font-bold text-xs text-slate-800">
+                        <Lock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>{customer.birthday.split('-')[2] || '01'}/{customer.birthday.split('-')[1] || '01'}</span>
+                      </div>
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200">
+                        Đã khóa ngày/tháng
+                      </span>
+                      <select
+                        value={editBirthday.split('-')[0] || customer.birthday.split('-')[0]}
+                        onChange={(e) => {
+                          const parts = (editBirthday || customer.birthday || '2000-01-01').split('-');
+                          const newDate = `${e.target.value}-${parts[1] || '01'}-${parts[2] || '01'}`;
+                          setEditBirthday(newDate);
+                        }}
+                        className="ml-auto text-xs font-bold py-1 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 cursor-pointer"
+                        title="Bạn có thể sửa lại năm sinh nếu nhập nhầm"
+                      >
+                        {Array.from({ length: 70 }, (_, i) => 2026 - 10 - i).map((year) => (
+                          <option key={year} value={year}>
+                            Năm {year}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <p className="text-[10px] text-amber-800/90 italic">
+                      🔒 Để bảo vệ ưu đãi sinh nhật hàng năm, ngày &amp; tháng sinh được khóa cố định. Để thay đổi, vui lòng liên hệ tiệm.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="date"
+                      value={editBirthday}
+                      onChange={(e) => setEditBirthday(e.target.value)}
+                      className="glass-input w-full text-xs py-2 px-3 rounded-xl text-slate-700"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1 italic">
+                      * Lưu ý: Ngày &amp; tháng sinh sau khi lưu sẽ được khóa cố định để cấp ưu đãi hàng năm.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -682,31 +726,99 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   );
 };
 
-// 6. Change Identity (Phone / Email) with OTP Modal
+// 6. Change Identity (Phone / Email) 2-Step Verification Modal
 interface ChangeIdentityModalProps {
   isOpen: 'phone' | 'email' | null;
   onClose: () => void;
-  newIdentityValue: string;
-  setNewIdentityValue: (v: string) => void;
-  identityOtp: string;
-  setIdentityOtp: (v: string) => void;
-  isIdentityOtpSent: boolean;
-  onSendOtp: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  currentValue?: string;
+  onRequestStep1Otp: () => boolean;
+  onVerifyStep1Otp: (otp: string) => boolean;
+  onRequestStep2Otp: (type: 'phone' | 'email', val: string) => { success: boolean; message: string };
+  onConfirmStep2: (type: 'phone' | 'email', val: string, otp: string) => boolean;
 }
 
 export const ChangeIdentityModal: React.FC<ChangeIdentityModalProps> = ({
   isOpen,
   onClose,
-  newIdentityValue,
-  setNewIdentityValue,
-  identityOtp,
-  setIdentityOtp,
-  isIdentityOtpSent,
-  onSendOtp,
-  onSubmit
+  currentValue,
+  onRequestStep1Otp,
+  onVerifyStep1Otp,
+  onRequestStep2Otp,
+  onConfirmStep2
 }) => {
   if (!isOpen) return null;
+
+  const [step, setStep] = useState<1 | 2>(1);
+
+  // Step 1: Verify current owner
+  const [step1Otp, setStep1Otp] = useState('');
+  const [step1OtpSent, setStep1OtpSent] = useState(false);
+  const [step1Cooldown, setStep1Cooldown] = useState(0);
+
+  // Step 2: Verify & bind new identifier
+  const [newValue, setNewValue] = useState('');
+  const [step2Otp, setStep2Otp] = useState('');
+  const [step2OtpSent, setStep2OtpSent] = useState(false);
+  const [step2Cooldown, setStep2Cooldown] = useState(0);
+
+  useEffect(() => {
+    if (step1Cooldown <= 0) return;
+    const t = setInterval(() => setStep1Cooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [step1Cooldown]);
+
+  useEffect(() => {
+    if (step2Cooldown <= 0) return;
+    const t = setInterval(() => setStep2Cooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [step2Cooldown]);
+
+  const maskIdentifier = (val?: string) => {
+    if (!val) return '***';
+    if (val.includes('@')) {
+      const [name, domain] = val.split('@');
+      return `${name.slice(0, 2)}***@${domain}`;
+    }
+    if (val.length >= 7) {
+      return `${val.slice(0, 3)}****${val.slice(-3)}`;
+    }
+    return val;
+  };
+
+  const handleSendStep1 = () => {
+    const ok = onRequestStep1Otp();
+    if (ok) {
+      setStep1OtpSent(true);
+      setStep1Cooldown(60);
+    }
+  };
+
+  const handleVerifyStep1 = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!step1Otp.trim()) return;
+    const ok = onVerifyStep1Otp(step1Otp.trim());
+    if (ok) {
+      setStep(2);
+    }
+  };
+
+  const handleSendStep2 = () => {
+    if (!newValue.trim()) return;
+    const res = onRequestStep2Otp(isOpen, newValue.trim());
+    if (res.success) {
+      setStep2OtpSent(true);
+      setStep2Cooldown(60);
+    }
+  };
+
+  const handleConfirmStep2 = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newValue.trim() || !step2Otp.trim()) return;
+    const ok = onConfirmStep2(isOpen, newValue.trim(), step2Otp.trim());
+    if (ok) {
+      onClose();
+    }
+  };
 
   return (
     <div className="glass-overlay z-[140]" onClick={onClose}>
@@ -718,9 +830,14 @@ export const ChangeIdentityModal: React.FC<ChangeIdentityModalProps> = ({
             ) : (
               <Mail className="w-4 h-4 text-emerald-600" />
             )}
-            <h3 className="font-bold text-sm text-slate-900">
-              {isOpen === 'phone' ? 'Đổi Số Điện Thoại' : 'Đổi Gmail Nhận Thông Báo'}
-            </h3>
+            <div>
+              <h3 className="font-bold text-sm text-slate-900">
+                {isOpen === 'phone' ? 'Đổi Số Điện Thoại' : 'Đổi Gmail Hội Viên'}
+              </h3>
+              <p className="text-[10px] text-emerald-700 font-medium">
+                Xác thực an ninh 2 bước (Bước {step}/2)
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -731,45 +848,291 @@ export const ChangeIdentityModal: React.FC<ChangeIdentityModalProps> = ({
         </div>
 
         <div className="glass-modal-body space-y-3">
-          <p className="text-[11px] text-slate-500">
-            Để bảo vệ quyền lợi thành viên, bạn cần xác thực mã OTP trước khi thay đổi.
-          </p>
+          {step === 1 ? (
+            /* BƯỚC 1: XÁC THỰC CHỦ SỞ HỮU HIỆN TẠI */
+            <form onSubmit={handleVerifyStep1} className="space-y-3">
+              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/70 text-xs text-amber-900 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <ShieldCheck className="w-4 h-4 text-amber-700" />
+                  <span>Bước 1: Xác thực chủ sở hữu</span>
+                </div>
+                <p className="text-[11px] text-slate-600">
+                  Để đảm bảo an toàn, hệ thống cần gửi mã OTP về thông tin hiện tại ({maskIdentifier(currentValue)}) trước khi thay đổi.
+                </p>
+              </div>
 
-          <form onSubmit={onSubmit} className="space-y-3">
-            <div>
-              <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
-                {isOpen === 'phone' ? 'Số điện thoại mới' : 'Địa chỉ Gmail mới'}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type={isOpen === 'phone' ? 'tel' : 'email'}
-                  required
-                  value={newIdentityValue}
-                  onChange={(e) => setNewIdentityValue(e.target.value)}
-                  className="glass-input flex-1 text-xs py-2 px-3 rounded-xl"
-                />
+              <div>
+                <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                  Mã xác thực gửi tới: <span className="font-bold text-slate-900">{maskIdentifier(currentValue)}</span>
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSendStep1}
+                    disabled={step1Cooldown > 0}
+                    className={`py-2 px-3 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer ${
+                      step1Cooldown > 0
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                    }`}
+                  >
+                    {step1Cooldown > 0 ? `Gửi lại sau (${step1Cooldown}s)` : step1OtpSent ? 'Gửi lại OTP' : 'Gửi mã OTP'}
+                  </button>
+                </div>
+              </div>
+
+              {step1OtpSent && (
+                <div className="animate-in fade-in space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-700 block">
+                    Nhập 6 số OTP (Mã mẫu: 190903)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="VD: 190903"
+                    value={step1Otp}
+                    onChange={(e) => setStep1Otp(e.target.value)}
+                    className="glass-input w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl"
+                  />
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={onSendOtp}
-                  className="py-2 px-3 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] font-bold rounded-xl whitespace-nowrap cursor-pointer"
+                  onClick={onClose}
+                  className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50"
                 >
-                  Gửi OTP
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={!step1OtpSent || !step1Otp.trim()}
+                  className={`btn-primary flex-1 py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer ${
+                    !step1OtpSent || !step1Otp.trim() ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <span>Tiếp Tục Bước 2</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* BƯỚC 2: KÍCH HOẠT THÔNG TIN MỚI */
+            <form onSubmit={handleConfirmStep2} className="space-y-3">
+              <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                  <span>Bước 2: Kích hoạt {isOpen === 'phone' ? 'Số điện thoại' : 'Gmail'} mới</span>
+                </div>
+                <p className="text-[11px] text-slate-600">
+                  Mỗi tài khoản chỉ duy trì duy nhất 1 Số điện thoại và 1 Gmail. Vui lòng nhập thông tin mới và xác thực mã kích hoạt.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                  {isOpen === 'phone' ? 'Số điện thoại mới' : 'Địa chỉ Gmail mới'}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type={isOpen === 'phone' ? 'tel' : 'email'}
+                    required
+                    placeholder={isOpen === 'phone' ? 'VD: 0987654321' : 'VD: hotro@gmail.com'}
+                    value={newValue}
+                    onChange={(e) => setNewValue(e.target.value)}
+                    className="glass-input flex-1 text-xs py-2 px-3 rounded-xl font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSendStep2}
+                    disabled={!newValue.trim() || step2Cooldown > 0}
+                    className={`py-2 px-3 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer ${
+                      !newValue.trim() || step2Cooldown > 0
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                    }`}
+                  >
+                    {step2Cooldown > 0 ? `Chờ (${step2Cooldown}s)` : 'Gửi mã'}
+                  </button>
+                </div>
+              </div>
+
+              {step2OtpSent && (
+                <div className="animate-in fade-in space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-700 block">
+                    Nhập 6 số OTP kích hoạt gửi tới {newValue}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="VD: 190903"
+                    value={step2Otp}
+                    onChange={(e) => setStep2Otp(e.target.value)}
+                    className="glass-input w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl"
+                  />
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="py-2 px-3 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50"
+                >
+                  Quay lại
+                </button>
+                <button
+                  type="submit"
+                  disabled={!step2OtpSent || !step2Otp.trim()}
+                  className={`btn-primary flex-1 py-2 text-xs font-bold rounded-xl cursor-pointer ${
+                    !step2OtpSent || !step2Otp.trim() ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  Hoàn Tất Cập Nhật
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 7. Right to Erasure & Data Portability (Nghị định 13/2023/NĐ-CP) Modal
+interface AccountErasureModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  customerAccountCode?: string;
+  customerTargetInfo: string;
+  onRequestOtp: () => string;
+  onConfirmErasure: (otp: string) => boolean;
+}
+
+export const AccountErasureModal: React.FC<AccountErasureModalProps> = ({
+  isOpen,
+  onClose,
+  customerAccountCode,
+  customerTargetInfo,
+  onRequestOtp,
+  onConfirmErasure
+}) => {
+  if (!isOpen) return null;
+
+  const [otp, setOtp] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [hasAgreedTerms, setHasAgreedTerms] = useState(false);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
+
+  const handleSendOtp = () => {
+    const generated = onRequestOtp();
+    if (generated) {
+      setIsOtpSent(true);
+      setCooldown(60);
+    }
+  };
+
+  const handleConfirm = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otp.trim() || !hasAgreedTerms) return;
+    const ok = onConfirmErasure(otp.trim());
+    if (ok) {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="glass-overlay z-[140]" onClick={onClose}>
+      <div className="glass-modal-content max-w-md w-full relative" onClick={(e) => e.stopPropagation()}>
+        <div className="glass-modal-header bg-rose-50/80 border-b border-rose-100">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-xl bg-rose-100 text-rose-700">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-slate-900">
+                Xóa / Ẩn Danh Hóa Dữ Liệu Cá Nhân
+              </h3>
+              <p className="text-[10px] text-rose-700 font-medium">
+                Tuân thủ Nghị định 13/2023/NĐ-CP về Bảo vệ Dữ liệu Cá nhân
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="glass-modal-body space-y-3.5">
+          <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-950 space-y-2">
+            <p className="font-bold flex items-center gap-1.5 text-amber-900">
+              <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0" />
+              <span>Quyền Rút Lại Sự Đồng Ý &amp; Xóa Dữ Liệu:</span>
+            </p>
+            <ul className="list-disc pl-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
+              <li>Toàn bộ <strong>Họ tên, SĐT, Email</strong> sẽ được ẩn danh hóa vĩnh viễn trên hệ thống.</li>
+              <li>Toàn bộ <strong>Điểm tích lũy</strong> và <strong>Voucher đặc quyền</strong> sẽ bị hủy bỏ ngay lập tức.</li>
+              <li>Lịch sử đơn hàng sẽ được lưu trữ dưới mã ẩn danh phục vụ nghĩa vụ lưu trữ chứng từ kế toán theo luật Thuế Việt Nam.</li>
+            </ul>
+          </div>
+
+          <form onSubmit={handleConfirm} className="space-y-3">
+            <label className="flex items-start gap-2 text-xs text-slate-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={hasAgreedTerms}
+                onChange={(e) => setHasAgreedTerms(e.target.checked)}
+                className="mt-0.5 rounded text-rose-600 focus:ring-rose-500 cursor-pointer"
+              />
+              <span className="text-[11px] leading-relaxed">
+                Tôi xác nhận yêu cầu xóa/ẩn danh hóa tài khoản <strong>{customerAccountCode}</strong> và đồng ý từ bỏ toàn bộ quyền lợi hội viên liên quan.
+              </span>
+            </label>
+
+            <div>
+              <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                Xác thực chính chủ ({customerTargetInfo}):
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleSendOtp}
+                  disabled={!hasAgreedTerms || cooldown > 0}
+                  className={`py-2 px-3 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer ${
+                    !hasAgreedTerms || cooldown > 0
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs'
+                  }`}
+                >
+                  {cooldown > 0 ? `Gửi lại sau (${cooldown}s)` : isOtpSent ? 'Gửi lại OTP' : 'Gửi mã OTP xác nhận'}
                 </button>
               </div>
             </div>
 
-            {isIdentityOtpSent && (
-              <div className="animate-in fade-in">
-                <label className="text-[11px] font-semibold text-slate-700 block mb-0.5">
-                  Mã xác thực OTP (Mã mẫu: 190903)
+            {isOtpSent && (
+              <div className="animate-in fade-in space-y-1">
+                <label className="text-[11px] font-semibold text-slate-700 block">
+                  Nhập 6 số OTP (Mã mẫu: 190903)
                 </label>
                 <input
                   type="text"
                   required
                   maxLength={6}
-                  placeholder="Nhập 6 số OTP"
-                  value={identityOtp}
-                  onChange={(e) => setIdentityOtp(e.target.value)}
+                  placeholder="VD: 190903"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
                   className="glass-input w-full text-center text-sm font-mono tracking-widest py-2 rounded-xl"
                 />
               </div>
@@ -781,16 +1144,16 @@ export const ChangeIdentityModal: React.FC<ChangeIdentityModalProps> = ({
                 onClick={onClose}
                 className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50"
               >
-                Hủy
+                Giữ Lại Tài Khoản
               </button>
               <button
                 type="submit"
-                disabled={!isIdentityOtpSent}
-                className={`btn-primary flex-1 py-2 text-xs font-bold rounded-xl cursor-pointer ${
-                  !isIdentityOtpSent ? 'opacity-50 cursor-not-allowed' : ''
+                disabled={!hasAgreedTerms || !isOtpSent || !otp.trim()}
+                className={`py-2 px-3 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-sm flex-1 cursor-pointer transition-all ${
+                  !hasAgreedTerms || !isOtpSent || !otp.trim() ? 'opacity-40 cursor-not-allowed' : ''
                 }`}
               >
-                Lưu Thay Đổi
+                Xác Nhận Xóa Vĩnh Viễn
               </button>
             </div>
           </form>
