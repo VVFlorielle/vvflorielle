@@ -371,9 +371,9 @@
   width: 100vw !important;
   min-height: 100vh !important;
   min-height: 100dvh !important;
-  background: rgba(255, 255, 255, 0.75) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  background: rgba(15, 23, 42, 0.55) !important;
+  backdrop-filter: blur(14px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   z-index: 100000 !important;
   display: flex !important;
   align-items: center !important;

@@ -2,5 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "vvflorielle",
   "compatibility_date": "2026-11-01",
-  "pages_build_output_dir": "./dist"
+  "pages_build_output_dir": "./dist",
+  "assets": {
+    "directory": "./dist"
+  }
 }

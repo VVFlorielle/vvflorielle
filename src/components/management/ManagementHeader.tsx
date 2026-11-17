@@ -102,7 +102,8 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
     markNotificationAsRead,
     clearAllNotifications,
     activeAdminUser,
-    settings
+    settings,
+    setActiveAdminTab
   } = useStore();
 
   const isOwner = role === 'owner';
@@ -132,6 +133,18 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
     }, 5000);
     return () => clearTimeout(timer);
   }, [isSearchOpen, searchQuery]);
+
+  const handleLogoClick = () => {
+    // Quay về trang đầu của trang quản trị / quản lý (dashboard overview)
+    if (onNavigateTab) {
+      onNavigateTab('dashboard');
+    }
+    if (setActiveAdminTab) {
+      setActiveAdminTab('dashboard');
+    }
+    window.location.hash = isOwner ? '#owner' : '#admin';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleReturnToStore = () => {
     setCurrentView('store');
@@ -629,9 +642,9 @@ export const ManagementHeader: React.FC<ManagementHeaderProps> = ({ role, onNavi
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-auto">
           <button
             type="button"
-            onClick={handleReturnToStore}
+            onClick={handleLogoClick}
             className="flex items-center justify-center cursor-pointer select-none group transition-transform hover:scale-105 active:scale-95 p-1"
-            title="V&V Florielle - Bấm để chuyển nhanh ra xem giao diện website"
+            title="V&V Florielle - Bấm để quay về trang đầu Quản trị"
           >
             <img
               src={settings?.logoHorizontalUrl || '/logo-vvflorielle-horizontal.webp'}
