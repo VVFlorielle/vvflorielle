@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Lock,
   KeyRound,
@@ -18,7 +19,10 @@ import {
   Timer,
   Download,
   Laptop,
-  Smartphone
+  Smartphone,
+  X,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { useStore } from '../../../context/StoreContext';
 import { ShopSettings } from '../../../types';
@@ -60,12 +64,37 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
 
   const [securityPinInput, setSecurityPinInput] = useState('');
   const [showPinInput, setShowPinInput] = useState(false);
+  const [pinErrorMsg, setPinErrorMsg] = useState('');
+  const pinInputRef = useRef<HTMLInputElement>(null);
+
+  useBodyScrollLock(!isSecurityUnlocked);
+
+  useEffect(() => {
+    if (!isSecurityUnlocked) {
+      setSecurityPinInput('');
+      setPinErrorMsg('');
+      const timer = setTimeout(() => {
+        pinInputRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isSecurityUnlocked]);
 
   const handleUnlockSecurity = (e: React.FormEvent) => {
     e.preventDefault();
-    const success = unlockSecurityWithPin(securityPinInput);
+    const pin = securityPinInput.trim();
+    if (!pin) {
+      setPinErrorMsg('Vui lòng nhập Mã Bảo Mật Cấp 2!');
+      pinInputRef.current?.focus();
+      return;
+    }
+    const success = unlockSecurityWithPin(pin);
     if (success) {
       setSecurityPinInput('');
+      setPinErrorMsg('');
+    } else {
+      setPinErrorMsg('Mã Bảo Mật Cấp 2 không chính xác! Vui lòng thử lại.');
+      pinInputRef.current?.select();
     }
   };
 
@@ -284,99 +313,98 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
         </div>
       </div>
 
-      {/* SECURITY GATE LOCK SCREEN WHEN NOT UNLOCKED */}
-      {!isSecurityUnlocked ? (
-        <div className="glass-panel p-6 sm:p-10 rounded-[32px] border-2 border-emerald-500/50 shadow-xl max-w-md mx-auto text-center space-y-5 animate-in zoom-in-95 duration-200 my-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
-            <Lock className="w-8 h-8" />
-          </div>
+      {/* POPUP NỔI XÁC THỰC MÃ BẢO MẬT CẤP 2 (MODAL POPUP OVERLAY) */}
+      {!isSecurityUnlocked && typeof document !== 'undefined' && createPortal(
+        <div className="glass-overlay z-[100000]" onClick={onBackToDashboard}>
+          <div
+            className="glass-modal-content max-w-sm sm:max-w-md w-full mx-4 rounded-[28px] sm:rounded-[32px] border border-white/80 bg-white/95 shadow-2xl p-6 sm:p-8 text-center animate-in fade-in zoom-in-95 duration-200 relative select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={onBackToDashboard}
+              className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Đóng popup và quay lại Dashboard"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-          <div className="space-y-1.5">
-            <span className="inline-block text-[10px] font-black uppercase tracking-wider text-emerald-900 bg-emerald-100 border border-emerald-300 px-3 py-0.5 rounded-full">
-              Khu Vực An Ninh Cấp 2
-            </span>
-            <h3 className="text-lg font-black text-slate-900 tracking-tight">
-              Xác Thực Mã Bảo Mật Cấp 2
-            </h3>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
-              Vui lòng nhập Mã Bảo Mật Cấp 2 để mở khóa quyền cấu hình Mật khẩu, Tài khoản ngân hàng VietQR &amp; Gmail OTP.
-            </p>
-          </div>
-
-          <form onSubmit={handleUnlockSecurity} className="space-y-4">
-            <div className="relative">
-              <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type={showPinInput ? 'text' : 'password'}
-                value={securityPinInput}
-                onChange={(e) => setSecurityPinInput(e.target.value)}
-                placeholder="Nhập mã cấp 2 (Mặc định: 1909203)"
-                className="w-full pl-10 pr-12 py-2.5 rounded-xl bg-white border border-slate-300 text-center font-mono font-bold tracking-widest text-slate-900 text-sm focus:border-emerald-500 focus:outline-none shadow-xs"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={() => setShowPinInput(!showPinInput)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
-              >
-                {showPinInput ? 'Ẩn' : 'Hiện'}
-              </button>
+            {/* Shield Icon */}
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/25 mb-4">
+              <Lock className="w-7 h-7" />
             </div>
 
-            {/* Quick Numpad for Touch & Mobile */}
-            <div className="grid grid-cols-3 gap-2 max-w-[240px] mx-auto pt-1">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+            {/* Header Tag & Title */}
+            <div className="space-y-1.5 mb-5">
+              <span className="inline-block text-[10px] font-black uppercase tracking-wider text-emerald-900 bg-emerald-100 border border-emerald-300 px-3 py-0.5 rounded-full">
+                Khu Vực An Ninh Cấp 2
+              </span>
+              <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                Xác Thực Mã Bảo Mật Cấp 2
+              </h3>
+              <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+                Vui lòng nhập Mã Bảo Mật Cấp 2 trên bàn phím để truy cập cấu hình Mật khẩu, Tài khoản VietQR &amp; Gmail OTP.
+              </p>
+            </div>
+
+            {/* Clean Keyboard Input Form - NO ON-SCREEN NUMPAD */}
+            <form onSubmit={handleUnlockSecurity} className="space-y-4">
+              <div className="space-y-1.5 text-left">
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  <input
+                    ref={pinInputRef}
+                    type={showPinInput ? 'text' : 'password'}
+                    value={securityPinInput}
+                    onChange={(e) => {
+                      setSecurityPinInput(e.target.value);
+                      if (pinErrorMsg) setPinErrorMsg('');
+                    }}
+                    placeholder="Nhập mã cấp 2 (Mặc định: 1909203)"
+                    className="w-full !pl-10 !pr-14 py-3 rounded-2xl bg-slate-50 border border-slate-300 text-center font-mono font-black tracking-widest text-slate-900 text-base focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPinInput(!showPinInput)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 hover:text-emerald-700 cursor-pointer p-1 rounded"
+                    title={showPinInput ? 'Ẩn mã PIN' : 'Hiện mã PIN'}
+                  >
+                    {showPinInput ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+
+                {pinErrorMsg && (
+                  <p className="text-xs text-rose-600 font-bold text-center animate-in fade-in">
+                    {pinErrorMsg}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2.5 pt-2">
                 <button
-                  key={n}
                   type="button"
-                  onClick={() => setSecurityPinInput((prev) => prev + n.toString())}
-                  className="py-2.5 rounded-xl bg-slate-100 hover:bg-emerald-50 active:bg-emerald-100 font-bold text-sm text-slate-800 border border-slate-200/80 transition-colors shadow-2xs cursor-pointer"
+                  onClick={onBackToDashboard}
+                  className="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
                 >
-                  {n}
+                  Hủy Bỏ
                 </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setSecurityPinInput('')}
-                className="py-2.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-rose-600 font-bold text-xs border border-slate-200/80 cursor-pointer"
-              >
-                Xóa
-              </button>
-              <button
-                type="button"
-                onClick={() => setSecurityPinInput((prev) => prev + '0')}
-                className="py-2.5 rounded-xl bg-slate-100 hover:bg-emerald-50 font-bold text-sm text-slate-800 border border-slate-200/80 cursor-pointer"
-              >
-                0
-              </button>
-              <button
-                type="button"
-                onClick={() => setSecurityPinInput((prev) => prev.slice(0, -1))}
-                className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-xs text-slate-700 border border-slate-200/80 cursor-pointer"
-              >
-                ←
-              </button>
-            </div>
+                <button
+                  type="submit"
+                  className="w-1/2 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs shadow-md hover:shadow-lg transition-all cursor-pointer"
+                >
+                  Mở Khóa
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
 
-            <div className="flex items-center gap-2 pt-2">
-              <button
-                type="button"
-                onClick={onBackToDashboard}
-                className="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-              >
-                Quay Lại
-              </button>
-              <button
-                type="submit"
-                className="w-1/2 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs shadow-md transition-all cursor-pointer"
-              >
-                Mở Khóa
-              </button>
-            </div>
-          </form>
-        </div>
-      ) : (
-        <>
+      {/* SUBPAGE CONTENT (Blurred/Protected when locked, Full interactive when unlocked) */}
+      <div className={`space-y-6 transition-all duration-300 ${!isSecurityUnlocked ? 'filter blur-md pointer-events-none select-none opacity-40' : ''}`}>
 
       {/* CARD 1: CẤU HÌNH TÀI KHOẢN NGÂN HÀNG & MÃ VIETQR */}
       <form onSubmit={handleSaveBankConfig} className="glass-panel p-5 sm:p-6 space-y-5 rounded-[28px] border-2 border-emerald-400/50 shadow-lg">
@@ -1040,8 +1068,7 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
           )}
         </div>
       </div>
-        </>
-      )}
+      </div>
     </div>
   );
 };
