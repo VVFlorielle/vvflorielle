@@ -106,15 +106,21 @@ export const applyTheme = (config: ThemeConfig) => {
   const glow = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.28)`;
   const subtle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.04)`;
 
-  // Calculate vibrant, luminous primary colors (tươi sáng, rạng rỡ, đậm đà nhưng phát sáng, không bị tối tăm đục ngầu)
+  // Tinh chỉnh gam màu ngọc lục bảo (Emerald Jewel Tone) theo chuẩn nút "Tất cả" ở bộ lọc khoảng giá (Ảnh 3):
+  // Đậm đà, tươi sáng vừa phải, nổi bật chữ trắng tinh tế, TUYỆT ĐỐI KHÔNG CHÓI / KHÔNG NEON.
   const hsl = hexToHsl(primary);
-  const vibrantSat = Math.max(hsl.s, 86);
-  // Keep lightness in radiant vibrant range 47% - 53%
-  const vibrantLight = Math.min(54, Math.max(47, hsl.l));
-  const vibrantSolid = hslToHex(hsl.h, vibrantSat, vibrantLight);
-  const vibrantBright = hslToHex(hsl.h, Math.min(100, vibrantSat + 6), Math.min(63, vibrantLight + 10));
-  const vibrantRgb = hexToRgb(vibrantSolid) || rgb;
-  const vibrantGlow = `rgba(${vibrantRgb.r}, ${vibrantRgb.g}, ${vibrantRgb.b}, 0.35)`;
+  // Giới hạn độ bão hòa (Saturation) tối đa 80% để loại bỏ hoàn toàn ánh neon chói gắt
+  const jewelSat = Math.min(hsl.s, 80);
+  // Chân màu đậm đà (31-34% lightness) như #059669
+  const jewelBaseLight = Math.max(30, Math.min(34, hsl.l));
+  // Đầu màu sáng hơn chút (40-43% lightness) như #10b981
+  const jewelBrightLight = Math.min(43, jewelBaseLight + 8);
+
+  const jewelSolid = hslToHex(hsl.h, jewelSat, jewelBaseLight);       // Đậm đà nền (#059669)
+  const jewelBright = hslToHex(hsl.h, jewelSat, jewelBrightLight);    // Sáng hơn một chút (#10b981)
+  const jewelDeep = adjustBrightness(jewelSolid, -12);               // Hover sâu hơn (#047857)
+  const jewelRgb = hexToRgb(jewelSolid) || rgb;
+  const jewelGlow = `rgba(${jewelRgb.r}, ${jewelRgb.g}, ${jewelRgb.b}, 0.28)`;
 
   // 1. Ensure Google Font is loaded dynamically
   if (GOOGLE_FONTS_MAP[font]) {
@@ -169,15 +175,15 @@ export const applyTheme = (config: ThemeConfig) => {
 
     /* Primary CTA Buttons across storefront & admin */
     .btn-primary {
-      background: linear-gradient(135deg, ${vibrantBright} 0%, ${vibrantSolid} 100%) !important;
+      background: linear-gradient(135deg, ${jewelBright} 0%, ${jewelSolid} 100%) !important;
       color: #ffffff !important;
-      box-shadow: 0 6px 18px ${vibrantGlow} !important;
-      border: 1px solid rgba(255, 255, 255, 0.4) !important;
+      box-shadow: 0 4px 14px ${jewelGlow}, inset 0 1px 1px 0 rgba(255, 255, 255, 0.4) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
     }
 
     .btn-primary:hover {
-      background: linear-gradient(135deg, ${vibrantSolid} 0%, ${vibrantBright} 100%) !important;
-      box-shadow: 0 10px 24px ${vibrantGlow} !important;
+      background: linear-gradient(135deg, ${jewelSolid} 0%, ${jewelDeep} 100%) !important;
+      box-shadow: 0 6px 18px ${jewelGlow} !important;
     }
 
     /* Product Card Action Buttons (Ảnh 1 & 2) */
@@ -198,28 +204,28 @@ export const applyTheme = (config: ThemeConfig) => {
     }
 
     .btn-buy-now {
-      background: linear-gradient(135deg, ${vibrantBright} 0%, ${vibrantSolid} 100%) !important;
+      background: linear-gradient(135deg, ${jewelBright} 0%, ${jewelSolid} 100%) !important;
       color: #ffffff !important;
-      box-shadow: 0 4px 14px ${vibrantGlow} !important;
+      box-shadow: 0 4px 12px ${jewelGlow}, inset 0 1px 1px 0 rgba(255, 255, 255, 0.4) !important;
       border: 1px solid rgba(255, 255, 255, 0.3) !important;
       transition: all 0.2s ease !important;
     }
     .btn-buy-now:hover {
-      background: linear-gradient(135deg, ${vibrantSolid} 0%, ${vibrantBright} 100%) !important;
-      box-shadow: 0 6px 18px ${vibrantGlow} !important;
+      background: linear-gradient(135deg, ${jewelSolid} 0%, ${jewelDeep} 100%) !important;
+      box-shadow: 0 6px 16px ${jewelGlow} !important;
     }
 
-    /* Large "Xem thêm tất cả 54 mẫu hoa" Button (Ảnh 2) */
+    /* Large "Xem thêm tất cả 54 mẫu hoa" Button (Ảnh 1 & 2) */
     .btn-view-all-flowers {
-      background: linear-gradient(135deg, ${vibrantBright} 0%, ${vibrantSolid} 100%) !important;
+      background: linear-gradient(135deg, ${jewelBright} 0%, ${jewelSolid} 100%) !important;
       color: #ffffff !important;
-      box-shadow: 0 6px 20px ${vibrantGlow} !important;
+      box-shadow: 0 6px 18px ${jewelGlow}, inset 0 1px 1px 0 rgba(255, 255, 255, 0.4) !important;
       border: 1px solid rgba(255, 255, 255, 0.35) !important;
       transition: all 0.2s ease !important;
     }
     .btn-view-all-flowers:hover {
-      background: linear-gradient(135deg, ${vibrantSolid} 0%, ${vibrantBright} 100%) !important;
-      box-shadow: 0 10px 28px ${vibrantGlow} !important;
+      background: linear-gradient(135deg, ${jewelSolid} 0%, ${jewelDeep} 100%) !important;
+      box-shadow: 0 8px 24px ${jewelGlow} !important;
     }
 
     /* Management Action Buttons on Cards (Ảnh 4: "Mở popup", "Truy cập", "Phát sóng", "Mở Quản Lý") */
@@ -294,12 +300,12 @@ export const applyTheme = (config: ThemeConfig) => {
       color: #ffffff !important;
     }
 
-    /* Active Category Filter Pill (Tươi sáng, rực rỡ, phát sáng nhẹ - Ảnh 2) */
+    /* Active Category Filter Pill (Chuẩn màu ngọc lục bảo sang trọng theo nút Tất Cả khoảng giá - Ảnh 3) */
     .active-category-pill {
-      background: linear-gradient(135deg, ${vibrantBright} 0%, ${vibrantSolid} 100%) !important;
+      background: linear-gradient(135deg, ${jewelBright} 0%, ${jewelSolid} 100%) !important;
       color: #ffffff !important;
       border: 1px solid rgba(255, 255, 255, 0.45) !important;
-      box-shadow: 0 4px 14px ${vibrantGlow} !important;
+      box-shadow: 0 4px 14px ${jewelGlow}, inset 0 1px 1px 0 rgba(255, 255, 255, 0.45) !important;
       font-weight: 800 !important;
     }
     .active-category-pill svg {
