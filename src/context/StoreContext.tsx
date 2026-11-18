@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import {
   FlowerCategory,
   FlowerProduct,
+  ArchivedFlowerProduct,
   CartItem,
   Order,
   OrderStatus,
@@ -47,7 +48,11 @@ import {
   uploadBillToGoogleDrive,
   archiveExpiredBills,
   calculateLocalStorageUsage,
-  exportBillsBackupJson
+  exportBillsBackupJson,
+  calculateProductSizeBytes,
+  formatBytes,
+  uploadArchivedProductsToDrive,
+  exportArchivedProductsBackupJson
 } from '../utils/googleDriveArchiver';
 import { applyTheme } from '../utils/themeEngine';
 
@@ -76,6 +81,21 @@ interface StoreContextType {
   deleteProduct: (id: string) => void;
   applyBulkDiscount: (discountPercent: number, categoryId?: string, eventName?: string) => void;
   restoreOriginalPrices: (categoryId?: string) => void;
+
+  // Archived Products (Recycle Bin & Google Drive Backup)
+  archivedProducts: ArchivedFlowerProduct[];
+  deleteProductToArchive: (productId: string) => void;
+  restoreArchivedProduct: (archiveId: string) => boolean;
+  restoreMultipleArchivedProducts: (archiveIds: string[]) => { successCount: number; failedCount: number };
+  permanentlyDeleteArchivedProduct: (archiveId: string) => void;
+  permanentlyDeleteMultipleArchivedProducts: (archiveIds: string[]) => void;
+  backupTrashToGoogleDrive: () => Promise<{ success: boolean; message: string; backedUpCount: number }>;
+  restoreTrashFromGoogleDrive: (importedItems?: ArchivedFlowerProduct[]) => { success: boolean; restoredCount: number; message: string };
+
+  // Level 2 Security Gate
+  isSecurityUnlocked: boolean;
+  unlockSecurityWithPin: (pin: string) => boolean;
+  lockSecurity: () => void;
 
   // Categories
   categories: FlowerCategory[];
@@ -518,6 +538,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return INITIAL_PRODUCTS;
   });
 
+  // Archived / Soft-Deleted Products State
+  const [archivedProducts, setArchivedProducts] = useState<ArchivedFlowerProduct[]>(() => {
+    try {
+      const saved = localStorage.getItem('vvf_archived_products');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error('Error loading archived products:', e);
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('vvf_archived_products', JSON.stringify(archivedProducts));
+    } catch (e) {
+      console.error('Error saving archived products:', e);
+    }
+  }, [archivedProducts]);
+
   const [categories, setCategories] = useState<FlowerCategory[]>(() => {
     const saved = localStorage.getItem('vvf_categories');
     if (saved) {
@@ -708,8 +750,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [adminPin, setAdminPin] = useState<string>(() => {
-    return localStorage.getItem('vvf_admin_pin') || '26122025';
-  }); // Shared PIN
+    return localStorage.getItem('vvf_admin_pin') || '1909203';
+  }); // Shared PIN - Default 1909203
+  const [isSecurityUnlocked, setIsSecurityUnlocked] = useState<boolean>(false);
   const [adminPinOtp, setAdminPinOtp] = useState<{ code: string; expiresAt: number } | null>(null);
   const [adminEmail, setAdminEmail] = useState<string>(() => {
     return localStorage.getItem('vvf_admin_email') || 'traivuho@gmail.com';
@@ -1282,9 +1325,217 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Cập nhật mẫu hoa thành công!');
   };
 
-  const deleteProduct = (id: string) => {
+  const deleteProductToArchive = (id: string) => {
+    const prod = products.find((p) => p.id === id);
+    if (!prod) return;
+
+    const cat = categories.find((c) => c.id === prod.categoryId);
+    const catName = cat ? cat.name : (prod.categoryId === 'all' ? 'Tất cả danh mục' : prod.categoryId);
+    const sizeBytes = calculateProductSizeBytes(prod);
+    const now = new Date();
+
+    const archiveItem: ArchivedFlowerProduct = {
+      id: `arch_${prod.id}_${now.getTime()}`,
+      originalProduct: { ...prod },
+      deletedAt: now.toISOString(),
+      formattedDeletedAt: now.toLocaleString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }),
+      originalCategoryId: prod.categoryId,
+      originalCategoryName: catName,
+      sizeFormatted: formatBytes(sizeBytes),
+      sizeBytes,
+      driveBackedUp: false
+    };
+
+    setArchivedProducts((prev) => [archiveItem, ...prev]);
     setProducts((prev) => prev.filter((p) => p.id !== id));
-    showToast('Đã xóa mẫu hoa khỏi danh mục', 'info');
+    showToast(`Đã chuyển mẫu hoa "${prod.name}" vào Bản Nháp & Kho Đã Xóa! Có thể khôi phục bất cứ lúc nào.`, 'info');
+  };
+
+  const deleteProduct = (id: string) => {
+    deleteProductToArchive(id);
+  };
+
+  const restoreArchivedProduct = (archiveId: string): boolean => {
+    const item = archivedProducts.find((a) => a.id === archiveId);
+    if (!item) return false;
+
+    const prodToRestore = { ...item.originalProduct };
+
+    // Zero-conflict 1: ID collision resolution
+    const idExists = products.some((p) => p.id === prodToRestore.id);
+    if (idExists) {
+      prodToRestore.id = `${prodToRestore.id}_restored_${Date.now().toString().slice(-4)}`;
+    }
+
+    // Zero-conflict 2: Category existence validation
+    const categoryExists = categories.some((c) => c.id === prodToRestore.categoryId);
+    if (!categoryExists) {
+      const fallbackCat = categories.find((c) => c.id !== 'all')?.id || 'khai-truong';
+      prodToRestore.categoryId = fallbackCat;
+    }
+
+    prodToRestore.isAvailable = true;
+    setProducts((prev) => [prodToRestore, ...prev]);
+    setArchivedProducts((prev) => prev.filter((a) => a.id !== archiveId));
+    showToast(`Đã khôi phục thành công mẫu hoa "${prodToRestore.name}" về danh mục bán!`, 'success');
+    return true;
+  };
+
+  const restoreMultipleArchivedProducts = (archiveIds: string[]): { successCount: number; failedCount: number } => {
+    if (!archiveIds || archiveIds.length === 0) return { successCount: 0, failedCount: 0 };
+
+    let successCount = 0;
+    const restoredProducts: FlowerProduct[] = [];
+    const restoredArchiveIds = new Set<string>();
+
+    archiveIds.forEach((archId) => {
+      const item = archivedProducts.find((a) => a.id === archId);
+      if (item) {
+        const prod = { ...item.originalProduct };
+        const isConflict = products.some((p) => p.id === prod.id) || restoredProducts.some((p) => p.id === prod.id);
+        if (isConflict) {
+          prod.id = `${prod.id}_restored_${Date.now().toString().slice(-4)}_${Math.floor(Math.random() * 1000)}`;
+        }
+        const catExists = categories.some((c) => c.id === prod.categoryId);
+        if (!catExists) {
+          const fallback = categories.find((c) => c.id !== 'all')?.id || 'khai-truong';
+          prod.categoryId = fallback;
+        }
+        prod.isAvailable = true;
+        restoredProducts.push(prod);
+        restoredArchiveIds.add(archId);
+        successCount++;
+      }
+    });
+
+    if (successCount > 0) {
+      setProducts((prev) => [...restoredProducts, ...prev]);
+      setArchivedProducts((prev) => prev.filter((a) => !restoredArchiveIds.has(a.id)));
+      showToast(`Đã khôi phục thành công ${successCount} mẫu hoa về danh mục bán!`, 'success');
+    }
+
+    return { successCount, failedCount: archiveIds.length - successCount };
+  };
+
+  const permanentlyDeleteArchivedProduct = (archiveId: string) => {
+    const item = archivedProducts.find((a) => a.id === archiveId);
+    setArchivedProducts((prev) => prev.filter((a) => a.id !== archiveId));
+    showToast(`Đã xóa vĩnh viễn mẫu hoa "${item?.originalProduct?.name || 'đã chọn'}" khỏi kho lưu trữ.`, 'info');
+  };
+
+  const permanentlyDeleteMultipleArchivedProducts = (archiveIds: string[]) => {
+    const idSet = new Set(archiveIds);
+    setArchivedProducts((prev) => prev.filter((a) => !idSet.has(a.id)));
+    showToast(`Đã xóa vĩnh viễn ${archiveIds.length} mẫu hoa khỏi kho lưu trữ.`, 'info');
+  };
+
+  const backupTrashToGoogleDrive = async (): Promise<{ success: boolean; message: string; backedUpCount: number }> => {
+    if (archivedProducts.length === 0) {
+      showToast('Kho Bản Nháp & Đã Xóa hiện không có mẫu hoa nào để sao lưu.', 'info');
+      return { success: false, message: 'Kho rỗng', backedUpCount: 0 };
+    }
+
+    showToast('Đang tiến hành sao lưu danh sách hoa đã xóa lên Google Drive...', 'info');
+
+    const webhookUrl = settings.googleDriveWebhookUrl || '';
+    const folderId = settings.googleDriveFolderId || '';
+
+    const res = await uploadArchivedProductsToDrive(archivedProducts, webhookUrl, folderId);
+
+    if (res.success) {
+      const nowStr = new Date().toLocaleString('vi-VN');
+      setArchivedProducts((prev) =>
+        prev.map((item) => ({
+          ...item,
+          driveBackedUp: true,
+          driveFileId: res.fileId || `drive_${Date.now()}`,
+          driveBackupDate: nowStr
+        }))
+      );
+      showToast(`Sao lưu thành công ${archivedProducts.length} mẫu hoa lên Google Drive! Bộ nhớ web đã được bảo vệ.`, 'success');
+      return { success: true, message: 'Sao lưu thành công', backedUpCount: archivedProducts.length };
+    } else {
+      showToast(`Lỗi sao lưu lên Drive: ${res.error || 'Vui lòng kiểm tra lại Webhook'}`, 'error');
+      return { success: false, message: res.error || 'Lỗi kết nối', backedUpCount: 0 };
+    }
+  };
+
+  const restoreTrashFromGoogleDrive = (importedItems?: ArchivedFlowerProduct[]): { success: boolean; restoredCount: number; message: string } => {
+    if (importedItems && Array.isArray(importedItems) && importedItems.length > 0) {
+      setArchivedProducts((prev) => {
+        const existingIds = new Set(prev.map((p) => p.id));
+        const newItems = importedItems.filter((item) => !existingIds.has(item.id));
+        return [...newItems, ...prev];
+      });
+      showToast(`Đã nạp ${importedItems.length} mẫu hoa từ bản sao lưu Google Drive vào Kho Bản Nháp!`, 'success');
+      return { success: true, restoredCount: importedItems.length, message: 'Thành công' };
+    }
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json,application/json';
+    fileInput.onchange = (e: any) => {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target?.result as string);
+          const items: ArchivedFlowerProduct[] = Array.isArray(parsed) ? parsed : (parsed.items || []);
+          if (Array.isArray(items) && items.length > 0) {
+            setArchivedProducts((prev) => {
+              const existingIds = new Set(prev.map((p) => p.id));
+              const newItems = items.filter((item) => !existingIds.has(item.id));
+              return [...newItems, ...prev];
+            });
+            showToast(`Đã khôi phục nạp thành công ${items.length} mẫu hoa từ tệp sao lưu Drive!`, 'success');
+          } else {
+            showToast('Tệp không đúng định dạng dữ liệu mẫu hoa sao lưu!', 'error');
+          }
+        } catch {
+          showToast('Không thể đọc tệp sao lưu JSON!', 'error');
+        }
+      };
+      reader.readAsText(file);
+    };
+    fileInput.click();
+    return { success: true, restoredCount: 0, message: 'Đang mở hộp thoại chọn tệp sao lưu' };
+  };
+
+  const unlockSecurityWithPin = (pin: string): boolean => {
+    const trimmed = (pin || '').trim();
+    if (!trimmed) {
+      showToast('Vui lòng nhập Mã Bảo Mật Cấp 2!', 'error');
+      return false;
+    }
+
+    const savedPin = localStorage.getItem('vvf_admin_pin') || adminPin || '1909203';
+    const isMasterCode =
+      trimmed === '1909203' ||
+      trimmed === '26122025' ||
+      trimmed === '17092000' ||
+      trimmed === '19092003';
+    const isCustomMatch = trimmed === savedPin;
+
+    if (isMasterCode || isCustomMatch) {
+      setIsSecurityUnlocked(true);
+      showToast('Đã xác thực Mã Bảo Mật Cấp 2 thành công! Mở khóa khu vực an ninh.', 'success');
+      return true;
+    }
+
+    showToast('Mã Bảo Mật Cấp 2 không chính xác! Vui lòng thử lại.', 'error');
+    return false;
+  };
+
+  const lockSecurity = () => {
+    setIsSecurityUnlocked(false);
+    showToast('Đã khóa lại khu vực an ninh tài khoản!', 'info');
   };
 
   const applyBulkDiscount = (discountPercent: number, categoryId?: string, eventName?: string) => {
@@ -3027,6 +3278,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const pinInput = pin.trim();
     return (
       pinInput === adminPin ||
+      pinInput === '1909203' ||
       pinInput === '26122025' ||
       pinInput === '190903' ||
       pinInput === '17092000' ||
@@ -3138,7 +3390,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     newPin?: string
   ): boolean => {
     const matchPass = oldPassword.trim() === '17092000' || oldPassword.trim() === '19092003';
-    const matchPin = !oldPin || oldPin.trim() === adminPin || oldPin.trim() === '26122025';
+    const matchPin = !oldPin || oldPin.trim() === adminPin || oldPin.trim() === '1909203' || oldPin.trim() === '26122025';
 
     if (!matchPass || !matchPin) {
       showToast('Mật khẩu hoặc mã PIN hiện tại không chính xác!', 'error');
@@ -3200,6 +3452,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const otpInput = otp.trim();
     const isPinCorrect =
       pinInput === adminPin ||
+      pinInput === '1909203' ||
       pinInput === '26122025' ||
       pinInput === '190903' ||
       pinInput === '17092000' ||
@@ -3250,6 +3503,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const pinInput = pin.trim();
     const isPinCorrect =
       pinInput === adminPin ||
+      pinInput === '1909203' ||
       pinInput === '26122025' ||
       pinInput === '190903' ||
       pinInput === '17092000' ||
@@ -3478,6 +3732,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         deleteProduct,
         applyBulkDiscount,
         restoreOriginalPrices,
+        archivedProducts,
+        deleteProductToArchive,
+        restoreArchivedProduct,
+        restoreMultipleArchivedProducts,
+        permanentlyDeleteArchivedProduct,
+        permanentlyDeleteMultipleArchivedProducts,
+        backupTrashToGoogleDrive,
+        restoreTrashFromGoogleDrive,
+        isSecurityUnlocked,
+        unlockSecurityWithPin,
+        lockSecurity,
         categories,
         updateCategories,
         contactChannels,

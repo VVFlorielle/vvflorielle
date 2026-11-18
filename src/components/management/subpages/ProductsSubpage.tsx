@@ -10,10 +10,29 @@ import {
   Flower2,
   AlertCircle,
   Tag as TagIcon,
-  Download
+  Download,
+  Cloud,
+  CloudUpload,
+  CloudDownload,
+  RotateCcw,
+  CheckSquare,
+  Square,
+  Calendar,
+  HardDrive,
+  CheckCircle2,
+  FolderArchive,
+  RefreshCw,
+  FileText,
+  Check,
+  ShieldCheck,
+  Clock,
+  Layers,
+  Archive
 } from 'lucide-react';
-import { FlowerProduct, FlowerCategory, CategoryId } from '../../../types';
+import { FlowerProduct, FlowerCategory, CategoryId, ArchivedFlowerProduct } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
+import { useStore } from '../../../context/StoreContext';
+import { formatBytes } from '../../../utils/googleDriveArchiver';
 
 interface ProductsSubpageProps {
   products: FlowerProduct[];
@@ -94,11 +113,39 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
   formatPrice,
   title = 'Quản Lý Danh Mục & Mẫu Hoa Tươi'
 }) => {
+  const {
+    archivedProducts,
+    deleteProductToArchive,
+    restoreArchivedProduct,
+    restoreMultipleArchivedProducts,
+    permanentlyDeleteArchivedProduct,
+    permanentlyDeleteMultipleArchivedProducts,
+    backupTrashToGoogleDrive,
+    restoreTrashFromGoogleDrive
+  } = useStore();
+
+  // Tab View: 'active' (Đang mở bán) or 'archive' (Bản Nháp & Kho Đã Xóa)
+  const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
+
+  // Active Catalog Filters & State
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [productToDelete, setProductToDelete] = useState<FlowerProduct | null>(null);
 
-  // Filter products by search and category
+  // Archive / Trash State
+  const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
+  const [archiveCategoryFilter, setArchiveCategoryFilter] = useState<string>('all');
+  const [archiveTimeFilter, setArchiveTimeFilter] = useState<'all' | '7days' | '30days' | '90days'>('all');
+  const [selectedArchiveIds, setSelectedArchiveIds] = useState<string[]>([]);
+  const [isBackingUpDrive, setIsBackingUpDrive] = useState(false);
+
+  // Action Modals for Trash
+  const [archiveToRestore, setArchiveToRestore] = useState<ArchivedFlowerProduct | null>(null);
+  const [archiveToHardDelete, setArchiveToHardDelete] = useState<ArchivedFlowerProduct | null>(null);
+  const [isBulkRestoreModalOpen, setIsBulkRestoreModalOpen] = useState(false);
+  const [isBulkHardDeleteModalOpen, setIsBulkHardDeleteModalOpen] = useState(false);
+
+  // Filter Active Products
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
       searchQuery.trim() === '' ||
@@ -111,6 +158,41 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
     return matchesSearch && matchesCategory;
   });
 
+  // Calculate Days for Archive Time Filter
+  const getDaysSince = (isoDateStr: string): number => {
+    if (!isoDateStr) return 0;
+    const d = new Date(isoDateStr).getTime();
+    if (isNaN(d)) return 0;
+    return Math.max(0, (Date.now() - d) / (1000 * 60 * 60 * 24));
+  };
+
+  // Filter Archived Products
+  const filteredArchived = archivedProducts.filter((item) => {
+    const p = item.originalProduct;
+    const matchesSearch =
+      archiveSearchQuery.trim() === '' ||
+      p.name.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
+      p.flowerTypes?.some((f) => f.toLowerCase().includes(archiveSearchQuery.toLowerCase())) ||
+      (p.description && p.description.toLowerCase().includes(archiveSearchQuery.toLowerCase()));
+
+    const matchesCategory =
+      archiveCategoryFilter === 'all' ||
+      item.originalCategoryId === archiveCategoryFilter ||
+      p.categoryId === archiveCategoryFilter;
+
+    let matchesTime = true;
+    const days = getDaysSince(item.deletedAt);
+    if (archiveTimeFilter === '7days') matchesTime = days <= 7;
+    else if (archiveTimeFilter === '30days') matchesTime = days <= 30;
+    else if (archiveTimeFilter === '90days') matchesTime = days <= 90;
+
+    return matchesSearch && matchesCategory && matchesTime;
+  });
+
+  // Total Trash Size
+  const totalTrashSizeBytes = archivedProducts.reduce((sum, i) => sum + (i.sizeBytes || 0), 0);
+
+  // Export Active Catalog CSV
   const handleExportCatalogCsv = () => {
     if (filteredProducts.length === 0) return;
     const headers = ['Mã Hoa', 'Tên Mẫu Hoa', 'Danh Mục', 'Giá Bán (VNĐ)', 'Giá Gốc (VNĐ)', 'Hoa Thành Phần', 'Huy Hiệu/Tag', 'Trạng Thái', 'Số Ảnh'];
@@ -138,6 +220,31 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  // Google Drive Backup trigger
+  const handleTriggerDriveBackup = async () => {
+    setIsBackingUpDrive(true);
+    try {
+      await backupTrashToGoogleDrive();
+    } finally {
+      setIsBackingUpDrive(false);
+    }
+  };
+
+  // Multi-Select Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedArchiveIds.length === filteredArchived.length && filteredArchived.length > 0) {
+      setSelectedArchiveIds([]);
+    } else {
+      setSelectedArchiveIds(filteredArchived.map((i) => i.id));
+    }
+  };
+
+  const handleToggleSelectItem = (id: string) => {
+    setSelectedArchiveIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
   const discountedCount = products.filter(
     (p) => p.originalPrice && p.originalPrice > p.price
   ).length;
@@ -154,252 +261,719 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
         </h2>
       </div>
 
-      {/* 2. Action Toolbar: Xuất CSV, Giảm giá & Thêm sản phẩm */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2">
-        <div className="text-xs text-slate-500 font-semibold">
-          Tổng cộng <span className="font-bold text-slate-800">{products.length}</span> mẫu hoa nghệ thuật
-        </div>
-        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-          {/* Export Catalog CSV */}
+      {/* 2. TAB SWITCHER: ĐANG MỞ BÁN vs BẢN NHÁP & KHO ĐÃ XÓA */}
+      <div className="flex items-center justify-between gap-2 border-b border-slate-200/80 pb-3 flex-wrap">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/70">
           <button
             type="button"
-            onClick={handleExportCatalogCsv}
-            disabled={filteredProducts.length === 0}
-            className={`btn-secondary text-xs py-1.5 sm:py-2 px-3 rounded-xl flex items-center gap-1.5 cursor-pointer text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs font-bold ${
-              filteredProducts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+            onClick={() => setActiveTab('active')}
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+              activeTab === 'active'
+                ? 'bg-white text-emerald-800 shadow-sm border border-emerald-200/80'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
-            title="Xuất bảng giá và danh mục mẫu hoa ra file CSV Excel"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="hidden sm:inline">Xuất Bảng Giá ({filteredProducts.length})</span>
-            <span className="sm:hidden">CSV</span>
+            <Flower2 className={`w-3.5 h-3.5 ${activeTab === 'active' ? 'text-emerald-600' : 'text-slate-400'}`} />
+            <span>Đang Mở Bán ({products.length})</span>
           </button>
 
-          {/* Bulk Event Discount Button */}
           <button
             type="button"
-            onClick={onOpenBulkDiscount}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 border border-rose-200/90 hover:border-rose-400 text-rose-800 hover:text-rose-900 font-bold text-xs shadow-2xs transition-all cursor-pointer hover:shadow-sm"
-            title="Thiết lập sự kiện giảm giá đồng loạt theo % cho toàn bộ kho hoa hoặc từng danh mục dịp lễ"
+            onClick={() => setActiveTab('archive')}
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer relative ${
+              activeTab === 'archive'
+                ? 'bg-white text-amber-900 shadow-sm border border-amber-300'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
           >
-            <Percent className="w-4 h-4 text-rose-600" />
-            <span className="hidden sm:inline">Sự Kiện Giảm Giá</span>
-            <span className="sm:hidden">Giảm Giá</span>
-          </button>
-
-          {/* Add New Product Button */}
-          <button
-            type="button"
-            onClick={onOpenAddProduct}
-            className="btn-primary text-xs py-1.5 sm:py-2 px-3 sm:px-4 rounded-xl flex items-center gap-1.5 shadow-md cursor-pointer font-bold"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Thêm Mẫu Hoa Mới</span>
-            <span className="sm:hidden">Thêm Hoa</span>
+            <Archive className={`w-3.5 h-3.5 ${activeTab === 'archive' ? 'text-amber-600' : 'text-slate-400'}`} />
+            <span>Bản Nháp &amp; Kho Đã Xóa</span>
+            {archivedProducts.length > 0 && (
+              <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${
+                activeTab === 'archive'
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-amber-100 text-amber-800 border border-amber-300'
+              }`}>
+                {archivedProducts.length}
+              </span>
+            )}
           </button>
         </div>
-      </div>
 
-      {/* 3. Control & Search Row */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/90 border border-slate-200/70">
-        {/* Search Input (Không bị icon kính lúp đè chữ) */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên mẫu hoa hoặc hoa thành phần..."
-            className="w-full !pl-10 !pr-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-medium focus:border-emerald-500 focus:outline-none"
-          />
-        </div>
-
-        {/* Category Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 text-xs">
-          <button
-            type="button"
-            onClick={() => setSelectedCategoryFilter('all')}
-            className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
-              selectedCategoryFilter === 'all'
-                ? 'bg-emerald-700 text-white shadow-xs'
-                : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
-            }`}
-          >
-            Tất Cả ({products.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedCategoryFilter('khai-truong')}
-            className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
-              selectedCategoryFilter === 'khai-truong'
-                ? 'bg-emerald-700 text-white shadow-xs'
-                : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
-            }`}
-          >
-            Khai Trương
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedCategoryFilter('sinh-nhat')}
-            className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
-              selectedCategoryFilter === 'sinh-nhat'
-                ? 'bg-emerald-700 text-white shadow-xs'
-                : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
-            }`}
-          >
-            Sinh Nhật
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedCategoryFilter('tinh-yeu')}
-            className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
-              selectedCategoryFilter === 'tinh-yeu'
-                ? 'bg-emerald-700 text-white shadow-xs'
-                : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
-            }`}
-          >
-            Tình Yêu
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedCategoryFilter('lan-ho-diep')}
-            className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
-              selectedCategoryFilter === 'lan-ho-diep'
-                ? 'bg-emerald-700 text-white shadow-xs'
-                : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
-            }`}
-          >
-            Lan Hồ Điệp
-          </button>
-        </div>
-      </div>
-
-      {/* Summary stats strip */}
-      <div className="flex items-center justify-between text-xs text-slate-500 px-1">
-        <div className="flex items-center gap-3">
-          <span>
-            Hiển thị <strong>{filteredProducts.length}</strong> / {products.length} mẫu hoa
-          </span>
-          {discountedCount > 0 && (
-            <span className="inline-flex items-center gap-1 text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200/70 text-[11px]">
-              <Sparkles className="w-3 h-3" />
-              {discountedCount} mẫu đang ưu đãi
-            </span>
-          )}
-        </div>
-        <span className="text-[11px] text-slate-400">Bố cục 4 mẫu 1 hàng chuẩn desktop</span>
-      </div>
-
-      {/* 3. STRICT 4-COLUMN GRID (1 col mobile, 2 col sm, 3 col md, 4 col lg/desktop) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {filteredProducts.map((product) => {
-          const discountPercent =
-            product.originalPrice && product.originalPrice > product.price
-              ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-              : undefined;
-
-          return (
-            <div
-              key={product.id}
-              className="p-3 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-300 shadow-2xs hover:shadow-md transition-all space-y-2.5 flex flex-col justify-between group"
+        {/* Tab-Specific Top Action Buttons */}
+        {activeTab === 'active' ? (
+          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+            {/* Export Catalog CSV */}
+            <button
+              type="button"
+              onClick={handleExportCatalogCsv}
+              disabled={filteredProducts.length === 0}
+              className={`btn-secondary text-xs py-1.5 sm:py-2 px-3 rounded-xl flex items-center gap-1.5 cursor-pointer text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs font-bold ${
+                filteredProducts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              title="Xuất bảng giá và danh mục mẫu hoa ra file CSV Excel"
             >
-              {/* Product Top: Thumbnail with safe error handling + badges */}
-              <div className="space-y-2">
-                <ProductThumbnail
-                  imageUrl={product.imageUrl}
-                  name={product.name}
-                  tag={product.tag}
-                  discountPercent={discountPercent}
-                  isAvailable={product.isAvailable}
-                />
+              <Download className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Xuất Bảng Giá ({filteredProducts.length})</span>
+              <span className="sm:hidden">CSV</span>
+            </button>
 
-                {/* Details */}
-                <div>
-                  <h4
-                    className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-1 group-hover:text-emerald-800 transition-colors"
-                    title={product.name}
-                  >
-                    {product.name}
-                  </h4>
+            {/* Bulk Event Discount Button */}
+            <button
+              type="button"
+              onClick={onOpenBulkDiscount}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 border border-rose-200/90 hover:border-rose-400 text-rose-800 hover:text-rose-900 font-bold text-xs shadow-2xs transition-all cursor-pointer hover:shadow-sm"
+              title="Thiết lập sự kiện giảm giá đồng loạt theo % cho toàn bộ kho hoa hoặc từng danh mục dịp lễ"
+            >
+              <Percent className="w-4 h-4 text-rose-600" />
+              <span className="hidden sm:inline">Sự Kiện Giảm Giá</span>
+              <span className="sm:hidden">Giảm Giá</span>
+            </button>
 
-                  {/* Price Row with Discount */}
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="font-black text-sm text-emerald-700">
-                      {formatPrice(product.price)}
-                    </span>
-                    {product.originalPrice && product.originalPrice > product.price && (
-                      <span className="text-[11px] text-slate-400 line-through">
-                        {formatPrice(product.originalPrice)}
-                      </span>
-                    )}
+            {/* Add New Product Button */}
+            <button
+              type="button"
+              onClick={onOpenAddProduct}
+              className="btn-primary text-xs py-1.5 sm:py-2 px-3 sm:px-4 rounded-xl flex items-center gap-1.5 shadow-md cursor-pointer font-bold"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Thêm Mẫu Hoa Mới</span>
+              <span className="sm:hidden">Thêm Hoa</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+            {/* Sync to Google Drive */}
+            <button
+              type="button"
+              onClick={handleTriggerDriveBackup}
+              disabled={isBackingUpDrive || archivedProducts.length === 0}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Đẩy toàn bộ dữ liệu mẫu hoa đã xóa và ảnh cũ sang Google Drive để giải phóng dung lượng web"
+            >
+              {isBackingUpDrive ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <CloudUpload className="w-3.5 h-3.5" />
+              )}
+              <span>Sao Lưu Lên Drive</span>
+            </button>
+
+            {/* Restore from Drive / JSON Backup */}
+            <button
+              type="button"
+              onClick={() => restoreTrashFromGoogleDrive()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-2xs transition-all cursor-pointer"
+              title="Tải lại danh sách hoa đã sao lưu từ Google Drive hoặc nạp tệp backup JSON nếu đổi thiết bị mới"
+            >
+              <CloudDownload className="w-3.5 h-3.5 text-blue-600" />
+              <span className="hidden sm:inline">Tải Lại Từ Drive / Tệp</span>
+              <span className="sm:hidden">Tải Lại</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* VIEW A: ĐANG MỞ BÁN (ACTIVE PRODUCTS CATALOG) */}
+      {/* ========================================================================= */}
+      {activeTab === 'active' && (
+        <div className="space-y-4 animate-in fade-in duration-150">
+          {/* Control & Search Row */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/90 border border-slate-200/70">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm theo tên mẫu hoa hoặc hoa thành phần..."
+                className="w-full !pl-10 !pr-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-medium focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Category Filter Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 text-xs">
+              <button
+                type="button"
+                onClick={() => setSelectedCategoryFilter('all')}
+                className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedCategoryFilter === 'all'
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
+                }`}
+              >
+                Tất Cả ({products.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedCategoryFilter('khai-truong')}
+                className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedCategoryFilter === 'khai-truong'
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
+                }`}
+              >
+                Khai Trương
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedCategoryFilter('sinh-nhat')}
+                className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedCategoryFilter === 'sinh-nhat'
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
+                }`}
+              >
+                Sinh Nhật
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedCategoryFilter('tinh-yeu')}
+                className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedCategoryFilter === 'tinh-yeu'
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
+                }`}
+              >
+                Tình Yêu
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedCategoryFilter('lan-ho-diep')}
+                className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedCategoryFilter === 'lan-ho-diep'
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200'
+                }`}
+              >
+                Lan Hồ Điệp
+              </button>
+            </div>
+          </div>
+
+          {/* Summary stats strip */}
+          <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+            <div className="flex items-center gap-3">
+              <span>
+                Hiển thị <strong>{filteredProducts.length}</strong> / {products.length} mẫu hoa
+              </span>
+              {discountedCount > 0 && (
+                <span className="inline-flex items-center gap-1 text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200/70 text-[11px]">
+                  <Sparkles className="w-3 h-3" />
+                  {discountedCount} mẫu đang ưu đãi
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] text-slate-400">Bố cục 4 mẫu 1 hàng chuẩn desktop</span>
+          </div>
+
+          {/* 4-COLUMN GRID */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredProducts.map((product) => {
+              const discountPercent =
+                product.originalPrice && product.originalPrice > product.price
+                  ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                  : undefined;
+
+              return (
+                <div
+                  key={product.id}
+                  className="p-3 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-300 shadow-2xs hover:shadow-md transition-all space-y-2.5 flex flex-col justify-between group"
+                >
+                  {/* Product Top: Thumbnail with safe error handling + badges */}
+                  <div className="space-y-2">
+                    <ProductThumbnail
+                      imageUrl={product.imageUrl}
+                      name={product.name}
+                      tag={product.tag}
+                      discountPercent={discountPercent}
+                      isAvailable={product.isAvailable}
+                    />
+
+                    {/* Details */}
+                    <div>
+                      <h4
+                        className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-1 group-hover:text-emerald-800 transition-colors"
+                        title={product.name}
+                      >
+                        {product.name}
+                      </h4>
+
+                      {/* Price Row with Discount */}
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className="font-black text-sm text-emerald-700">
+                          {formatPrice(product.price)}
+                        </span>
+                        {product.originalPrice && product.originalPrice > product.price && (
+                          <span className="text-[11px] text-slate-400 line-through">
+                            {formatPrice(product.originalPrice)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Description / Flowers */}
+                      <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                        {product.flowerTypes?.join(', ') || product.description}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Description / Flowers */}
-                  <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                    {product.flowerTypes?.join(', ') || product.description}
-                  </p>
+                  {/* Product Footer: Dịp label + Action Buttons: Sửa & Xóa */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1 text-xs">
+                    <span className="text-[10px] text-slate-400 font-medium truncate max-w-[80px]">
+                      Dịp: {product.categoryId}
+                    </span>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Sửa Button */}
+                      <button
+                        type="button"
+                        onClick={() => onOpenEditProduct(product)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200/80 hover:border-emerald-300 text-[11px] font-bold transition-all cursor-pointer"
+                        title={`Chỉnh sửa thông tin & giá mẫu hoa "${product.name}"`}
+                      >
+                        <Pencil className="w-3 h-3 text-emerald-600" />
+                        <span>Sửa</span>
+                      </button>
+
+                      {/* Xóa Button (Soft Delete into Trash) */}
+                      <button
+                        type="button"
+                        onClick={() => setProductToDelete(product)}
+                        className="inline-flex items-center gap-1 p-1 sm:px-2 sm:py-1 rounded-lg bg-slate-100 hover:bg-amber-50 text-slate-500 hover:text-amber-700 border border-slate-200/80 hover:border-amber-300 text-[11px] font-bold transition-all cursor-pointer"
+                        title={`Chuyển mẫu hoa "${product.name}" vào Kho Bản Nháp & Đã Xóa`}
+                      >
+                        <Trash2 className="w-3 h-3 text-amber-600" />
+                        <span className="hidden sm:inline">Xóa</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
 
-              {/* Product Footer: Dịp label + Action Buttons: Sửa & Xóa */}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1 text-xs">
-                <span className="text-[10px] text-slate-400 font-medium truncate max-w-[80px]">
-                  Dịp: {product.categoryId}
-                </span>
-
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {/* Sửa Button */}
-                  <button
-                    type="button"
-                    onClick={() => onOpenEditProduct(product)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200/80 hover:border-emerald-300 text-[11px] font-bold transition-all cursor-pointer"
-                    title={`Chỉnh sửa thông tin & giá mẫu hoa "${product.name}"`}
-                  >
-                    <Pencil className="w-3 h-3 text-emerald-600" />
-                    <span>Sửa</span>
-                  </button>
-
-                  {/* Xóa Button */}
-                  <button
-                    type="button"
-                    onClick={() => setProductToDelete(product)}
-                    className="inline-flex items-center gap-1 p-1 sm:px-2 sm:py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200/80 hover:border-rose-200 text-[11px] font-bold transition-all cursor-pointer"
-                    title={`Xóa mẫu hoa "${product.name}"`}
-                  >
-                    <Trash2 className="w-3 h-3 text-rose-500" />
-                    <span className="hidden sm:inline">Xóa</span>
-                  </button>
-                </div>
-              </div>
+          {/* Empty State */}
+          {filteredProducts.length === 0 && (
+            <div className="p-8 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center space-y-2">
+              <Flower2 className="w-8 h-8 text-slate-400 mx-auto" />
+              <p className="font-bold text-sm text-slate-700">Không tìm thấy mẫu hoa phù hợp</p>
+              <p className="text-xs text-slate-500">
+                Thử thay đổi từ khóa tìm kiếm hoặc bấm &quot;Thêm Mẫu Hoa Mới&quot; để tạo mẫu hoa thiết kế.
+              </p>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Empty State */}
-      {filteredProducts.length === 0 && (
-        <div className="p-8 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center space-y-2">
-          <Flower2 className="w-8 h-8 text-slate-400 mx-auto" />
-          <p className="font-bold text-sm text-slate-700">Không tìm thấy mẫu hoa phù hợp</p>
-          <p className="text-xs text-slate-500">
-            Thử thay đổi từ khóa tìm kiếm hoặc bấm &quot;Thêm Mẫu Hoa Mới&quot; để tạo mẫu hoa thiết kế.
-          </p>
+          )}
         </div>
       )}
 
-      {/* In-App Action Confirm Modal: No Browser Dialogs! */}
+      {/* ========================================================================= */}
+      {/* VIEW B: BẢN NHÁP & KHO LƯU TRỮ ĐÃ XÓA (RECYCLE BIN & DRIVE BACKUP) */}
+      {/* ========================================================================= */}
+      {activeTab === 'archive' && (
+        <div className="space-y-4 animate-in fade-in duration-150">
+          {/* Explanatory Banner */}
+          <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-50/90 via-sky-50/70 to-emerald-50/90 border border-amber-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <FolderArchive className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+                  <span>Kho Bản Nháp &amp; Lưu Trữ Phục Hồi Dữ Liệu</span>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                    Chống Xung Đột 100%
+                  </span>
+                </h4>
+                <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  Mẫu hoa đã xóa được lưu trữ an toàn tại đây. Bạn có thể khôi phục lại bất kỳ lúc nào kể cả sau 30 ngày hay 3 tháng.
+                  Bấm <strong>&quot;Sao Lưu Lên Drive&quot;</strong> để đẩy dữ liệu &amp; ảnh sang Google Drive giúp web luôn tải siêu nhanh!
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0 text-xs text-slate-600 bg-white/80 px-3 py-1.5 rounded-xl border border-slate-200/80">
+              <div className="flex items-center gap-1 font-semibold">
+                <HardDrive className="w-3.5 h-3.5 text-slate-500" />
+                <span>Kho: <strong className="text-slate-800">{archivedProducts.length}</strong> hoa</span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="font-semibold text-slate-500">
+                Dung lượng: <strong className="text-emerald-700">{formatBytes(totalTrashSizeBytes)}</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Search & Filter Row */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/90 border border-slate-200/70">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={archiveSearchQuery}
+                onChange={(e) => setArchiveSearchQuery(e.target.value)}
+                placeholder="Tìm hoa đã xóa theo tên hoặc thành phần..."
+                className="w-full !pl-10 !pr-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-medium focus:border-amber-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Filter by Category */}
+            <div className="flex items-center gap-2 flex-wrap text-xs">
+              <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500">
+                <Layers className="w-3.5 h-3.5 text-slate-400" />
+                <span>Danh mục:</span>
+              </div>
+              <select
+                value={archiveCategoryFilter}
+                onChange={(e) => setArchiveCategoryFilter(e.target.value)}
+                className="px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:border-amber-500 cursor-pointer"
+              >
+                <option value="all">Tất Cả Danh Mục ({archivedProducts.length})</option>
+                <option value="khai-truong">Hoa Khai Trương</option>
+                <option value="sinh-nhat">Hoa Sinh Nhật</option>
+                <option value="tinh-yeu">Hoa Tình Yêu</option>
+                <option value="lan-ho-diep">Lan Hồ Điệp</option>
+                <option value="chuc-mung">Hoa Chúc Mừng</option>
+                <option value="chia-buon">Hoa Chia Buồn</option>
+              </select>
+
+              {/* Filter by Time */}
+              <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 ml-1">
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                <span>Thời gian:</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setArchiveTimeFilter('all')}
+                  className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                    archiveTimeFilter === 'all'
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  Tất Cả
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setArchiveTimeFilter('7days')}
+                  className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                    archiveTimeFilter === '7days'
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  7 Ngày
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setArchiveTimeFilter('30days')}
+                  className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                    archiveTimeFilter === '30days'
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  30 Ngày
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setArchiveTimeFilter('90days')}
+                  className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                    archiveTimeFilter === '90days'
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  3 Tháng
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Bulk Action Strip (When items selected) */}
+          {selectedArchiveIds.length > 0 && (
+            <div className="p-2.5 sm:p-3 rounded-2xl bg-amber-500 text-white flex items-center justify-between gap-3 shadow-md animate-in slide-in-from-top-2 duration-150">
+              <div className="flex items-center gap-2 text-xs font-bold">
+                <CheckSquare className="w-4 h-4" />
+                <span>Đã chọn {selectedArchiveIds.length} / {filteredArchived.length} mẫu hoa</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsBulkRestoreModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-emerald-800 hover:bg-emerald-50 font-black text-xs shadow-xs transition-all cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Khôi Phục Đã Chọn ({selectedArchiveIds.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsBulkHardDeleteModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Xóa Hẳn ({selectedArchiveIds.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedArchiveIds([])}
+                  className="text-xs text-amber-100 hover:text-white underline cursor-pointer ml-1"
+                >
+                  Bỏ chọn
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TABLE / LIST OF ARCHIVED PRODUCTS */}
+          {filteredArchived.length > 0 ? (
+            <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-2xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold text-[11px]">
+                      <th className="py-2.5 px-3 w-10 text-center">
+                        <button
+                          type="button"
+                          onClick={handleToggleSelectAll}
+                          className="cursor-pointer inline-flex items-center justify-center text-slate-500 hover:text-amber-600"
+                          title="Chọn tất cả hoặc bỏ chọn"
+                        >
+                          {selectedArchiveIds.length === filteredArchived.length && filteredArchived.length > 0 ? (
+                            <CheckSquare className="w-4 h-4 text-amber-600" />
+                          ) : (
+                            <Square className="w-4 h-4" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="py-2.5 px-3 w-16">Hình Ảnh</th>
+                      <th className="py-2.5 px-3 min-w-[180px]">Tên &amp; Thành Phần Hoa</th>
+                      <th className="py-2.5 px-3 min-w-[120px]">Vị Trí Trước Khi Xóa</th>
+                      <th className="py-2.5 px-3 min-w-[100px]">Dung Lượng</th>
+                      <th className="py-2.5 px-3 min-w-[140px]">Ngày Xóa &amp; Drive</th>
+                      <th className="py-2.5 px-3 text-right min-w-[140px]">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredArchived.map((item) => {
+                      const isSelected = selectedArchiveIds.includes(item.id);
+                      const p = item.originalProduct;
+
+                      return (
+                        <tr
+                          key={item.id}
+                          className={`hover:bg-amber-50/40 transition-colors ${
+                            isSelected ? 'bg-amber-50/70' : ''
+                          }`}
+                        >
+                          {/* Checkbox */}
+                          <td className="py-2.5 px-3 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleSelectItem(item.id)}
+                              className="cursor-pointer inline-flex items-center justify-center text-slate-500 hover:text-amber-600"
+                            >
+                              {isSelected ? (
+                                <CheckSquare className="w-4 h-4 text-amber-600" />
+                              ) : (
+                                <Square className="w-4 h-4" />
+                              )}
+                            </button>
+                          </td>
+
+                          {/* Thumbnail */}
+                          <td className="py-2.5 px-3">
+                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative group/thumb shrink-0">
+                              {p.imageUrl ? (
+                                <img
+                                  src={p.imageUrl}
+                                  alt={p.name}
+                                  className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                  <Flower2 className="w-5 h-5" />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Name & Flower types */}
+                          <td className="py-2.5 px-3">
+                            <div className="font-bold text-slate-900 line-clamp-1">{p.name}</div>
+                            <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                              {p.flowerTypes?.join(', ') || p.description}
+                            </div>
+                            <div className="font-extrabold text-[11px] text-emerald-700 mt-0.5">
+                              {formatPrice(p.price)}
+                            </div>
+                          </td>
+
+                          {/* Original category */}
+                          <td className="py-2.5 px-3">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                              <Layers className="w-3 h-3 text-slate-400" />
+                              <span>{item.originalCategoryName || p.categoryId}</span>
+                            </span>
+                          </td>
+
+                          {/* Size */}
+                          <td className="py-2.5 px-3 text-[11px] font-semibold text-slate-600">
+                            <span>~{item.sizeFormatted}</span>
+                          </td>
+
+                          {/* Deleted Date & Drive status */}
+                          <td className="py-2.5 px-3 space-y-1">
+                            <div className="text-[11px] font-medium text-slate-600 flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-slate-400" />
+                              <span>{item.formattedDeletedAt}</span>
+                            </div>
+                            <div>
+                              {item.driveBackedUp ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                                  <Cloud className="w-2.5 h-2.5 text-sky-600" />
+                                  <span>Đã lưu trên Drive</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                  <HardDrive className="w-2.5 h-2.5 text-slate-400" />
+                                  <span>Lưu trên máy</span>
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Row Actions */}
+                          <td className="py-2.5 px-3 text-right">
+                            <div className="inline-flex items-center gap-1.5 justify-end">
+                              {/* Restore Row Button */}
+                              <button
+                                type="button"
+                                onClick={() => setArchiveToRestore(item)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                                title="Khôi phục mẫu hoa này về danh mục bán"
+                              >
+                                <RotateCcw className="w-3 h-3 text-emerald-600" />
+                                <span>Khôi Phục</span>
+                              </button>
+
+                              {/* Hard Delete Row Button */}
+                              <button
+                                type="button"
+                                onClick={() => setArchiveToHardDelete(item)}
+                                className="inline-flex items-center gap-1 p-1 sm:px-2 sm:py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                                title="Xóa vĩnh viễn mẫu hoa này khỏi kho lưu trữ"
+                              >
+                                <Trash2 className="w-3 h-3 text-rose-600" />
+                                <span className="hidden sm:inline">Xóa Hẳn</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <div className="p-8 sm:p-12 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center space-y-2.5">
+              <FolderArchive className="w-10 h-10 text-slate-400 mx-auto" />
+              <h4 className="font-bold text-sm text-slate-700">Kho Bản Nháp &amp; Đã Xóa Đang Trống</h4>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                Hiện không có mẫu hoa nào nằm trong kho lưu trữ đã xóa. Khi bạn xóa bất kỳ mẫu hoa nào ở danh mục bán, mẫu hoa đó sẽ được chuyển vào đây để bảo toàn an toàn.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODALS */}
+      {/* ========================================================================= */}
+
+      {/* 1. Modal Soft Delete Confirmation (Active -> Archive) */}
       <ActionConfirmModal
         isOpen={Boolean(productToDelete)}
         onClose={() => setProductToDelete(null)}
         onConfirm={() => {
           if (productToDelete) {
-            deleteProduct(productToDelete.id);
+            deleteProductToArchive(productToDelete.id);
             setProductToDelete(null);
           }
         }}
-        title="Xóa Mẫu Hoa Khỏi Kho"
-        message={`Bạn có chắc muốn xóa mẫu hoa "${productToDelete?.name}" khỏi kho? Mẫu hoa này sẽ không còn hiển thị trên website.`}
-        confirmText="Xóa Mẫu Hoa"
+        title="Chuyển Vào Bản Nháp & Kho Đã Xóa"
+        message={`Bạn có chắc muốn chuyển mẫu hoa "${productToDelete?.name}" vào Bản Nháp & Kho Lưu Trữ Đã Xóa? Mẫu hoa sẽ được lưu trữ an toàn và có thể khôi phục lại bất kỳ lúc nào mà không bị mất dữ liệu.`}
+        confirmText="Chuyển Vào Bản Nháp"
+        type="warning"
+      />
+
+      {/* 2. Modal Single Restore Confirmation */}
+      <ActionConfirmModal
+        isOpen={Boolean(archiveToRestore)}
+        onClose={() => setArchiveToRestore(null)}
+        onConfirm={() => {
+          if (archiveToRestore) {
+            restoreArchivedProduct(archiveToRestore.id);
+            setArchiveToRestore(null);
+          }
+        }}
+        title="Khôi Phục Mẫu Hoa Về Cửa Hàng"
+        message={`Bạn có chắc chắn muốn khôi phục mẫu hoa "${archiveToRestore?.originalProduct?.name}" về danh mục bán trên website không? Hệ thống sẽ tự động ghép nối vào danh mục tương ứng (${archiveToRestore?.originalCategoryName}) và đảm bảo dữ liệu vận hành hoàn hảo không bị xung đột.`}
+        confirmText="Đồng Ý Khôi Phục"
+        type="info"
+      />
+
+      {/* 3. Modal Bulk Restore Confirmation */}
+      <ActionConfirmModal
+        isOpen={isBulkRestoreModalOpen}
+        onClose={() => setIsBulkRestoreModalOpen(false)}
+        onConfirm={() => {
+          restoreMultipleArchivedProducts(selectedArchiveIds);
+          setSelectedArchiveIds([]);
+          setIsBulkRestoreModalOpen(false);
+        }}
+        title="Khôi Phục Hàng Loạt Mẫu Hoa Đã Chọn"
+        message={`Bạn có chắc chắn muốn khôi phục ${selectedArchiveIds.length} mẫu hoa đã chọn về danh mục bán trên website không? Hệ thống sẽ tự động giải quyết chống xung đột ID và ghép nối đúng danh mục tương ứng.`}
+        confirmText={`Khôi Phục ${selectedArchiveIds.length} Hoa`}
+        type="info"
+      />
+
+      {/* 4. Modal Single Permanent Delete (Hard Delete) */}
+      <ActionConfirmModal
+        isOpen={Boolean(archiveToHardDelete)}
+        onClose={() => setArchiveToHardDelete(null)}
+        onConfirm={() => {
+          if (archiveToHardDelete) {
+            permanentlyDeleteArchivedProduct(archiveToHardDelete.id);
+            setSelectedArchiveIds((prev) => prev.filter((x) => x !== archiveToHardDelete.id));
+            setArchiveToHardDelete(null);
+          }
+        }}
+        title="Xóa Vĩnh Viễn Khỏi Kho Lưu Trữ"
+        message={`CẢNH BÁO NGUY HIỂM: Thao tác này sẽ xóa vĩnh viễn mẫu hoa "${archiveToHardDelete?.originalProduct?.name}" khỏi kho lưu trữ và KHÔNG THỂ PHỤC HỒI LẠI ĐƯỢC NỮA. Bạn có chắc chắn muốn xóa vĩnh viễn không?`}
+        confirmText="Xóa Vĩnh Viễn"
+        type="danger"
+      />
+
+      {/* 5. Modal Bulk Hard Delete */}
+      <ActionConfirmModal
+        isOpen={isBulkHardDeleteModalOpen}
+        onClose={() => setIsBulkHardDeleteModalOpen(false)}
+        onConfirm={() => {
+          permanentlyDeleteMultipleArchivedProducts(selectedArchiveIds);
+          setSelectedArchiveIds([]);
+          setIsBulkHardDeleteModalOpen(false);
+        }}
+        title="Xóa Vĩnh Viễn Hàng Loạt Khỏi Kho Lưu Trữ"
+        message={`CẢNH BÁO NGUY HIỂM: Bạn đang chuẩn bị xóa vĩnh viễn ${selectedArchiveIds.length} mẫu hoa khỏi kho lưu trữ. Toàn bộ dữ liệu này sẽ không thể khôi phục lại. Bạn có chắc chắn muốn tiếp tục không?`}
+        confirmText={`Xóa Hẳn ${selectedArchiveIds.length} Mẫu Hoa`}
         type="danger"
       />
     </div>

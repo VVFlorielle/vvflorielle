@@ -34,6 +34,20 @@ export interface FlowerProduct {
   relatedProductIds?: string[];
 }
 
+export interface ArchivedFlowerProduct {
+  id: string;
+  originalProduct: FlowerProduct;
+  deletedAt: string;
+  formattedDeletedAt: string;
+  originalCategoryId: CategoryId;
+  originalCategoryName: string;
+  sizeFormatted: string;
+  sizeBytes: number;
+  driveBackedUp: boolean;
+  driveFileId?: string;
+  driveBackupDate?: string;
+}
+
 export interface CartItem {
   product: FlowerProduct;
   quantity: number;

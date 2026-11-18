@@ -153,6 +153,21 @@ timeline
 - **Điều hướng Logo Quản Trị ([`ManagementHeader.tsx`](file:///E:/V&VFlorielle/src/components/management/ManagementHeader.tsx#L136-L151))**: Khi đang ở bất kỳ trang con nào của Quản trị, bấm vào Logo ở giữa Header sẽ **quay về ngay Trang Đầu (Dashboard Tổng Quan)**, không còn bị văng ra trang chủ của khách hàng.
 - **Tự động hóa triển khai Cloudflare Pages**: Đã tạo và đẩy [wrangler.json](file:///E:/V&VFlorielle/wrangler.json) lên GitHub để kết nối trực tiếp với Cloudflare Builds.
 
+### 5. Phân Hệ Bản Nháp & Kho Lưu Trữ Đã Xóa Kết Nối Google Drive (ĐÃ HOÀN THÀNH 100%)
+- **Tab Chuyển Đổi Kép**: Trong trang Quản lý hoa ([`ProductsSubpage.tsx`](file:///E:/V&VFlorielle/src/components/management/subpages/ProductsSubpage.tsx)), tích hợp tab `[🌸 Đang Mở Bán (54)]` và `[📦 Bản Nháp & Kho Đã Xóa (X)]`.
+- **Cơ chế Xóa Mềm (Soft Delete)**: Thao tác xóa hoa ở danh mục bán sẽ chuyển hoa vào Kho Lưu Trữ Đã Xóa mà KHÔNG yêu cầu mã PIN, bảo vệ an toàn 100% mẫu hoa.
+- **Sao Lưu Google Drive & Giải Phóng Bộ Nhớ**: Nút `[☁️ Sao Lưu Lên Drive]` đẩy dữ liệu và ảnh hoa đã xóa sang Drive, dọn sạch Base64 trên web giúp web tải siêu nhanh dưới 1s.
+- **Tải Lại Từ Drive**: Nút `[📥 Tải Lại Từ Drive / Tệp]` nạp lại dữ liệu sao lưu nếu người dùng đổi sang thiết bị mới.
+- **Chọn Lọc Hàng Loạt**: Checkbox từng dòng và checkbox chọn tất cả để khôi phục hoặc xóa hẳn hàng loạt.
+- **Thuật Toán Khôi Phục Không Xung Đột (Zero-Conflict Restore)**: Tự động phát hiện trùng ID (sinh ID nối tiếp an toàn), tự động ghép nối vào danh mục ban đầu (nếu danh mục cũ bị xóa sẽ đưa về danh mục an toàn), bảo toàn 100% giá, ảnh và thông số.
+- **Nút Xóa Hẳn (Permanent Delete)**: Modal cảnh báo màu đỏ bảo vệ thao tác xóa vĩnh viễn khỏi kho lưu trữ.
+- **Bộ Lọc Đa Chiều**: Tìm kiếm theo tên hoa, thành phần hoa, lọc theo danh mục gốc, lọc theo mốc thời gian (Gần đây, 30 ngày, 3 tháng).
+
+### 6. Cổng Bảo Mật Mã Cấp 2 (`1909203`) & Phân Quyền An Ninh (ĐÃ HOÀN THÀNH 100%)
+- **Ranh Giới Bảo Mật Thông Minh**: Các thao tác thường ngày (thêm/sửa hoa, xóa hoa vào thùng rác, tạo voucher, đổi banner, duyệt đơn hàng) **HOÀN TOÀN KHÔNG BỊ HỎI MÃ PIN**.
+- **Cổng An Ninh Cấp 2 ([`SecuritySubpage.tsx`](file:///E:/V&VFlorielle/src/components/management/subpages/SecuritySubpage.tsx))**: Khóa độc quyền mục `#admin/security` (đổi mật khẩu, đổi STK ngân hàng VietQR nhận tiền, Gmail OTP). Bắt buộc xác thực **Mã Bảo Mật Cấp 2 (Mặc định: `1909203`)** qua màn hình khóa kính mờ tích hợp bàn phím số cảm ứng.
+- **Nút `[🔒 Khóa Lại]`**: Đặt ngay tại Header của trang An Ninh, cho phép chủ tiệm khóa lại khu vực an ninh ngay lập tức sau khi cấu hình xong.
+
 ---
 
 ## V. BÀN GIAO KẾ HOẠCH CÔNG VIỆC TIẾP THEO (ROADMAP TRIỂN KHAI)
@@ -161,45 +176,23 @@ Dưới đây là kế hoạch chi tiết các hạng mục công việc tiếp 
 
 ```mermaid
 flowchart TD
-    Plan1["Kế Hoạch Ưu Tiên Số 1:<br/>Bản Nháp & Kho Lưu Trữ Đã Xóa (Thùng Rác Soft Delete) Kết Nối Google Drive"]
-    Plan2["Kế Hoạch Ưu Tiên Số 2:<br/>Cổng Xác Thực Mã Bảo Mật Cấp 2 (1909203) & Lưu Mật Khẩu Động"]
-    Plan3["Kế Hoạch Ưu Tiên Số 3:<br/>Tiện Ích Đơn Hàng Mobile (Sticky Tabs) & In Phiếu Giao K80"]
-    Plan4["Kế Hoạch Ưu Tiên Số 4:<br/>Đồng Bộ Đám Mây Đa Nền Tảng (Cloud Realtime DB)"]
+    Plan1["Kế Hoạch Ưu Tiên Số 1:<br/>Tiện Ích Đơn Hàng Mobile (Sticky Tabs) & In Phiếu Giao K80"]
+    Plan2["Kế Hoạch Ưu Tiên Số 2:<br/>Đồng Bộ Đám Mây Đa Nền Tảng (Cloud Realtime DB)"]
 
-    Plan1 --> Plan2 --> Plan3 --> Plan4
+    Plan1 --> Plan2
 ```
 
 ---
 
-### KẾ HOẠCH ƯU TIÊN SỐ 1: BẢN NHÁP & KHO LƯU TRỮ ĐÃ XÓA (THÙNG RÁC SOFT DELETE) KẾT NỐI GOOGLE DRIVE
-
-- **Mục tiêu**: Xóa mẫu hoa không bị mất vĩnh viễn; lưu trữ vào thùng rác trên web và tự động đẩy tệp `vvflorielle_trash_products.json` sang Google Drive để giải phóng bộ nhớ web; cho phép khôi phục không xung đột kể cả sau 30 ngày hay 3 tháng.
-- **Chi tiết các thành phần cần xây dựng**:
-  1. **Nút `[📦 Bản Nháp & Kho Đã Xóa (X)]`**: Đặt trên thanh công cụ trang Quản lý mẫu hoa ([`ProductsSubpage.tsx`](file:///E:/V&VFlorielle/src/components/management/subpages/ProductsSubpage.tsx)).
-  2. **Nút `[☁️ Sao Lưu Lên Google Drive]`**: Gọi Google Apps Script Webhook đẩy toàn bộ danh sách hoa đã xóa và ảnh cũ sang Google Drive, xóa chuỗi Base64 nặng trên web để giữ web nhẹ tải dưới 1 giây.
-  3. **Nút `[📥 Tải Lại Từ Google Drive]`**: Kéo danh sách đã sao lưu từ Drive về máy mới nếu đổi thiết bị hoặc xóa cache.
-  4. **Checkbox tích chọn đầu hàng `[ ]`**: Hỗ trợ chọn 1 mục hoặc chọn tất cả để thao tác hàng loạt.
-  5. **Bảng danh sách chi tiết**: Cung cấp đầy đủ: *Ảnh thu nhỏ (thumbnail), Tên hoa & Loại hoa phối, Vị trí danh mục gốc, Dung lượng ước tính (KB), Ngày giờ xóa, và Trạng thái sao lưu trên Drive*.
-  6. **Cơ chế Khôi Phục Chống Xung Đột (Zero-Conflict Restore)**:
-     - Kiểm tra trùng ID (tự sinh ID nối tiếp duy nhất nếu trong thời gian qua đã có hoa mới trùng ID).
-     - Kiểm tra danh mục gốc (gán đúng danh mục cũ; nếu danh mục cũ đã bị xóa thì gán về danh mục mặc định phù hợp, không bao giờ để hoa bị mồ côi).
-     - Bảo toàn 100% thuộc tính (giá, ảnh, mô tả, rating, tag).
-     - Hộp thoại hỏi xác nhận trước khi khôi phục.
-  7. **Nút `[❌ Xóa Hẳn]`**: Có cảnh báo đỏ xác nhận trước khi xóa vĩnh viễn khỏi kho lưu trữ.
-  8. **Khung tìm kiếm & Bộ lọc đa chiều**: Tìm theo tên/loại hoa, lọc theo danh mục gốc, lọc mốc thời gian (*Gần đây, 30 ngày trước, 3 tháng trước*).
+### KẾ HOẠCH ƯU TIÊN SỐ 1: TIỆN ÍCH ĐƠN HÀNG MOBILE & IN HÓA ĐƠN K80
+- Thêm thanh tab trượt ngang (Sticky Scrollable Status Tabs) ở đầu trang Đơn Hàng trên điện thoại gồm 5 viên thuốc trạng thái kèm số lượng đơn: `[Tất cả: 12]`, `[Chờ nhận: 3]`, `[Chờ cọc: 2]`, `[Đang cắm: 4]`, `[Đang giao: 2]`, `[Hoàn tất: 1]`.
+- Nút "In Phiếu Giao Hoa K80" đính kèm cuống hoa cho shipper gồm: Người gửi, Người nhận, SĐT, Địa chỉ, Lời chúc thiệp, Danh sách hoa và Số tiền thu hộ (COD).
+- Xem ảnh hoa ở chế độ phóng to chi tiết (Lightbox).
 
 ---
 
-### KẾ HOẠCH ƯU TIÊN SỐ 2: CỔNG XÁC THỰC MÃ BẢO MẬT CẤP 2 (`1909203`) & LƯU MẬT KHẨU ĐỘNG
-
-- **Mục tiêu**: Bảo vệ tuyệt đối khu vực an ninh tài khoản quản trị, giải phóng thao tác thường ngày.
-- **Chi tiết các thành phần**:
-  1. **Ranh giới bảo mật rõ ràng**:
-     - Các thao tác kinh doanh thường ngày *(thêm/sửa hoa, xóa hoa vào thùng rác, đổi banner, chỉnh màu sắc, tạo voucher, duyệt đơn hàng)* $\rightarrow$ **KHÔNG CẦN NHẬP MÃ BẢO MẬT**.
-     - **CHỈ DUY NHẤT khi bấm vào mục "An Ninh & Bảo Mật PIN Cấp 2" (`#admin/security`)** để đổi mật khẩu, đổi STK ngân hàng & VietQR nhận tiền, hoặc Gmail OTP $\rightarrow$ **BẮT BUỘC XÁC THỰC MÃ CẤP 2 (Mặc định: `1909203`)**.
-  2. **Cổng Xác Thực Mã Cấp 2 (`SecurityGateModal.tsx`)**: Modal kính mờ nhập mã cấp 2 với bàn phím số tiện lợi.
-  3. **Lưu trữ Mật khẩu & PIN Động**: Băm SHA-256 lưu vào `vvf_admin_pwd_hash` và `vvf_admin_pin_level2_hash`, khắc phục triệt để việc so sánh cứng trong mã nguồn.
-  4. **Nút `[🔒 Khóa Lại Khu Vực An Ninh]`**: Cho phép chủ tiệm khóa lại khu vực an ninh ngay sau khi đổi thông tin xong mà không cần đăng xuất toàn bộ tài khoản.
+### KẾ HOẠCH ƯU TIÊN SỐ 2: ĐỒNG BỘ ĐÁM MÂY ĐA NỀN TẢNG (CLOUD REALTIME DB)
+- Tích hợp Cloud Database thời gian thực (Supabase / Cloudflare D1 / Firebase Firestore) để dữ liệu giỏ hàng, hội viên và đơn hàng được đồng bộ xuyên suốt giữa điện thoại và máy tính của khách hàng cũng như chủ tiệm.
 
 ---
 

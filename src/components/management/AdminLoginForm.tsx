@@ -71,7 +71,7 @@ export const AdminLoginForm: React.FC = () => {
     const pin = loginPin.trim();
 
     // Pre-check credential validity
-    const isPinCorrect = !pin || pin === '26122025' || pin === '190903' || pin === '17092000' || pin === '19092003';
+    const isPinCorrect = !pin || pin === '1909203' || pin === '26122025' || pin === '190903' || pin === '17092000' || pin === '19092003';
     const isSuperAdmin = (u === 'admin') && (p === '17092000' || p === '19092003') && isPinCorrect;
     const isOwner = (u === 'vvflorielle' || u === 'chuquan') && (p === '19092003' || p === '17092000') && isPinCorrect;
 
