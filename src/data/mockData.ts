@@ -1701,9 +1701,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Lần đầu đặt hoa tại V&V Florielle mà ưng ý thực sự. Mình đặt bó hoa tặng sinh nhật bạn gái ở Cầu Giấy, hoa giao hỏa tốc chưa đầy 30 phút. Bông to, cánh dày và tươi hơn cả trên ảnh web. Florist còn viết thiệp tay chữ rất đẹp. 10/10!',
     productName: 'Bó Hoa Hồng Ecuador Đỏ Say Đắm (Chân Ái)',
     images: [
-      'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80'
     ],
     createdAt: '18/11/2026',
     status: 'APPROVED',
@@ -1721,9 +1719,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Công ty mình đặt kệ hoa khai trương đối tác ở Duy Tân. Kệ 2 tầng hoa hướng dương và hồng vàng cắm rất vững chãi và rực rỡ, banner in chữ sắc nét. Florist gửi ảnh duyệt trước khi đi giao nên mình duyệt rất nhanh.',
     productName: 'Kệ Hoa Khai Trương Phú Quý Thịnh Vượng (2 Tầng)',
     images: [
-      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
     ],
     createdAt: '15/11/2026',
     status: 'APPROVED',
@@ -1777,9 +1773,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Bó hoa tươi rói, tana trắng nhụy vàng phối baby chụp ảnh kỷ yếu Hồ Tây cực kỳ thơ luôn! Giá cả hợp lý mà hoa tươi hơn nhiều so với mua vỉa hè. Năm sau tốt nghiệp chắc chắn sẽ ủng hộ tiệm tiếp.',
     productName: 'Bó Hoa Cúc Tana Mộc Mạc Tinh Khôi',
     images: [
-      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80'
     ],
     createdAt: '05/11/2026',
     status: 'APPROVED',
@@ -1887,9 +1881,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Cẩm tú cầu bông to tròn xoe, màu xanh lam phối lá bạc gói giấy xám sang trọng. Thầy nhận hoa khen mãi tiệm chọn hoa tươi và cắm có gu nghệ thuật cao.',
     productName: 'Bó Hoa Cẩm Tú Cầu Xanh Lam Hy Vọng',
     images: [
-      'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80'
     ],
     createdAt: '12/10/2026',
     status: 'APPROVED',
