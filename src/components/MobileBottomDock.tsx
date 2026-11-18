@@ -45,6 +45,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     customer,
     isAdmin,
     activeAdminUser,
+    isAuthModalOpen,
     setIsAuthModalOpen,
     setAuthModalMode,
     setSelectedCategory,
@@ -105,14 +106,14 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     };
   }, [isExpanded, resetAutoCollapse]);
 
-  // Main Dock Scroll Hide / Reveal Effect (hides on scroll, reappears on stop 350ms or bottom mouse)
+  // Main Dock Scroll Hide / Reveal Effect (hides on scroll, reappears instantly on stop 180ms or bottom mouse)
   useEffect(() => {
     let scrollStopTimer: any = null;
     let lastY = window.scrollY;
 
     const handleScroll = () => {
       const current = window.scrollY;
-      if (Math.abs(current - lastY) > 8 && current > 20) {
+      if (Math.abs(current - lastY) > 4 && current > 20) {
         setHidden(true);
       }
       lastY = current;
@@ -120,7 +121,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
       clearTimeout(scrollStopTimer);
       scrollStopTimer = setTimeout(() => {
         setHidden(false);
-      }, 350);
+      }, 180);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -333,26 +334,28 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
       )}
 
       {/* ================================================================
-          DRAWER 1: MẪU HOA & DỊCH VỤ (MOBILE POPUP KHI BẤM NÚT DANH MỤC)
+          POPOVER 1: MẪU HOA & DỊCH VỤ (FLOATING CARD TRÊN THANH DOCK)
           ================================================================ */}
       {isCategorySheetOpen && (
-        <div className="fixed inset-0 z-[9995] flex flex-col justify-end md:hidden">
+        <div className="md:hidden">
+          {/* Backdrop mờ nhẹ, click vào đóng menu */}
           <div
-            className="fixed inset-0 w-full h-[100dvh] bg-slate-950/70 backdrop-blur-md transition-opacity pointer-events-auto"
+            className="fixed inset-0 z-[9991] bg-slate-900/40 backdrop-blur-xs transition-opacity duration-200 pointer-events-auto"
             onClick={() => setIsCategorySheetOpen(false)}
           />
-          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-28 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-3 max-h-[88vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
-            {/* iOS/Android Style Drag Handle */}
-            <div className="w-12 h-1.5 rounded-full bg-slate-300 mx-auto -mt-1 mb-2 shrink-0" />
-
-            <div className="relative flex items-center justify-center pb-2 border-b border-slate-100 text-center">
-              <div className="flex items-center justify-center gap-2 mx-auto">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
+          {/* Floating Card nổi ngay phía trên thanh Dock */}
+          <div className="fixed bottom-[74px] sm:bottom-[82px] left-3 right-3 max-w-[420px] mx-auto z-[9992] p-4 bg-white/95 backdrop-blur-2xl rounded-[28px] border border-white/90 shadow-[0_16px_40px_rgba(0,0,0,0.18)] space-y-3 max-h-[74vh] overflow-y-auto animate-in fade-in zoom-in-95 slide-in-from-bottom-3 duration-200">
+            {/* Header popup */}
+            <div className="relative flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-5 h-5 object-contain" />
                 <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Mẫu Hoa &amp; Dịch Vụ</span>
               </div>
               <button
+                type="button"
                 onClick={() => setIsCategorySheetOpen(false)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+                title="Đóng"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -366,11 +369,11 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setCurrentView('catalog');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 text-white cursor-pointer shadow-md flex items-center justify-between hover:shadow-lg transition-all"
+              className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 text-white cursor-pointer shadow-md flex items-center justify-between hover:shadow-lg transition-all active:scale-[0.98]"
             >
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                  <img src="/icons/icon-catalog-3d.png" alt="Tất cả hoa" className="w-5 h-5 object-contain" />
                 </div>
                 <div>
                   <div className="font-black text-xs flex items-center gap-1.5">
@@ -380,7 +383,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   <div className="text-[10px] text-emerald-100">Bộ lọc chi tiết, sắp xếp giá &amp; tìm kiếm hoa</div>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-white" />
+              <ChevronRight className="w-4 h-4 text-white shrink-0" />
             </div>
 
             {/* Mục 2: Danh Mục Mẫu Hoa Tươi */}
@@ -415,13 +418,13 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer active:scale-95 transition-all"
                 >
                   <div className="flex items-center gap-2">
-                    <Palette className="w-4 h-4 text-rose-600" />
+                    <Palette className="w-4 h-4 text-rose-600 shrink-0" />
                     <div>
                       <div className="text-xs font-bold text-slate-800">Hoa Thiết Kế Riêng Theo Yêu Cầu</div>
                       <div className="text-[10px] text-slate-400">Gửi ảnh mẫu, chọn ngân sách &amp; duyệt mẫu</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700">Mở mẫu →</span>
+                  <span className="text-[10px] font-bold text-emerald-700 shrink-0">Mở mẫu →</span>
                 </div>
 
                 <div
@@ -429,16 +432,16 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                     setIsCategorySheetOpen(false);
                     if (onOpenPopup) onOpenPopup('shipping');
                   }}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer"
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer active:scale-95 transition-all"
                 >
                   <div className="flex items-center gap-2">
-                    <Truck className="w-4 h-4 text-sky-600" />
+                    <Truck className="w-4 h-4 text-sky-600 shrink-0" />
                     <div>
                       <div className="text-xs font-bold text-slate-800">Giao Hoa Hỏa Tốc (Từ 15P)</div>
                       <div className="text-[10px] text-slate-400">Từ 15P nội thành &amp; 60P ngoại thành Hà Nội</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-sky-700">Giá ship →</span>
+                  <span className="text-[10px] font-bold text-sky-700 shrink-0">Giá ship →</span>
                 </div>
 
                 <div
@@ -446,16 +449,16 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                     setIsCategorySheetOpen(false);
                     if (onOpenPopup) onOpenPopup('wedding-event');
                   }}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer"
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 flex items-center justify-between cursor-pointer active:scale-95 transition-all"
                 >
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                     <div>
                       <div className="text-xs font-bold text-slate-800">Hoa Cưới &amp; Sự Kiện Doanh Nghiệp</div>
                       <div className="text-[10px] text-slate-400">Hoa cô dâu, trang trí xe hoa, hội nghị &amp; xuất VAT</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-amber-700">Chi tiết →</span>
+                  <span className="text-[10px] font-bold text-amber-700 shrink-0">Chi tiết →</span>
                 </div>
               </div>
             </div>
@@ -464,26 +467,28 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
       )}
 
       {/* ================================================================
-          DRAWER 2: TIỆN ÍCH & TRA CỨU (GIỚI THIỆU, CẨM NANG, LIÊN HỆ, TRA CỨU, APP)
+          POPOVER 2: TIỆN ÍCH & TRA CỨU (FLOATING CARD TRÊN THANH DOCK)
           ================================================================ */}
       {isUtilityMenuOpen && (
-        <div className="fixed inset-0 z-[9995] flex flex-col justify-end md:hidden">
+        <div className="md:hidden">
+          {/* Backdrop mờ nhẹ, click vào đóng menu */}
           <div
-            className="fixed inset-0 w-full h-[100dvh] bg-slate-950/70 backdrop-blur-md transition-opacity pointer-events-auto"
+            className="fixed inset-0 z-[9991] bg-slate-900/40 backdrop-blur-xs transition-opacity duration-200 pointer-events-auto"
             onClick={() => setIsUtilityMenuOpen(false)}
           />
-          <div className="relative z-10 w-full max-w-md mx-auto p-4 pb-28 bg-white/95 backdrop-blur-2xl rounded-t-[32px] border-t border-white/90 shadow-2xl space-y-2.5 max-h-[88vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
-            {/* iOS/Android Style Drag Handle */}
-            <div className="w-12 h-1.5 rounded-full bg-slate-300 mx-auto -mt-1 mb-2 shrink-0" />
-
-            <div className="relative flex items-center justify-center pb-2 border-b border-slate-100 text-center">
-              <div className="flex items-center justify-center gap-2 mx-auto">
-                <Compass className="w-4 h-4 text-emerald-600" />
+          {/* Floating Card nổi ngay phía trên thanh Dock */}
+          <div className="fixed bottom-[74px] sm:bottom-[82px] left-3 right-3 max-w-[420px] mx-auto z-[9992] p-4 bg-white/95 backdrop-blur-2xl rounded-[28px] border border-white/90 shadow-[0_16px_40px_rgba(0,0,0,0.18)] space-y-2.5 max-h-[74vh] overflow-y-auto animate-in fade-in zoom-in-95 slide-in-from-bottom-3 duration-200">
+            {/* Header popup */}
+            <div className="relative flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <img src="/icons/icon-services-3d.png" alt="Tiện ích" className="w-5 h-5 object-contain" />
                 <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Tiện Ích &amp; Thông Tin Tiệm</span>
               </div>
               <button
+                type="button"
                 onClick={() => setIsUtilityMenuOpen(false)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+                title="Đóng"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -496,7 +501,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setCurrentView('about');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
+              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-2xs"
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
@@ -507,7 +512,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   <div className="text-[10px] text-slate-500">Tiệm Hoa V&V Florielle • Câu chuyện nghệ thuật hoa</div>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
             </div>
 
             {/* 2. Cẩm Nang Dưỡng Hoa (Mở Popup Thư Viện Kiến Thức) */}
@@ -516,7 +521,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setIsUtilityMenuOpen(false);
                 if (onOpenPopup) onOpenPopup('care');
               }}
-              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
+              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-2xs"
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
@@ -527,7 +532,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   <div className="text-[10px] text-slate-500">Bí quyết giữ hoa 7 ngày &amp; ý nghĩa các loài hoa</div>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
             </div>
 
             {/* 3. Liên Hệ & Bản Đồ (Mở Trang Riêng) */}
@@ -537,7 +542,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setCurrentView('contact');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
+              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-2xs"
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
@@ -548,7 +553,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   <div className="text-[10px] text-slate-500">Hotline: {settings.hotline} • Mở cửa 06:30 - 21:30</div>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
             </div>
 
             {/* 4. Tra Cứu Đơn Hàng & VietQR */}
@@ -557,7 +562,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setIsUtilityMenuOpen(false);
                 handleOrderLookupClick();
               }}
-              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-xs"
+              className="p-3 rounded-2xl bg-white hover:bg-emerald-50/80 border border-slate-200/80 flex items-center justify-between cursor-pointer active:scale-95 transition-all shadow-2xs"
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
@@ -568,7 +573,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   <div className="text-[10px] text-slate-500">Xem tiến độ cắm hoa &amp; đối soát cọc VietQR</div>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
             </div>
 
             {/* 5. Cài Đặt & Tải App APK */}
@@ -580,7 +585,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               className="p-3 rounded-2xl bg-emerald-50/90 border border-emerald-300 flex items-center justify-between cursor-pointer active:scale-95 transition-all"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
                   <Smartphone className="w-4.5 h-4.5" />
                 </div>
                 <div>
@@ -591,7 +596,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   <div className="text-[10px] text-slate-600">File cài đặt Android chính thức cho điện thoại</div>
                 </div>
               </div>
-              <Download className="w-4 h-4 text-emerald-700" />
+              <Download className="w-4 h-4 text-emerald-700 shrink-0" />
             </div>
           </div>
         </div>
@@ -613,24 +618,26 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             <button
               type="button"
               onClick={handleBack}
-              className="min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 text-slate-500 hover:text-emerald-700 transition-all active:scale-95"
+              className="min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl text-slate-600 hover:text-emerald-800 transition-all active:scale-95 cursor-pointer"
               title="Quay lại"
             >
-              <ChevronLeft className="w-4.5 h-4.5 stroke-[2.2]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Quay lại</span>
+              <img src="/icons/icon-back-3d.png" alt="Quay lại" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Quay lại</span>
             </button>
 
             {/* 2. Mẫu hoa */}
             <button
               type="button"
               onClick={handleCatalogClick}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
-                currentView === 'catalog' ? 'text-emerald-700 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+                currentView === 'catalog'
+                  ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
+                  : 'text-slate-600 hover:text-emerald-800'
               }`}
               title="Khám phá mẫu hoa tươi"
             >
-              <Sparkles className="w-4.5 h-4.5 stroke-[2]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Mẫu hoa</span>
+              <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Mẫu hoa</span>
             </button>
 
             {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - TO RỘNG RÃI) */}
@@ -657,47 +664,45 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             <button
               type="button"
               onClick={handleOrdersClick}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
-                (currentView === 'customer' || currentView === 'admin' || currentView === 'owner') ? 'text-emerald-700 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+                (currentView === 'customer' || currentView === 'admin' || currentView === 'owner')
+                  ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
+                  : 'text-slate-600 hover:text-emerald-800'
               }`}
               title="Quản lý & Theo dõi đơn hàng"
             >
-              <PackageCheck className="w-4.5 h-4.5 stroke-[2]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Đơn hàng</span>
+              <img src="/icons/icon-orders-3d.png" alt="Đơn hàng" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Đơn hàng</span>
             </button>
 
             {/* 5. Tài khoản / Quản trị */}
             <button
               type="button"
               onClick={handleAccountSwitchClick}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
-                isAdmin
-                  ? (currentView === 'admin' || currentView === 'owner') ? 'text-purple-700 font-extrabold' : 'text-slate-600 hover:text-purple-700'
-                  : currentView === 'customer' ? 'text-emerald-700 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
-              }`}
+              className="min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl text-slate-600 hover:text-emerald-800 transition-all active:scale-95 cursor-pointer"
               title={isAdmin ? ((currentView === 'admin' || currentView === 'owner') ? 'Chuyển sang Xem Web' : 'Vào Trang Quản Trị') : (currentView === 'customer' ? 'Chuyển sang Cửa Hàng' : 'Vào Trang Tài Khoản')}
             >
               {isAdmin ? (
                 (currentView === 'admin' || currentView === 'owner') ? (
                   <>
-                    <Store className="w-4.5 h-4.5 stroke-[2.2] text-purple-700" />
-                    <span className="text-[9.5px] font-bold mt-0.5 text-purple-900 leading-none truncate max-w-full text-center">Xem Web</span>
+                    <img src="/icons/icon-store-3d.png" alt="Xem Web" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                    <span className="text-[9.5px] font-bold text-purple-900 leading-none truncate max-w-full text-center">Xem Web</span>
                   </>
                 ) : (
                   <>
-                    <ShieldCheck className="w-4.5 h-4.5 stroke-[2.2] text-purple-700" />
-                    <span className="text-[9.5px] font-bold mt-0.5 text-purple-900 leading-none truncate max-w-full text-center">Quản trị</span>
+                    <img src="/icons/icon-shield-3d.png" alt="Quản trị" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                    <span className="text-[9.5px] font-bold text-purple-900 leading-none truncate max-w-full text-center">Quản trị</span>
                   </>
                 )
               ) : currentView === 'customer' ? (
                 <>
-                  <Store className="w-4.5 h-4.5 stroke-[2.2] text-emerald-700" />
-                  <span className="text-[9.5px] font-bold mt-0.5 text-emerald-900 leading-none truncate max-w-full text-center">Cửa hàng</span>
+                  <img src="/icons/icon-store-3d.png" alt="Cửa hàng" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <span className="text-[9.5px] font-bold text-emerald-900 leading-none truncate max-w-full text-center">Cửa hàng</span>
                 </>
               ) : (
                 <>
-                  <User className="w-4.5 h-4.5 stroke-[2.2] text-emerald-700" />
-                  <span className="text-[9.5px] font-bold mt-0.5 text-emerald-900 leading-none truncate max-w-full text-center">
+                  <img src="/icons/icon-user-3d.png" alt="Tài khoản" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <span className="text-[9.5px] font-bold text-emerald-900 leading-none truncate max-w-full text-center">
                     {customer ? customer.fullName.split(' ').slice(-1)[0] : 'Tài khoản'}
                   </span>
                 </>
@@ -717,13 +722,15 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setCurrentView('store');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
-                currentView === 'store' ? 'text-emerald-800 font-extrabold' : 'text-slate-500 hover:text-emerald-700'
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+                currentView === 'store' && !isCategorySheetOpen && !isUtilityMenuOpen
+                  ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
+                  : 'text-slate-600 hover:text-emerald-800'
               }`}
               title="Trang chủ tiệm hoa"
             >
-              <Home className="w-4.5 h-4.5 stroke-[2.4]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Trang chủ</span>
+              <img src="/icons/icon-home-3d.png" alt="Trang chủ" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Trang chủ</span>
             </button>
 
             {/* 2. Danh mục & Dịch vụ mẫu hoa */}
@@ -734,15 +741,15 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setIsUtilityMenuOpen(false);
                 setIsCategorySheetOpen(!isCategorySheetOpen);
               }}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
                 isCategorySheetOpen || currentView === 'catalog'
-                  ? 'text-emerald-800 font-extrabold'
-                  : 'text-slate-500 hover:text-emerald-700'
+                  ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
+                  : 'text-slate-600 hover:text-emerald-800'
               }`}
               title="Mẫu hoa & Dịch vụ"
             >
-              <Sparkles className="w-4.5 h-4.5 stroke-[2]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Mẫu hoa</span>
+              <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Mẫu hoa</span>
             </button>
 
             {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - TO RỘNG RÃI SANG TRỌNG) */}
@@ -775,15 +782,15 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setIsCategorySheetOpen(false);
                 setIsUtilityMenuOpen(!isUtilityMenuOpen);
               }}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 transition-all active:scale-95 ${
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
                 isUtilityMenuOpen || currentView === 'about' || currentView === 'contact' || currentView === 'care'
-                  ? 'text-emerald-800 font-extrabold'
-                  : 'text-slate-500 hover:text-emerald-700'
+                  ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
+                  : 'text-slate-600 hover:text-emerald-800'
               }`}
               title="Tiện ích & Tra cứu"
             >
-              <Compass className="w-4.5 h-4.5 stroke-[2]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Tiện ích</span>
+              <img src="/icons/icon-services-3d.png" alt="Tiện ích" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Tiện ích</span>
             </button>
 
             {/* 5. Đăng nhập */}
@@ -796,11 +803,15 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setAuthModalMode('customer');
                 setIsAuthModalOpen(true);
               }}
-              className="min-w-0 flex-1 flex flex-col items-center justify-center h-full py-0.5 px-0.5 text-slate-500 hover:text-emerald-700 transition-all active:scale-95"
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+                isAuthModalOpen
+                  ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
+                  : 'text-slate-600 hover:text-emerald-800'
+              }`}
               title="Đăng nhập tài khoản"
             >
-              <User className="w-4.5 h-4.5 stroke-[2]" />
-              <span className="text-[9.5px] font-bold mt-0.5 leading-none truncate max-w-full text-center">Đăng nhập</span>
+              <img src="/icons/icon-user-3d.png" alt="Đăng nhập" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Đăng nhập</span>
             </button>
           </>
         )}

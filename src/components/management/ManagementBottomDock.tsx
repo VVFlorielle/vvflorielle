@@ -47,7 +47,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSoundMuted, setIsSoundMuted] = useState(false);
 
-  // Scroll Hide / Reveal Effect (hides on scroll, reappears on stop 350ms or bottom mouse)
+  // Scroll Hide / Reveal Effect (hides on scroll, reappears instantly on stop 180ms or bottom mouse)
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
 
     const handleScroll = () => {
       const currentY = window.scrollY;
-      if (Math.abs(currentY - lastScrollY) > 8 && currentY > 20) {
+      if (Math.abs(currentY - lastScrollY) > 4 && currentY > 20) {
         setHidden(true);
       }
       lastScrollY = currentY;
@@ -64,7 +64,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
       if (scrollStopTimer) clearTimeout(scrollStopTimer);
       scrollStopTimer = setTimeout(() => {
         setHidden(false);
-      }, 350);
+      }, 180);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -306,7 +306,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
       <div
         onMouseEnter={() => setHidden(false)}
         onTouchStart={() => setHidden(false)}
-        className={`fixed bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[70] select-none pointer-events-auto transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] sm:w-auto sm:min-w-[480px] management-bottom-dock-wrapper ${
+        className={`fixed bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[70] select-none pointer-events-auto transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:w-auto sm:min-w-[480px] management-bottom-dock-wrapper ${
           hidden
             ? 'translate-y-[120px] sm:translate-y-[140px] opacity-0 pointer-events-none'
             : 'translate-y-0 opacity-100 pointer-events-auto'

@@ -13,7 +13,8 @@ import {
   Sparkles,
   ImageOff,
   Share2,
-  Copy
+  Copy,
+  Flower2
 } from 'lucide-react';
 import { useBodyScrollLock } from '../utils/scrollLock';
 
@@ -136,14 +137,12 @@ export const ProductDetailModal: React.FC = () => {
                 </div>
               )}
 
-              {/* Tag Badge */}
+              {/* Tag Badge (Màu đỏ cam gradient chuẩn TMĐT + Icon hoa đào nghệ thuật) */}
               {selectedProduct.tag && (
                 <div className="absolute top-3 left-3">
-                  <span
-                    className="text-xs font-bold px-2.5 py-1 rounded-full text-white shadow-md"
-                    style={{ backgroundColor: selectedProduct.gradientTheme?.tagBg || '#059669' }}
-                  >
-                    {selectedProduct.tag}
+                  <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1 rounded-full bg-gradient-to-r from-[#ee4d2d] to-[#f97316] text-white shadow-md shadow-orange-500/25 border border-white/40 tracking-wide select-none">
+                    <Flower2 className="w-3.5 h-3.5 text-rose-100 shrink-0 animate-pulse" />
+                    <span>{selectedProduct.tag}</span>
                   </span>
                 </div>
               )}

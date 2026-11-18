@@ -120,6 +120,7 @@ export const MascotAssistant: React.FC = () => {
     width: typeof window !== 'undefined' ? window.innerWidth : 375,
     height: typeof window !== 'undefined' ? window.innerHeight : 667,
   }));
+  const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
   const hasMovedRef = useRef(false);
   const lastToggleTimeRef = useRef(0);
@@ -189,6 +190,7 @@ export const MascotAssistant: React.FC = () => {
     if ((e.target as HTMLElement).closest('.mascot-modal-card')) return;
 
     isDraggingRef.current = true;
+    setIsDragging(true);
     hasMovedRef.current = false;
     dragStartRef.current = {
       mouseX: e.clientX,
@@ -202,7 +204,7 @@ export const MascotAssistant: React.FC = () => {
       const dx = moveEvt.clientX - dragStartRef.current.mouseX;
       const dy = moveEvt.clientY - dragStartRef.current.mouseY;
 
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
         hasMovedRef.current = true;
       }
 
@@ -213,6 +215,7 @@ export const MascotAssistant: React.FC = () => {
 
     const handlePointerUp = () => {
       isDraggingRef.current = false;
+      setIsDragging(false);
       // If dragged, set a small timestamp to suppress false click trigger
       if (hasMovedRef.current) {
         lastToggleTimeRef.current = Date.now();
@@ -337,9 +340,10 @@ export const MascotAssistant: React.FC = () => {
         style={{
           left: `${targetX}px`,
           top: `${targetY}px`,
-          transitionProperty: 'left, top, transform',
-          transitionDuration: '400ms',
-          transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          touchAction: 'none',
+          transition: isDragging
+            ? 'none'
+            : 'left 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
         onPointerDown={handlePointerDown}
       >
