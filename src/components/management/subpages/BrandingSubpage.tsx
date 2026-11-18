@@ -33,6 +33,7 @@ export interface BrandingData {
   floralCornerTopImage: string; // Cụm hoa góc trên trang chủ (Hero Corners chung)
   floralCornerTopLeftImage?: string; // Cụm hoa góc trái riêng biệt
   floralCornerTopRightImage?: string; // Cụm hoa góc phải riêng biệt
+  floralCornerTopRightFlip?: boolean; // Tự động lật gương đối xứng góc phải
   primaryColor: string;
   secondaryColor: string;
   bgColor: string;
@@ -173,6 +174,7 @@ export const BrandingSubpage: React.FC<BrandingSubpageProps> = ({
           floralCornerTopImage: parsed.floralCornerTopImage || settings?.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp',
           floralCornerTopLeftImage: parsed.floralCornerTopLeftImage || settings?.floralCornerTopLeftImage || parsed.floralCornerTopImage || settings?.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp',
           floralCornerTopRightImage: parsed.floralCornerTopRightImage || settings?.floralCornerTopRightImage || parsed.floralCornerTopImage || settings?.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp',
+          floralCornerTopRightFlip: parsed.floralCornerTopRightFlip !== undefined ? parsed.floralCornerTopRightFlip : settings?.floralCornerTopRightFlip !== undefined ? settings.floralCornerTopRightFlip : true,
           primaryColor: parsed.primaryColor || settings?.primaryColor || '#059669',
           secondaryColor: parsed.secondaryColor || settings?.secondaryColor || '#047857',
           bgColor: parsed.bgColor || '#f0fdf4',
@@ -192,6 +194,7 @@ export const BrandingSubpage: React.FC<BrandingSubpageProps> = ({
       floralCornerTopImage: settings?.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp',
       floralCornerTopLeftImage: settings?.floralCornerTopLeftImage || settings?.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp',
       floralCornerTopRightImage: settings?.floralCornerTopRightImage || settings?.floralCornerTopImage || '/images/floral/floral-corner-rose-peony.webp',
+      floralCornerTopRightFlip: settings?.floralCornerTopRightFlip !== undefined ? settings.floralCornerTopRightFlip : true,
       primaryColor: settings?.primaryColor || '#059669',
       secondaryColor: settings?.secondaryColor || '#047857',
       bgColor: '#f0fdf4',
@@ -378,6 +381,7 @@ export const BrandingSubpage: React.FC<BrandingSubpageProps> = ({
         floralCornerTopImage: draft.floralCornerTopImage,
         floralCornerTopLeftImage: draft.floralCornerTopLeftImage,
         floralCornerTopRightImage: draft.floralCornerTopRightImage,
+        floralCornerTopRightFlip: draft.floralCornerTopRightFlip !== false,
         primaryColor: draft.primaryColor,
         secondaryColor: draft.secondaryColor,
         fontFamily: draft.fontFamily
@@ -940,12 +944,39 @@ export const BrandingSubpage: React.FC<BrandingSubpageProps> = ({
             {/* Right preview ornament */}
             <div className="w-16 h-16 pointer-events-none flex items-center justify-center">
               {draft.floralCornerTopRightImage && draft.floralCornerTopRightImage !== 'none' ? (
-                <img src={draft.floralCornerTopRightImage} alt="Phải" className="w-full h-full object-contain -scale-x-100" />
+                <img
+                  src={draft.floralCornerTopRightImage}
+                  alt="Phải"
+                  className={`w-full h-full object-contain ${draft.floralCornerTopRightFlip !== false ? '-scale-x-100' : ''}`}
+                />
               ) : (
                 <span className="text-[10px] text-slate-400 italic">Trống</span>
               )}
             </div>
           </div>
+
+          {/* Tùy chọn lật gương khi chọn tab Góc Phải */}
+          {activeFloralTab === 'right' && (
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs">
+              <div className="space-y-0.5">
+                <div className="font-bold text-amber-950 flex items-center gap-1.5">
+                  <span>Lật gương đối xứng (-scale-x-100)</span>
+                  <span className="text-[10px] bg-amber-200/80 text-amber-900 font-black px-1.5 py-0.2 rounded-md">
+                    {draft.floralCornerTopRightFlip !== false ? 'Đang Bật' : 'Đã Tắt'}
+                  </span>
+                </div>
+                <p className="text-[10.5px] text-slate-600 leading-snug">
+                  Bật khi dùng cụm hoa góc trái để tự động lật ôm viền phải. Tắt nếu ảnh tải lên đã được thiết kế sẵn theo chiều góc phải.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={draft.floralCornerTopRightFlip !== false}
+                onChange={(e) => setDraft({ ...draft, floralCornerTopRightFlip: e.target.checked })}
+                className="w-4.5 h-4.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer shrink-0 ml-3"
+              />
+            </div>
+          )}
 
           {/* Preset Floral Corners Selection */}
           <div className="space-y-2">

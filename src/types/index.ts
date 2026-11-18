@@ -261,6 +261,7 @@ export interface ShopSettings {
   floralCornerTopImage?: string; // URL ảnh hoa góc trên (mặc định chung)
   floralCornerTopLeftImage?: string; // URL ảnh hoa góc trên bên trái riêng biệt
   floralCornerTopRightImage?: string; // URL ảnh hoa góc trên bên phải riêng biệt
+  floralCornerTopRightFlip?: boolean; // Tự động lật gương đối xứng cho góc phải (Mặc định: true)
   floralCornerBottomImage?: string; // URL ảnh hoa góc dưới (Peach Lisianthus)
   primaryColor?: string; // Màu thương hiệu chủ đạo (Mặc định: #059669)
   secondaryColor?: string; // Màu nhấn hover/active (Mặc định: #047857)
