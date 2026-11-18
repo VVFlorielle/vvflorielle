@@ -741,7 +741,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= 9) return parsed;
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_REVIEWS.length) return parsed;
       } catch (e) {}
     }
     return INITIAL_REVIEWS;
@@ -3701,9 +3701,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   };
 
-  const approveReview = (id: string) => {
+  const approveReview = (id: string, autoReply?: string) => {
     setReviews((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: 'APPROVED' } : r))
+      prev.map((r) => {
+        if (r.id === id) {
+          const defaultReply =
+            r.adminReply ||
+            autoReply ||
+            `Dạ V&V Florielle xin chân thành cảm ơn quý khách ${r.customerName} đã tin tưởng chọn hoa tại tiệm! Kính chúc bạn luôn an vui, ngập tràn may mắn và hạnh phúc! 🌸`;
+          return {
+            ...r,
+            status: 'APPROVED',
+            adminReply: defaultReply,
+            adminRepliedAt: r.adminRepliedAt || new Date().toLocaleDateString('vi-VN')
+          };
+        }
+        return r;
+      })
     );
     showToast('Đã duyệt đánh giá hiển thị lên trang chủ!', 'success');
   };

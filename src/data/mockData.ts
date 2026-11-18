@@ -1764,6 +1764,8 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     createdAt: '08/11/2026',
     status: 'APPROVED',
     isPinned: false,
+    adminReply: 'Cảm ơn anh Minh Đức đã trải nghiệm hệ thống VietQR tự động của tiệm ạ! Chúc anh một ngày ngập tràn niềm vui!',
+    adminRepliedAt: '08/11/2026',
     source: 'ZALO_FEEDBACK'
   },
   {
@@ -1775,11 +1777,15 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Bó hoa tươi rói, tana trắng nhụy vàng phối baby chụp ảnh kỷ yếu Hồ Tây cực kỳ thơ luôn! Giá cả hợp lý mà hoa tươi hơn nhiều so với mua vỉa hè. Năm sau tốt nghiệp chắc chắn sẽ ủng hộ tiệm tiếp.',
     productName: 'Bó Hoa Cúc Tana Mộc Mạc Tinh Khôi',
     images: [
-      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
     ],
     createdAt: '05/11/2026',
     status: 'APPROVED',
     isPinned: false,
+    adminReply: 'V&V Florielle chúc bạn Khánh Linh có một mùa kỷ yếu thật đáng nhớ và đạt kết quả xuất sắc nha! 🎓💐',
+    adminRepliedAt: '05/11/2026',
     source: 'CUSTOMER_WEB'
   },
   {
@@ -1795,7 +1801,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     ],
     createdAt: '02/11/2026',
     status: 'APPROVED',
-    isPinned: false,
+    isPinned: true,
     adminReply: 'Dạ V&V Florielle cảm ơn chị Phương Mai nhiều ạ! Chúc sếp chị tân gia đại cát đại lộc!',
     adminRepliedAt: '02/11/2026',
     source: 'CUSTOMER_WEB'
@@ -1814,6 +1820,8 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     createdAt: '29/10/2026',
     status: 'APPROVED',
     isPinned: false,
+    adminReply: 'Cảm ơn anh Hải Đăng! Chúc em gái anh luôn vững bước và tỏa sáng trên chặng đường mới nhé!',
+    adminRepliedAt: '29/10/2026',
     source: 'ZALO_FEEDBACK'
   },
   {
@@ -1829,7 +1837,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     ],
     createdAt: '25/10/2026',
     status: 'APPROVED',
-    isPinned: false,
+    isPinned: true,
     adminReply: 'Chúc mừng kỷ niệm 5 năm ngày cưới của anh chị ạ! Chúc tình yêu của hai bạn luôn nồng nàn như hoa tươi! 💖',
     adminRepliedAt: '25/10/2026',
     source: 'CUSTOMER_WEB'
@@ -1848,6 +1856,100 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     createdAt: '20/10/2026',
     status: 'APPROVED',
     isPinned: false,
+    adminReply: 'V&V Florielle cảm ơn anh Kiệt nhiều ạ! Chúc tình yêu của hai bạn luôn ngọt ngào như những đóa hoa baby!',
+    adminRepliedAt: '20/10/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-10',
+    customerName: 'Lý Quốc Bảo',
+    customerPhone: '0918776655',
+    rating: 5,
+    title: 'Kệ hoa khai trương chi nhánh ngân hàng tone vàng cam thịnh vượng',
+    comment: 'Kệ hoa cắm tỉ mỉ, kết hợp đồng tiền, hướng dương và hoa hồng cam gai rất đầy đặn. Băng rôn chữ vàng nổi bật, giao đúng 7h30 sáng trước giờ cắt băng khánh thành.',
+    productName: 'Kệ Hoa Khai Trương Phát Tài Phát Lộc',
+    images: [
+      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '16/10/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    adminReply: 'Kính chúc chi nhánh ngân hàng của anh Bảo khai trương hồng phát, tài lộc dồi dào ạ!',
+    adminRepliedAt: '16/10/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-11',
+    customerName: 'Hoàng Thùy Dung',
+    customerPhone: '0977221199',
+    rating: 5,
+    title: 'Bó hoa cẩm tú cầu xanh biếc tặng thầy giáo ngày 20/11',
+    comment: 'Cẩm tú cầu bông to tròn xoe, màu xanh lam phối lá bạc gói giấy xám sang trọng. Thầy nhận hoa khen mãi tiệm chọn hoa tươi và cắm có gu nghệ thuật cao.',
+    productName: 'Bó Hoa Cẩm Tú Cầu Xanh Lam Hy Vọng',
+    images: [
+      'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '12/10/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    adminReply: 'Cảm ơn bạn Thùy Dung đã tin tưởng tiệm để gửi gắm lòng tri ân đến thầy cô giáo ạ!',
+    adminRepliedAt: '12/10/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-12',
+    customerName: 'Ngô Văn Hùng',
+    customerPhone: '0988665544',
+    rating: 5,
+    title: 'Bình hoa ly vàng thơm ngát thắp hương rằm tháng Chạp',
+    comment: 'Ly ù vàng nở căng, bông to đều và thơm dịu không hắc. Tiệm tuyển chọn từng cành hoa búp hé đều đặn, cắm bình sứ phòng thờ rất trang nghiêm.',
+    productName: 'Bình Hoa Ly Vàng Cung Đình Quý Phái',
+    images: [
+      'https://images.unsplash.com/photo-1594040226829-7f251ab46d80?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '08/10/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    adminReply: 'Dạ V&V Florielle cảm ơn chú Hùng ạ! Kính chúc gia đình chú luôn bình an và vạn sự như ý!',
+    adminRepliedAt: '08/10/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-13',
+    customerName: 'Mai Phương Uyên',
+    customerPhone: '0934112288',
+    rating: 4,
+    title: 'Hoa hồng trắng đẹp tinh khôi, giao trễ 10 phút do trời mưa to',
+    comment: 'Hoa rất tươi và đẹp, cắm giấy lụa trắng sang chảnh đúng mẫu mình chọn. Trừ một xíu điểm vì hôm đó mưa bão shipper giao chậm 10 phút nhưng bạn shipper dạ vâng xin lỗi rất lễ phép nên vẫn chấm 4.5 sao.',
+    productName: 'Bó Hoa Hồng Trắng Tinh Khiết Mộng Mơ',
+    images: [
+      'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '04/10/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    adminReply: 'Tiệm thành thật xin lỗi chị Uyên về sự chậm trễ do thời tiết mưa to ạ! Tiệm đã gửi tặng chị một mã giảm giá 15% vào tài khoản cho lần đặt hoa tới ạ!',
+    adminRepliedAt: '04/10/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-14',
+    customerName: 'Cao Thế Anh',
+    customerPhone: '0912334499',
+    rating: 5,
+    title: 'Hoa thiết kế theo yêu cầu tặng sếp nữ cực kỳ đẳng cấp',
+    comment: 'Mình đặt florist thiết kế riêng theo tone tím khói sang trọng. Hoa nhập khẩu cắm form bay bổng đúng chuẩn phong cách châu Âu. Sếp khen tiệm cắm có gu khác biệt hẳn so với các tiệm hoa thông thường.',
+    productName: 'Bình Hoa Nghệ Thuật Thiết Kế Riêng VIP',
+    images: [
+      'https://images.unsplash.com/photo-1533616688419-b7a585564566?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '01/10/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    adminReply: 'Cảm ơn anh Thế Anh đã luôn tin tưởng gu nghệ thuật của đội ngũ Florist V&V Florielle ạ!',
+    adminRepliedAt: '01/10/2026',
     source: 'CUSTOMER_WEB'
   }
 ];
