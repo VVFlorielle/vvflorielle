@@ -618,18 +618,18 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             <button
               type="button"
               onClick={handleBack}
-              className="min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl text-slate-600 hover:text-emerald-800 transition-all active:scale-95 cursor-pointer"
+              className="min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl text-slate-600 hover:text-emerald-800 transition-all active:scale-95 cursor-pointer"
               title="Quay lại"
             >
               <img src="/icons/icon-back-3d.png" alt="Quay lại" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Quay lại</span>
+              <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Quay Lại</span>
             </button>
 
             {/* 2. Mẫu hoa */}
             <button
               type="button"
               onClick={handleCatalogClick}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl transition-all active:scale-95 cursor-pointer ${
                 currentView === 'catalog'
                   ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
                   : 'text-slate-600 hover:text-emerald-800'
@@ -637,7 +637,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               title="Khám phá mẫu hoa tươi"
             >
               <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Mẫu hoa</span>
+              <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Mẫu Hoa</span>
             </button>
 
             {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - TO RỘNG RÃI) */}
@@ -664,7 +664,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             <button
               type="button"
               onClick={handleOrdersClick}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl transition-all active:scale-95 cursor-pointer ${
                 (currentView === 'customer' || currentView === 'admin' || currentView === 'owner')
                   ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
                   : 'text-slate-600 hover:text-emerald-800'
@@ -672,38 +672,38 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               title="Quản lý & Theo dõi đơn hàng"
             >
               <img src="/icons/icon-orders-3d.png" alt="Đơn hàng" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Đơn hàng</span>
+              <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Đơn Hàng</span>
             </button>
 
             {/* 5. Tài khoản / Quản trị */}
             <button
               type="button"
               onClick={handleAccountSwitchClick}
-              className="min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl text-slate-600 hover:text-emerald-800 transition-all active:scale-95 cursor-pointer"
+              className="min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl text-slate-600 hover:text-emerald-800 transition-all active:scale-95 cursor-pointer"
               title={isAdmin ? ((currentView === 'admin' || currentView === 'owner') ? 'Chuyển sang Xem Web' : 'Vào Trang Quản Trị') : (currentView === 'customer' ? 'Chuyển sang Cửa Hàng' : 'Vào Trang Tài Khoản')}
             >
               {isAdmin ? (
                 (currentView === 'admin' || currentView === 'owner') ? (
                   <>
                     <img src="/icons/icon-store-3d.png" alt="Xem Web" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-                    <span className="text-[9.5px] font-bold text-purple-900 leading-none truncate max-w-full text-center">Xem Web</span>
+                    <span className="text-[10px] sm:text-[10.5px] font-bold text-purple-900 leading-snug tracking-tight truncate max-w-full text-center">Xem Web</span>
                   </>
                 ) : (
                   <>
                     <img src="/icons/icon-shield-3d.png" alt="Quản trị" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-                    <span className="text-[9.5px] font-bold text-purple-900 leading-none truncate max-w-full text-center">Quản trị</span>
+                    <span className="text-[10px] sm:text-[10.5px] font-bold text-purple-900 leading-snug tracking-tight truncate max-w-full text-center">Quản Trị</span>
                   </>
                 )
               ) : currentView === 'customer' ? (
                 <>
                   <img src="/icons/icon-store-3d.png" alt="Cửa hàng" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-                  <span className="text-[9.5px] font-bold text-emerald-900 leading-none truncate max-w-full text-center">Cửa hàng</span>
+                  <span className="text-[10px] sm:text-[10.5px] font-bold text-emerald-900 leading-snug tracking-tight truncate max-w-full text-center">Cửa Hàng</span>
                 </>
               ) : (
                 <>
                   <img src="/icons/icon-user-3d.png" alt="Tài khoản" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-                  <span className="text-[9.5px] font-bold text-emerald-900 leading-none truncate max-w-full text-center">
-                    {customer ? customer.fullName.split(' ').slice(-1)[0] : 'Tài khoản'}
+                  <span className="text-[10px] sm:text-[10.5px] font-bold text-emerald-900 leading-snug tracking-tight truncate max-w-full text-center">
+                    {customer ? customer.fullName.split(' ').slice(-1)[0] : 'Tài Khoản'}
                   </span>
                 </>
               )}
@@ -722,7 +722,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setCurrentView('store');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl transition-all active:scale-95 cursor-pointer ${
                 currentView === 'store' && !isCategorySheetOpen && !isUtilityMenuOpen
                   ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
                   : 'text-slate-600 hover:text-emerald-800'
@@ -730,7 +730,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               title="Trang chủ tiệm hoa"
             >
               <img src="/icons/icon-home-3d.png" alt="Trang chủ" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Trang chủ</span>
+              <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Trang Chủ</span>
             </button>
 
             {/* 2. Danh mục & Dịch vụ mẫu hoa */}
@@ -741,7 +741,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setIsUtilityMenuOpen(false);
                 setIsCategorySheetOpen(!isCategorySheetOpen);
               }}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl transition-all active:scale-95 cursor-pointer ${
                 isCategorySheetOpen || currentView === 'catalog'
                   ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
                   : 'text-slate-600 hover:text-emerald-800'
@@ -749,7 +749,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               title="Mẫu hoa & Dịch vụ"
             >
               <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Mẫu hoa</span>
+              <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Mẫu Hoa</span>
             </button>
 
             {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - TO RỘNG RÃI SANG TRỌNG) */}
@@ -782,7 +782,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setIsCategorySheetOpen(false);
                 setIsUtilityMenuOpen(!isUtilityMenuOpen);
               }}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl transition-all active:scale-95 cursor-pointer ${
                 isUtilityMenuOpen || currentView === 'about' || currentView === 'contact' || currentView === 'care'
                   ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
                   : 'text-slate-600 hover:text-emerald-800'
@@ -790,7 +790,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               title="Tiện ích & Tra cứu"
             >
               <img src="/icons/icon-services-3d.png" alt="Tiện ích" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Tiện ích</span>
+              <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Tiện Ích</span>
             </button>
 
             {/* 5. Đăng nhập */}
@@ -803,7 +803,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                 setAuthModalMode('customer');
                 setIsAuthModalOpen(true);
               }}
-              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-1 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer ${
+              className={`min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl transition-all active:scale-95 cursor-pointer ${
                 isAuthModalOpen
                   ? 'bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] text-emerald-950 font-extrabold'
                   : 'text-slate-600 hover:text-emerald-800'
@@ -811,7 +811,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               title="Đăng nhập tài khoản"
             >
               <img src="/icons/icon-user-3d.png" alt="Đăng nhập" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
-              <span className="text-[9.5px] font-bold leading-none truncate max-w-full text-center">Đăng nhập</span>
+              <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Đăng Nhập</span>
             </button>
           </>
         )}

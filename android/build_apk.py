@@ -21,7 +21,7 @@ from PIL import Image
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-PROJECT_ROOT = Path(r"E:\VVFlorielle")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ANDROID_DIR = PROJECT_ROOT / "android"
 PUBLIC_DIR = PROJECT_ROOT / "public"
 OUTPUT_DIR = PUBLIC_DIR / "download"
@@ -477,11 +477,8 @@ def compile_and_build_apk() -> None:
     class_files = [str(p) for p in classes_dir.rglob("*.class")]
     dex_output = build_dir / "dex"
     dex_output.mkdir(parents=True, exist_ok=True)
-    cmd_d8 = [
-        str(D8),
-        "--output", str(dex_output),
-        "--lib", str(PLATFORM_JAR),
-    ] + class_files
+    classes_args = " ".join(f'"{c}"' for c in class_files)
+    cmd_d8 = f'"{D8}" --output "{dex_output}" --lib "{PLATFORM_JAR}" {classes_args}'
     subprocess.check_call(cmd_d8, shell=True)
 
     # Step 5: Add classes.dex into unaligned.apk
@@ -529,16 +526,7 @@ def compile_and_build_apk() -> None:
     if signed_apk.exists():
         signed_apk.unlink()
 
-    cmd_sign = [
-        str(APKSIGNER),
-        "sign",
-        "--ks", str(KEYSTORE_PATH),
-        "--ks-key-alias", KEY_ALIAS,
-        "--ks-pass", f"pass:{KEY_PASS}",
-        "--key-pass", f"pass:{KEY_PASS}",
-        "--out", str(signed_apk),
-        str(aligned_apk),
-    ]
+    cmd_sign = f'"{APKSIGNER}" sign --ks "{KEYSTORE_PATH}" --ks-key-alias {KEY_ALIAS} --ks-pass pass:{KEY_PASS} --key-pass pass:{KEY_PASS} --out "{signed_apk}" "{aligned_apk}"'
     subprocess.check_call(cmd_sign, shell=True)
 
     # Copy signed apk to public destinations
