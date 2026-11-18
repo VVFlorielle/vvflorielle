@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Plus,
   Trash2,
@@ -27,12 +28,14 @@ import {
   ShieldCheck,
   Clock,
   Layers,
-  Archive
+  Archive,
+  X
 } from 'lucide-react';
 import { FlowerProduct, FlowerCategory, CategoryId, ArchivedFlowerProduct } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
 import { useStore } from '../../../context/StoreContext';
 import { formatBytes } from '../../../utils/googleDriveArchiver';
+import { useBodyScrollLock } from '../../../utils/scrollLock';
 
 interface ProductsSubpageProps {
   products: FlowerProduct[];
@@ -124,8 +127,9 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
     restoreTrashFromGoogleDrive
   } = useStore();
 
-  // Tab View: 'active' (Đang mở bán) or 'archive' (Bản Nháp & Kho Đã Xóa)
-  const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
+  // Modal Popup Nổi Quản Lý Bản Nháp & Kho Đã Xóa
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  useBodyScrollLock(isArchiveModalOpen);
 
   // Active Catalog Filters & State
   const [searchQuery, setSearchQuery] = useState('');
@@ -261,124 +265,70 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
         </h2>
       </div>
 
-      {/* 2. TAB SWITCHER: ĐANG MỞ BÁN vs BẢN NHÁP & KHO ĐÃ XÓA */}
+      {/* 2. ACTION TOOLBAR (GỌN GÀNG TỐI ƯU MOBILE & DESKTOP) */}
       <div className="flex items-center justify-between gap-2 border-b border-slate-200/80 pb-3 flex-wrap">
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/70">
+        {/* Nút BẢN NHÁP (Màu đỏ cam nổi bật, bấm mở popup nổi Quản lý kho đã xóa & Drive) */}
+        <button
+          type="button"
+          onClick={() => setIsArchiveModalOpen(true)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-orange-50 via-amber-50 to-rose-50 border border-orange-200 hover:border-orange-400 text-orange-950 font-bold text-xs shadow-2xs hover:shadow-xs transition-all cursor-pointer group"
+          title="Mở kho Bản Nháp & Quản lý mẫu hoa đã xóa (sao lưu Google Drive, phục hồi)"
+        >
+          <Archive className="w-3.5 h-3.5 text-orange-600 group-hover:scale-110 transition-transform shrink-0" />
+          <span>Bản Nháp</span>
+          {archivedProducts.length > 0 && (
+            <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full bg-orange-600 text-white leading-none">
+              {archivedProducts.length}
+            </span>
+          )}
+        </button>
+
+        {/* Các nút thao tác kho hoa: Xuất CSV, Giảm Giá, Thêm Mới */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap justify-end">
+          {/* Export Catalog CSV */}
           <button
             type="button"
-            onClick={() => setActiveTab('active')}
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-              activeTab === 'active'
-                ? 'bg-white text-emerald-800 shadow-sm border border-emerald-200/80'
-                : 'text-slate-600 hover:text-slate-900'
+            onClick={handleExportCatalogCsv}
+            disabled={filteredProducts.length === 0}
+            className={`btn-secondary text-xs py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl flex items-center gap-1.5 cursor-pointer text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs font-bold ${
+              filteredProducts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
+            title="Xuất bảng giá và danh mục mẫu hoa ra file CSV Excel"
           >
-            <Flower2 className={`w-3.5 h-3.5 ${activeTab === 'active' ? 'text-emerald-600' : 'text-slate-400'}`} />
-            <span>Đang Mở Bán ({products.length})</span>
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="hidden sm:inline">Xuất Bảng Giá ({filteredProducts.length})</span>
+            <span className="sm:hidden">CSV</span>
           </button>
 
+          {/* Bulk Event Discount Button */}
           <button
             type="button"
-            onClick={() => setActiveTab('archive')}
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer relative ${
-              activeTab === 'archive'
-                ? 'bg-white text-amber-900 shadow-sm border border-amber-300'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            onClick={onOpenBulkDiscount}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 border border-rose-200/90 hover:border-rose-400 text-rose-800 hover:text-rose-900 font-bold text-xs shadow-2xs transition-all cursor-pointer hover:shadow-sm"
+            title="Thiết lập sự kiện giảm giá đồng loạt theo % cho toàn bộ kho hoa hoặc từng danh mục dịp lễ"
           >
-            <Archive className={`w-3.5 h-3.5 ${activeTab === 'archive' ? 'text-amber-600' : 'text-slate-400'}`} />
-            <span>Bản Nháp &amp; Kho Đã Xóa</span>
-            {archivedProducts.length > 0 && (
-              <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${
-                activeTab === 'archive'
-                  ? 'bg-amber-600 text-white'
-                  : 'bg-amber-100 text-amber-800 border border-amber-300'
-              }`}>
-                {archivedProducts.length}
-              </span>
-            )}
+            <Percent className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-600" />
+            <span className="hidden sm:inline">Sự Kiện Giảm Giá</span>
+            <span className="sm:hidden">Giảm Giá</span>
+          </button>
+
+          {/* Add New Product Button */}
+          <button
+            type="button"
+            onClick={onOpenAddProduct}
+            className="btn-primary text-xs py-1.5 sm:py-2 px-3 sm:px-4 rounded-xl flex items-center gap-1.5 shadow-md cursor-pointer font-bold"
+          >
+            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Thêm Mẫu Hoa Mới</span>
+            <span className="sm:hidden">Thêm Hoa</span>
           </button>
         </div>
-
-        {/* Tab-Specific Top Action Buttons */}
-        {activeTab === 'active' ? (
-          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-            {/* Export Catalog CSV */}
-            <button
-              type="button"
-              onClick={handleExportCatalogCsv}
-              disabled={filteredProducts.length === 0}
-              className={`btn-secondary text-xs py-1.5 sm:py-2 px-3 rounded-xl flex items-center gap-1.5 cursor-pointer text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs font-bold ${
-                filteredProducts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              title="Xuất bảng giá và danh mục mẫu hoa ra file CSV Excel"
-            >
-              <Download className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="hidden sm:inline">Xuất Bảng Giá ({filteredProducts.length})</span>
-              <span className="sm:hidden">CSV</span>
-            </button>
-
-            {/* Bulk Event Discount Button */}
-            <button
-              type="button"
-              onClick={onOpenBulkDiscount}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 border border-rose-200/90 hover:border-rose-400 text-rose-800 hover:text-rose-900 font-bold text-xs shadow-2xs transition-all cursor-pointer hover:shadow-sm"
-              title="Thiết lập sự kiện giảm giá đồng loạt theo % cho toàn bộ kho hoa hoặc từng danh mục dịp lễ"
-            >
-              <Percent className="w-4 h-4 text-rose-600" />
-              <span className="hidden sm:inline">Sự Kiện Giảm Giá</span>
-              <span className="sm:hidden">Giảm Giá</span>
-            </button>
-
-            {/* Add New Product Button */}
-            <button
-              type="button"
-              onClick={onOpenAddProduct}
-              className="btn-primary text-xs py-1.5 sm:py-2 px-3 sm:px-4 rounded-xl flex items-center gap-1.5 shadow-md cursor-pointer font-bold"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Thêm Mẫu Hoa Mới</span>
-              <span className="sm:hidden">Thêm Hoa</span>
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-            {/* Sync to Google Drive */}
-            <button
-              type="button"
-              onClick={handleTriggerDriveBackup}
-              disabled={isBackingUpDrive || archivedProducts.length === 0}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Đẩy toàn bộ dữ liệu mẫu hoa đã xóa và ảnh cũ sang Google Drive để giải phóng dung lượng web"
-            >
-              {isBackingUpDrive ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <CloudUpload className="w-3.5 h-3.5" />
-              )}
-              <span>Sao Lưu Lên Drive</span>
-            </button>
-
-            {/* Restore from Drive / JSON Backup */}
-            <button
-              type="button"
-              onClick={() => restoreTrashFromGoogleDrive()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-2xs transition-all cursor-pointer"
-              title="Tải lại danh sách hoa đã sao lưu từ Google Drive hoặc nạp tệp backup JSON nếu đổi thiết bị mới"
-            >
-              <CloudDownload className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden sm:inline">Tải Lại Từ Drive / Tệp</span>
-              <span className="sm:hidden">Tải Lại</span>
-            </button>
-          </div>
-        )}
       </div>
 
       {/* ========================================================================= */}
-      {/* VIEW A: ĐANG MỞ BÁN (ACTIVE PRODUCTS CATALOG) */}
+      {/* DANH SÁCH MẪU HOA ĐANG MỞ BÁN (ACTIVE PRODUCTS CATALOG) */}
       {/* ========================================================================= */}
-      {activeTab === 'active' && (
-        <div className="space-y-4 animate-in fade-in duration-150">
+      <div className="space-y-4 animate-in fade-in duration-150">
           {/* Control & Search Row */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/90 border border-slate-200/70">
             {/* Search Input */}
@@ -566,44 +516,115 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
             </div>
           )}
         </div>
-      )}
 
       {/* ========================================================================= */}
-      {/* VIEW B: BẢN NHÁP & KHO LƯU TRỮ ĐÃ XÓA (RECYCLE BIN & DRIVE BACKUP) */}
+      {/* POPUP NỔI: QUẢN LÝ BẢN NHÁP & KHO ĐÃ XÓA (MODAL POPUP OVERLAY VIA PORTAL) */}
       {/* ========================================================================= */}
-      {activeTab === 'archive' && (
-        <div className="space-y-4 animate-in fade-in duration-150">
-          {/* Explanatory Banner */}
-          <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-50/90 via-sky-50/70 to-emerald-50/90 border border-amber-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <FolderArchive className="w-5 h-5" />
+      {isArchiveModalOpen && typeof document !== 'undefined' && createPortal(
+        <div
+          className="glass-overlay z-[100000] p-2 sm:p-4 md:p-6 flex items-center justify-center animate-in fade-in duration-200"
+          onClick={() => setIsArchiveModalOpen(false)}
+        >
+          <div
+            className="glass-modal-content max-w-5xl w-full max-h-[92vh] sm:max-h-[88vh] rounded-[24px] sm:rounded-[32px] border border-white/80 bg-white/95 shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 relative select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 1. POPUP HEADER */}
+            <div className="p-4 sm:p-5 border-b border-slate-200/80 flex items-center justify-between gap-3 bg-gradient-to-r from-orange-50/90 via-amber-50/70 to-rose-50/90 shrink-0">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-600 via-amber-600 to-rose-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25">
+                  <Archive className="w-5 h-5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight">
+                      Kho Bản Nháp &amp; Mục Đã Xóa
+                    </h3>
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200">
+                      {archivedProducts.length} mẫu hoa
+                    </span>
+                    <span className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      Chống Xung Đột 100%
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                    Khôi phục mẫu hoa đã xóa hoặc đồng bộ lưu trữ an toàn sang Google Drive
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
-                  <span>Kho Bản Nháp &amp; Lưu Trữ Phục Hồi Dữ Liệu</span>
-                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
-                    Chống Xung Đột 100%
-                  </span>
-                </h4>
-                <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
-                  Mẫu hoa đã xóa được lưu trữ an toàn tại đây. Bạn có thể khôi phục lại bất kỳ lúc nào kể cả sau 30 ngày hay 3 tháng.
-                  Bấm <strong>&quot;Sao Lưu Lên Drive&quot;</strong> để đẩy dữ liệu &amp; ảnh sang Google Drive giúp web luôn tải siêu nhanh!
-                </p>
-              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setIsArchiveModalOpen(false)}
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition-colors cursor-pointer shrink-0"
+                title="Đóng popup Bản Nháp"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0 text-xs text-slate-600 bg-white/80 px-3 py-1.5 rounded-xl border border-slate-200/80">
-              <div className="flex items-center gap-1 font-semibold">
-                <HardDrive className="w-3.5 h-3.5 text-slate-500" />
-                <span>Kho: <strong className="text-slate-800">{archivedProducts.length}</strong> hoa</span>
+            {/* 2. POPUP BODY (SCROLLABLE) */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
+              {/* Explanatory Banner & Drive Sync Toolbar */}
+              <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-50/90 via-sky-50/70 to-emerald-50/90 border border-amber-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <FolderArchive className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+                      <span>Kho Bản Nháp &amp; Lưu Trữ Phục Hồi Dữ Liệu</span>
+                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                        Chống Xung Đột 100%
+                      </span>
+                    </h4>
+                    <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                      Mẫu hoa đã xóa được lưu trữ an toàn tại đây. Bạn có thể khôi phục lại bất kỳ lúc nào kể cả sau 30 ngày hay 3 tháng.
+                      Bấm <strong>&quot;Sao Lưu Lên Drive&quot;</strong> để đẩy dữ liệu &amp; ảnh sang Google Drive giúp web luôn tải siêu nhanh!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 flex-wrap w-full md:w-auto justify-between md:justify-end">
+                  <div className="flex items-center gap-2 text-xs text-slate-600 bg-white/90 px-3 py-1.5 rounded-xl border border-slate-200/80">
+                    <span className="font-semibold text-slate-500">
+                      Kho: <strong className="text-slate-800">{archivedProducts.length}</strong>
+                    </span>
+                    <span className="text-slate-300">|</span>
+                    <span className="font-semibold text-slate-500">
+                      Dung lượng: <strong className="text-emerald-700">{formatBytes(totalTrashSizeBytes)}</strong>
+                    </span>
+                  </div>
+
+                  {/* Sync to Google Drive */}
+                  <button
+                    type="button"
+                    onClick={handleTriggerDriveBackup}
+                    disabled={isBackingUpDrive || archivedProducts.length === 0}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Đẩy toàn bộ dữ liệu mẫu hoa đã xóa và ảnh cũ sang Google Drive"
+                  >
+                    {isBackingUpDrive ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <CloudUpload className="w-3.5 h-3.5" />
+                    )}
+                    <span>Sao Lưu Lên Drive</span>
+                  </button>
+
+                  {/* Restore from Drive */}
+                  <button
+                    type="button"
+                    onClick={() => restoreTrashFromGoogleDrive()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-2xs transition-all cursor-pointer"
+                    title="Tải lại danh sách hoa đã sao lưu từ Google Drive hoặc tệp JSON"
+                  >
+                    <CloudDownload className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Tải Lại Từ Drive</span>
+                  </button>
+                </div>
               </div>
-              <span className="text-slate-300">|</span>
-              <div className="font-semibold text-slate-500">
-                Dung lượng: <strong className="text-emerald-700">{formatBytes(totalTrashSizeBytes)}</strong>
-              </div>
-            </div>
-          </div>
 
           {/* Search & Filter Row */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/90 border border-slate-200/70">
@@ -892,7 +913,24 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
             </div>
           )}
         </div>
-      )}
+
+        {/* 3. POPUP FOOTER */}
+        <div className="p-3 sm:p-4 border-t border-slate-200/80 bg-slate-50/80 flex items-center justify-between gap-3 shrink-0">
+          <p className="text-[11px] text-slate-500 hidden sm:block">
+            💡 Mẫu hoa khôi phục tự động áp dụng thuật toán chống xung đột mã hoa, không lo bị đè dữ liệu cũ.
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsArchiveModalOpen(false)}
+            className="ml-auto px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )}
 
       {/* ========================================================================= */}
       {/* MODALS */}
