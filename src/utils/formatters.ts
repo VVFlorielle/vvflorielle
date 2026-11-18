@@ -14,11 +14,13 @@ export function normalizePhone(phone: string): string {
 }
 
 /**
- * Validates whether a phone number is a standard 10-digit Vietnamese phone number.
+ * Validates whether a phone number is an official 10-digit Vietnamese carrier phone number.
+ * Covers official prefixes for Viettel, Vinaphone, Mobifone, and Vietnamobile.
+ * Blocks VOIP / invalid prefix spoofing.
  */
 export function isValidVietnamesePhone(phone: string): boolean {
   const normalized = normalizePhone(phone);
-  return /^0[35789]\d{8}$/.test(normalized);
+  return /^(03[2-9]|05[68]|07[06-9]|08[1-689]|09[0-46-9])[0-9]{7}$/.test(normalized);
 }
 
 /**

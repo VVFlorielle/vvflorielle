@@ -42,7 +42,7 @@ import {
   INITIAL_MARQUEE_ANNOUNCEMENTS,
   calculateTieredShippingFee
 } from '../data/mockData';
-import { normalizePhone } from '../utils/formatters';
+import { normalizePhone, isValidVietnamesePhone } from '../utils/formatters';
 import { generateDataSignature, verifyDataSignature } from '../utils/security';
 import {
   uploadBillToGoogleDrive,
@@ -2389,6 +2389,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Customer Operations
   const registerCustomer = (fullName: string, phone: string, email?: string, password = 'password123'): boolean => {
     const cleanPhone = normalizePhone(phone);
+    if (!isValidVietnamesePhone(cleanPhone)) {
+      showToast('Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 số thuộc nhà mạng Việt Nam (Viettel, Vina, Mobi, Vietnamobile).', 'error');
+      return false;
+    }
     const existingPhone = customers.find((c) => normalizePhone(c.phone) === cleanPhone);
     if (existingPhone) {
       showToast('Số điện thoại này đã được đăng ký tài khoản! Mỗi SĐT chỉ gắn với 1 tài khoản.', 'error');

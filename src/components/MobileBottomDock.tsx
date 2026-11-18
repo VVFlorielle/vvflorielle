@@ -22,7 +22,8 @@ import {
   Smartphone,
   Download,
   X,
-  Settings
+  Settings,
+  ScanLine
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 import { CategoryId } from '../types';
@@ -31,11 +32,13 @@ import { useBodyScrollLock } from '../utils/scrollLock';
 interface MobileBottomDockProps {
   onOpenCategories?: () => void;
   onOpenPopup?: (type: PopupType) => void;
+  onOpenQrScanner?: () => void;
 }
 
 export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
   onOpenCategories,
   onOpenPopup,
+  onOpenQrScanner,
 }) => {
   const {
     currentView,
@@ -640,23 +643,22 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Mẫu Hoa</span>
             </button>
 
-            {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - TO RỘNG RÃI) */}
+            {/* 3. NÚT QUÉT MÃ QR FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE) */}
             <div className="min-w-0 flex-1 flex justify-center items-center h-full">
               <button
                 type="button"
                 onClick={() => {
                   handleUserInteract();
-                  setIsCartOpen(true);
+                  if (onOpenQrScanner) {
+                    onOpenQrScanner();
+                  } else {
+                    handleOrderLookupClick();
+                  }
                 }}
-                className="w-15 h-15 sm:w-16 sm:h-16 -mt-6 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_24px_rgba(249,115,22,0.48),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3.5"
-                title="Giỏ hoa của bạn (Bấm để xem)"
+                className="w-13 h-13 sm:w-14 sm:h-14 -mt-5 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_20px_rgba(249,115,22,0.45),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3 cursor-pointer"
+                title="Quét mã QR (Tra cứu đơn hàng, cọc VietQR, thiệp hoa)"
               >
-                <ShoppingCart className="w-6.5 h-6.5 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
-                {totalCartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
-                    {totalCartCount > 99 ? '99+' : totalCartCount}
-                  </span>
-                )}
+                <ScanLine className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
               </button>
             </div>
 
@@ -752,7 +754,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Mẫu Hoa</span>
             </button>
 
-            {/* 3. NÚT GIỎ HOA FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - TO RỘNG RÃI SANG TRỌNG) */}
+            {/* 3. NÚT QUÉT MÃ QR FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - ĐỒNG BỘ CHUẨN GIAO DIỆN) */}
             <div className="min-w-0 flex-1 flex justify-center items-center h-full">
               <button
                 type="button"
@@ -760,17 +762,16 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   handleUserInteract();
                   setIsCategorySheetOpen(false);
                   setIsUtilityMenuOpen(false);
-                  setIsCartOpen(true);
+                  if (onOpenQrScanner) {
+                    onOpenQrScanner();
+                  } else {
+                    handleOrderLookupClick();
+                  }
                 }}
-                className="w-15 h-15 sm:w-16 sm:h-16 -mt-6 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_24px_rgba(249,115,22,0.48),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3.5"
-                title="Giỏ hoa của bạn (Bấm để xem)"
+                className="w-13 h-13 sm:w-14 sm:h-14 -mt-5 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_20px_rgba(249,115,22,0.45),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3 cursor-pointer"
+                title="Quét mã QR (Tra cứu đơn hàng, cọc VietQR, thiệp hoa)"
               >
-                <ShoppingCart className="w-6.5 h-6.5 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
-                {totalCartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-md animate-bounce-subtle">
-                    {totalCartCount > 99 ? '99+' : totalCartCount}
-                  </span>
-                )}
+                <ScanLine className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
               </button>
             </div>
 

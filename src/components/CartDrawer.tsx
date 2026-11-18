@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '../context/StoreContext';
 import {
   X,
@@ -46,6 +47,7 @@ import {
 import { PaymentType, SavedAddress } from '../types';
 import { useBodyScrollLock } from '../utils/scrollLock';
 import { compressImage } from '../utils/imageCompressor';
+import { isValidVietnamesePhone } from '../utils/formatters';
 import { resolveCurrentLocation, resolveCurrentLocationWithAddress } from '../utils/geolocation';
 import {
   HANOI_DISTRICTS,
@@ -104,7 +106,11 @@ export const CartDrawer: React.FC = () => {
     shiftHours,
     validateVoucherForOrder,
     autoPickBestVouchers,
-    calculateMaxAllowedPoints
+    calculateMaxAllowedPoints,
+    isAdmin,
+    activeAdminUser,
+    setIsAuthModalOpen,
+    setAuthModalMode
   } = useStore();
 
   useBodyScrollLock(isCartOpen);
@@ -338,12 +344,19 @@ export const CartDrawer: React.FC = () => {
 
   const specialHoursSurcharge = specialHoursCheck.surcharge;
 
+  // Account role detection for Cart experience
+  const isOwnerAccount = Boolean(isAdmin && (activeAdminUser === 'chuquan' || activeAdminUser === 'vvflorielle'));
+  const isTestAdminAccount = Boolean(isAdmin && activeAdminUser === 'admin');
+
+  // Simulated points wallet for Admin test: 50,000 Xu
+  const availablePoints = customer?.points || (isTestAdminAccount ? 50000 : 0);
+
   // 50% max cap on points
   const maxAllowedPoints = useMemo(() => {
-    return calculateMaxAllowedPoints(flowerPrice, customer?.points || 0);
-  }, [calculateMaxAllowedPoints, flowerPrice, customer?.points]);
+    return calculateMaxAllowedPoints(flowerPrice, availablePoints);
+  }, [calculateMaxAllowedPoints, flowerPrice, availablePoints]);
 
-  const pointsDiscount = isUsingPoints && customer ? maxAllowedPoints.discountAmount : 0;
+  const pointsDiscount = isUsingPoints && (customer || isTestAdminAccount) ? maxAllowedPoints.discountAmount : 0;
   const flowerVoucherDiscount = appliedFlowerVoucher ? appliedFlowerVoucher.discountAmount : 0;
   const shippingVoucherDiscount = appliedShippingVoucher ? appliedShippingVoucher.discountAmount : 0;
 
@@ -495,6 +508,16 @@ export const CartDrawer: React.FC = () => {
     const code = (codeToApply || voucherCodeInput).trim().toUpperCase();
     if (!code) return;
 
+    // Item 6: Require customer login to apply voucher, preventing unauthorized anonymous usage
+    if (!customer && !isAdmin) {
+      showToast('🌸 Vui lòng đăng nhập số điện thoại để lưu mã và áp dụng ưu đãi này nha!', 'info');
+      setIsVoucherModalOpen(false);
+      setIsCartOpen(false);
+      setAuthModalMode('customer');
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     const res = validateVoucherForOrder(code, {
       flowerPrice,
       shippingFee,
@@ -539,6 +562,15 @@ export const CartDrawer: React.FC = () => {
 
   // Auto-pick best 2 vouchers
   const handleAutoPickBest = () => {
+    if (!customer && !isAdmin) {
+      showToast('🌸 Vui lòng đăng nhập số điện thoại để tự động chọn voucher hời nhất nha!', 'info');
+      setIsVoucherModalOpen(false);
+      setIsCartOpen(false);
+      setAuthModalMode('customer');
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     const best = autoPickBestVouchers(flowerPrice, shippingFee, selectedCartItems.length, shippingKm, customer);
     if (!best.flowerVoucher && !best.shippingVoucher) {
       showToast('Chưa có mã ưu đãi nào phù hợp với đơn hiện tại!', 'info');
@@ -650,11 +682,21 @@ export const CartDrawer: React.FC = () => {
       return;
     }
 
+    if (!isValidVietnamesePhone(senderPhone.trim())) {
+      showToast('Số điện thoại người gửi không hợp lệ! Vui lòng nhập đúng 10 số nhà mạng Việt Nam.', 'error');
+      return;
+    }
+
     const finalRecipientName = isGiftDelivery ? recipientName.trim() : senderName.trim();
     const finalRecipientPhone = isGiftDelivery ? recipientPhone.trim() : senderPhone.trim();
 
     if (!finalRecipientName || !finalRecipientPhone) {
       showToast('Vui lòng điền thông tin người nhận hoa!', 'error');
+      return;
+    }
+
+    if (!isValidVietnamesePhone(finalRecipientPhone)) {
+      showToast('Số điện thoại người nhận hoa không hợp lệ! Vui lòng nhập đúng 10 số nhà mạng Việt Nam.', 'error');
       return;
     }
 
@@ -1021,142 +1063,7 @@ export const CartDrawer: React.FC = () => {
                     </div>
                   )}
 
-                  {/* 2-TIER VOUCHER & LOYALTY CARD (SHOPEE STANDARD) */}
-                  <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-50/80 to-rose-50/50 border border-amber-200/80 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-950">
-                        <Ticket className="w-4 h-4 text-amber-600" />
-                        <span>Kho Voucher Ưu Đãi (Mã Hoa + Freeship)</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleAutoPickBest}
-                        className="text-[11px] font-bold text-amber-900 bg-amber-200/70 hover:bg-amber-300/80 px-2 py-0.5 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
-                        title="Tự động áp dụng combo hời nhất"
-                      >
-                        <Zap className="w-3 h-3 text-amber-700 fill-amber-700" />
-                        <span>Chọn mã hời nhất</span>
-                      </button>
-                    </div>
 
-                    {/* Mã Hoa Tươi */}
-                    <div className="p-2 rounded-xl bg-white/90 border border-rose-100 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Tag className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                        <div className="truncate">
-                          <span className="text-[10px] text-slate-500 block font-semibold">Mã Giảm Giá Hoa Tươi</span>
-                          {appliedFlowerVoucher ? (
-                            <span className="font-extrabold text-rose-600 truncate block">
-                              {appliedFlowerVoucher.code} (-{formatPrice(flowerVoucherDiscount)})
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 italic text-[11px]">Chưa chọn mã giảm hoa</span>
-                          )}
-                        </div>
-                      </div>
-                      {appliedFlowerVoucher ? (
-                        <button
-                          type="button"
-                          onClick={handleRemoveFlowerVoucher}
-                          className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
-                          title="Gỡ mã hoa"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setVoucherModalTab('FLOWER');
-                            setIsVoucherModalOpen(true);
-                          }}
-                          className="text-[11px] font-bold text-rose-600 hover:underline shrink-0 cursor-pointer"
-                        >
-                          Chọn mã &gt;
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Mã Vận Chuyển */}
-                    <div className="p-2 rounded-xl bg-white/90 border border-emerald-100 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Navigation className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <div className="truncate">
-                          <span className="text-[10px] text-slate-500 block font-semibold">Mã Giảm Phí Vận Chuyển</span>
-                          {appliedShippingVoucher ? (
-                            <span className="font-extrabold text-emerald-700 truncate block">
-                              {appliedShippingVoucher.code} (-{formatPrice(shippingVoucherDiscount)})
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 italic text-[11px]">Chưa chọn mã vận chuyển</span>
-                          )}
-                        </div>
-                      </div>
-                      {appliedShippingVoucher ? (
-                        <button
-                          type="button"
-                          onClick={handleRemoveShippingVoucher}
-                          className="p-1 text-slate-400 hover:text-emerald-700 cursor-pointer"
-                          title="Gỡ mã ship"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setVoucherModalTab('SHIPPING');
-                            setIsVoucherModalOpen(true);
-                          }}
-                          className="text-[11px] font-bold text-emerald-700 hover:underline shrink-0 cursor-pointer"
-                        >
-                          Chọn mã &gt;
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Khối Điểm Tích Lũy / Hoa Xu (Cap 50% tiền hoa) */}
-                    {customer ? (
-                      <div className="p-2 rounded-xl bg-amber-100/60 border border-amber-300/80 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <Coins className="w-4 h-4 text-amber-600 shrink-0" />
-                          <div>
-                            <div className="flex items-center gap-1.5 font-bold text-amber-950">
-                              <span>Dùng {maxAllowedPoints.maxPoints} Hoa Xu</span>
-                              <span className="text-rose-600 font-extrabold">(-{formatPrice(maxAllowedPoints.discountAmount)})</span>
-                            </div>
-                            <span className="text-[10px] text-slate-500 block">
-                              Ví có {customer.points} điểm • Giảm tối đa 50% tiền hoa
-                            </span>
-                          </div>
-                        </div>
-                        <input
-                          type="checkbox"
-                          disabled={maxAllowedPoints.maxPoints === 0}
-                          checked={isUsingPoints && maxAllowedPoints.maxPoints > 0}
-                          onChange={(e) => setIsUsingPoints(e.target.checked)}
-                          className="w-4 h-4 text-emerald-600 rounded border-amber-300 focus:ring-emerald-500 cursor-pointer"
-                        />
-                      </div>
-                    ) : (
-                      <div className="p-2 rounded-xl bg-rose-50/70 border border-rose-200/80 flex items-center justify-between text-[11px] text-slate-600">
-                        <div className="flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                          <span>Đăng nhập để dùng Hoa Xu &amp; nhận Freeship 35K</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsCartOpen(false);
-                            setCurrentView('customer');
-                          }}
-                          className="text-rose-600 font-bold hover:underline shrink-0 text-[11px] cursor-pointer"
-                        >
-                          Đăng nhập &gt;
-                        </button>
-                      </div>
-                    )}
-                  </div>
 
                   {/* Summary Box with 4 Cost Breakdown Tiers */}
                   <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-1.5 text-xs text-slate-700">
@@ -1819,14 +1726,14 @@ export const CartDrawer: React.FC = () => {
         {/* CỤM ĐÁY 3 HÀNG CHUẨN SHOPEE (VOUCHER, HOA XU, MUA HÀNG) */}
         {step === 'cart' && cart.length > 0 && (
           <div className="pt-2.5 border-t border-slate-200 bg-white/95 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 px-4 sm:px-6 pb-3 space-y-2 shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-            {/* HÀNG 1: SHOPEE VOUCHER BAR */}
+            {/* HÀNG 1: VOUCHER TIỆM HOA BAR */}
             <div
               onClick={() => setIsVoucherModalOpen(true)}
-              className="flex items-center justify-between py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-50/70 via-rose-50/50 to-orange-50/60 border border-amber-200/90 cursor-pointer hover:bg-amber-100/50 transition-colors"
+              className="flex items-center justify-between py-2 px-3 rounded-xl bg-gradient-to-r from-amber-50/70 via-rose-50/50 to-orange-50/60 border border-amber-200/90 cursor-pointer hover:bg-amber-100/50 transition-colors"
             >
               <div className="flex items-center gap-1.5 min-w-0">
                 <Ticket className="w-4 h-4 text-rose-500 shrink-0" />
-                <span className="text-xs font-bold text-slate-800">Shopee Voucher</span>
+                <span className="text-xs font-bold text-slate-800">Voucher Tiệm Hoa (Mã Giảm + Freeship)</span>
               </div>
 
               <div className="flex items-center gap-1.5 shrink-0">
@@ -1837,7 +1744,7 @@ export const CartDrawer: React.FC = () => {
                 )}
                 {appliedShippingVoucher && (
                   <span className="text-[10px] font-extrabold text-emerald-800 bg-emerald-100/90 border border-emerald-300 px-2 py-0.5 rounded-md">
-                    {shippingVoucherDiscount >= shippingFee ? 'Miễn Phí Vận Chuyển' : `-${formatPrice(shippingVoucherDiscount)}`}
+                    {shippingVoucherDiscount >= shippingFee ? 'Freeship' : `-${formatPrice(shippingVoucherDiscount)}`}
                   </span>
                 )}
                 {!appliedFlowerVoucher && !appliedShippingVoucher && (
@@ -1848,11 +1755,13 @@ export const CartDrawer: React.FC = () => {
             </div>
 
             {/* HÀNG 2: HOA XU BAR WITH TOGGLE SWITCH */}
-            <div className="flex items-center justify-between py-1.5 px-3 rounded-xl bg-amber-50/60 border border-amber-200/80">
-              <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-amber-50/60 border border-amber-200/80">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <Coins className="w-4 h-4 text-amber-500 shrink-0" />
-                <span className="text-xs text-slate-700 font-semibold flex items-center gap-1">
-                  <span>Dùng {customer ? `${maxAllowedPoints.maxPoints.toLocaleString('vi-VN')} Shopee Xu` : 'Hoa Xu'}</span>
+                <span className="text-xs text-slate-700 font-semibold flex items-center gap-1 flex-wrap">
+                  <span>
+                    Dùng {customer ? `${maxAllowedPoints.maxPoints.toLocaleString('vi-VN')} Hoa Xu` : isTestAdminAccount ? `${maxAllowedPoints.maxPoints.toLocaleString('vi-VN')} Hoa Xu (Admin Test)` : 'Hoa Xu'}
+                  </span>
                   {isUsingPoints && maxAllowedPoints.discountAmount > 0 && (
                     <strong className="text-rose-600 font-bold">(-{formatPrice(maxAllowedPoints.discountAmount)})</strong>
                   )}
@@ -1865,7 +1774,7 @@ export const CartDrawer: React.FC = () => {
                 </span>
               </div>
 
-              {customer ? (
+              {customer || isTestAdminAccount ? (
                 <button
                   type="button"
                   disabled={maxAllowedPoints.maxPoints === 0}
@@ -1881,14 +1790,19 @@ export const CartDrawer: React.FC = () => {
                     }`}
                   />
                 </button>
+              ) : isOwnerAccount ? (
+                <span className="text-[10px] text-emerald-800 font-semibold italic">
+                  Chủ quán xem web
+                </span>
               ) : (
                 <button
                   type="button"
                   onClick={() => {
                     setIsCartOpen(false);
-                    setCurrentView('customer');
+                    setAuthModalMode('customer');
+                    setIsAuthModalOpen(true);
                   }}
-                  className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
+                  className="text-xs text-rose-600 font-bold hover:underline cursor-pointer shrink-0"
                 >
                   Đăng nhập &gt;
                 </button>
@@ -1951,9 +1865,9 @@ export const CartDrawer: React.FC = () => {
         )}
 
         {/* MODAL KHO VOUCHER (CHUẨN SHOPEE: MÃ HOA + MÃ SHIP) */}
-        {isVoucherModalOpen && (
-          <div className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 animate-fade-in">
-            <div className="bg-white rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
+        {isVoucherModalOpen && typeof document !== 'undefined' && createPortal(
+          <div className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-[32px] w-full max-w-[420px] max-h-[85vh] flex flex-col shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden border border-slate-100">
               {/* Header */}
               <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
                 <div className="flex items-center gap-2">
@@ -2098,7 +2012,9 @@ export const CartDrawer: React.FC = () => {
                               type="button"
                               onClick={() => {
                                 handleApplyVoucherCode(promo.code);
-                                setIsVoucherModalOpen(false);
+                                if (customer || isAdmin) {
+                                  setIsVoucherModalOpen(false);
+                                }
                               }}
                               className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-xs transition-colors cursor-pointer"
                             >
@@ -2140,7 +2056,8 @@ export const CartDrawer: React.FC = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </div>

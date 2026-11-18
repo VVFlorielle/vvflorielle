@@ -170,7 +170,12 @@ export const AppContent: React.FC = () => {
           )}
 
           {/* Mobile Glass Dock for Guests / Customers (Only when NOT logged in as Admin/Owner) */}
-          {!isAdmin && <MobileBottomDock onOpenPopup={(type) => setActivePopup(type)} />}
+          {!isAdmin && (
+            <MobileBottomDock
+              onOpenPopup={(type) => setActivePopup(type)}
+              onOpenQrScanner={() => setIsQrScannerOpen(true)}
+            />
+          )}
 
           {/* Floating Speed Dial & Contact Tooltip (Right Side) */}
           <FloatingContactWidget />

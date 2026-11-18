@@ -17,6 +17,7 @@ import {
   KeyRound
 } from 'lucide-react';
 import { useBodyScrollLock } from '../utils/scrollLock';
+import { isValidVietnamesePhone } from '../utils/formatters';
 
 export const AuthModal: React.FC = () => {
   const {
@@ -118,6 +119,10 @@ export const AuthModal: React.FC = () => {
     e.preventDefault();
     if (!regFullName.trim() || !regPhone.trim()) {
       showToast('Vui lòng nhập đầy đủ Họ tên và Số điện thoại!', 'error');
+      return;
+    }
+    if (!isValidVietnamesePhone(regPhone)) {
+      showToast('Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 số thuộc nhà mạng Việt Nam (Viettel, Vina, Mobi, Vietnamobile).', 'error');
       return;
     }
     if (regPassword.length < 6) {
