@@ -323,8 +323,8 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             className="flex-1 sm:flex-initial sm:w-[84px] h-[48px] sm:h-[54px] py-1 px-1 sm:px-2 rounded-2xl hover:bg-white/40 active:scale-95 transition-all cursor-pointer flex flex-col items-center justify-center shrink-0"
             title="Quay lại trang trước"
           >
-            <img src="/icons/icon-back-3d.png" alt="Quay lại" className="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-xs" />
-            <span className="text-[9.5px] sm:text-[10.5px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+            <img src="/icons/icon-back-3d.png" alt="Quay lại" className="w-6 h-6 sm:w-6 sm:h-6 object-contain drop-shadow-xs" />
+            <span className="text-[10px] sm:text-[10.5px] font-bold text-slate-700 mt-0.5 leading-snug whitespace-nowrap">
               Quay lại
             </span>
           </button>
@@ -344,10 +344,10 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
               <img
                 src={isOwner ? '/icons/icon-pricing-3d.png' : '/icons/icon-user-3d.png'}
                 alt={isOwner ? 'Bảng giá' : 'Thành viên'}
-                className="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-xs"
+                className="w-6 h-6 sm:w-6 sm:h-6 object-contain drop-shadow-xs"
               />
             </div>
-            <span className="text-[9.5px] sm:text-[10.5px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+            <span className="text-[10px] sm:text-[10.5px] font-bold text-slate-700 mt-0.5 leading-snug whitespace-nowrap">
               {isOwner ? 'Bảng giá' : 'Thành viên'}
             </span>
           </button>
@@ -362,7 +362,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             className="w-12 sm:w-14 h-12 sm:h-14 -mt-3.5 sm:-mt-4 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-400 text-white shadow-[0_8px_24px_rgba(249,115,22,0.45)] ring-3 sm:ring-4 ring-white/95 flex items-center justify-center hover:scale-108 active:scale-95 transition-transform duration-200 cursor-pointer group shrink-0 mx-0.5 sm:mx-1"
             title="Quét mã QR đơn hàng hoặc tạo QR thanh toán"
           >
-            <ScanLine className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
+            <ScanLine className="w-5.5 h-5.5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
             <span className="sr-only">Tạo QR / Quét QR</span>
           </button>
 
@@ -380,9 +380,9 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             <img
               src={isStorefront ? '/icons/icon-grid-3d.png' : '/icons/icon-store-3d.png'}
               alt={isStorefront ? 'Quản trị' : 'Trang web'}
-              className="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-xs"
+              className="w-6 h-6 sm:w-6 sm:h-6 object-contain drop-shadow-xs"
             />
-            <span className="text-[9.5px] sm:text-[10.5px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+            <span className="text-[10px] sm:text-[10.5px] font-bold text-slate-700 mt-0.5 leading-snug whitespace-nowrap">
               {isStorefront ? 'Quản trị' : 'Trang web'}
             </span>
           </button>
@@ -404,7 +404,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
               <img
                 src={isOwner ? '/icons/icon-orders-3d.png' : '/icons/icon-cms-3d.png'}
                 alt={isOwner ? 'Đơn hàng' : 'Giao diện'}
-                className="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-xs"
+                className="w-6 h-6 sm:w-6 sm:h-6 object-contain drop-shadow-xs"
               />
               {isOwner && pendingOrdersCount > 0 && (
                 <span className="absolute -top-1 -right-2 min-w-[15px] h-4 px-1 rounded-full bg-rose-600 text-white text-[8px] font-bold flex items-center justify-center shadow-md animate-pulse border border-white">
@@ -412,7 +412,7 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
                 </span>
               )}
             </div>
-            <span className="text-[9.5px] sm:text-[10.5px] font-bold text-slate-700 mt-0.5 leading-none whitespace-nowrap">
+            <span className="text-[10px] sm:text-[10.5px] font-bold text-slate-700 mt-0.5 leading-snug whitespace-nowrap">
               {isOwner ? 'Đơn hàng' : 'Giao diện'}
             </span>
           </button>

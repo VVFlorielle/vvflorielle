@@ -621,7 +621,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               className="min-w-0 flex-1 flex flex-col items-center justify-center h-[48px] py-0.5 px-0.5 rounded-2xl text-slate-600 hover:text-emerald-800 transition-all active:scale-95 cursor-pointer"
               title="Quay lại"
             >
-              <img src="/icons/icon-back-3d.png" alt="Quay lại" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <img src="/icons/icon-back-3d.png" alt="Quay lại" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Quay Lại</span>
             </button>
 
@@ -636,7 +636,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               }`}
               title="Khám phá mẫu hoa tươi"
             >
-              <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Mẫu Hoa</span>
             </button>
 
@@ -671,7 +671,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               }`}
               title="Quản lý & Theo dõi đơn hàng"
             >
-              <img src="/icons/icon-orders-3d.png" alt="Đơn hàng" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <img src="/icons/icon-orders-3d.png" alt="Đơn hàng" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Đơn Hàng</span>
             </button>
 
@@ -685,23 +685,23 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               {isAdmin ? (
                 (currentView === 'admin' || currentView === 'owner') ? (
                   <>
-                    <img src="/icons/icon-store-3d.png" alt="Xem Web" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                    <img src="/icons/icon-store-3d.png" alt="Xem Web" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
                     <span className="text-[10px] sm:text-[10.5px] font-bold text-purple-900 leading-snug tracking-tight truncate max-w-full text-center">Xem Web</span>
                   </>
                 ) : (
                   <>
-                    <img src="/icons/icon-shield-3d.png" alt="Quản trị" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                    <img src="/icons/icon-shield-3d.png" alt="Quản trị" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
                     <span className="text-[10px] sm:text-[10.5px] font-bold text-purple-900 leading-snug tracking-tight truncate max-w-full text-center">Quản Trị</span>
                   </>
                 )
               ) : currentView === 'customer' ? (
                 <>
-                  <img src="/icons/icon-store-3d.png" alt="Cửa hàng" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <img src="/icons/icon-store-3d.png" alt="Cửa hàng" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
                   <span className="text-[10px] sm:text-[10.5px] font-bold text-emerald-900 leading-snug tracking-tight truncate max-w-full text-center">Cửa Hàng</span>
                 </>
               ) : (
                 <>
-                  <img src="/icons/icon-user-3d.png" alt="Tài khoản" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+                  <img src="/icons/icon-user-3d.png" alt="Tài khoản" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
                   <span className="text-[10px] sm:text-[10.5px] font-bold text-emerald-900 leading-snug tracking-tight truncate max-w-full text-center">
                     {customer ? customer.fullName.split(' ').slice(-1)[0] : 'Tài Khoản'}
                   </span>
@@ -729,7 +729,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               }`}
               title="Trang chủ tiệm hoa"
             >
-              <img src="/icons/icon-home-3d.png" alt="Trang chủ" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <img src="/icons/icon-home-3d.png" alt="Trang chủ" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Trang Chủ</span>
             </button>
 
@@ -748,7 +748,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               }`}
               title="Mẫu hoa & Dịch vụ"
             >
-              <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Mẫu Hoa</span>
             </button>
 
@@ -789,7 +789,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               }`}
               title="Tiện ích & Tra cứu"
             >
-              <img src="/icons/icon-services-3d.png" alt="Tiện ích" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <img src="/icons/icon-services-3d.png" alt="Tiện ích" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Tiện Ích</span>
             </button>
 
@@ -810,7 +810,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               }`}
               title="Đăng nhập tài khoản"
             >
-              <img src="/icons/icon-user-3d.png" alt="Đăng nhập" className="w-5 h-5 object-contain drop-shadow-xs mb-0.5 shrink-0" />
+              <img src="/icons/icon-user-3d.png" alt="Đăng nhập" className="w-6 h-6 object-contain drop-shadow-xs mb-0.5 shrink-0" />
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Đăng Nhập</span>
             </button>
           </>

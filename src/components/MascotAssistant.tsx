@@ -100,6 +100,7 @@ export const MascotAssistant: React.FC = () => {
     return list;
   }, [weatherState?.condition]);
   const [inputText, setInputText] = useState('');
+  const [isAiThinking, setIsAiThinking] = useState(false);
   const [messages, setMessages] = useState<MascotMessage[]>([
     {
       id: 'msg-1',
@@ -261,9 +262,58 @@ export const MascotAssistant: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
 
-    // Generate response
-    setTimeout(() => {
+    // Generate response (Supports Gemini 1.5 Flash when API key is configured)
+    const runResponse = async () => {
       let replyText = predefinedAnswer;
+
+      if (!replyText && settings?.geminiApiKey) {
+        setIsAiThinking(true);
+        try {
+          const systemPrompt = `Bạn là Flori 🌸 - Trợ lý ảo AI siêu dễ thương, am hiểu sâu sắc về hoa tươi nghệ thuật và tận tâm của "Tiệm Hoa V&V Florielle" (Hà Nội, Hotline/Zalo: ${settings.hotline || '0906.721.442'}, Địa chỉ: ${settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội'}).
+Đặc điểm trả lời của Flori:
+- Xưng hô ngọt ngào, gần gũi: "Flori chào bạn nè 💕", "Flori tư vấn cho bạn nha 🌸", dùng emoji hoa lá xinh xắn.
+- Tư vấn chọn hoa theo ngân sách và dịp tặng: Hoa khai trương hồng phát, hoa sinh nhật ngọt ngào, hoa tình yêu lãng mạn, lan hồ điệp quý phái, hoa chia buồn trang trọng.
+- Gợi ý câu chúc, lời nhắn thiệp mừng ý nghĩa, cảm xúc theo từng người nhận (người yêu, mẹ, sếp, bạn thân).
+- Tư vấn cách chăm sóc hoa tươi bền lâu (thay nước mỗi ngày, cắt vát gốc 45 độ, tránh ánh nắng gắt).
+- Trả lời súc tích, ấm áp, dưới 100 từ, tự nhiên và khuyến khích đặt hoa tại tiệm.`;
+
+          const resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.geminiApiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: {
+                  parts: [{ text: systemPrompt }]
+                },
+                contents: [
+                  {
+                    role: 'user',
+                    parts: [{ text: questionText }]
+                  }
+                ],
+                generationConfig: {
+                  temperature: 0.7,
+                  maxOutputTokens: 250
+                }
+              })
+            }
+          );
+
+          if (resp.ok) {
+            const data = await resp.json();
+            const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (aiText) {
+              replyText = aiText.trim();
+            }
+          }
+        } catch (err) {
+          console.warn('Gemini AI fallback:', err);
+        } finally {
+          setIsAiThinking(false);
+        }
+      }
+
       if (!replyText) {
         const lower = questionText.toLowerCase();
         const matchedFaq = FAQ_CHIPS.find((f) =>
@@ -296,7 +346,9 @@ export const MascotAssistant: React.FC = () => {
       };
 
       setMessages((prev) => [...prev, botMsg]);
-    }, 400);
+    };
+
+    runResponse();
   };
 
   const handleSpeakMessage = (text: string) => {
@@ -448,8 +500,9 @@ export const MascotAssistant: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-sm">Flori Trợ Lý Ảo</h3>
-                    <span className="text-[9px] font-black bg-white text-emerald-800 px-1.5 py-0.2 rounded-full">
-                      AI 24/7
+                    <span className="text-[9px] font-black bg-white text-emerald-800 px-1.5 py-0.2 rounded-full flex items-center gap-0.5">
+                      {settings.geminiApiKey ? <Sparkles className="w-2.5 h-2.5 text-purple-600" /> : null}
+                      <span>{settings.geminiApiKey ? 'Gemini AI' : 'AI 24/7'}</span>
                     </span>
                   </div>
                   <p className="text-[10px] text-emerald-100 flex items-center gap-1">
@@ -537,6 +590,17 @@ export const MascotAssistant: React.FC = () => {
                   </div>
                 </div>
               ))}
+              {isAiThinking && (
+                <div className="flex gap-2 items-start justify-start animate-in fade-in duration-200">
+                  <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 shadow-xs border border-emerald-200 overflow-hidden">
+                    <img src={settings.mascotImageUrl || '/images/mascot/mascot-1.webp'} alt="Flori" className="w-5 h-5 object-contain" />
+                  </div>
+                  <div className="p-2.5 px-3.5 rounded-2xl bg-white/95 text-emerald-950 rounded-tl-none border border-emerald-200 shadow-2xs flex items-center gap-2 text-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-spin" />
+                    <span className="font-medium text-[11px]">Flori đang suy nghĩ câu trả lời cho bạn nè...</span>
+                  </div>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 

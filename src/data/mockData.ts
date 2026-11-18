@@ -1008,7 +1008,8 @@ export const INITIAL_SHOP_SETTINGS: ShopSettings = {
   googleDriveFolderId: '1icGtru1WHHVF48k9M1wL9Fei-wLsg4Bq',
   billArchiveRetentionDays: 7,
   autoArchiveToDriveEnabled: true,
-  autoPurgeLocalBase64Enabled: true
+  autoPurgeLocalBase64Enabled: true,
+  geminiApiKey: ''
 };
 
 export const AVAILABLE_MASCOTS = [

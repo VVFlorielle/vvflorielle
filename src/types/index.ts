@@ -282,6 +282,7 @@ export interface ShopSettings {
   billArchiveRetentionDays?: number; // Số ngày giữ ảnh bill trên web trước khi lưu trữ (Mặc định: 7 ngày)
   autoArchiveToDriveEnabled?: boolean; // Tự động đồng bộ lên Drive khi quá hạn
   autoPurgeLocalBase64Enabled?: boolean; // Tự động giải phóng base64 cục bộ để tránh tràn bộ nhớ web
+  geminiApiKey?: string; // Khóa Google Gemini API dùng cho Trợ lý AI đọc bill & tự duyệt cọc và chatbot Flori
 }
 
 export interface PromotionItem {

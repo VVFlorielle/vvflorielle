@@ -22,7 +22,10 @@ import {
   Smartphone,
   X,
   Eye,
-  EyeOff
+  EyeOff,
+  Bot,
+  Sparkles,
+  Cpu
 } from 'lucide-react';
 import { useStore } from '../../../context/StoreContext';
 import { ShopSettings } from '../../../types';
@@ -112,6 +115,68 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
   // Gmail config state
   const [editAdminEmail, setEditAdminEmail] = useState(adminEmail);
   const [editAppPassword, setEditAppPassword] = useState('');
+
+  // Google Gemini AI Key State (Security Level 2)
+  const [geminiApiKeyInput, setGeminiApiKeyInput] = useState<string>(settings?.geminiApiKey || '');
+  const [showApiKey, setShowApiKey] = useState<boolean>(false);
+  const [isTestingKey, setIsTestingKey] = useState<boolean>(false);
+  const [testKeyResult, setTestKeyResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  useEffect(() => {
+    if (settings?.geminiApiKey !== undefined) {
+      setGeminiApiKeyInput(settings.geminiApiKey);
+    }
+  }, [settings?.geminiApiKey]);
+
+  const handleTestGeminiKey = async () => {
+    const key = geminiApiKeyInput.trim();
+    if (!key) {
+      setTestKeyResult({ success: false, message: 'Vui lòng dán mã API Key trước khi kiểm tra!' });
+      return;
+    }
+    setIsTestingKey(true);
+    setTestKeyResult(null);
+    try {
+      const resp = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Ping test. Reply with OK' }] }]
+          })
+        }
+      );
+      if (resp.ok) {
+        setTestKeyResult({
+          success: true,
+          message: 'Khóa API hoạt động hoàn hảo! Đã kết nối thành công với Google Gemini 1.5 Flash.'
+        });
+        showToast('Kết nối Google Gemini AI thành công!', 'success');
+      } else {
+        const errJson = await resp.json().catch(() => ({}));
+        const errMsg = errJson?.error?.message || `Lỗi phản hồi (${resp.status})`;
+        setTestKeyResult({
+          success: false,
+          message: `Không thể kết nối: ${errMsg}`
+        });
+      }
+    } catch (e: any) {
+      setTestKeyResult({
+        success: false,
+        message: `Lỗi kết nối mạng: ${e.message || 'Không thể gọi tới Google API'}`
+      });
+    } finally {
+      setIsTestingKey(false);
+    }
+  };
+
+  const handleSaveGeminiKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanKey = geminiApiKeyInput.trim();
+    updateSettings?.({ geminiApiKey: cleanKey });
+    showToast(cleanKey ? 'Đã lưu Khóa Google Gemini AI thành công!' : 'Đã xóa Khóa Google Gemini AI', 'success');
+  };
 
   // Bank & VietQR Protected Configuration state
   const [bankId, setBankId] = useState<string>(settings?.bankId || 'VCB');
@@ -947,6 +1012,134 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
           >
             Gửi Thử Nghiệm OTP
           </button>
+        </div>
+      </form>
+
+      {/* CARD 4.5: CẤU HÌNH KHÓA GOOGLE GEMINI AI (DUYỆT CỌC TỰ ĐỘNG & TRỢ LÝ FLORI) */}
+      <form
+        onSubmit={handleSaveGeminiKey}
+        className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px] border-2 border-purple-200/80 shadow-md bg-gradient-to-br from-white via-purple-50/20 to-white"
+      >
+        <div className="border-b border-slate-200/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+              <Bot className="w-5 h-5 text-purple-600" />
+              <span>Khóa Bảo Mật Google Gemini AI (Duyệt Cọc Tự Động &amp; Trợ Lý Flori)</span>
+            </h3>
+            <p className="text-xs text-slate-500">
+              Chỉ bảo mật cấp 2 (Mã PIN 1909203) mới có quyền cấu hình, đổi hoặc xóa khóa API
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5 self-start sm:self-auto">
+            <span
+              className={`text-[10.5px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 ${
+                geminiApiKeyInput.trim()
+                  ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                  : 'bg-slate-100 text-slate-600 border border-slate-200'
+              }`}
+            >
+              <Sparkles className="w-3 h-3 text-purple-600" />
+              <span>{geminiApiKeyInput.trim() ? 'Đã Cấu Hình Khóa' : 'Chưa Có Khóa'}</span>
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-semibold text-slate-600 flex items-center gap-1">
+                <Cpu className="w-3.5 h-3.5 text-purple-600" />
+                <span>Mã API Key Google Gemini (Bắt đầu bằng AIzaSy...)</span>
+              </label>
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-bold text-purple-700 hover:text-purple-900 flex items-center gap-0.5 hover:underline"
+              >
+                <span>Lấy khóa miễn phí (Google AI Studio)</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={geminiApiKeyInput}
+                onChange={(e) => {
+                  setGeminiApiKeyInput(e.target.value);
+                  setTestKeyResult(null);
+                }}
+                className="glass-input w-full text-xs py-2.5 pl-3 pr-10 font-mono rounded-xl border border-purple-200 focus:border-purple-500"
+                placeholder="Dán mã API Key tại đây (ví dụ: AIzaSy...)"
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 cursor-pointer"
+                title={showApiKey ? 'Ẩn mã' : 'Hiện mã'}
+              >
+                {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              Khóa này được dùng chung cho cả 2 tính năng: <strong>AI đọc biên lai tự duyệt cọc</strong> và <strong>Trợ lý ảo Flori tư vấn hoa thông minh</strong> (Hạn mức miễn phí: 1.500 lượt/ngày).
+            </span>
+          </div>
+
+          {/* Test Result Message */}
+          {testKeyResult && (
+            <div
+              className={`p-3 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
+                testKeyResult.success
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                  : 'bg-rose-50 border-rose-200 text-rose-900'
+              }`}
+            >
+              {testKeyResult.success ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              )}
+              <span className="font-medium">{testKeyResult.message}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <button
+            type="submit"
+            className="btn-primary text-xs py-2 px-5 rounded-xl cursor-pointer bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm flex items-center gap-1.5"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Lưu Khóa AI</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleTestGeminiKey}
+            disabled={isTestingKey}
+            className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer border border-purple-200 hover:bg-purple-50 text-purple-800 flex items-center gap-1.5"
+          >
+            {isTestingKey ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+            )}
+            <span>{isTestingKey ? 'Đang kiểm tra kết nối...' : 'Kiểm Tra Kết Nối AI'}</span>
+          </button>
+          {geminiApiKeyInput && (
+            <button
+              type="button"
+              onClick={() => {
+                setGeminiApiKeyInput('');
+                updateSettings?.({ geminiApiKey: '' });
+                setTestKeyResult(null);
+                showToast('Đã xóa Khóa Google Gemini AI', 'info');
+              }}
+              className="text-xs text-rose-600 hover:text-rose-800 hover:underline py-2 px-3 ml-auto cursor-pointer font-medium"
+            >
+              Xóa Khóa
+            </button>
+          )}
         </div>
       </form>
 
