@@ -1136,11 +1136,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             return [...trulyNew, ...prev];
           });
 
-          // Phát chuông báo đơn mới chuẩn Florist
-          playNewOrderChime(true);
+          const latest = brandNewOrders[0];
+
+          // Phát chuông báo đơn mới & toast chỉ khi đang ở vai trò Quản trị viên
+          if (isAdmin) {
+            playNewOrderChime(true);
+            showToast(`🔔 Có đơn hoa mới #${latest.id} từ ${latest.senderName}!`, 'success');
+          }
 
           // Kích hoạt thông báo hệ thống & quả chuông Admin
-          const latest = brandNewOrders[0];
           sendAppNotification({
             recipientRole: 'ADMIN',
             title: `🔔 Có đơn hàng hoa mới #${latest.id}!`,
@@ -1148,7 +1152,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             type: 'ORDER_NEW',
             orderId: latest.id
           });
-          showToast(`🔔 Có đơn hoa mới #${latest.id} từ ${latest.senderName}!`, 'success');
         }
       } catch (err) {
         // Bỏ qua nếu mất kết nối mạng tạm thời
@@ -1222,16 +1225,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     setNotifications((prev) => [newNotif, ...prev].slice(0, 40));
-    setActiveBannerNotification(newNotif);
 
-    if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
-    bannerTimerRef.current = setTimeout(() => {
-      setActiveBannerNotification(null);
-    }, 5500);
+    // Chỉ hiển thị Banner Popup nếu thông báo dành cho đúng đối tượng đang thao tác
+    const isTargetUser = !notifData.recipientRole ||
+                         (notifData.recipientRole === 'ADMIN' && isAdmin) ||
+                         (notifData.recipientRole === 'CUSTOMER' && customer);
 
-    // Audio Alerts - Chuông báo âm thanh bình thường (Không dùng giọng đọc AI)
-    if (settings.voiceAlertsEnabled) {
-      playNotificationChime();
+    if (isTargetUser) {
+      setActiveBannerNotification(newNotif);
+      if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+      bannerTimerRef.current = setTimeout(() => {
+        setActiveBannerNotification(null);
+      }, 5500);
+
+      // Audio Alerts - Chuông báo âm thanh bình thường (Không dùng giọng đọc AI)
+      if (settings.voiceAlertsEnabled) {
+        playNotificationChime();
+      }
     }
   };
 
