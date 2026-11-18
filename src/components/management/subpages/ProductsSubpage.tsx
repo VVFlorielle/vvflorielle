@@ -543,12 +543,9 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
                     <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200">
                       {archivedProducts.length} mẫu hoa
                     </span>
-                    <span className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                      Chống Xung Đột 100%
-                    </span>
                   </div>
                   <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                    Khôi phục mẫu hoa đã xóa hoặc đồng bộ lưu trữ an toàn sang Google Drive
+                    Quản lý phục hồi mẫu hoa và sao lưu dữ liệu sang Google Drive
                   </p>
                 </div>
               </div>
@@ -565,45 +562,25 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
             </div>
 
             {/* 2. POPUP BODY (SCROLLABLE) */}
-            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
-              {/* Explanatory Banner & Drive Sync Toolbar */}
-              <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-50/90 via-sky-50/70 to-emerald-50/90 border border-amber-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <FolderArchive className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
-                      <span>Kho Bản Nháp &amp; Lưu Trữ Phục Hồi Dữ Liệu</span>
-                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
-                        Chống Xung Đột 100%
-                      </span>
-                    </h4>
-                    <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
-                      Mẫu hoa đã xóa được lưu trữ an toàn tại đây. Bạn có thể khôi phục lại bất kỳ lúc nào kể cả sau 30 ngày hay 3 tháng.
-                      Bấm <strong>&quot;Sao Lưu Lên Drive&quot;</strong> để đẩy dữ liệu &amp; ảnh sang Google Drive giúp web luôn tải siêu nhanh!
-                    </p>
-                  </div>
+            <div className="p-3.5 sm:p-5 overflow-y-auto space-y-3.5 flex-1">
+              {/* Sleek Minimalist Drive Sync Toolbar */}
+              <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between gap-2.5 flex-wrap">
+                {/* Stats badge */}
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 px-1">
+                  <span>Kho: <strong className="text-slate-900">{archivedProducts.length}</strong> hoa</span>
+                  <span className="text-slate-300">•</span>
+                  <span>Dung lượng: <strong className="text-emerald-700">{formatBytes(totalTrashSizeBytes)}</strong></span>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0 flex-wrap w-full md:w-auto justify-between md:justify-end">
-                  <div className="flex items-center gap-2 text-xs text-slate-600 bg-white/90 px-3 py-1.5 rounded-xl border border-slate-200/80">
-                    <span className="font-semibold text-slate-500">
-                      Kho: <strong className="text-slate-800">{archivedProducts.length}</strong>
-                    </span>
-                    <span className="text-slate-300">|</span>
-                    <span className="font-semibold text-slate-500">
-                      Dung lượng: <strong className="text-emerald-700">{formatBytes(totalTrashSizeBytes)}</strong>
-                    </span>
-                  </div>
-
+                {/* Drive Action Buttons */}
+                <div className="flex items-center gap-2 shrink-0">
                   {/* Sync to Google Drive */}
                   <button
                     type="button"
                     onClick={handleTriggerDriveBackup}
                     disabled={isBackingUpDrive || archivedProducts.length === 0}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Đẩy toàn bộ dữ liệu mẫu hoa đã xóa và ảnh cũ sang Google Drive"
+                    title="Đẩy dữ liệu mẫu hoa đã xóa sang Google Drive"
                   >
                     {isBackingUpDrive ? (
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -617,11 +594,12 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
                   <button
                     type="button"
                     onClick={() => restoreTrashFromGoogleDrive()}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-2xs transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/90 font-bold text-xs shadow-2xs transition-all cursor-pointer"
                     title="Tải lại danh sách hoa đã sao lưu từ Google Drive hoặc tệp JSON"
                   >
                     <CloudDownload className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Tải Lại Từ Drive</span>
+                    <span className="hidden sm:inline">Tải Lại Từ Drive</span>
+                    <span className="sm:hidden">Tải Lại</span>
                   </button>
                 </div>
               </div>
@@ -753,154 +731,289 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
 
           {/* TABLE / LIST OF ARCHIVED PRODUCTS */}
           {filteredArchived.length > 0 ? (
-            <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-2xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold text-[11px]">
-                      <th className="py-2.5 px-3 w-10 text-center">
+            <div className="space-y-3">
+              {/* DESKTOP TABLE VIEW */}
+              <div className="hidden sm:block rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-2xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold text-[11px]">
+                        <th className="py-2.5 px-3 w-10 text-center">
+                          <button
+                            type="button"
+                            onClick={handleToggleSelectAll}
+                            className="cursor-pointer inline-flex items-center justify-center text-slate-500 hover:text-amber-600"
+                            title="Chọn tất cả hoặc bỏ chọn"
+                          >
+                            {selectedArchiveIds.length === filteredArchived.length && filteredArchived.length > 0 ? (
+                              <CheckSquare className="w-4 h-4 text-amber-600" />
+                            ) : (
+                              <Square className="w-4 h-4" />
+                            )}
+                          </button>
+                        </th>
+                        <th className="py-2.5 px-3 w-16">Hình Ảnh</th>
+                        <th className="py-2.5 px-3 min-w-[180px]">Tên &amp; Thành Phần Hoa</th>
+                        <th className="py-2.5 px-3 min-w-[120px]">Vị Trí Trước Khi Xóa</th>
+                        <th className="py-2.5 px-3 min-w-[100px]">Dung Lượng</th>
+                        <th className="py-2.5 px-3 min-w-[140px]">Ngày Xóa &amp; Drive</th>
+                        <th className="py-2.5 px-3 text-right min-w-[140px]">Thao Tác</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {filteredArchived.map((item) => {
+                        const isSelected = selectedArchiveIds.includes(item.id);
+                        const p = item.originalProduct;
+
+                        return (
+                          <tr
+                            key={item.id}
+                            className={`hover:bg-amber-50/40 transition-colors ${
+                              isSelected ? 'bg-amber-50/70' : ''
+                            }`}
+                          >
+                            {/* Checkbox */}
+                            <td className="py-2.5 px-3 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleSelectItem(item.id)}
+                                className="cursor-pointer inline-flex items-center justify-center text-slate-500 hover:text-amber-600"
+                              >
+                                {isSelected ? (
+                                  <CheckSquare className="w-4 h-4 text-amber-600" />
+                                ) : (
+                                  <Square className="w-4 h-4" />
+                                )}
+                              </button>
+                            </td>
+
+                            {/* Thumbnail */}
+                            <td className="py-2.5 px-3">
+                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative group/thumb shrink-0">
+                                {p.imageUrl ? (
+                                  <img
+                                    src={p.imageUrl}
+                                    alt={p.name}
+                                    className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                    <Flower2 className="w-5 h-5" />
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Name & Flower types */}
+                            <td className="py-2.5 px-3">
+                              <div className="font-bold text-slate-900 line-clamp-1">{p.name}</div>
+                              <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                                {p.flowerTypes?.join(', ') || p.description}
+                              </div>
+                              <div className="font-extrabold text-[11px] text-emerald-700 mt-0.5">
+                                {formatPrice(p.price)}
+                              </div>
+                            </td>
+
+                            {/* Original category */}
+                            <td className="py-2.5 px-3">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                <Layers className="w-3 h-3 text-slate-400" />
+                                <span>{item.originalCategoryName || p.categoryId}</span>
+                              </span>
+                            </td>
+
+                            {/* Size */}
+                            <td className="py-2.5 px-3 text-[11px] font-semibold text-slate-600">
+                              <span>~{item.sizeFormatted}</span>
+                            </td>
+
+                            {/* Deleted Date & Drive status */}
+                            <td className="py-2.5 px-3 space-y-1">
+                              <div className="text-[11px] font-medium text-slate-600 flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-slate-400" />
+                                <span>{item.formattedDeletedAt}</span>
+                              </div>
+                              <div>
+                                {item.driveBackedUp ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                                    <Cloud className="w-2.5 h-2.5 text-sky-600" />
+                                    <span>Đã lưu trên Drive</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                    <HardDrive className="w-2.5 h-2.5 text-slate-400" />
+                                    <span>Lưu trên máy</span>
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Row Actions */}
+                            <td className="py-2.5 px-3 text-right">
+                              <div className="inline-flex items-center gap-1.5 justify-end">
+                                {/* Restore Row Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => setArchiveToRestore(item)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                                  title="Khôi phục mẫu hoa này về danh mục bán"
+                                >
+                                  <RotateCcw className="w-3 h-3 text-emerald-600" />
+                                  <span>Khôi Phục</span>
+                                </button>
+
+                                {/* Hard Delete Row Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => setArchiveToHardDelete(item)}
+                                  className="inline-flex items-center gap-1 p-1 sm:px-2 sm:py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                                  title="Xóa vĩnh viễn mẫu hoa này khỏi kho lưu trữ"
+                                >
+                                  <Trash2 className="w-3 h-3 text-rose-600" />
+                                  <span className="hidden sm:inline">Xóa Hẳn</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* MOBILE 2-ROW CARD VIEW (KHÔNG CẦN CUỘN NGANG) */}
+              <div className="sm:hidden space-y-2.5">
+                {/* Select All on Mobile */}
+                <div className="flex items-center justify-between px-1 py-0.5 text-xs text-slate-600">
+                  <button
+                    type="button"
+                    onClick={handleToggleSelectAll}
+                    className="inline-flex items-center gap-1.5 font-bold cursor-pointer text-slate-700 hover:text-amber-700"
+                  >
+                    {selectedArchiveIds.length === filteredArchived.length && filteredArchived.length > 0 ? (
+                      <CheckSquare className="w-4 h-4 text-amber-600" />
+                    ) : (
+                      <Square className="w-4 h-4 text-slate-400" />
+                    )}
+                    <span>Chọn tất cả ({filteredArchived.length})</span>
+                  </button>
+                  {selectedArchiveIds.length > 0 && (
+                    <span className="text-[11px] text-amber-800 font-bold bg-amber-100 px-2 py-0.5 rounded-full">
+                      Đã chọn {selectedArchiveIds.length}
+                    </span>
+                  )}
+                </div>
+
+                {filteredArchived.map((item) => {
+                  const isSelected = selectedArchiveIds.includes(item.id);
+                  const p = item.originalProduct;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className={`p-3 rounded-2xl bg-white border transition-all space-y-2.5 shadow-2xs ${
+                        isSelected
+                          ? 'border-amber-400 bg-amber-50/40 ring-1 ring-amber-400/30'
+                          : 'border-slate-200/90'
+                      }`}
+                    >
+                      {/* HÀNG 1: Checkbox + Ảnh + Tên hoa (nhỏ lại, xuống 2 dòng) + Giá bán */}
+                      <div className="flex items-start gap-2.5">
+                        {/* Checkbox */}
                         <button
                           type="button"
-                          onClick={handleToggleSelectAll}
-                          className="cursor-pointer inline-flex items-center justify-center text-slate-500 hover:text-amber-600"
-                          title="Chọn tất cả hoặc bỏ chọn"
+                          onClick={() => handleToggleSelectItem(item.id)}
+                          className="pt-1 cursor-pointer text-slate-400 hover:text-amber-600 shrink-0"
                         >
-                          {selectedArchiveIds.length === filteredArchived.length && filteredArchived.length > 0 ? (
+                          {isSelected ? (
                             <CheckSquare className="w-4 h-4 text-amber-600" />
                           ) : (
                             <Square className="w-4 h-4" />
                           )}
                         </button>
-                      </th>
-                      <th className="py-2.5 px-3 w-16">Hình Ảnh</th>
-                      <th className="py-2.5 px-3 min-w-[180px]">Tên &amp; Thành Phần Hoa</th>
-                      <th className="py-2.5 px-3 min-w-[120px]">Vị Trí Trước Khi Xóa</th>
-                      <th className="py-2.5 px-3 min-w-[100px]">Dung Lượng</th>
-                      <th className="py-2.5 px-3 min-w-[140px]">Ngày Xóa &amp; Drive</th>
-                      <th className="py-2.5 px-3 text-right min-w-[140px]">Thao Tác</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredArchived.map((item) => {
-                      const isSelected = selectedArchiveIds.includes(item.id);
-                      const p = item.originalProduct;
 
-                      return (
-                        <tr
-                          key={item.id}
-                          className={`hover:bg-amber-50/40 transition-colors ${
-                            isSelected ? 'bg-amber-50/70' : ''
-                          }`}
-                        >
-                          {/* Checkbox */}
-                          <td className="py-2.5 px-3 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleToggleSelectItem(item.id)}
-                              className="cursor-pointer inline-flex items-center justify-center text-slate-500 hover:text-amber-600"
-                            >
-                              {isSelected ? (
-                                <CheckSquare className="w-4 h-4 text-amber-600" />
-                              ) : (
-                                <Square className="w-4 h-4" />
-                              )}
-                            </button>
-                          </td>
-
-                          {/* Thumbnail */}
-                          <td className="py-2.5 px-3">
-                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative group/thumb shrink-0">
-                              {p.imageUrl ? (
-                                <img
-                                  src={p.imageUrl}
-                                  alt={p.name}
-                                  className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform duration-300"
-                                  loading="lazy"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
-                                  <Flower2 className="w-5 h-5" />
-                                </div>
-                              )}
+                        {/* Thumbnail vuông 44px */}
+                        <div className="w-11 h-11 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                          {p.imageUrl ? (
+                            <img
+                              src={p.imageUrl}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                              <Flower2 className="w-5 h-5" />
                             </div>
-                          </td>
+                          )}
+                        </div>
 
-                          {/* Name & Flower types */}
-                          <td className="py-2.5 px-3">
-                            <div className="font-bold text-slate-900 line-clamp-1">{p.name}</div>
-                            <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                              {p.flowerTypes?.join(', ') || p.description}
-                            </div>
-                            <div className="font-extrabold text-[11px] text-emerald-700 mt-0.5">
-                              {formatPrice(p.price)}
-                            </div>
-                          </td>
+                        {/* Tên hoa nhỏ lại, xuống dòng 2 hàng + Giá tiền */}
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-bold text-xs text-slate-900 line-clamp-2 leading-snug">
+                            {p.name}
+                          </h4>
+                          {p.flowerTypes && p.flowerTypes.length > 0 && (
+                            <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
+                              {p.flowerTypes.join(', ')}
+                            </p>
+                          )}
+                          <div className="font-extrabold text-xs text-emerald-700 mt-0.5">
+                            {formatPrice(p.price)}
+                          </div>
+                        </div>
+                      </div>
 
-                          {/* Original category */}
-                          <td className="py-2.5 px-3">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                              <Layers className="w-3 h-3 text-slate-400" />
-                              <span>{item.originalCategoryName || p.categoryId}</span>
+                      {/* HÀNG 2: Thông số vị trí/ngày bên trái + 2 Nút thao tác Khôi Phục & Xóa bên phải */}
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                        {/* Thông tin phụ */}
+                        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 truncate max-w-[90px]">
+                            {item.originalCategoryName || p.categoryId}
+                          </span>
+                          <span className="text-[9px] text-slate-400">
+                            {item.formattedDeletedAt?.split(' ')[0] || ''}
+                          </span>
+                          {item.driveBackedUp ? (
+                            <span className="text-[9px] font-bold text-sky-700 bg-sky-50 px-1 py-0.2 rounded border border-sky-200">
+                              Drive
                             </span>
-                          </td>
+                          ) : (
+                            <span className="text-[9px] text-slate-500 bg-slate-100 px-1 py-0.2 rounded">
+                              {item.sizeFormatted}
+                            </span>
+                          )}
+                        </div>
 
-                          {/* Size */}
-                          <td className="py-2.5 px-3 text-[11px] font-semibold text-slate-600">
-                            <span>~{item.sizeFormatted}</span>
-                          </td>
+                        {/* 2 Nút bấm bấm trực tiếp tại chỗ không cần cuộn ngang */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setArchiveToRestore(item)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                            title="Khôi phục mẫu hoa này về danh mục bán"
+                          >
+                            <RotateCcw className="w-3 h-3 text-emerald-600" />
+                            <span>Khôi Phục</span>
+                          </button>
 
-                          {/* Deleted Date & Drive status */}
-                          <td className="py-2.5 px-3 space-y-1">
-                            <div className="text-[11px] font-medium text-slate-600 flex items-center gap-1">
-                              <Calendar className="w-3 h-3 text-slate-400" />
-                              <span>{item.formattedDeletedAt}</span>
-                            </div>
-                            <div>
-                              {item.driveBackedUp ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
-                                  <Cloud className="w-2.5 h-2.5 text-sky-600" />
-                                  <span>Đã lưu trên Drive</span>
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                  <HardDrive className="w-2.5 h-2.5 text-slate-400" />
-                                  <span>Lưu trên máy</span>
-                                </span>
-                              )}
-                            </div>
-                          </td>
-
-                          {/* Row Actions */}
-                          <td className="py-2.5 px-3 text-right">
-                            <div className="inline-flex items-center gap-1.5 justify-end">
-                              {/* Restore Row Button */}
-                              <button
-                                type="button"
-                                onClick={() => setArchiveToRestore(item)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
-                                title="Khôi phục mẫu hoa này về danh mục bán"
-                              >
-                                <RotateCcw className="w-3 h-3 text-emerald-600" />
-                                <span>Khôi Phục</span>
-                              </button>
-
-                              {/* Hard Delete Row Button */}
-                              <button
-                                type="button"
-                                onClick={() => setArchiveToHardDelete(item)}
-                                className="inline-flex items-center gap-1 p-1 sm:px-2 sm:py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
-                                title="Xóa vĩnh viễn mẫu hoa này khỏi kho lưu trữ"
-                              >
-                                <Trash2 className="w-3 h-3 text-rose-600" />
-                                <span className="hidden sm:inline">Xóa Hẳn</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          <button
+                            type="button"
+                            onClick={() => setArchiveToHardDelete(item)}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                            title="Xóa vĩnh viễn mẫu hoa này khỏi kho lưu trữ"
+                          >
+                            <Trash2 className="w-3 h-3 text-rose-600" />
+                            <span>Xóa</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (
@@ -917,7 +1030,7 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
         {/* 3. POPUP FOOTER */}
         <div className="p-3 sm:p-4 border-t border-slate-200/80 bg-slate-50/80 flex items-center justify-between gap-3 shrink-0">
           <p className="text-[11px] text-slate-500 hidden sm:block">
-            💡 Mẫu hoa khôi phục tự động áp dụng thuật toán chống xung đột mã hoa, không lo bị đè dữ liệu cũ.
+            Mẫu hoa khôi phục sẽ tự động quay về đúng danh mục ban đầu trên website.
           </p>
           <button
             type="button"
