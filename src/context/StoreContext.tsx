@@ -667,6 +667,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return saved ? JSON.parse(saved) : [];
   });
 
+  // User-requested Test Data Purge & Sync (Clear old mock test orders/revenue, set up customer Ninh Vũ)
+  if (typeof window !== 'undefined') {
+    const cleanVersion = localStorage.getItem('vvf_data_clean_version');
+    if (cleanVersion !== 'v3_clean_ninhvu_real') {
+      try {
+        localStorage.setItem('vvf_data_clean_version', 'v3_clean_ninhvu_real');
+        localStorage.setItem('vvf_orders', JSON.stringify([]));
+        localStorage.setItem('vvf_customers', JSON.stringify(INITIAL_CUSTOMERS));
+        localStorage.removeItem('vvf_customer');
+      } catch (e) {
+        // Safe fallback
+      }
+    }
+  }
+
   const [orders, setOrders] = useState<Order[]>(() => {
     const saved = localStorage.getItem('vvf_orders');
     const parsedOrders: Order[] = saved ? JSON.parse(saved) : INITIAL_ORDERS;
