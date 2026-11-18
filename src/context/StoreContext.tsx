@@ -741,7 +741,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length >= 9) return parsed;
       } catch (e) {}
     }
     return INITIAL_REVIEWS;

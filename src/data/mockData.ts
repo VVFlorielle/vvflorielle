@@ -1777,5 +1777,73 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     status: 'APPROVED',
     isPinned: false,
     source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-06',
+    customerName: 'Đặng Phương Mai',
+    customerPhone: '0978112233',
+    rating: 5,
+    title: 'Bình Lan Hồ Điệp trắng 5 cành sang trọng tặng tân gia sếp',
+    comment: 'Tiệm đóng gói và vận chuyển chậu lan hồ điệp rất chuyên nghiệp. Hoa nở đều, cành uốn nghệ thuật, chậu gốm men trắng dày dặn. Sếp mình nhận được khen hết lời, florist còn hướng dẫn mẹo tưới nước chăm hoa rất kỹ càng.',
+    productName: 'Bình Hoa Lan Hồ Điệp Trắng Tinh Khôi (5 Cành)',
+    images: [
+      'https://images.unsplash.com/photo-1594040226829-7f251ab46d80?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '02/11/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    adminReply: 'Dạ V&V Florielle cảm ơn chị Phương Mai nhiều ạ! Chúc sếp chị tân gia đại cát đại lộc!',
+    adminRepliedAt: '02/11/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-07',
+    customerName: 'Vũ Hải Đăng',
+    customerPhone: '0981223344',
+    rating: 5,
+    title: 'Bó hoa hướng dương tặng em gái tốt nghiệp đại học rực rỡ nắng hạ',
+    comment: 'Hoa hướng dương bông to đều, cánh vàng tươi không tì vết, gói giấy báo vintage chuẩn gu trẻ trung. Florist giao đúng giờ hẹn trước cổng trường ĐH Quốc Gia Hà Nội, hỗ trợ chụp ảnh kỷ niệm siêu nhiệt tình!',
+    productName: 'Bó Hoa Hướng Dương Nắng Hạ Rạng Ngời',
+    images: [
+      'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '29/10/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    source: 'ZALO_FEEDBACK'
+  },
+  {
+    id: 'rev-08',
+    customerName: 'Phạm Bích Ngọc',
+    customerPhone: '0966334455',
+    rating: 5,
+    title: 'Lẵng hoa hồng pastel kỷ niệm ngày cưới 5 năm của hai vợ chồng',
+    comment: 'Chồng mình đặt bất ngờ lẵng hoa gửi đến văn phòng làm mình xúc động phát khóc. Tông màu hồng trà phối lá bạc và cúc mẫu đơn rất sang chảnh, cắm xốp giữ ẩm tốt nên để bàn làm việc cả tuần vẫn thơm ngát.',
+    productName: 'Lẵng Hoa Hồng Pastel Dịu Dàng - Hạnh Phúc Viên Mãn',
+    images: [
+      'https://images.unsplash.com/photo-1533616688419-b7a585564566?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '25/10/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    adminReply: 'Chúc mừng kỷ niệm 5 năm ngày cưới của anh chị ạ! Chúc tình yêu của hai bạn luôn nồng nàn như hoa tươi! 💖',
+    adminRepliedAt: '25/10/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-09',
+    customerName: 'Đỗ Tuấn Kiệt',
+    customerPhone: '0903556677',
+    rating: 5,
+    title: 'Hộp hoa baby cầu vồng tặng bạn gái tròn 100 ngày yêu',
+    comment: 'Hộp hoa baby phối màu pastel cầu vồng cực kỳ xinh xắn, bạn gái mình thích mê luôn. Shop tặng kèm đèn led đom đóm lấp lánh buổi tối lãng mạn vô cùng. Rất ưng ý dịch vụ và sự chu đáo của tiệm hoa.',
+    productName: 'Hộp Hoa Baby Cầu Vồng Ngọt Ngào (Tặng Kèm Đèn Led)',
+    images: [
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '20/10/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    source: 'CUSTOMER_WEB'
   }
 ];
