@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   LayoutTemplate,
   Save,
@@ -1534,9 +1535,9 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
         </section>
       )}
 
-      {/* 3. In-App Discard Confirmation Modal (No window.confirm) */}
-      {showDiscardConfirm && (
-        <div className="fixed inset-0 z-[2010] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+      {/* 3. In-App Discard Confirmation Modal (Dùng createPortal vào document.body) */}
+      {showDiscardConfirm && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100050] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-slate-100 space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">
               <AlertTriangle className="w-6 h-6" />
@@ -1564,7 +1565,8 @@ export const CmsLiveviewSubpage: React.FC<CmsLiveviewSubpageProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </main>
   );

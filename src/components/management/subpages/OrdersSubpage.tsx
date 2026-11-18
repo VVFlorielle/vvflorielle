@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '../../../context/StoreContext';
+import { useBodyScrollLock } from '../../../utils/scrollLock';
 import {
   Search,
   MapPin,
@@ -83,6 +85,9 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
 
   // Sample image modal
   const [previewSampleImage, setPreviewSampleImage] = useState<string | null>(null);
+
+  // Khóa cuộn trang khi mở bất kỳ popup nào (Từ chối, Xem ảnh mẫu, In phiếu)
+  useBodyScrollLock(rejectModalState.isOpen || Boolean(previewSampleImage) || Boolean(orderToPrint));
 
   const filteredOrders = orders.filter((o) => {
     const matchSearch =
@@ -789,14 +794,14 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
         )}
       </div>
 
-      {/* Reject Modal */}
-      {rejectModalState.isOpen && (
+      {/* Reject Modal (Dùng createPortal vào document.body để nổi hẳn lên toàn màn hình, căn giữa tuyệt đối) */}
+      {rejectModalState.isOpen && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[100010] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100050] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setRejectModalState({ isOpen: false, orderId: null, mode: 'ORDER_REJECT', reason: '' })}
         >
           <div
-            className="bg-white rounded-3xl p-5 max-w-md w-full shadow-2xl space-y-3"
+            className="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full shadow-2xl space-y-3.5 border border-slate-100 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -809,7 +814,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
               <button
                 type="button"
                 onClick={() => setRejectModalState({ isOpen: false, orderId: null, mode: 'ORDER_REJECT', reason: '' })}
-                className="p-1 text-slate-400 hover:text-slate-700"
+                className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -840,9 +845,9 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
                   key={preset}
                   type="button"
                   onClick={() => setRejectModalState((prev) => ({ ...prev, reason: preset }))}
-                  className={`w-full text-left p-2 rounded-xl text-xs transition-colors cursor-pointer border ${
+                  className={`w-full text-left p-2.5 rounded-xl text-xs transition-colors cursor-pointer border ${
                     rejectModalState.reason === preset
-                      ? 'bg-purple-50 text-purple-900 border-purple-300 font-semibold'
+                      ? 'bg-purple-50 text-purple-900 border-purple-300 font-semibold shadow-2xs'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
@@ -859,7 +864,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
                 rows={2}
                 value={rejectModalState.reason}
                 onChange={(e) => setRejectModalState((prev) => ({ ...prev, reason: e.target.value }))}
-                className="glass-input w-full text-xs p-2 rounded-xl"
+                className="glass-input w-full text-xs p-2.5 rounded-xl border border-slate-200"
                 placeholder="Nhập lý do cụ thể..."
               />
             </div>
@@ -868,30 +873,31 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
               <button
                 type="button"
                 onClick={() => setRejectModalState({ isOpen: false, orderId: null, mode: 'ORDER_REJECT', reason: '' })}
-                className="btn-secondary py-2 px-4 text-xs font-semibold rounded-xl"
+                className="btn-secondary py-2 px-4 text-xs font-semibold rounded-xl cursor-pointer"
               >
                 Hủy bỏ
               </button>
               <button
                 type="button"
                 onClick={handleConfirmReject}
-                className="py-2 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl cursor-pointer shadow-sm"
+                className="py-2 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl cursor-pointer shadow-sm active:scale-95 transition-all"
               >
                 Xác Nhận Gửi Khách
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Preview sample image modal */}
-      {previewSampleImage && (
+      {/* Preview sample image modal (Dùng createPortal vào document.body) */}
+      {previewSampleImage && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[100020] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100050] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setPreviewSampleImage(null)}
         >
           <div
-            className="bg-white p-4 rounded-3xl max-w-md w-full space-y-3"
+            className="bg-white p-4 rounded-3xl max-w-md w-full space-y-3 shadow-2xl border border-slate-100"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -899,7 +905,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
               <button
                 type="button"
                 onClick={() => setPreviewSampleImage(null)}
-                className="text-xs text-slate-400 hover:text-slate-800 font-bold"
+                className="text-xs text-slate-400 hover:text-slate-800 font-bold cursor-pointer"
               >
                 Đóng
               </button>
@@ -908,12 +914,13 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
               <img src={previewSampleImage} alt="Mẫu hoa yêu cầu" className="w-full h-full object-contain" />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* MODAL IN PHIẾU GIAO HOA NGHỆ THUẬT */}
-      {orderToPrint && (
-        <div className="fixed inset-0 z-[100030] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 animate-fade-in print:p-0 print:bg-white print:fixed print:inset-0">
+      {/* MODAL IN PHIẾU GIAO HOA NGHỆ THUẬT (Dùng createPortal vào document.body) */}
+      {orderToPrint && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100050] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 animate-fade-in print:p-0 print:bg-white print:fixed print:inset-0">
           <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-slate-200 print:border-none print:shadow-none print:rounded-none max-h-[92vh] flex flex-col printable-delivery-slip">
             {/* Modal Actions Bar (Hidden when printing) */}
             <div className="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between print:hidden print-hide">
@@ -1079,7 +1086,8 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

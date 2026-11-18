@@ -638,10 +638,10 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
         </div>
       </form>
 
-      {/* 2FA MODAL XÁC THỰC THAY ĐỔI TÀI KHOẢN NGÂN HÀNG VIETQR */}
-      {isBank2FaModalOpen && (
+      {/* 2FA MODAL XÁC THỰC THAY ĐỔI TÀI KHOẢN NGÂN HÀNG VIETQR (Dùng createPortal vào document.body) */}
+      {isBank2FaModalOpen && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[100050] flex items-center justify-center p-3 sm:p-5 bg-slate-900/25 backdrop-blur-sm select-none animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100050] flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsBank2FaModalOpen(false);
           }}
@@ -747,7 +747,8 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* CARD 2: ĐỔI MẬT KHẨU ĐĂNG NHẬP QUẢN TRỊ */}

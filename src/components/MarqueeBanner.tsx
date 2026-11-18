@@ -22,14 +22,14 @@ export const MarqueeBanner: React.FC<MarqueeBannerProps> = ({ onOpenPopup, isScr
           ? 'bg-white/40 backdrop-blur-md border border-white/45 shadow-none'
           : 'glass-nav-luminous'
       }`}>
-        {/* Left Indicator Pill */}
+        {/* Left Indicator Pill (Màu đỏ cam thương mại điện tử nổi bật chuẩn V&V Florielle) */}
         <div
           onClick={() => onOpenPopup && onOpenPopup('promotions')}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-[11px] font-bold shadow-sm shrink-0 cursor-pointer hover:scale-105 transition-transform"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#ee4d2d] to-[#f97316] text-white text-[11px] font-bold shadow-md shadow-orange-500/25 shrink-0 cursor-pointer hover:scale-105 transition-transform"
           title="Xem chi tiết các chương trình khuyến mãi"
         >
-          <Megaphone className="w-3.5 h-3.5 animate-pulse" />
-          <span className="hidden sm:inline">ƯU ĐÃI & TIN NỔI BẬT</span>
+          <Megaphone className="w-3.5 h-3.5 animate-pulse text-amber-200" />
+          <span className="hidden sm:inline">ƯU ĐÃI &amp; TIN NỔI BẬT</span>
           <span className="sm:hidden">TIN MỚI</span>
         </div>
 
@@ -46,15 +46,17 @@ export const MarqueeBanner: React.FC<MarqueeBannerProps> = ({ onOpenPopup, isScr
                     onOpenPopup('promotions');
                   }
                 }}
-                className="inline-flex items-center gap-2 text-xs text-slate-700 font-medium cursor-pointer hover:text-emerald-700 transition-colors"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-slate-800 cursor-pointer hover:text-[#ee4d2d] transition-colors group/item"
               >
-                {item.tag && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
+                {item.tag ? (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-orange-50 text-[#ee4d2d] border border-orange-200/90 shadow-2xs">
                     {item.tag}
                   </span>
+                ) : (
+                  <Sparkles className="w-3 h-3 text-[#ee4d2d] shrink-0" />
                 )}
-                <span>{item.text}</span>
-                <span className="text-emerald-400 font-bold">•</span>
+                <span className="group-hover/item:text-[#ee4d2d] transition-colors">{item.text}</span>
+                <span className="text-[#ee4d2d] font-bold">•</span>
               </div>
             ))}
           </div>
@@ -64,7 +66,7 @@ export const MarqueeBanner: React.FC<MarqueeBannerProps> = ({ onOpenPopup, isScr
         {onOpenPopup && (
           <button
             onClick={() => onOpenPopup('promotions')}
-            className="hidden md:flex items-center gap-1 text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 shrink-0 hover:underline"
+            className="hidden md:flex items-center gap-1 text-[11px] font-bold text-[#ee4d2d] hover:text-[#d73211] shrink-0 hover:underline"
           >
             <span>Chi tiết</span>
             <ChevronRight className="w-3 h-3" />

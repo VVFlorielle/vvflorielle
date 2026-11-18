@@ -320,27 +320,45 @@ export const applyTheme = (config: ThemeConfig) => {
       background-color: ${secondary} !important;
     }
 
-    /* Light Tints & Badges (Matches all Tailwind opacity variants like bg-emerald-50/90, bg-emerald-100/80) */
+    /* Light Tints & Badges (Matches exact classes, avoiding hover modifiers) */
     .theme-light-bg,
-    [class*="bg-emerald-50"]:not(.fixed-semantic),
-    [class*="bg-emerald-100"]:not(.fixed-semantic) {
+    .bg-emerald-50,
+    .bg-emerald-100,
+    [class~="bg-emerald-50"],
+    [class~="bg-emerald-100"] {
       background-color: ${light} !important;
     }
 
-    /* Primary Text Highlights (Matches text-emerald-700/800/900 and with opacity slashes) */
+    /* Primary Text Highlights: Chỉ áp dụng cho chữ mang class text-emerald-700/800/900 trực tiếp,
+       TUYỆT ĐỐI KHÔNG ép màu lên các nút mang hover:text-emerald-700 khi chưa hover (Ảnh 1 & 2 menu) */
     .theme-text-primary,
-    [class*="text-emerald-700"]:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price),
-    [class*="text-emerald-800"]:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price),
-    [class*="text-emerald-900"]:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price) {
+    .text-emerald-700:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price),
+    .text-emerald-800:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price),
+    .text-emerald-900:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price),
+    [class~="text-emerald-700"]:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price),
+    [class~="text-emerald-800"]:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price),
+    [class~="text-emerald-900"]:not(.fixed-semantic):not(.fixed-price-red-orange):not(.product-price) {
       color: ${primary} !important;
     }
 
-    /* Primary Border Accents (Matches border-emerald-200/300/400/500 with or without /80, /90 slashes) */
+    /* Hiệu ứng Hover chính xác cho chữ */
+    .hover\\:text-emerald-700:hover:not(.fixed-semantic),
+    .hover\\:text-emerald-800:hover:not(.fixed-semantic),
+    [class~="hover:text-emerald-700"]:hover:not(.fixed-semantic),
+    [class~="hover:text-emerald-800"]:hover:not(.fixed-semantic) {
+      color: ${primary} !important;
+    }
+
+    /* Primary Border Accents */
     .theme-border-primary,
-    [class*="border-emerald-200"]:not(.fixed-semantic),
-    [class*="border-emerald-300"]:not(.fixed-semantic),
-    [class*="border-emerald-400"]:not(.fixed-semantic),
-    [class*="border-emerald-500"]:not(.fixed-semantic) {
+    .border-emerald-200:not(.fixed-semantic),
+    .border-emerald-300:not(.fixed-semantic),
+    .border-emerald-400:not(.fixed-semantic),
+    .border-emerald-500:not(.fixed-semantic),
+    [class~="border-emerald-200"]:not(.fixed-semantic),
+    [class~="border-emerald-300"]:not(.fixed-semantic),
+    [class~="border-emerald-400"]:not(.fixed-semantic),
+    [class~="border-emerald-500"]:not(.fixed-semantic) {
       border-color: ${borderGentle} !important;
     }
 
