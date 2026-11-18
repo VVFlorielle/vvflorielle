@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { CustomerReview } from '../../types';
+import { useBodyScrollLock } from '../../utils/scrollLock';
 import {
   Star,
   CheckCircle2,
@@ -33,6 +34,9 @@ export const CustomerReviewsSection: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const popupBodyRef = useRef<HTMLDivElement>(null);
 
+  // Lock body scroll when any modal or lightbox is active
+  useBodyScrollLock(Boolean(isAllReviewsModalOpen || selectedReviewDetail || lightboxImage));
+
   // Horizontal scroll carousel controls
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -51,20 +55,55 @@ export const CustomerReviewsSection: React.FC = () => {
     setCanFilterScrollRight(scrollLeft < scrollWidth - clientWidth - 6);
   }, []);
 
-  // 1. Tất cả đánh giá ĐÃ DUYỆT VÀ CÓ PHẢN HỒI (xem trọn vẹn trong Popup Xem tất cả)
+  // 1. Tất cả đánh giá ĐÃ DUYỆT VÀ CÓ PHẢN HỒI (dùng làm nguồn dữ liệu chuẩn cho toàn bộ hệ thống)
   const allApprovedReviews = useMemo(() => {
     return reviews.filter(
       (r) => r.status === 'APPROVED' && Boolean(r.adminReply && r.adminReply.trim())
     );
   }, [reviews]);
 
-  // 2. Đánh giá hiển thị ở Carousel Trang Chủ:
-  // Ưu tiên hiển thị đánh giá tốt có ảnh và CHỈ NHỮNG ĐÁNH GIÁ ĐƯỢC CHỌN GHIM (isPinned)
-  const homepageFeaturedReviews = useMemo(() => {
-    const pinned = allApprovedReviews.filter((r) => r.isPinned);
-    const pool = pinned.length > 0 ? pinned : allApprovedReviews;
+  // 2. Thống kê toàn bộ cửa hàng (Dùng hiển thị số lượng ở cả hàng nút lọc bên ngoài trang chủ VÀ trong Popup)
+  // USER REQUIREMENT (Ảnh 1): Thông số trên hàng nút lọc bên ngoài là thông số của TỔNG toàn bộ đánh giá, không phải của riêng 4 cái ghim!
+  const stats = useMemo(() => {
+    const total = allApprovedReviews.length;
+    if (total === 0) return { avg: 5.0, count: 0, fiveStar: 0, fourStar: 0, threeStar: 0, twoStar: 0, oneStar: 0, hasPhoto: 0, pinned: 0 };
 
-    return [...pool].sort((a, b) => {
+    const sum = allApprovedReviews.reduce((acc, r) => acc + (r.rating || 5), 0);
+    const avg = Math.round((sum / total) * 10) / 10;
+    const fiveStar = allApprovedReviews.filter((r) => r.rating === 5).length;
+    const fourStar = allApprovedReviews.filter((r) => r.rating === 4).length;
+    const threeStar = allApprovedReviews.filter((r) => r.rating === 3).length;
+    const twoStar = allApprovedReviews.filter((r) => r.rating === 2).length;
+    const oneStar = allApprovedReviews.filter((r) => r.rating === 1).length;
+    const hasPhoto = allApprovedReviews.filter((r) => r.images && r.images.length > 0).length;
+    const pinned = allApprovedReviews.filter((r) => r.isPinned).length;
+
+    return { avg, count: total, fiveStar, fourStar, threeStar, twoStar, oneStar, hasPhoto, pinned };
+  }, [allApprovedReviews]);
+
+  // 3. Bộ lọc cho Carousel Trang Chủ:
+  // Lọc từ allApprovedReviews theo filter được chọn (ALL, 5_STAR, 4_STAR, HAS_PHOTO, PINNED...)
+  // Luôn sắp xếp ưu tiên: Ghim (nổi bật) lên đầu -> Có ảnh -> Điểm sao cao nhất
+  const displayReviews = useMemo(() => {
+    let list = [...allApprovedReviews];
+
+    if (activeFilter === '5_STAR') {
+      list = list.filter((r) => r.rating === 5);
+    } else if (activeFilter === '4_STAR') {
+      list = list.filter((r) => r.rating === 4);
+    } else if (activeFilter === '3_STAR') {
+      list = list.filter((r) => r.rating === 3);
+    } else if (activeFilter === '2_STAR') {
+      list = list.filter((r) => r.rating === 2);
+    } else if (activeFilter === '1_STAR') {
+      list = list.filter((r) => r.rating === 1);
+    } else if (activeFilter === 'HAS_PHOTO') {
+      list = list.filter((r) => r.images && r.images.length > 0);
+    } else if (activeFilter === 'PINNED') {
+      list = list.filter((r) => r.isPinned);
+    }
+
+    return list.sort((a, b) => {
       // Ghim trước
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
@@ -75,65 +114,9 @@ export const CustomerReviewsSection: React.FC = () => {
       // Điểm sao cao nhất
       return (b.rating || 5) - (a.rating || 5);
     });
-  }, [allApprovedReviews]);
+  }, [allApprovedReviews, activeFilter]);
 
-  // Thống kê cho hàng nút lọc trên Carousel Trang Chủ
-  const stats = useMemo(() => {
-    const total = homepageFeaturedReviews.length;
-    if (total === 0) return { avg: 5.0, count: 0, fiveStar: 0, fourStar: 0, threeStar: 0, twoStar: 0, oneStar: 0, hasPhoto: 0, pinned: 0 };
-
-    const sum = homepageFeaturedReviews.reduce((acc, r) => acc + (r.rating || 5), 0);
-    const avg = Math.round((sum / total) * 10) / 10;
-    const fiveStar = homepageFeaturedReviews.filter((r) => r.rating === 5).length;
-    const fourStar = homepageFeaturedReviews.filter((r) => r.rating === 4).length;
-    const threeStar = homepageFeaturedReviews.filter((r) => r.rating === 3).length;
-    const twoStar = homepageFeaturedReviews.filter((r) => r.rating === 2).length;
-    const oneStar = homepageFeaturedReviews.filter((r) => r.rating === 1).length;
-    const hasPhoto = homepageFeaturedReviews.filter((r) => r.images && r.images.length > 0).length;
-    const pinned = homepageFeaturedReviews.filter((r) => r.isPinned).length;
-
-    return { avg, count: total, fiveStar, fourStar, threeStar, twoStar, oneStar, hasPhoto, pinned };
-  }, [homepageFeaturedReviews]);
-
-  // Thống kê cho Popup Tất Cả Đánh Giá
-  const allStats = useMemo(() => {
-    const total = allApprovedReviews.length;
-    const fiveStar = allApprovedReviews.filter((r) => r.rating === 5).length;
-    const fourStar = allApprovedReviews.filter((r) => r.rating === 4).length;
-    const threeStar = allApprovedReviews.filter((r) => r.rating === 3).length;
-    const hasPhoto = allApprovedReviews.filter((r) => r.images && r.images.length > 0).length;
-    const pinned = allApprovedReviews.filter((r) => r.isPinned).length;
-    return { total, fiveStar, fourStar, threeStar, hasPhoto, pinned };
-  }, [allApprovedReviews]);
-
-  // Bộ lọc cho Carousel Trang Chủ
-  const displayReviews = useMemo(() => {
-    let filtered = [...homepageFeaturedReviews];
-
-    if (activeFilter === '5_STAR') {
-      filtered = filtered.filter((r) => r.rating === 5);
-    } else if (activeFilter === '4_STAR') {
-      filtered = filtered.filter((r) => r.rating === 4);
-    } else if (activeFilter === '3_STAR') {
-      filtered = filtered.filter((r) => r.rating === 3);
-    } else if (activeFilter === '2_STAR') {
-      filtered = filtered.filter((r) => r.rating === 2);
-    } else if (activeFilter === '1_STAR') {
-      filtered = filtered.filter((r) => r.rating === 1);
-    } else if (activeFilter === 'HAS_PHOTO') {
-      filtered = filtered.filter((r) => r.images && r.images.length > 0);
-    } else if (activeFilter === 'PINNED') {
-      filtered = filtered.filter((r) => r.isPinned);
-    }
-
-    return filtered.sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-      return 0;
-    });
-  }, [homepageFeaturedReviews, activeFilter]);
-
-  // Tối đa 9 đánh giá ghim ở thanh cuộn trang chủ
+  // Tối đa 9 đánh giá hiển thị ở thanh cuộn trang chủ
   const limitedReviews = useMemo(() => {
     return displayReviews.slice(0, 9);
   }, [displayReviews]);
@@ -696,30 +679,32 @@ export const CustomerReviewsSection: React.FC = () => {
       {/* 5. Modal Chi Tiết Đánh Giá (Mở khi bấm vào thẻ đánh giá) */}
       {selectedReviewDetail && (
         <div
-          className="fixed inset-0 z-[9995] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+          className="glass-overlay z-[100000] flex items-center justify-center p-3 sm:p-5 md:p-6 animate-in fade-in duration-200"
           onClick={() => setSelectedReviewDetail(null)}
         >
           <div
-            className="relative w-full max-w-xl max-h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-emerald-100"
+            className="glass-modal-content w-full max-w-xl my-auto max-h-[92dvh] sm:max-h-[88vh] flex flex-col relative overflow-hidden border border-emerald-100/90 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/80">
+            <div className="glass-modal-header shrink-0 flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/90">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <h4 className="font-bold text-sm text-slate-800">Chi Tiết Đánh Giá Thực Tế</h4>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedReviewDetail(null)}
                 className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+                title="Đóng cửa sổ"
+                aria-label="Đóng cửa sổ"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-5 overflow-y-auto space-y-4">
+            <div className="glass-modal-body flex-1 p-4 sm:p-5 overflow-y-auto space-y-4 no-scrollbar">
               {/* Customer Info & Stars */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -884,18 +869,18 @@ export const CustomerReviewsSection: React.FC = () => {
         </div>
       )}
 
-      {/* 6. Modal Xem Tất Cả Đánh Giá (Popup nổi bo viền hoàn chỉnh, hỗ trợ lưới 2-3 cột & phân trang 1 2 3) */}
+      {/* 6. Modal Xem Tất Cả Đánh Giá (Popup nổi chuẩn glass-overlay & glass-modal-content, tự co giãn dọc vừa vặn không tràn khung) */}
       {isAllReviewsModalOpen && (
         <div
-          className="fixed inset-0 z-[9994] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200"
+          className="glass-overlay z-[100000] flex items-center justify-center p-3 sm:p-5 md:p-6 animate-in fade-in duration-200"
           onClick={() => setIsAllReviewsModalOpen(false)}
         >
           <div
-            className="relative w-full max-w-6xl h-[88vh] max-h-[88vh] bg-gradient-to-b from-white via-slate-50/50 to-emerald-50/20 rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.4)] flex flex-col border border-white/80 ring-1 ring-black/10 animate-in zoom-in-95 duration-200"
+            className="glass-modal-content w-full max-w-5xl my-auto max-h-[92dvh] sm:max-h-[88vh] flex flex-col relative overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header cố định ở đầu Popup */}
-            <div className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-white/95 backdrop-blur-md border-b border-emerald-100/80 z-10">
+            <div className="glass-modal-header shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5 border-b border-emerald-100/80 bg-white/95 backdrop-blur-md z-10">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-xs shrink-0">
                   <Sparkles className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-300" />
@@ -950,10 +935,10 @@ export const CustomerReviewsSection: React.FC = () => {
                   }`}
                 >
                   <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                  <span>5 Sao ({allStats.fiveStar})</span>
+                  <span>5 Sao ({stats.fiveStar})</span>
                 </button>
 
-                {allStats.fourStar > 0 && (
+                {stats.fourStar > 0 && (
                   <button
                     type="button"
                     onClick={() => { setAllReviewsFilter('4_STAR'); setCurrentPage(1); }}
@@ -964,7 +949,22 @@ export const CustomerReviewsSection: React.FC = () => {
                     }`}
                   >
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                    <span>4 Sao ({allStats.fourStar})</span>
+                    <span>4 Sao ({stats.fourStar})</span>
+                  </button>
+                )}
+
+                {stats.threeStar > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => { setAllReviewsFilter('3_STAR'); setCurrentPage(1); }}
+                    className={`px-2.5 sm:px-3 py-1 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 ${
+                      allReviewsFilter === '3_STAR'
+                        ? 'bg-emerald-600 text-white shadow-2xs scale-[1.02]'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    <span>3 Sao ({stats.threeStar})</span>
                   </button>
                 )}
 
@@ -978,10 +978,10 @@ export const CustomerReviewsSection: React.FC = () => {
                   }`}
                 >
                   <Camera className="w-3 h-3 text-emerald-600" />
-                  <span>Có ảnh ({allStats.hasPhoto})</span>
+                  <span>Có ảnh ({stats.hasPhoto})</span>
                 </button>
 
-                {allStats.pinned > 0 && (
+                {stats.pinned > 0 && (
                   <button
                     type="button"
                     onClick={() => { setAllReviewsFilter('PINNED'); setCurrentPage(1); }}
@@ -992,7 +992,7 @@ export const CustomerReviewsSection: React.FC = () => {
                     }`}
                   >
                     <Pin className="w-3 h-3 text-amber-500" />
-                    <span>Nổi bật ({allStats.pinned})</span>
+                    <span>Nổi bật ({stats.pinned})</span>
                   </button>
                 )}
               </div>
@@ -1022,7 +1022,7 @@ export const CustomerReviewsSection: React.FC = () => {
             {/* Nội dung danh sách đánh giá: Lưới 2-3 cột trên Desktop, cuộn mượt */}
             <div
               ref={popupBodyRef}
-              className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 scroll-smooth"
+              className="glass-modal-body flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 no-scrollbar"
             >
               {paginatedReviews.length === 0 ? (
                 <div className="text-center py-16 bg-white/70 rounded-3xl border border-dashed border-slate-200">
@@ -1205,7 +1205,7 @@ export const CustomerReviewsSection: React.FC = () => {
 
             {/* Thanh phân trang cố định ở đáy Popup (Chọn trang 1 2 3...) */}
             {totalPages > 1 && (
-              <div className="shrink-0 px-3 sm:px-6 py-2.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 flex items-center justify-between gap-2">
+              <div className="glass-modal-footer shrink-0 px-3 sm:px-6 py-2.5 sm:py-3.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 flex items-center justify-between gap-2">
                 <div className="text-[10.5px] sm:text-xs text-slate-500 font-medium">
                   Trang <span className="font-bold text-emerald-700">{currentPage}</span> / {totalPages} ({popupFilteredReviews.length} đánh giá)
                 </div>
@@ -1271,7 +1271,7 @@ export const CustomerReviewsSection: React.FC = () => {
       {/* 7. Image Lightbox Modal */}
       {lightboxImage && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100050] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setLightboxImage(null)}
         >
           <div
