@@ -47,6 +47,42 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSoundMuted, setIsSoundMuted] = useState(false);
 
+  // Scroll Hide / Reveal Effect (hides on scroll, reappears on stop 350ms or bottom mouse)
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let scrollStopTimer: ReturnType<typeof setTimeout> | null = null;
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      if (Math.abs(currentY - lastScrollY) > 8 && currentY > 20) {
+        setHidden(true);
+      }
+      lastScrollY = currentY;
+
+      if (scrollStopTimer) clearTimeout(scrollStopTimer);
+      scrollStopTimer = setTimeout(() => {
+        setHidden(false);
+      }, 350);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (e.clientY >= window.innerHeight - 90) {
+        setHidden(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (scrollStopTimer) clearTimeout(scrollStopTimer);
+    };
+  }, []);
+
   const resetAutoCollapse = () => {
     if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
     if (isUnfurlExpanded) {
@@ -132,8 +168,10 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
           ================================================================ */}
       {isStorefront && (
         <div
-          className={`fixed bottom-[72px] sm:bottom-[78px] z-[75] md:hidden flex items-center pointer-events-auto transition-all duration-300 ${
-            isNotificationOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          className={`fixed bottom-[72px] sm:bottom-[78px] z-[75] md:hidden flex items-center pointer-events-auto transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isNotificationOpen ? 'opacity-0 pointer-events-none' : ''
+          } ${
+            hidden ? 'translate-y-[120px] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
           } ${
             isUnfurlExpanded
               ? 'left-3 right-3 max-w-lg mx-auto'
@@ -265,7 +303,15 @@ export const ManagementBottomDock: React.FC<ManagementBottomDockProps> = ({
             [4. Đổi Quản trị ⮂ Trang web]
             [5. Chủ tiệm: Đơn hàng / Admin: Giao diện]
           ================================================================ */}
-      <div className="fixed bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[70] select-none pointer-events-auto transition-all duration-200 opacity-100 scale-100 sm:w-auto sm:min-w-[480px] management-bottom-dock-wrapper">
+      <div
+        onMouseEnter={() => setHidden(false)}
+        onTouchStart={() => setHidden(false)}
+        className={`fixed bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[70] select-none pointer-events-auto transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] sm:w-auto sm:min-w-[480px] management-bottom-dock-wrapper ${
+          hidden
+            ? 'translate-y-[120px] sm:translate-y-[140px] opacity-0 pointer-events-none'
+            : 'translate-y-0 opacity-100 pointer-events-auto'
+        }`}
+      >
         <nav
           className="flex items-center justify-between sm:justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/55 shadow-[0_12px_32px_rgba(0,0,0,0.08),inset_0_1px_1.5px_rgba(255,255,255,0.85)] w-full sm:w-auto"
           aria-label="Thanh dock điều hướng quản trị 5 nút"

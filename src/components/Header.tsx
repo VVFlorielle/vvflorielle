@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   ShoppingBag,
@@ -85,6 +85,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
   const [isNotificationHubOpen, setIsNotificationHubOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isAccountPopoverOpen, setIsAccountPopoverOpen] = useState(false);
+
+  // Desktop Menu Hover Timers (Tự mở dropdown mượt mà khi di chuột)
+  const categoryHoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const serviceHoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Scroll Dimming / Reveal effect for mobile header clusters (matching phototiinlove, 60fps rAF throttled)
   const [isScrolled, setIsScrolled] = useState(false);
@@ -678,7 +682,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
           </div>
 
           {/* === ISLAND 2: ĐẦY ĐỦ CÁC MENU CHỨC NĂNG (TRANG CHỦ, MẪU HOA, DỊCH VỤ, GIỚI THIỆU, TIN TỨC, LIÊN HỆ & TÌM KIẾM) === */}
-          <div className={`flex-1 rounded-2xl md:rounded-[24px] px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 flex items-center justify-between gap-0.5 sm:gap-1 lg:gap-1.5 min-w-0 transition-all duration-300 relative ${
+          <div className={`flex-1 rounded-2xl md:rounded-[24px] px-2 sm:px-2.5 lg:px-3 py-1.5 min-h-[46px] md:min-h-[48px] flex items-center justify-between gap-1 sm:gap-1.5 lg:gap-2 min-w-0 transition-all duration-300 relative ${
             isScrolledActive
               ? 'bg-white/12 backdrop-blur-md border border-white/40 shadow-none'
               : 'glass-nav-luminous shadow-sm'
@@ -689,7 +693,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('store');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-1.5 lg:px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`px-2 lg:px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 currentView === 'store'
                   ? 'text-emerald-900 bg-white/70 font-bold border border-white/85 shadow-[0_2px_8px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,0.9)]'
                   : 'text-slate-700 hover:text-emerald-700 hover:bg-white/40'
@@ -700,10 +704,23 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               <span className="hidden xl:inline">Trang Chủ</span>
             </button>
 
-            {/* 2. Mẫu Hoa Button & Dropdown */}
-            <div className="relative shrink-0">
+            {/* 2. Mẫu Hoa Button & Dropdown (Tự mở mượt mà khi trỏ chuột trên desktop) */}
+            <div
+              className="relative shrink-0"
+              onMouseEnter={() => {
+                if (categoryHoverTimer.current) clearTimeout(categoryHoverTimer.current);
+                if (serviceHoverTimer.current) clearTimeout(serviceHoverTimer.current);
+                setIsServiceMenuOpen(false);
+                setIsCategoryMenuOpen(true);
+              }}
+              onMouseLeave={() => {
+                categoryHoverTimer.current = setTimeout(() => {
+                  setIsCategoryMenuOpen(false);
+                }, 200);
+              }}
+            >
               <div
-                className={`inline-flex items-center rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                className={`inline-flex items-center rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                   currentView === 'catalog' || isCategoryMenuOpen
                     ? 'active-nav-pill bg-white/70 font-bold border border-white/85 shadow-[0_2px_8px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,0.9)]'
                     : 'text-slate-700 hover:bg-white/40'
@@ -718,7 +735,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                     setIsCategoryMenuOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="px-1.5 lg:px-2.5 py-1 flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                  className="px-2 lg:px-2.5 py-1.5 flex items-center gap-1.5 cursor-pointer whitespace-nowrap font-bold"
                   title="Xem tất cả mẫu hoa nghệ thuật"
                 >
                   <img src="/icons/icon-catalog-3d.png" alt="Mẫu hoa" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
@@ -731,7 +748,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                     setIsCategoryMenuOpen(!isCategoryMenuOpen);
                     setIsServiceMenuOpen(false);
                   }}
-                  className="pr-1.5 pl-0.5 py-1 text-slate-500 hover:text-emerald-700 cursor-pointer"
+                  className="pr-2 pl-0.5 py-1.5 text-slate-500 hover:text-emerald-700 cursor-pointer"
                   title="Danh mục các dòng hoa"
                 >
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
@@ -739,9 +756,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               </div>
 
               {isCategoryMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsCategoryMenuOpen(false)} />
-                  <div className="absolute top-full left-0 mt-2.5 w-72 p-2.5 rounded-2xl bg-white/95 backdrop-blur-2xl border border-white/90 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div
+                  className="absolute top-full left-0 pt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                  onMouseEnter={() => {
+                    if (categoryHoverTimer.current) clearTimeout(categoryHoverTimer.current);
+                  }}
+                  onMouseLeave={() => {
+                    categoryHoverTimer.current = setTimeout(() => {
+                      setIsCategoryMenuOpen(false);
+                    }, 200);
+                  }}
+                >
+                  <div className="w-72 p-2.5 rounded-2xl bg-white/95 backdrop-blur-2xl border border-white/90 shadow-2xl">
                     <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1 flex items-center justify-between">
                       <span>Các Dòng Hoa Tươi</span>
                       <span className="header-dropdown-badge text-[10px] font-semibold" style={{ color: 'var(--primary-color, #059669)' }}>
@@ -772,25 +798,38 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
-                              <div className="item-title font-semibold text-xs text-slate-800 truncate transition-colors">{cat.name}</div>
+                              <div className="item-title font-bold text-xs text-slate-800 truncate transition-colors">{cat.name}</div>
                               <div className="text-[10px] text-slate-400 truncate">{cat.description}</div>
                             </div>
                           </div>
                         ))}
                     </div>
                   </div>
-                </>
+                </div>
               )}
             </div>
 
-            {/* 3. Dịch Vụ Dropdown */}
-            <div className="relative shrink-0">
+            {/* 3. Dịch Vụ Dropdown (Tự mở mượt mà khi trỏ chuột trên desktop) */}
+            <div
+              className="relative shrink-0"
+              onMouseEnter={() => {
+                if (serviceHoverTimer.current) clearTimeout(serviceHoverTimer.current);
+                if (categoryHoverTimer.current) clearTimeout(categoryHoverTimer.current);
+                setIsCategoryMenuOpen(false);
+                setIsServiceMenuOpen(true);
+              }}
+              onMouseLeave={() => {
+                serviceHoverTimer.current = setTimeout(() => {
+                  setIsServiceMenuOpen(false);
+                }, 200);
+              }}
+            >
               <button
                 onClick={() => {
                   setIsServiceMenuOpen(!isServiceMenuOpen);
                   setIsCategoryMenuOpen(false);
                 }}
-                className={`px-2 lg:px-2.5 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap ${
+                className={`px-2 lg:px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
                   isServiceMenuOpen
                     ? 'active-nav-pill bg-white/70 font-bold border border-white/85 shadow-[0_2px_8px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,0.9)]'
                     : 'text-slate-700 hover:bg-white/40'
@@ -803,9 +842,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               </button>
 
               {isServiceMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsServiceMenuOpen(false)} />
-                  <div className="absolute top-full left-0 mt-2.5 w-72 p-2.5 rounded-2xl bg-white/95 backdrop-blur-2xl border border-white/90 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 space-y-1">
+                <div
+                  className="absolute top-full left-0 pt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                  onMouseEnter={() => {
+                    if (serviceHoverTimer.current) clearTimeout(serviceHoverTimer.current);
+                  }}
+                  onMouseLeave={() => {
+                    serviceHoverTimer.current = setTimeout(() => {
+                      setIsServiceMenuOpen(false);
+                    }, 200);
+                  }}
+                >
+                  <div className="w-72 p-2.5 rounded-2xl bg-white/95 backdrop-blur-2xl border border-white/90 shadow-2xl space-y-1">
                     <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
                       Dịch Vụ Hoa Chuyên Nghiệp
                     </div>
@@ -879,7 +927,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                       </div>
                     </div>
                   </div>
-                </>
+                </div>
               )}
             </div>
 
@@ -889,7 +937,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('about');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-1.5 lg:px-2.5 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`px-2 lg:px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 currentView === 'about'
                   ? 'text-emerald-900 bg-white/70 font-bold border border-white/85 shadow-[0_2px_8px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,0.9)]'
                   : 'text-slate-700 hover:text-emerald-700 hover:bg-white/40'
@@ -905,7 +953,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
               onClick={() => {
                 if (onOpenPopup) onOpenPopup('care');
               }}
-              className="px-1.5 lg:px-2.5 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 text-slate-700 hover:text-emerald-700 hover:bg-white/40 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              className="px-2 lg:px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 text-slate-700 hover:text-emerald-700 hover:bg-white/40 transition-colors cursor-pointer whitespace-nowrap shrink-0"
               title="Cẩm nang chăm sóc và ý nghĩa loài hoa"
             >
               <img src="/icons/icon-care-3d.png" alt="Cẩm nang" className="w-4 h-4 object-contain shrink-0 drop-shadow-xs" />
@@ -918,7 +966,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 setCurrentView('contact');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-1.5 lg:px-2.5 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`px-2 lg:px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 currentView === 'contact'
                   ? 'text-emerald-900 bg-white/70 font-bold border border-white/85 shadow-[0_2px_8px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,0.9)]'
                   : 'text-slate-700 hover:text-emerald-700 hover:bg-white/40'
@@ -936,7 +984,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 placeholder="Tìm hoa..."
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                className="glass-input w-full pr-8 pl-2.5 text-xs py-1 rounded-xl transition-all"
+                className="glass-input w-full pr-8 pl-2.5 text-xs font-semibold py-1.5 rounded-xl transition-all h-[34px]"
               />
               {localSearch && (
                 <button
@@ -963,7 +1011,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
 
 
           {/* === ISLAND 3: RIGHT USER ACTIONS (LOGIN / PROFILE & NOTIFICATIONS) === */}
-          <div className={`rounded-2xl md:rounded-[24px] px-1.5 sm:px-2.5 py-1 sm:py-1.5 flex items-center gap-1 sm:gap-1.5 shrink-0 transition-all duration-300 relative ${
+          <div className={`rounded-2xl md:rounded-[24px] px-2 sm:px-2.5 py-1.5 min-h-[46px] md:min-h-[48px] flex items-center gap-1.5 sm:gap-2 shrink-0 transition-all duration-300 relative ${
             isScrolledActive
               ? 'bg-white/12 backdrop-blur-md border border-white/40 shadow-none'
               : 'glass-nav-luminous shadow-sm'

@@ -75,7 +75,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     setIsTouched(true);
     setHidden(false);
     if (touchTimer.current) clearTimeout(touchTimer.current);
-    touchTimer.current = setTimeout(() => setIsTouched(false), 2500);
+    touchTimer.current = setTimeout(() => setIsTouched(false), 600);
   };
 
   const resetAutoCollapse = useCallback(() => {
@@ -105,16 +105,18 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     };
   }, [isExpanded, resetAutoCollapse]);
 
-  // Main Dock Scroll Hide / Reveal Effect (hides on scroll > 20, reappears on stop 350ms or touch/bottom mouse)
+  // Main Dock Scroll Hide / Reveal Effect (hides on scroll, reappears on stop 350ms or bottom mouse)
   useEffect(() => {
     let scrollStopTimer: any = null;
+    let lastY = window.scrollY;
+
     const handleScroll = () => {
       const current = window.scrollY;
-      if (current > 20) {
+      if (Math.abs(current - lastY) > 8 && current > 20) {
         setHidden(true);
-      } else {
-        setHidden(false);
       }
+      lastY = current;
+
       clearTimeout(scrollStopTimer);
       scrollStopTimer = setTimeout(() => {
         setHidden(false);
@@ -127,17 +129,11 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
       }
     };
 
-    const handleTouchStart = () => {
-      setHidden(false);
-    };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('touchstart', handleTouchStart);
       if (scrollStopTimer) clearTimeout(scrollStopTimer);
     };
   }, []);
@@ -228,7 +224,9 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
           ================================================================ */}
       {isLoggedIn && (
         <div
-          className="fixed left-[calc(14px+env(safe-area-inset-left,0px))] bottom-[calc(76px+env(safe-area-inset-bottom,0px))] z-[9991] md:hidden flex items-center pointer-events-auto"
+          className={`fixed left-[calc(14px+env(safe-area-inset-left,0px))] bottom-[calc(76px+env(safe-area-inset-bottom,0px))] z-[9991] md:hidden flex items-center pointer-events-auto transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            hidden ? 'translate-y-[120px] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+          }`}
           onTouchStart={resetAutoCollapse}
           onMouseEnter={resetAutoCollapse}
         >

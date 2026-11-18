@@ -29,8 +29,6 @@ export const FloatingContactWidget: React.FC = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Draggable position state
   const buttonSize = 46; // 46px on mobile, 48px on desktop
@@ -58,23 +56,6 @@ export const FloatingContactWidget: React.FC = () => {
   const hasMovedRef = useRef(false);
   const dragStartRef = useRef({ mouseX: 0, mouseY: 0, initialX: 0, initialY: 0 });
   const lastToggleTimeRef = useRef(0);
-
-  // Scroll detection to subtly dim widget during fast scrolling
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolling(true);
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-      scrollTimeoutRef.current = setTimeout(() => {
-        setIsScrolling(false);
-      }, 450);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    };
-  }, []);
 
   // Keep widget inside viewport on window resize & snap to closest edge
   useEffect(() => {
@@ -179,9 +160,7 @@ export const FloatingContactWidget: React.FC = () => {
           touchAction: 'none',
           transition: isDragging ? 'none' : 'left 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.25s ease-out, opacity 0.3s ease',
         }}
-        className={`floating-contact-widget fixed z-40 select-none cursor-grab active:cursor-grabbing ${
-          isScrolling ? 'opacity-45 hover:opacity-100 scale-95' : 'opacity-100 scale-100'
-        }`}
+        className="floating-contact-widget fixed z-40 select-none cursor-grab active:cursor-grabbing opacity-100 scale-100"
         onPointerDown={handlePointerDown}
         onClick={handleWidgetClick}
         title="Liên hệ tiệm hoa V&V Florielle"
