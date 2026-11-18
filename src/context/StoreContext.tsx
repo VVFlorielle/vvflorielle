@@ -62,7 +62,8 @@ import {
   fetchNeonProducts,
   pushProductToNeon,
   checkNeonHealth,
-  triggerSmartWakeup
+  triggerSmartWakeup,
+  isStoreOperatingHours
 } from '../services/neonService';
 
 interface ToastNotice {
@@ -1110,6 +1111,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const syncRemoteOrders = async () => {
       try {
+        // Tối ưu hóa theo Giờ Mở Cửa & Đóng Cửa:
+        // Ngoài giờ mở cửa (đêm khuya 22:30 - 07:00), nếu là khách vãng lai thì tạm dừng quét định kỳ để Render được ngủ tiết kiệm quota.
+        // Chỉ duy trì quét liên tục nếu là Admin/Owner đang trực đêm.
+        const role = localStorage.getItem('vvf_session_role');
+        if (!isStoreOperatingHours() && role !== 'ADMIN' && role !== 'OWNER') {
+          return;
+        }
+
         const remoteOrders = await fetchNeonOrders();
         if (!isMounted || !remoteOrders || remoteOrders.length === 0) return;
 

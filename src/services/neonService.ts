@@ -3,13 +3,45 @@ import { Order, FlowerProduct } from '../types';
 export const NEON_API_BASE = 'https://vvflorielle-api.onrender.com/api';
 
 /**
- * Smart Auto-Wakeup Engine for Render
- * Gửi tín hiệu ngầm đánh thức máy chủ Render ngay khi người dùng vừa mở trang web
- * hoặc khi phát sinh tương tác (thêm vào giỏ hàng, mở thanh toán).
- * Giúp máy chủ thức sẵn 100% trước khi khách bấm đặt đơn mà không làm chậm giao diện.
+ * Kiểm tra xem hiện tại có nằm trong Khung Giờ Mở Cửa của Tiệm Hoa hay không
+ * (Theo giờ Hà Nội / Việt Nam UTC+7):
+ * - Giờ mở cửa hoạt động: 07:00 - 22:30 hàng ngày.
+ * - Giờ đóng cửa ban đêm: 22:30 - 07:00 sáng hôm sau.
+ */
+export function isStoreOperatingHours(): boolean {
+  try {
+    const now = new Date();
+    const vnTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });
+    const [h, m] = vnTimeStr.split(':').map((v) => parseInt(v, 10));
+    const currentMinutes = h * 60 + (m || 0);
+
+    const openMinutes = 7 * 60;          // 07:00 sáng
+    const closeMinutes = 22 * 60 + 30;   // 22:30 tối
+
+    return currentMinutes >= openMinutes && currentMinutes <= closeMinutes;
+  } catch {
+    const h = new Date().getHours();
+    return h >= 7 && h <= 22;
+  }
+}
+
+/**
+ * Smart Auto-Wakeup Engine for Render (Tự đánh thức theo Giờ Mở/Đóng Cửa)
+ * - TRONG GIỜ MỞ CỬA (07:00 - 22:30): Tự động đánh thức & giữ ấm máy chủ Render để khách vào là web phản hồi tức thì.
+ * - NGOÀI GIỜ ĐÓNG CỬA (22:30 - 07:00 sáng): Tự động DỪNG ping định kỳ để Render nghỉ đêm, tiết kiệm 100% tài nguyên và hạn mức miễn phí.
+ * - NGOẠI LỆ THÔNG MINH: Nếu ban đêm khách phát sinh hành vi mua sắm thật (Thêm vào giỏ, Đặt đơn), hệ thống vẫn tự động gọi đánh thức để phục vụ khách ngay!
  */
 let lastWakeupPing = 0;
-export function triggerSmartWakeup(action = 'page_visit'): void {
+export function triggerSmartWakeup(action = 'page_visit', force = false): void {
+  const isOperating = isStoreOperatingHours();
+
+  // Kiểm tra điều kiện mở/đóng cửa
+  const isPurchaseIntent = action === 'add_to_cart_intent' || action === 'checkout_intent' || action === 'order_submit';
+  if (!isOperating && !force && !isPurchaseIntent) {
+    console.log(`[Smart Wakeup] Ngoài giờ mở cửa tiệm hoa (Đêm khuya 22:30 - 07:00). Dừng gọi đánh thức để bảo tồn tài nguyên Render.`);
+    return;
+  }
+
   const now = Date.now();
   // Giới hạn tần suất ping tối thiểu cách nhau 30 giây để tối ưu tài nguyên mạng
   if (now - lastWakeupPing < 30000) return;
@@ -19,7 +51,7 @@ export function triggerSmartWakeup(action = 'page_visit'): void {
     fetch(`${NEON_API_BASE}/health`, { method: 'GET', keepalive: true })
       .then((res) => {
         if (res.ok) {
-          console.log(`[Smart Wakeup (${action})] Máy chủ Render đã thức và sẵn sàng 100%!`);
+          console.log(`[Smart Wakeup (${action}) - Giờ mở cửa: ${isOperating ? 'ĐANG MỞ' : 'NGOẠI LỆ MUA SẮM'}] Máy chủ Render đã thức và sẵn sàng 100%!`);
         }
       })
       .catch(() => {
