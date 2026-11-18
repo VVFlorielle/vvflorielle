@@ -14,7 +14,9 @@ import {
   ChevronRight,
   X,
   Heart,
-  Store
+  Store,
+  Flower2,
+  Search
 } from 'lucide-react';
 
 type FilterType = 'ALL' | '5_STAR' | '4_STAR' | '3_STAR' | '2_STAR' | '1_STAR' | 'HAS_PHOTO' | 'PINNED';
@@ -24,6 +26,9 @@ export const CustomerReviewsSection: React.FC = () => {
 
   const [activeFilter, setActiveFilter] = useState<FilterType>('ALL');
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [selectedReviewDetail, setSelectedReviewDetail] = useState<CustomerReview | null>(null);
+  const [isAllReviewsModalOpen, setIsAllReviewsModalOpen] = useState(false);
+  const [allReviewsFilter, setAllReviewsFilter] = useState<FilterType>('ALL');
 
   // Horizontal scroll carousel controls
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -43,9 +48,11 @@ export const CustomerReviewsSection: React.FC = () => {
     setCanFilterScrollRight(scrollLeft < scrollWidth - clientWidth - 6);
   }, []);
 
-  // Only show APPROVED reviews on the public storefront!
+  // Chỉ hiển thị các đánh giá ĐÃ DUYỆT VÀ CÓ PHẢN HỒI TỪ CHỦ QUÁN trên trang chủ storefront!
   const approvedReviews = useMemo(() => {
-    return reviews.filter((r) => r.status === 'APPROVED');
+    return reviews.filter(
+      (r) => r.status === 'APPROVED' && Boolean(r.adminReply && r.adminReply.trim())
+    );
   }, [reviews]);
 
   // Compute metrics
@@ -397,8 +404,18 @@ export const CustomerReviewsSection: React.FC = () => {
             </h3>
           </div>
 
-          {/* Prev / Next Horizontal Scroll Buttons */}
+          {/* Prev / Next & Xem tất cả Controls */}
           <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setIsAllReviewsModalOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white border border-emerald-200 text-emerald-800 text-[11px] sm:text-xs font-bold hover:bg-emerald-50 hover:border-emerald-300 shadow-2xs transition-all cursor-pointer mr-0.5"
+              title="Mở trang xem toàn bộ đánh giá"
+            >
+              <span>Xem tất cả ({approvedReviews.length})</span>
+              <ChevronRight className="w-3.5 h-3.5 text-emerald-600" />
+            </button>
+
             <button
               type="button"
               onClick={scrollPrev}
@@ -450,27 +467,26 @@ export const CustomerReviewsSection: React.FC = () => {
                 return (
                   <div
                     key={review.id}
-                    className={`w-[85vw] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] shrink-0 snap-start flex flex-col justify-between bg-white rounded-3xl p-4 sm:p-6 border transition-all duration-200 hover:shadow-xl hover:shadow-emerald-900/5 hover:-translate-y-0.5 ${
+                    onClick={() => setSelectedReviewDetail(review)}
+                    className={`w-[85vw] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] shrink-0 snap-start flex flex-col justify-between bg-white rounded-3xl p-3.5 sm:p-5 border transition-all duration-200 hover:shadow-xl hover:shadow-emerald-900/5 hover:-translate-y-0.5 cursor-pointer ${
                       review.isPinned
                         ? 'border-emerald-300 ring-2 ring-emerald-500/10 shadow-sm'
                         : 'border-slate-200/90 shadow-2xs'
                     }`}
                   >
                     <div>
-                      {/* Top Row: Customer Info & Badges */}
-                      <div className="flex items-start justify-between gap-2.5 mb-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold flex items-center justify-center text-xs sm:text-sm shadow-xs shrink-0">
+                      {/* Top Row: Customer Info, Star Rating & Verified Purchase */}
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
                             {initial}
                           </div>
-                          <div>
-                            <div className="font-bold text-slate-800 text-xs sm:text-sm leading-tight flex items-center gap-1.5">
-                              <span>{review.customerName}</span>
-                              <span title="Khách hàng đã mua hoa tại tiệm">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                              </span>
+                          <div className="min-w-0">
+                            <div className="font-bold text-slate-800 text-xs sm:text-[13px] leading-tight flex items-center gap-1 truncate">
+                              <span className="truncate">{review.customerName}</span>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                             </div>
-                            <div className="text-[10.5px] sm:text-[11px] text-slate-400 mt-0.5 flex items-center gap-1.5">
+                            <div className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
                               {review.customerPhone && (
                                 <span>{maskPhone(review.customerPhone)}</span>
                               )}
@@ -480,98 +496,92 @@ export const CustomerReviewsSection: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Pinned pill */}
-                        {review.isPinned && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[9.5px] sm:text-[10px] font-bold shrink-0">
-                            <Pin className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
-                            <span>Nổi bật</span>
-                          </span>
-                        )}
+                        {/* Stars Rating & Pinned Badge */}
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <div className="flex items-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star
+                                key={s}
+                                className={`w-3 h-3 ${
+                                  s <= review.rating
+                                    ? 'fill-amber-400 text-amber-400 drop-shadow-2xs'
+                                    : 'text-slate-200'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          {review.isPinned && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[9px] font-bold">
+                              <Pin className="w-2 h-2 fill-amber-500 text-amber-500" />
+                              <span>Nổi bật</span>
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Star Rating & Verified Purchase Pill */}
-                      <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <div className="flex items-center gap-0.5">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star
-                              key={s}
-                              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
-                                s <= review.rating
-                                  ? 'fill-amber-400 text-amber-400 drop-shadow-2xs'
-                                  : 'text-slate-200'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-[9.5px] sm:text-[10.5px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
-                          ✓ Đã đặt mua hoa
+                      {/* Compact Product Tag & Verified Badge (Không chiếm nguyên khoảng trống rộng) */}
+                      <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                        {review.productName && (
+                          <span className="text-[9.5px] sm:text-[10px] font-semibold text-emerald-800 bg-emerald-50/90 px-2 py-0.5 rounded-md border border-emerald-100 flex items-center gap-1">
+                            <Flower2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span className="truncate max-w-[210px]">{review.productName}</span>
+                          </span>
+                        )}
+                        <span className="text-[9.5px] font-semibold text-emerald-700 bg-emerald-50/60 px-1.5 py-0.5 rounded-md border border-emerald-100/60">
+                          ✓ Đã mua hoa
                         </span>
                       </div>
 
-                      {/* Product Tag */}
-                      {review.productName && (
-                        <div className="mb-2">
-                          <span className="inline-block text-[10.5px] sm:text-[11px] font-semibold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-lg line-clamp-1">
-                            🌸 {review.productName}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Review Title */}
-                      {review.title && (
-                        <h4 className="font-bold text-slate-900 text-xs sm:text-sm leading-snug mb-1.5 line-clamp-2">
-                          "{review.title}"
-                        </h4>
-                      )}
-
-                      {/* Review Comment */}
-                      <p className="text-slate-600 text-xs sm:text-sm leading-relaxed line-clamp-4">
-                        {review.comment}
+                      {/* Review Comment: Cắt gọn 2 dòng với dấu ba chấm, bấm vào để xem đầy đủ */}
+                      <p className="text-slate-600 text-xs sm:text-[12.5px] leading-relaxed line-clamp-2">
+                        "{review.comment}"
                       </p>
-
-                      {/* Real Delivered Flower Photos */}
-                      {review.images && review.images.length > 0 && (
-                        <div className="mt-3 pt-2.5 border-t border-slate-100">
-                          <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500 mb-1.5 flex items-center gap-1">
-                            <Camera className="w-3 h-3 text-emerald-600" />
-                            <span>Ảnh hoa thực tế nhận được:</span>
-                          </div>
-                          <div className="grid grid-cols-3 gap-1.5">
-                            {review.images.map((img, idx) => (
-                              <div
-                                key={idx}
-                                onClick={() => setLightboxImage(img)}
-                                className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 cursor-pointer group bg-slate-100"
-                              >
-                                <img
-                                  src={img}
-                                  alt="Ảnh hoa thực tế"
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                />
-                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px] font-bold">
-                                  🔍
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
 
-                    {/* Florist Admin Reply (If any) */}
-                    {review.adminReply && (
-                      <div className="mt-3 pt-2.5 border-t border-dashed border-emerald-200/80">
-                        <div className="p-2.5 sm:p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/60 text-xs text-slate-700 space-y-1">
-                          <div className="flex items-center gap-1.5 font-bold text-emerald-800 text-[10.5px] sm:text-[11.5px]">
-                            <Store className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                            <span>Phản hồi từ V&V Florielle:</span>
+                    {/* Bottom Row: 1 Ảnh to (bên trái) + Phản hồi của shop (vị trí 2 ảnh nhỏ bên phải) */}
+                    <div className="mt-2.5 pt-2.5 border-t border-slate-100/90 flex items-stretch gap-2.5">
+                      {/* 1 Ảnh thực tế to bên trái (nếu có ảnh) */}
+                      {review.images && review.images.length > 0 ? (
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedReviewDetail(review);
+                          }}
+                          className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden border border-slate-200 shrink-0 bg-slate-100 cursor-pointer group shadow-2xs"
+                          title="Bấm để xem ảnh phóng to & chi tiết"
+                        >
+                          <img
+                            src={review.images[0]}
+                            alt="Ảnh hoa thực tế"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          {review.images.length > 1 && (
+                            <span className="absolute bottom-1 right-1 px-1.5 py-0.2 rounded-md bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold">
+                              +{review.images.length - 1}
+                            </span>
+                          )}
+                          <div className="absolute inset-0 bg-black/15 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                            🔍
                           </div>
-                          <p className="text-slate-600 text-[11px] sm:text-xs leading-relaxed italic line-clamp-3">
-                            "{review.adminReply}"
-                          </p>
+                        </div>
+                      ) : null}
+
+                      {/* Vị trí hai ảnh nhỏ kia bố trí phản hồi của shop! */}
+                      <div className="flex-1 min-w-0 bg-emerald-50/80 border border-emerald-200/70 rounded-2xl p-2 sm:p-2.5 flex flex-col justify-center text-xs">
+                        <div className="flex items-center gap-1 font-bold text-emerald-900 text-[10px] sm:text-[11px]">
+                          <Store className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>Shop phản hồi:</span>
+                        </div>
+                        <p className="text-slate-600 text-[10.5px] sm:text-[11px] leading-relaxed italic line-clamp-2 mt-0.5">
+                          "{review.adminReply}"
+                        </p>
+                        <div className="text-right mt-1">
+                          <span className="text-[9.5px] font-bold text-emerald-700 hover:underline">
+                            Chi tiết →
+                          </span>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}
@@ -596,10 +606,445 @@ export const CustomerReviewsSection: React.FC = () => {
         )}
       </div>
 
-      {/* 5. Image Lightbox Modal */}
+      {/* Button Xem Tất Cả Đánh Giá ở chân section */}
+      <div className="mt-4 text-center">
+        <button
+          type="button"
+          onClick={() => setIsAllReviewsModalOpen(true)}
+          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-emerald-200 text-emerald-800 text-xs font-bold hover:bg-emerald-50 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+        >
+          <MessageCircle className="w-4 h-4 text-emerald-600" />
+          <span>Xem tất cả {approvedReviews.length} đánh giá có phản hồi từ shop</span>
+          <ChevronRight className="w-4 h-4 text-emerald-600" />
+        </button>
+      </div>
+
+      {/* 5. Modal Chi Tiết Đánh Giá (Mở khi bấm vào thẻ đánh giá) */}
+      {selectedReviewDetail && (
+        <div
+          className="fixed inset-0 z-[9995] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setSelectedReviewDetail(null)}
+        >
+          <div
+            className="relative w-full max-w-xl max-h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-emerald-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/80">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <h4 className="font-bold text-sm text-slate-800">Chi Tiết Đánh Giá Thực Tế</h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedReviewDetail(null)}
+                className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-4">
+              {/* Customer Info & Stars */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+                    {selectedReviewDetail.customerName.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                      <span>{selectedReviewDetail.customerName}</span>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
+                      {selectedReviewDetail.customerPhone && (
+                        <span>{maskPhone(selectedReviewDetail.customerPhone)}</span>
+                      )}
+                      <span>•</span>
+                      <span>{selectedReviewDetail.createdAt}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        className={`w-4 h-4 ${
+                          s <= selectedReviewDetail.rating
+                            ? 'fill-amber-400 text-amber-400 drop-shadow-2xs'
+                            : 'text-slate-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                    ✓ Đã mua hoa tại tiệm
+                  </span>
+                </div>
+              </div>
+
+              {/* Product tag */}
+              {selectedReviewDetail.productName && (
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-2 text-xs text-slate-700">
+                  <Flower2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="font-bold">Mẫu hoa đã đặt:</span>
+                  <span className="text-slate-600 font-medium">{selectedReviewDetail.productName}</span>
+                </div>
+              )}
+
+              {/* Full Title & Comment */}
+              <div>
+                {selectedReviewDetail.title && (
+                  <h5 className="font-extrabold text-slate-900 text-sm mb-1.5">
+                    "{selectedReviewDetail.title}"
+                  </h5>
+                )}
+                <p className="text-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line bg-slate-50/50 p-3.5 rounded-2xl border border-slate-100">
+                  {selectedReviewDetail.comment}
+                </p>
+              </div>
+
+              {/* Bố trí chuẩn: 1 ảnh to + 2 ảnh nhỏ xếp dọc bên cạnh cao bằng ảnh to */}
+              {selectedReviewDetail.images && selectedReviewDetail.images.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-emerald-600" />
+                    <span>Ảnh hoa thực tế khách gửi ({selectedReviewDetail.images.length} ảnh):</span>
+                  </div>
+
+                  {selectedReviewDetail.images.length >= 3 ? (
+                    <div className="flex gap-2 h-56 sm:h-64 w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 p-1">
+                      {/* 1 ảnh to bên trái */}
+                      <div
+                        onClick={() => setLightboxImage(selectedReviewDetail.images![0])}
+                        className="relative w-[65%] h-full rounded-xl overflow-hidden cursor-pointer group bg-slate-100"
+                      >
+                        <img
+                          src={selectedReviewDetail.images[0]}
+                          alt="Ảnh hoa to 1"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
+                          🔍 Phóng to
+                        </div>
+                      </div>
+
+                      {/* 2 ảnh nhỏ bố trí dọc bên cạnh cao bằng ảnh to */}
+                      <div className="flex flex-col gap-2 w-[35%] h-full">
+                        <div
+                          onClick={() => setLightboxImage(selectedReviewDetail.images![1])}
+                          className="relative flex-1 rounded-xl overflow-hidden cursor-pointer group bg-slate-100"
+                        >
+                          <img
+                            src={selectedReviewDetail.images[1]}
+                            alt="Ảnh hoa nhỏ 2"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                            🔍
+                          </div>
+                        </div>
+                        <div
+                          onClick={() => setLightboxImage(selectedReviewDetail.images![2])}
+                          className="relative flex-1 rounded-xl overflow-hidden cursor-pointer group bg-slate-100"
+                        >
+                          <img
+                            src={selectedReviewDetail.images[2]}
+                            alt="Ảnh hoa nhỏ 3"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                            🔍
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : selectedReviewDetail.images.length === 2 ? (
+                    <div className="grid grid-cols-2 gap-2 h-44 w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 p-1">
+                      {selectedReviewDetail.images.map((img, i) => (
+                        <div
+                          key={i}
+                          onClick={() => setLightboxImage(img)}
+                          className="relative h-full rounded-xl overflow-hidden cursor-pointer group bg-slate-100"
+                        >
+                          <img
+                            src={img}
+                            alt={`Ảnh hoa ${i + 1}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => setLightboxImage(selectedReviewDetail.images![0])}
+                      className="relative h-52 w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 cursor-pointer group"
+                    >
+                      <img
+                        src={selectedReviewDetail.images[0]}
+                        alt="Ảnh hoa thực tế"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Phản hồi chính thức từ chủ tiệm */}
+              {selectedReviewDetail.adminReply && (
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50/90 to-teal-50/70 border border-emerald-200 text-xs text-slate-700 space-y-1.5 shadow-2xs">
+                  <div className="flex items-center gap-2 font-bold text-emerald-900 text-xs sm:text-sm">
+                    <Store className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Phản hồi từ chủ tiệm V&V Florielle:</span>
+                  </div>
+                  <p className="text-slate-700 text-xs sm:text-[13px] leading-relaxed italic pl-6">
+                    "{selectedReviewDetail.adminReply}"
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Modal Xem Tất Cả Đánh Giá (Mở trang có tất cả sau khi bấm vào) */}
+      {isAllReviewsModalOpen && (
+        <div
+          className="fixed inset-0 z-[9994] flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setIsAllReviewsModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-4xl max-h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-emerald-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-100 bg-slate-50/80">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <MessageCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-sm sm:text-base text-slate-800">
+                    Tất Cả Đánh Giá Từ Khách Hàng
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    {approvedReviews.length} đánh giá thực tế đã được phản hồi
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAllReviewsModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Filter pills inside modal */}
+            <div className="px-4 sm:px-6 py-2.5 bg-white border-b border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <button
+                type="button"
+                onClick={() => setAllReviewsFilter('ALL')}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  allReviewsFilter === 'ALL'
+                    ? 'bg-emerald-600 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Tất cả ({approvedReviews.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setAllReviewsFilter('5_STAR')}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                  allReviewsFilter === '5_STAR'
+                    ? 'bg-emerald-600 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                <span>5 Sao ({stats.fiveStar})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAllReviewsFilter('HAS_PHOTO')}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                  allReviewsFilter === 'HAS_PHOTO'
+                    ? 'bg-emerald-600 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <Camera className="w-3 h-3 text-emerald-600" />
+                <span>Có ảnh ({stats.hasPhoto})</span>
+              </button>
+            </div>
+
+            {/* List of reviews */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4">
+              {approvedReviews
+                .filter((r) => {
+                  if (allReviewsFilter === '5_STAR') return r.rating === 5;
+                  if (allReviewsFilter === 'HAS_PHOTO') return r.images && r.images.length > 0;
+                  return true;
+                })
+                .map((rev) => (
+                  <div
+                    key={rev.id}
+                    className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-3"
+                  >
+                    {/* Customer Info */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
+                          {rev.customerName.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
+                            <span>{rev.customerName}</span>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          </div>
+                          <div className="text-[10.5px] text-slate-400 flex items-center gap-2 mt-0.5">
+                            {rev.customerPhone && <span>{maskPhone(rev.customerPhone)}</span>}
+                            <span>•</span>
+                            <span>{rev.createdAt}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="flex items-center gap-0.5">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              className={`w-3.5 h-3.5 ${
+                                s <= rev.rating
+                                  ? 'fill-amber-400 text-amber-400 drop-shadow-2xs'
+                                  : 'text-slate-200'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                          ✓ Đã mua hoa
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Product */}
+                    {rev.productName && (
+                      <div className="text-xs text-slate-700 font-semibold flex items-center gap-1.5">
+                        <Flower2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>{rev.productName}</span>
+                      </div>
+                    )}
+
+                    {/* Title & Full Comment */}
+                    <div>
+                      {rev.title && (
+                        <h5 className="font-bold text-slate-900 text-xs sm:text-sm mb-1">
+                          "{rev.title}"
+                        </h5>
+                      )}
+                      <p className="text-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                        {rev.comment}
+                      </p>
+                    </div>
+
+                    {/* 3-Photo Layout: 1 to bên trái, 2 nhỏ xếp dọc bên phải cao bằng ảnh to */}
+                    {rev.images && rev.images.length >= 3 ? (
+                      <div className="flex gap-2 h-48 sm:h-56 w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 p-1">
+                        <div
+                          onClick={() => setLightboxImage(rev.images![0])}
+                          className="relative w-[65%] h-full rounded-xl overflow-hidden cursor-pointer group bg-slate-100"
+                        >
+                          <img
+                            src={rev.images[0]}
+                            alt="Ảnh to 1"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
+                            🔍 Phóng to
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2 w-[35%] h-full">
+                          <div
+                            onClick={() => setLightboxImage(rev.images![1])}
+                            className="relative flex-1 rounded-xl overflow-hidden cursor-pointer group bg-slate-100"
+                          >
+                            <img
+                              src={rev.images[1]}
+                              alt="Ảnh nhỏ 2"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <div
+                            onClick={() => setLightboxImage(rev.images![2])}
+                            className="relative flex-1 rounded-xl overflow-hidden cursor-pointer group bg-slate-100"
+                          >
+                            <img
+                              src={rev.images[2]}
+                              alt="Ảnh nhỏ 3"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : rev.images && rev.images.length === 2 ? (
+                      <div className="grid grid-cols-2 gap-2 h-36 w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 p-1">
+                        {rev.images.map((img, i) => (
+                          <div
+                            key={i}
+                            onClick={() => setLightboxImage(img)}
+                            className="relative h-full rounded-xl overflow-hidden cursor-pointer group bg-slate-100"
+                          >
+                            <img
+                              src={img}
+                              alt={`Ảnh hoa ${i + 1}`}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : rev.images && rev.images.length === 1 ? (
+                      <div
+                        onClick={() => setLightboxImage(rev.images![0])}
+                        className="relative h-44 sm:h-48 w-full max-w-sm rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 cursor-pointer group"
+                      >
+                        <img
+                          src={rev.images[0]}
+                          alt="Ảnh hoa thực tế"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ) : null}
+
+                    {/* Shop reply */}
+                    {rev.adminReply && (
+                      <div className="p-3 sm:p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs text-slate-700 space-y-1">
+                        <div className="flex items-center gap-1.5 font-bold text-emerald-900 text-xs">
+                          <Store className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>Phản hồi từ V&V Florielle:</span>
+                        </div>
+                        <p className="text-slate-700 text-xs leading-relaxed italic pl-5">
+                          "{rev.adminReply}"
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7. Image Lightbox Modal */}
       {lightboxImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setLightboxImage(null)}
         >
           <div
