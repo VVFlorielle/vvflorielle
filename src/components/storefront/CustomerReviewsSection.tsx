@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { CustomerReview } from '../../types';
 import {
@@ -17,10 +17,12 @@ import {
   Store
 } from 'lucide-react';
 
+type FilterType = 'ALL' | '5_STAR' | '4_STAR' | '3_STAR' | '2_STAR' | '1_STAR' | 'HAS_PHOTO' | 'PINNED';
+
 export const CustomerReviewsSection: React.FC = () => {
   const { reviews, openReviewModalForCustomer } = useStore();
 
-  const [activeFilter, setActiveFilter] = useState<'ALL' | '5_STAR' | 'HAS_PHOTO' | 'PINNED'>('ALL');
+  const [activeFilter, setActiveFilter] = useState<FilterType>('ALL');
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // Horizontal scroll carousel controls
@@ -28,6 +30,18 @@ export const CustomerReviewsSection: React.FC = () => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
+
+  // Filter pills horizontal scroll controls & cues
+  const filterScrollRef = useRef<HTMLDivElement>(null);
+  const [canFilterScrollLeft, setCanFilterScrollLeft] = useState(false);
+  const [canFilterScrollRight, setCanFilterScrollRight] = useState(false);
+
+  const checkFilterScroll = useCallback(() => {
+    if (!filterScrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = filterScrollRef.current;
+    setCanFilterScrollLeft(scrollLeft > 6);
+    setCanFilterScrollRight(scrollLeft < scrollWidth - clientWidth - 6);
+  }, []);
 
   // Only show APPROVED reviews on the public storefront!
   const approvedReviews = useMemo(() => {
@@ -37,15 +51,19 @@ export const CustomerReviewsSection: React.FC = () => {
   // Compute metrics
   const stats = useMemo(() => {
     const total = approvedReviews.length;
-    if (total === 0) return { avg: 5.0, count: 0, fiveStar: 0, hasPhoto: 0, pinned: 0 };
+    if (total === 0) return { avg: 5.0, count: 0, fiveStar: 0, fourStar: 0, threeStar: 0, twoStar: 0, oneStar: 0, hasPhoto: 0, pinned: 0 };
 
     const sum = approvedReviews.reduce((acc, r) => acc + (r.rating || 5), 0);
     const avg = Math.round((sum / total) * 10) / 10;
     const fiveStar = approvedReviews.filter((r) => r.rating === 5).length;
+    const fourStar = approvedReviews.filter((r) => r.rating === 4).length;
+    const threeStar = approvedReviews.filter((r) => r.rating === 3).length;
+    const twoStar = approvedReviews.filter((r) => r.rating === 2).length;
+    const oneStar = approvedReviews.filter((r) => r.rating === 1).length;
     const hasPhoto = approvedReviews.filter((r) => r.images && r.images.length > 0).length;
     const pinned = approvedReviews.filter((r) => r.isPinned).length;
 
-    return { avg, count: total, fiveStar, hasPhoto, pinned };
+    return { avg, count: total, fiveStar, fourStar, threeStar, twoStar, oneStar, hasPhoto, pinned };
   }, [approvedReviews]);
 
   // Filter & Sort: Pinned first, then newest
@@ -54,6 +72,14 @@ export const CustomerReviewsSection: React.FC = () => {
 
     if (activeFilter === '5_STAR') {
       filtered = filtered.filter((r) => r.rating === 5);
+    } else if (activeFilter === '4_STAR') {
+      filtered = filtered.filter((r) => r.rating === 4);
+    } else if (activeFilter === '3_STAR') {
+      filtered = filtered.filter((r) => r.rating === 3);
+    } else if (activeFilter === '2_STAR') {
+      filtered = filtered.filter((r) => r.rating === 2);
+    } else if (activeFilter === '1_STAR') {
+      filtered = filtered.filter((r) => r.rating === 1);
     } else if (activeFilter === 'HAS_PHOTO') {
       filtered = filtered.filter((r) => r.images && r.images.length > 0);
     } else if (activeFilter === 'PINNED') {
@@ -90,6 +116,13 @@ export const CustomerReviewsSection: React.FC = () => {
   useEffect(() => {
     checkScroll();
   }, [limitedReviews]);
+
+  useEffect(() => {
+    checkFilterScroll();
+    const handleResize = () => checkFilterScroll();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [checkFilterScroll, stats]);
 
   const scrollPrev = () => {
     if (!scrollContainerRef.current) return;
@@ -199,59 +232,157 @@ export const CustomerReviewsSection: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Filter Pills Bar */}
-      <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar pb-2.5 mb-6">
-        <button
-          type="button"
-          onClick={() => setActiveFilter('ALL')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-            activeFilter === 'ALL'
-              ? 'bg-emerald-600 text-white shadow-xs scale-105'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          Tất cả ({stats.count})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveFilter('5_STAR')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-            activeFilter === '5_STAR'
-              ? 'bg-emerald-600 text-white shadow-xs scale-105'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-          <span>5 Sao ({stats.fiveStar})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveFilter('HAS_PHOTO')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-            activeFilter === 'HAS_PHOTO'
-              ? 'bg-emerald-600 text-white shadow-xs scale-105'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <Camera className="w-3.5 h-3.5 text-emerald-500" />
-          <span>Có ảnh hoa thật ({stats.hasPhoto})</span>
-        </button>
-
-        {stats.pinned > 0 && (
-          <button
-            type="button"
-            onClick={() => setActiveFilter('PINNED')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-              activeFilter === 'PINNED'
-                ? 'bg-emerald-600 text-white shadow-xs scale-105'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
+      {/* 3. Filter Pills Frame with Horizontal Scroll & Visual Cue */}
+      <div className="relative max-w-4xl mx-auto mb-6">
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-1 sm:p-1.5 border border-emerald-100/90 shadow-2xs">
+          <div
+            ref={filterScrollRef}
+            onScroll={checkFilterScroll}
+            className="flex items-center justify-start sm:justify-center gap-1 sm:gap-2 overflow-x-auto scrollbar-none py-0.5 px-0.5 scroll-smooth"
           >
-            <Pin className="w-3.5 h-3.5 text-amber-500" />
-            <span>Nổi bật ({stats.pinned})</span>
-          </button>
+            {/* Tất cả */}
+            <button
+              type="button"
+              onClick={() => setActiveFilter('ALL')}
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                activeFilter === 'ALL'
+                  ? 'bg-emerald-600 text-white shadow-xs scale-[1.02]'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              Tất cả ({stats.count})
+            </button>
+
+            {/* 5 Sao */}
+            <button
+              type="button"
+              onClick={() => setActiveFilter('5_STAR')}
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 sm:gap-1.5 ${
+                activeFilter === '5_STAR'
+                  ? 'bg-emerald-600 text-white shadow-xs scale-[1.02]'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>5 Sao ({stats.fiveStar})</span>
+            </button>
+
+            {/* 4 Sao (khi có đánh giá 4 sao) */}
+            {stats.fourStar > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveFilter('4_STAR')}
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 sm:gap-1.5 ${
+                  activeFilter === '4_STAR'
+                    ? 'bg-emerald-600 text-white shadow-xs scale-[1.02]'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span>4 Sao ({stats.fourStar})</span>
+              </button>
+            )}
+
+            {/* 3 Sao (khi có đánh giá 3 sao) */}
+            {stats.threeStar > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveFilter('3_STAR')}
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 sm:gap-1.5 ${
+                  activeFilter === '3_STAR'
+                    ? 'bg-emerald-600 text-white shadow-xs scale-[1.02]'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span>3 Sao ({stats.threeStar})</span>
+              </button>
+            )}
+
+            {/* 2 Sao (khi có đánh giá 2 sao) */}
+            {stats.twoStar > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveFilter('2_STAR')}
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 sm:gap-1.5 ${
+                  activeFilter === '2_STAR'
+                    ? 'bg-emerald-600 text-white shadow-xs scale-[1.02]'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span>2 Sao ({stats.twoStar})</span>
+              </button>
+            )}
+
+            {/* 1 Sao (khi có đánh giá 1 sao) */}
+            {stats.oneStar > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveFilter('1_STAR')}
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 sm:gap-1.5 ${
+                  activeFilter === '1_STAR'
+                    ? 'bg-emerald-600 text-white shadow-xs scale-[1.02]'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span>1 Sao ({stats.oneStar})</span>
+              </button>
+            )}
+
+            {/* Có ảnh (Rút ngắn để 4 nút không bị tràn màn hình điện thoại) */}
+            <button
+              type="button"
+              onClick={() => setActiveFilter('HAS_PHOTO')}
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 sm:gap-1.5 ${
+                activeFilter === 'HAS_PHOTO'
+                  ? 'bg-emerald-600 text-white shadow-xs scale-[1.02]'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <Camera className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Có ảnh ({stats.hasPhoto})</span>
+            </button>
+
+            {/* Nổi bật */}
+            {stats.pinned > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveFilter('PINNED')}
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl sm:rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 sm:gap-1.5 ${
+                  activeFilter === 'PINNED'
+                    ? 'bg-emerald-600 text-white shadow-xs scale-[1.02]'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <Pin className="w-3.5 h-3.5 text-amber-500" />
+                <span>Nổi bật ({stats.pinned})</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Khung thể hiện cuộn ngang: Chỉ báo mờ dần + mũi tên trượt sang phải khi có nút bị khuất */}
+        {canFilterScrollRight && (
+          <div
+            onClick={() => filterScrollRef.current?.scrollBy({ left: 100, behavior: 'smooth' })}
+            className="absolute right-0 top-0 bottom-0 w-8 rounded-r-2xl bg-gradient-to-l from-white via-white/80 to-transparent flex items-center justify-end pr-1 text-emerald-700 sm:hidden cursor-pointer"
+            title="Cuộn ngang xem thêm bộ lọc"
+          >
+            <ChevronRight className="w-4 h-4 animate-pulse stroke-[2.5]" />
+          </div>
+        )}
+
+        {/* Chỉ báo cuộn sang trái khi đã cuộn */}
+        {canFilterScrollLeft && (
+          <div
+            onClick={() => filterScrollRef.current?.scrollBy({ left: -100, behavior: 'smooth' })}
+            className="absolute left-0 top-0 bottom-0 w-8 rounded-l-2xl bg-gradient-to-r from-white via-white/80 to-transparent flex items-center justify-start pl-1 text-emerald-700 sm:hidden cursor-pointer"
+            title="Cuộn ngang về trước"
+          >
+            <ChevronLeft className="w-4 h-4 animate-pulse stroke-[2.5]" />
+          </div>
         )}
       </div>
 
@@ -262,11 +393,8 @@ export const CustomerReviewsSection: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <h3 className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
-              Đánh Giá Thực Tế Từ Khách Hàng ({limitedReviews.length} / tối đa 9 đánh giá)
+              Đánh Giá Thực Tế Từ Khách Hàng
             </h3>
-            <span className="hidden sm:inline-block text-[11px] text-slate-400 font-medium">
-              • Cuộn ngang 3 cột để xem thêm
-            </span>
           </div>
 
           {/* Prev / Next Horizontal Scroll Buttons */}

@@ -43,7 +43,7 @@ export const ScrollToTopButton: React.FC = () => {
 
   return (
     <div
-      className={`fixed left-3.5 sm:left-auto sm:right-6 bottom-[86px] sm:bottom-[230px] min-[1024px]:bottom-52 z-40 select-none pointer-events-auto transition-all duration-300 animate-in fade-in zoom-in-75 ${
+      className={`fixed left-3.5 sm:left-auto sm:right-6 bottom-[calc(142px+env(safe-area-inset-bottom,0px))] sm:bottom-[230px] min-[1024px]:bottom-52 z-40 select-none pointer-events-auto transition-all duration-300 animate-in fade-in zoom-in-75 ${
         isScrolling ? 'opacity-35 hover:opacity-100 scale-90' : 'opacity-90 hover:opacity-100 scale-100'
       }`}
     >
