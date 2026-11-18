@@ -55,6 +55,14 @@ import {
   exportArchivedProductsBackupJson
 } from '../utils/googleDriveArchiver';
 import { applyTheme } from '../utils/themeEngine';
+import { playNewOrderChime } from '../utils/audioNotification';
+import {
+  pushOrderToNeon,
+  fetchNeonOrders,
+  fetchNeonProducts,
+  pushProductToNeon,
+  checkNeonHealth
+} from '../services/neonService';
 
 interface ToastNotice {
   id: string;
@@ -1064,6 +1072,90 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('vvf_notifications', JSON.stringify(notifications));
   }, [notifications]);
 
+  // -------------------------------------------------------------
+  // NEON POSTGRESQL REALTIME ENGINE (RENDER BACKEND)
+  // -------------------------------------------------------------
+  const lastKnownOrderIdsRef = useRef<Set<string>>(new Set(orders.map((o) => o.id)));
+  useEffect(() => {
+    lastKnownOrderIdsRef.current = new Set(orders.map((o) => o.id));
+  }, [orders]);
+
+  // 1. Initial product overlay from Neon PostgreSQL
+  useEffect(() => {
+    let isMounted = true;
+    fetchNeonProducts().then((remoteProds) => {
+      if (!isMounted || !remoteProds || remoteProds.length === 0) return;
+      setProducts((prev) => {
+        const prodMap = new Map(prev.map((p) => [p.id, p]));
+        remoteProds.forEach((rp) => {
+          if (prodMap.has(rp.id)) {
+            prodMap.set(rp.id, { ...prodMap.get(rp.id)!, ...rp });
+          } else {
+            prodMap.set(rp.id, rp);
+          }
+        });
+        const merged = Array.from(prodMap.values());
+        // Bảo tồn tối thiểu 54 mẫu hoa theo Quy Định Kỷ Luật Số 3
+        return merged.length >= 54 ? merged : prev;
+      });
+    }).catch(() => {});
+    return () => { isMounted = false; };
+  }, []);
+
+  // 2. Realtime Orders Polling & Audio Chime Alert from Neon PostgreSQL (Mỗi 10s)
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncRemoteOrders = async () => {
+      try {
+        const remoteOrders = await fetchNeonOrders();
+        if (!isMounted || !remoteOrders || remoteOrders.length === 0) return;
+
+        const currentKnownIds = lastKnownOrderIdsRef.current;
+        const brandNewOrders = remoteOrders.filter((ro) => !currentKnownIds.has(ro.id));
+
+        if (brandNewOrders.length > 0) {
+          console.log(`[Neon Realtime] Nhận diện ${brandNewOrders.length} đơn hàng mới từ Neon DB!`);
+
+          // Nạp các đơn mới vào đầu danh sách
+          setOrders((prev) => {
+            const existingIds = new Set(prev.map((o) => o.id));
+            const trulyNew = brandNewOrders.filter((b) => !existingIds.has(b.id));
+            if (trulyNew.length === 0) return prev;
+            return [...trulyNew, ...prev];
+          });
+
+          // Phát chuông báo đơn mới chuẩn Florist
+          playNewOrderChime(true);
+
+          // Kích hoạt thông báo hệ thống & quả chuông Admin
+          const latest = brandNewOrders[0];
+          sendAppNotification({
+            recipientRole: 'ADMIN',
+            title: `🔔 Có đơn hàng hoa mới #${latest.id}!`,
+            message: `Khách ${latest.senderName} (${latest.senderPhone}) vừa đặt đơn ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(latest.totalAmount)}.`,
+            type: 'ORDER_NEW',
+            orderId: latest.id
+          });
+          showToast(`🔔 Có đơn hoa mới #${latest.id} từ ${latest.senderName}!`, 'success');
+        }
+      } catch (err) {
+        // Bỏ qua nếu mất kết nối mạng tạm thời
+      }
+    };
+
+    // Quét lần đầu sau 2 giây khi khởi động
+    const initialTimer = setTimeout(syncRemoteOrders, 2000);
+    // Quét định kỳ mỗi 10 giây
+    const pollInterval = setInterval(syncRemoteOrders, 10000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(initialTimer);
+      clearInterval(pollInterval);
+    };
+  }, []);
+
   // Silent 3-Hour Session Timeout Watcher (system counts in background, no countdown display)
   useEffect(() => {
     const checkSessionTimeout = () => {
@@ -1318,10 +1410,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
     setProducts((prev) => [newProduct, ...prev]);
     showToast(`Đã thêm mới mẫu hoa "${newProduct.name}"!`);
+    pushProductToNeon(newProduct).catch((err) => {
+      console.warn('[Neon API] Sync product to Neon failed:', err);
+    });
   };
 
   const updateProduct = (id: string, updates: Partial<FlowerProduct>) => {
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+    setProducts((prev) => {
+      const updated = prev.map((p) => (p.id === id ? { ...p, ...updates } : p));
+      const changed = updated.find((p) => p.id === id);
+      if (changed) {
+        pushProductToNeon(changed).catch((err) => {
+          console.warn('[Neon API] Sync updated product to Neon failed:', err);
+        });
+      }
+      return updated;
+    });
     showToast('Cập nhật mẫu hoa thành công!');
   };
 
@@ -1760,6 +1864,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       orderId: newId
     });
 
+    // Đồng bộ lập tức lên máy chủ Render + Neon PostgreSQL
+    pushOrderToNeon(newOrder).catch((err) => {
+      console.warn('[Neon API] Push new order to Neon failed:', err);
+    });
+
     return newOrder;
   };
 
@@ -1837,6 +1946,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       message: `Khách ${newOrder.senderName} (${newOrder.senderPhone}) gửi yêu cầu cắm hoa dịp ${data.occasion}. Ngân sách: ${data.budget}. Vui lòng xem ảnh mẫu và duyệt khả thi.`,
       type: 'ORDER_NEW',
       orderId: newId
+    });
+
+    // Đồng bộ lập tức lên máy chủ Render + Neon PostgreSQL
+    pushOrderToNeon(newOrder).catch((err) => {
+      console.warn('[Neon API] Push custom order to Neon failed:', err);
     });
 
     return newOrder;
@@ -2037,6 +2151,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 }
               : {})
           };
+          pushOrderToNeon(updated).catch((err) => console.warn('[Neon API] Sync order status error:', err));
           return updated;
         }
         return o;
