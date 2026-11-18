@@ -17,7 +17,8 @@ import {
   Moon,
   Sun,
   Percent,
-  AlertTriangle
+  AlertTriangle,
+  Bot
 } from 'lucide-react';
 import { ShopSettings, ContactChannel } from '../../../types';
 import { AVAILABLE_MASCOTS, AVAILABLE_FLORAL_CORNERS } from '../../../data/mockData';
@@ -383,9 +384,16 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                         Bật AI duyệt cọc tự động
                       </label>
                     </div>
-                    <span className="text-[10px] text-slate-400 mt-1 block">
-                      Sau {editSettings.autoApproveWaitMinutes ?? 2} phút hệ thống tự duyệt bill.
-                    </span>
+                    {editSettings.geminiApiKey ? (
+                      <span className="text-[10px] text-purple-700 font-semibold mt-1 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-purple-600 shrink-0" />
+                        <span>Đã kết nối Google Gemini AI: Tự động đọc biên lai OCR &amp; duyệt cọc ngay lập tức khi khách tải ảnh lên.</span>
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 mt-1 block">
+                        Chưa cấu hình API Key Gemini (Vào Quản trị &gt; Bảo mật cấp 2 để dán mã). Dự phòng: Hẹn giờ {editSettings.autoApproveWaitMinutes ?? 2} phút.
+                      </span>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -401,23 +409,37 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
               <div
                 className={`p-3.5 rounded-2xl border text-xs leading-relaxed flex items-start gap-3 ${
                   editSettings.enableAutoApproveDeposit
-                    ? 'bg-rose-50/90 border-rose-200 text-rose-900'
+                    ? editSettings.geminiApiKey
+                      ? 'bg-purple-50/90 border-purple-200 text-purple-950'
+                      : 'bg-rose-50/90 border-rose-200 text-rose-900'
                     : 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
                 }`}
               >
                 {editSettings.enableAutoApproveDeposit ? (
-                  <>
-                    <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="font-bold text-rose-950 block mb-0.5">
-                        ⚠️ Cảnh báo an toàn tài chính (Đang BẬT Tự Động Duyệt Cọc):
-                      </strong>
-                      Hệ thống sẽ tự động xác nhận đơn đã cọc tiền sau{' '}
-                      <strong>{editSettings.autoApproveWaitMinutes ?? 2} phút</strong> ngay cả khi Chủ quán / Admin chưa
-                      mở app ngân hàng Vietcombank để đối soát tiền thực. Chỉ nên bật khi tiệm quá tải đơn vào giờ cao
-                      điểm và khách hàng là khách quen.
-                    </div>
-                  </>
+                  editSettings.geminiApiKey ? (
+                    <>
+                      <Bot className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-bold text-purple-950 block mb-0.5">
+                          🤖 Đang BẬT Trợ Lý Google Gemini AI Duyệt Cọc Tự Động:
+                        </strong>
+                        Khi khách hàng tải ảnh biên lai VietQR, mô hình Gemini Multimodal Vision sẽ quét ngay ảnh bill, trích xuất số tiền chuyển, ngân hàng và mã giao dịch. Nếu đủ tiền cọc (&gt;= 50%) và bill hợp lệ, hệ thống tự động duyệt sang <strong>Đang cắm hoa</strong>. Nếu số tiền không đủ hoặc ảnh bất thường, AI sẽ gửi cảnh báo và giữ lại cho chủ quán duyệt tay.
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-bold text-rose-950 block mb-0.5">
+                          ⚠️ Cảnh báo an toàn tài chính (Đang BẬT Tự Động Duyệt Cọc):
+                        </strong>
+                        Hệ thống sẽ tự động xác nhận đơn đã cọc tiền sau{' '}
+                        <strong>{editSettings.autoApproveWaitMinutes ?? 2} phút</strong> ngay cả khi Chủ quán / Admin chưa
+                        mở app ngân hàng Vietcombank để đối soát tiền thực. Chỉ nên bật khi tiệm quá tải đơn vào giờ cao
+                        điểm và khách hàng là khách quen.
+                      </div>
+                    </>
+                  )
                 ) : (
                   <>
                     <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />

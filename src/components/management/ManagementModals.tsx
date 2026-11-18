@@ -39,12 +39,14 @@ import {
   Cloud,
   ExternalLink,
   HardDrive,
-  RefreshCw
+  RefreshCw,
+  Bot
 } from 'lucide-react';
 import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel, FlowerCategory, CustomerTier } from '../../types';
 import { AVAILABLE_MASCOTS } from '../../data/mockData';
 import { useBodyScrollLock } from '../../utils/scrollLock';
 import { compressImage } from '../../utils/imageCompressor';
+import { useStore } from '../../context/StoreContext';
 
 // 0. UNIVERSAL IN-APP ACTION CONFIRM MODAL (NO BROWSER DIALOGS!)
 export interface ActionConfirmModalProps {
@@ -770,10 +772,39 @@ export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
   isDriveConfigured = false
 }) => {
   useBodyScrollLock(Boolean(order));
+  const { reanalyzeBillWithAi, settings, showToast } = useStore();
   const [rejectReason, setRejectReason] = useState('Số tiền chuyển chưa đủ 50% tiền cọc');
   const [isRejecting, setIsRejecting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
+  const [isScanningAi, setIsScanningAi] = useState(false);
+
+  const handleReanalyzeWithAi = async () => {
+    if (!order) return;
+    if (!settings?.geminiApiKey) {
+      showToast('Chưa cấu hình Khóa Google Gemini API. Vào Quản trị > Bảo mật cấp 2 để dán mã miễn phí.', 'info');
+      return;
+    }
+    setIsScanningAi(true);
+    try {
+      const res = await reanalyzeBillWithAi(order.id);
+      if (res.success && res.result) {
+        if (res.result.decision === 'APPROVE') {
+          showToast(`✓ Gemini AI: Biên lai hợp lệ (${new Intl.NumberFormat('vi-VN').format(res.result.transferredAmount || 0)}đ)!`, 'success');
+        } else if (res.result.decision === 'NEEDS_REVIEW') {
+          showToast(`⚠️ Gemini AI: ${res.result.summary}`, 'info');
+        } else {
+          showToast(`❌ Gemini AI: ${res.result.summary}`, 'error');
+        }
+      } else {
+        showToast(res.error || 'Không thể phân tích biên lai với AI', 'error');
+      }
+    } catch (err: any) {
+      showToast(`Lỗi phân tích: ${err?.message || 'Không thể kết nối AI'}`, 'error');
+    } finally {
+      setIsScanningAi(false);
+    }
+  };
 
   const handleSyncToDrive = async () => {
     if (!order || !onSyncBillToDrive) return;
@@ -872,6 +903,114 @@ export const BillPreviewModal: React.FC<BillPreviewModalProps> = ({
                       <Camera className="w-10 h-10 mx-auto text-slate-300" />
                       <p className="font-semibold text-xs">Khách hàng chưa tải ảnh biên lai lên</p>
                       <p className="text-[10px] text-slate-400">Có thể duyệt đơn trực tiếp nếu đã nhận được tiền nổi ở tài khoản</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* AI Multimodal Vision Inspection Card */}
+              {(order.paymentBillImage || order.billImageDataUrl) && (
+                <div className="p-3.5 rounded-2xl border bg-gradient-to-br from-purple-50/70 via-white to-purple-50/40 border-purple-200/90 shadow-2xs space-y-2.5">
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-purple-100">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs">
+                        <Bot className="w-3.5 h-3.5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-purple-950 flex items-center gap-1">
+                          <span>Trợ Lý Google Gemini AI Thẩm Định</span>
+                          <Sparkles className="w-3 h-3 text-purple-600" />
+                        </h4>
+                        <span className="text-[10px] text-purple-700/80">
+                          {order.aiBillAnalysis?.modelUsed ? `Mô hình: ${order.aiBillAnalysis.modelUsed}` : 'Gemini Multimodal Vision'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Re-analyze Action Button */}
+                    <button
+                      type="button"
+                      onClick={handleReanalyzeWithAi}
+                      disabled={isScanningAi || order.isAiAnalyzingBill}
+                      className="px-2.5 py-1 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors disabled:opacity-50"
+                      title="Quét lại biên lai bằng AI"
+                    >
+                      <RefreshCw className={`w-3 h-3 ${isScanningAi || order.isAiAnalyzingBill ? 'animate-spin' : ''}`} />
+                      <span>{isScanningAi || order.isAiAnalyzingBill ? 'Đang đọc...' : 'Quét Lại AI'}</span>
+                    </button>
+                  </div>
+
+                  {/* Content */}
+                  {isScanningAi || order.isAiAnalyzingBill ? (
+                    <div className="py-3 text-center space-y-1.5 text-purple-800">
+                      <RefreshCw className="w-5 h-5 animate-spin mx-auto text-purple-600" />
+                      <p className="font-bold text-[11px]">Gemini Vision đang đọc ảnh biên lai...</p>
+                      <p className="text-[10px] text-purple-600">Đang đối soát số tiền chuyển, ngân hàng và mã giao dịch</p>
+                    </div>
+                  ) : order.aiBillAnalysis ? (
+                    <div className="space-y-2 text-xs">
+                      {/* Status Badge */}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-slate-500 text-[11px]">Kết luận AI:</span>
+                        {order.aiBillAnalysis.decision === 'APPROVE' ? (
+                          <span className="font-bold text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Biên lai hợp lệ &amp; Khớp tiền cọc</span>
+                          </span>
+                        ) : order.aiBillAnalysis.decision === 'NEEDS_REVIEW' ? (
+                          <span className="font-bold text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 flex items-center gap-1">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Cần đối soát lại</span>
+                          </span>
+                        ) : (
+                          <span className="font-bold text-[11px] px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900 border border-rose-200 flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                            <span>Không phải biên lai hợp lệ</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Extracted Details Grid */}
+                      <div className="grid grid-cols-2 gap-2 p-2 rounded-xl bg-white/80 border border-purple-100 text-[11px]">
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">Tiền chuyển phát hiện:</span>
+                          <strong className="text-slate-900 font-bold">
+                            {order.aiBillAnalysis.transferredAmount
+                              ? `${new Intl.NumberFormat('vi-VN').format(order.aiBillAnalysis.transferredAmount)}đ`
+                              : 'Chưa rõ'}
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">Ngân hàng:</span>
+                          <strong className="text-slate-900 font-bold truncate block">
+                            {order.aiBillAnalysis.bankName || 'N/A'}
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">Mã GD ngân hàng:</span>
+                          <strong className="text-slate-700 font-mono text-[10px] truncate block">
+                            {order.aiBillAnalysis.transactionId || 'N/A'}
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">Độ tin cậy:</span>
+                          <strong className="text-purple-700 font-bold">
+                            {order.aiBillAnalysis.confidenceScore}%
+                          </strong>
+                        </div>
+                      </div>
+
+                      {/* AI Summary note */}
+                      <p className="text-[11px] text-slate-600 bg-purple-50/50 p-2 rounded-xl border border-purple-100/60 leading-relaxed">
+                        <strong className="font-semibold text-purple-900">Chi tiết: </strong>
+                        {order.aiBillAnalysis.summary}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
+                      <p className="text-[11px] text-slate-600">
+                        Chưa có phân tích AI cho ảnh này. Bấm nút <strong>&quot;Quét Lại AI&quot;</strong> để thẩm định tức thì.
+                      </p>
                     </div>
                   )}
                 </div>

@@ -21,7 +21,10 @@ import {
   Printer,
   FileSpreadsheet,
   Calendar,
-  Clock
+  Clock,
+  Bot,
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 import { Order, OrderStatus } from '../../../types';
 
@@ -467,15 +470,41 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
               </div>
             </div>
           ) : order.paymentBillImage || order.billImageDataUrl ? (
-            <div className="flex flex-col items-start sm:items-end gap-1">
-              <button
-                type="button"
-                onClick={() => onViewBill(order)}
-                className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-              >
-                <Eye className="w-3.5 h-3.5 text-purple-600" />
-                <span>Xem Ảnh Bill Chuyển Khoản</span>
-              </button>
+            <div className="flex flex-col items-start sm:items-end gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                <button
+                  type="button"
+                  onClick={() => onViewBill(order)}
+                  className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Xem Ảnh Bill Chuyển Khoản</span>
+                </button>
+                {order.isAiAnalyzingBill ? (
+                  <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200/70 px-2 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                    <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                    <span>AI đang đọc...</span>
+                  </span>
+                ) : order.aiBillAnalysis ? (
+                  order.aiBillAnalysis.decision === 'APPROVE' ? (
+                    <span
+                      className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full flex items-center gap-1"
+                      title={order.aiBillAnalysis.summary}
+                    >
+                      <Bot className="w-2.5 h-2.5 text-emerald-600" />
+                      <span>AI: Khớp {new Intl.NumberFormat('vi-VN').format(order.aiBillAnalysis.transferredAmount || 0)}đ</span>
+                    </span>
+                  ) : (
+                    <span
+                      className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/70 px-2 py-0.5 rounded-full flex items-center gap-1"
+                      title={order.aiBillAnalysis.summary}
+                    >
+                      <AlertTriangle className="w-2.5 h-2.5 text-amber-600" />
+                      <span>AI Cảnh báo</span>
+                    </span>
+                  )
+                ) : null}
+              </div>
               {order.billDriveUrl && (
                 <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-1.5 py-0.2 rounded">
                   ✓ Đã sync Drive

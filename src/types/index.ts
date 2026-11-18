@@ -127,6 +127,25 @@ export interface Order {
   billArchivedAt?: string; // Thời gian chuyển dữ liệu sang kho lưu trữ
   billDriveUrl?: string; // Link xem ảnh biên lai trên Google Drive
   billDriveFileId?: string; // ID tệp trên Google Drive
+  aiBillAnalysis?: {
+    success: boolean;
+    verifiedAt: string;
+    isValidBill: boolean;
+    isSuccess: boolean;
+    bankName?: string;
+    transferredAmount?: number;
+    recipientName?: string;
+    recipientAccountNumber?: string;
+    transactionId?: string;
+    transactionTime?: string;
+    transferContent?: string;
+    confidenceScore: number;
+    decision: 'APPROVE' | 'REJECT' | 'NEEDS_REVIEW';
+    summary: string;
+    modelUsed?: string;
+    error?: string;
+  };
+  isAiAnalyzingBill?: boolean; // Cờ đang gửi tới Gemini Multimodal Vision phân tích
 }
 
 export type WeatherCondition = 'sunny' | 'rain' | 'cold' | 'storm';

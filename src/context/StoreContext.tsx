@@ -65,6 +65,7 @@ import {
   triggerSmartWakeup,
   isStoreOperatingHours
 } from '../services/neonService';
+import { analyzePaymentBillWithGemini, AiBillAnalysisResult } from '../services/geminiVisionService';
 
 interface ToastNotice {
   id: string;
@@ -195,6 +196,7 @@ interface StoreContextType {
     deliveryAddress?: string;
   }) => Order;
   uploadOrderBill: (orderId: string, billImageDataUrl: string) => void;
+  reanalyzeBillWithAi: (orderId: string) => Promise<{ success: boolean; result?: AiBillAnalysisResult; error?: string }>;
   acceptOrderAndRequestDeposit: (orderId: string) => void;
   rejectOrder: (orderId: string, reason: string) => void;
   approveOrderDeposit: (orderId: string, approvedBy?: 'ADMIN' | 'AUTO_ASSISTANT') => void;
@@ -1325,11 +1327,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setPointsCelebrationModal(null);
   };
 
-  // 2-Minute Smart Auto-Verifier Interval
+  // 2-Minute Smart Auto-Verifier Interval (Fallback when Gemini API Key is not configured)
   useEffect(() => {
     const timer = setInterval(() => {
       // Financial Security Guard: If shop owner disabled auto-approve, require manual bank verification!
       if (!settings.enableAutoApproveDeposit) return;
+      // If Google Gemini API Key is configured, AI Multimodal Vision handles real-time inspection upon upload
+      if (settings.geminiApiKey && settings.geminiApiKey.trim()) return;
 
       const waitMs = (settings.autoApproveWaitMinutes || 2) * 60 * 1000;
       const now = Date.now();
@@ -2036,8 +2040,125 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast(`Đã từ chối đơn #${orderId}. Lý do: ${reason}`, 'info');
   };
 
+  /**
+   * Internal runner to inspect payment receipt using Google Gemini Multimodal Vision.
+   */
+  const runAiBillInspection = async (
+    orderId: string,
+    billImageDataUrl: string,
+    targetOrder?: Order
+  ): Promise<AiBillAnalysisResult | null> => {
+    const currentOrder = targetOrder || orders.find((o) => o.id === orderId);
+    if (!currentOrder) return null;
+
+    if (!settings.geminiApiKey || !settings.geminiApiKey.trim()) {
+      return null;
+    }
+
+    // Flag analyzing state
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, isAiAnalyzingBill: true } : o))
+    );
+
+    try {
+      const result = await analyzePaymentBillWithGemini({
+        apiKey: settings.geminiApiKey,
+        billImageDataUrl,
+        orderId,
+        depositAmount: currentOrder.depositAmount,
+        totalAmount: currentOrder.totalAmount,
+        senderName: currentOrder.senderName,
+        expectedBankName: settings.bankName || 'Vietcombank',
+        expectedBankAccount: settings.bankAccount || '1909203',
+        expectedBankOwner: settings.bankHolder || 'V&V FLORIELLE'
+      });
+
+      const isFull = currentOrder.paymentType === 'VIETQR_FULL';
+
+      if (settings.enableAutoApproveDeposit && result.success && result.decision === 'APPROVE') {
+        // Auto-approve deposit!
+        setOrders((prev) =>
+          prev.map((o) => {
+            if (o.id === orderId) {
+              return {
+                ...o,
+                status: 'ARRANGING' as OrderStatus,
+                isDepositPaid: true,
+                depositStatus: 'APPROVED',
+                depositRejectReason: undefined,
+                paymentStatus: isFull ? 'PAID' : 'PARTIAL_PAID',
+                paymentApprovedBy: 'AUTO_ASSISTANT',
+                depositApprovedBy: 'AUTO_ASSISTANT',
+                paymentApprovedAt: new Date().toLocaleString('vi-VN'),
+                aiBillAnalysis: result,
+                isAiAnalyzingBill: false
+              };
+            }
+            return o;
+          })
+        );
+
+        // Notify customer
+        sendAppNotification({
+          recipientRole: 'CUSTOMER',
+          recipientId: currentOrder.senderPhone,
+          title: `🌸 Đơn hoa #${orderId} đã được AI duyệt cọc!`,
+          message: `Trợ lý AI Flori đã xác nhận biên lai thành công (${new Intl.NumberFormat('vi-VN').format(result.transferredAmount || currentOrder.depositAmount)}đ). Florist đang bắt đầu cắm hoa cho bạn!`,
+          type: 'ORDER_STATUS',
+          orderId
+        });
+
+        // Notify admin
+        sendAppNotification({
+          recipientRole: 'ADMIN',
+          title: `🤖 Gemini AI tự duyệt cọc đơn #${orderId}!`,
+          message: `Biên lai hợp lệ: Đã chuyển ${new Intl.NumberFormat('vi-VN').format(result.transferredAmount || 0)}đ qua ${result.bankName || 'Ngân hàng'}. Mã GD: ${result.transactionId || 'N/A'}.`,
+          type: 'PAYMENT_BILL',
+          orderId
+        });
+
+        showToast(`🌸 Gemini AI đã đọc bill & tự động duyệt cọc đơn #${orderId}!`, 'success');
+      } else {
+        // Did not auto-approve (either auto-approve is disabled for manual check, or AI flagged issues)
+        setOrders((prev) =>
+          prev.map((o) => {
+            if (o.id === orderId) {
+              return {
+                ...o,
+                aiBillAnalysis: result,
+                isAiAnalyzingBill: false,
+                depositRejectReason: result.decision !== 'APPROVE' ? result.summary : o.depositRejectReason
+              };
+            }
+            return o;
+          })
+        );
+
+        if (result.decision === 'NEEDS_REVIEW' || result.decision === 'REJECT') {
+          sendAppNotification({
+            recipientRole: 'ADMIN',
+            title: `⚠️ AI Cảnh Báo Biên Lai Đơn #${orderId}!`,
+            message: `Trợ lý AI phát hiện: ${result.summary}. Vui lòng kiểm tra kỹ trước khi duyệt.`,
+            type: 'PAYMENT_BILL',
+            orderId
+          });
+        }
+      }
+
+      return result;
+    } catch (err: any) {
+      console.error('[StoreContext] Lỗi thẩm định bill với Gemini:', err);
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, isAiAnalyzingBill: false } : o))
+      );
+      return null;
+    }
+  };
+
   const uploadOrderBill = (orderId: string, billImageDataUrl: string) => {
     const nowIso = new Date().toISOString();
+    const target = orders.find((o) => o.id === orderId);
+
     setOrders((prev) =>
       prev.map((o) =>
         o.id === orderId
@@ -2047,7 +2168,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               billImageDataUrl,
               paymentBillUploadedAt: nowIso,
               depositStatus: 'PENDING',
-              depositRejectReason: undefined
+              depositRejectReason: undefined,
+              isAiAnalyzingBill: Boolean(settings.geminiApiKey)
             }
           : o
       )
@@ -2063,6 +2185,34 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
 
     showToast('Đã gửi ảnh biên lai thanh toán! V&V Florielle sẽ xác nhận cọc ngay.', 'success');
+
+    // Run AI Multimodal Vision Inspection if Gemini API Key is configured
+    if (settings.geminiApiKey && target) {
+      runAiBillInspection(orderId, billImageDataUrl, target);
+    }
+  };
+
+  const reanalyzeBillWithAi = async (
+    orderId: string
+  ): Promise<{ success: boolean; result?: AiBillAnalysisResult; error?: string }> => {
+    const target = orders.find((o) => o.id === orderId);
+    if (!target) {
+      return { success: false, error: 'Không tìm thấy đơn hàng' };
+    }
+    const billImage = target.paymentBillImage || target.billImageDataUrl;
+    if (!billImage) {
+      return { success: false, error: 'Đơn hàng chưa có ảnh biên lai để phân tích' };
+    }
+    if (!settings.geminiApiKey || !settings.geminiApiKey.trim()) {
+      return { success: false, error: 'Chưa cấu hình Khóa Google Gemini API trong Quản trị > Bảo mật (Cấp 2)' };
+    }
+
+    const res = await runAiBillInspection(orderId, billImage, target);
+    return {
+      success: Boolean(res?.success),
+      result: res || undefined,
+      error: res?.error
+    };
   };
 
   const approveOrderDeposit = (orderId: string, approvedBy: 'ADMIN' | 'AUTO_ASSISTANT' = 'ADMIN') => {
@@ -3920,6 +4070,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         createOrder,
         createCustomDesignRequest,
         uploadOrderBill,
+        reanalyzeBillWithAi,
         acceptOrderAndRequestDeposit,
         rejectOrder,
         approveOrderDeposit,
