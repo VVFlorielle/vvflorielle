@@ -8,7 +8,8 @@ import {
   BlogArticle,
   HeroBannerConfig,
   ContactChannel,
-  MarqueeItem
+  MarqueeItem,
+  CustomerReview
 } from '../types';
 
 export const INITIAL_CATEGORIES: FlowerCategory[] = [
@@ -1687,5 +1688,94 @@ export const INITIAL_MARQUEE_ANNOUNCEMENTS: MarqueeItem[] = [
     tag: 'HỘI VIÊN',
     isEnabled: true,
     order: 4
+  }
+];
+
+export const INITIAL_REVIEWS: CustomerReview[] = [
+  {
+    id: 'rev-01',
+    customerName: 'Ninh Vũ',
+    customerPhone: '0829440654',
+    rating: 5,
+    title: 'Hoa tươi cắm cực kỳ nghệ thuật, chụp gửi duyệt trước khi ship rất yên tâm!',
+    comment: 'Lần đầu đặt hoa tại V&V Florielle mà ưng ý thực sự. Mình đặt bó hoa tặng sinh nhật bạn gái ở Cầu Giấy, hoa giao hỏa tốc chưa đầy 30 phút. Bông to, cánh dày và tươi hơn cả trên ảnh web. Florist còn viết thiệp tay chữ rất đẹp. 10/10!',
+    productName: 'Bó Hoa Hồng Ecuador Đỏ Say Đắm (Chân Ái)',
+    images: [
+      'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '18/11/2026',
+    status: 'APPROVED',
+    isPinned: true,
+    adminReply: 'Cảm ơn anh Ninh Vũ đã tin chọn V&V Florielle ạ! Chúc hai bạn luôn ngập tràn hạnh phúc và ngọt ngào nha! 🌸',
+    adminRepliedAt: '18/11/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-02',
+    customerName: 'Nguyễn Thu Hà',
+    customerPhone: '0987654321',
+    rating: 5,
+    title: 'Kệ hoa khai trương sang trọng, ai ở sự kiện cũng khen nức nở',
+    comment: 'Công ty mình đặt kệ hoa khai trương đối tác ở Duy Tân. Kệ 2 tầng hoa hướng dương và hồng vàng cắm rất vững chãi và rực rỡ, banner in chữ sắc nét. Florist gửi ảnh duyệt trước khi đi giao nên mình duyệt rất nhanh.',
+    productName: 'Kệ Hoa Khai Trương Phú Quý Thịnh Vượng (2 Tầng)',
+    images: [
+      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '15/11/2026',
+    status: 'APPROVED',
+    isPinned: true,
+    adminReply: 'V&V Florielle xin cảm ơn chị Thu Hà và quý công ty đã luôn ủng hộ tiệm ạ!',
+    adminRepliedAt: '15/11/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-03',
+    customerName: 'Lê Hoàng Nam',
+    customerPhone: '0945678901',
+    rating: 5,
+    title: 'Giỏ hoa tone pastel tặng mẹ sinh nhật rất tao nhã và thơm dịu',
+    comment: 'Mẹ mình nhận được giỏ hoa thích lắm, cứ khen mãi tiệm chọn hoa khéo. Tone màu kem hồng nhã nhặn, cắm trong giỏ mây vintage rất hợp phòng khách. Mẹ cắm nước giữ tươi được cả tuần lễ.',
+    productName: 'Giỏ Hoa Pastel Dịu Ngọt - Nắng Mới Cầu Giấy',
+    images: [
+      'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '12/11/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    adminReply: 'Dạ tiệm chúc bác luôn mạnh khỏe, bình an và tràn ngập niềm vui bên gia đình ạ! 💕',
+    adminRepliedAt: '12/11/2026',
+    source: 'CUSTOMER_WEB'
+  },
+  {
+    id: 'rev-04',
+    customerName: 'Trần Minh Đức',
+    customerPhone: '0912889922',
+    rating: 5,
+    title: 'Dịch vụ duyệt cọc VietQR và giao hoa siêu tốc, shipper rất lịch sự',
+    comment: 'Thích nhất hệ thống duyệt cọc tự động thông minh, quét mã QR xong web báo ngay chuyển trạng thái cắm hoa. Shipper giao hoa đến bọc giấy kiếng bảo vệ kỹ càng, hoa nguyên vẹn không rụng một cánh nào.',
+    productName: 'Hộp Hoa Tulip Hà Lan Tinh Khôi',
+    images: [
+      'https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '08/11/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    source: 'ZALO_FEEDBACK'
+  },
+  {
+    id: 'rev-05',
+    customerName: 'Hoàng Khánh Linh',
+    customerPhone: '0936771122',
+    rating: 5,
+    title: 'Bó cúc tana và baby chụp kỷ yếu lên hình xinh lung linh',
+    comment: 'Bó hoa tươi rói, tana trắng nhụy vàng phối baby chụp ảnh kỷ yếu Hồ Tây cực kỳ thơ luôn! Giá cả hợp lý mà hoa tươi hơn nhiều so với mua vỉa hè. Năm sau tốt nghiệp chắc chắn sẽ ủng hộ tiệm tiếp.',
+    productName: 'Bó Hoa Cúc Tana Mộc Mạc Tinh Khôi',
+    images: [
+      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80'
+    ],
+    createdAt: '05/11/2026',
+    status: 'APPROVED',
+    isPinned: false,
+    source: 'CUSTOMER_WEB'
   }
 ];

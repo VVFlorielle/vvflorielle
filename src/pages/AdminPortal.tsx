@@ -20,7 +20,8 @@ import {
   LayoutTemplate,
   TrendingUp,
   Palette,
-  HardDrive
+  HardDrive,
+  Star
 } from 'lucide-react';
 import { CustomerUser, Order, OrderStatus, FlowerProduct, ContactChannel, PromotionItem } from '../types';
 import { ManagementOverviewHero } from '../components/management/ManagementOverviewHero';
@@ -61,6 +62,7 @@ import { SecuritySubpage } from '../components/management/subpages/SecuritySubpa
 import { CmsLiveviewSubpage } from '../components/management/subpages/CmsLiveviewSubpage';
 import { MarqueeSubpage } from '../components/management/subpages/MarqueeSubpage';
 import { RevenueSubpage } from '../components/management/subpages/RevenueSubpage';
+import { ReviewsSubpage } from '../components/management/subpages/ReviewsSubpage';
 
 export const AdminPortal: React.FC = () => {
   const {
@@ -118,8 +120,11 @@ export const AdminPortal: React.FC = () => {
     broadcastStoreAnnouncement,
     clearStoreAnnouncement,
     activeBannerNotification,
+    reviews,
     showToast
   } = useStore();
+
+  const pendingReviewsCount = (reviews || []).filter((r) => r.status === 'PENDING').length;
 
   // Scroll Restoration Reference (Phototiinlove battle-tested navigation)
   const lastDashboardScrollYRef = useRef(0);
@@ -297,6 +302,17 @@ export const AdminPortal: React.FC = () => {
           actionType: 'page',
           actionLabel: 'Truy cập',
           onClick: () => navigateToTab('channels')
+        },
+        {
+          id: 'action-reviews',
+          title: 'Quản lý Đánh Giá & Vote Sao',
+          description: 'Kiểm duyệt cảm nhận của khách, duyệt hiển thị trang chủ, ghim nổi bật và phản hồi.',
+          icon: <Star className="w-4 h-4 text-amber-500 fill-amber-500" />,
+          actionType: 'page',
+          actionLabel: 'Truy cập',
+          badge: pendingReviewsCount > 0 ? `${pendingReviewsCount} Chờ duyệt` : undefined,
+          badgeColor: 'amber',
+          onClick: () => navigateToTab('reviews')
         }
       ]
     },
@@ -551,6 +567,22 @@ export const AdminPortal: React.FC = () => {
             showToast(`Đã ${nextStatus === 'BLOCKED' ? 'tạm khóa' : 'mở khóa'} tài khoản "${cust.fullName}"`, 'info');
           }}
         />
+      )}
+
+      {activeTab === 'reviews' && (
+        <div className="space-y-4 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={handleBackToDashboard}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>← Trở về Bàn Làm Việc</span>
+            </button>
+          </div>
+          <ReviewsSubpage />
+        </div>
       )}
 
       {activeTab === 'vouchers' && (

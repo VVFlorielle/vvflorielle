@@ -406,3 +406,25 @@ export interface SecurityAuditLogItem {
   details?: Record<string, any>;
 }
 
+export type ReviewStatus = 'PENDING' | 'APPROVED' | 'HIDDEN';
+
+export interface CustomerReview {
+  id: string;
+  customerName: string;
+  customerPhone?: string; // Ẩn dạng 0829***654 khi hiển thị công khai
+  customerAvatar?: string;
+  rating: number; // 1 - 5 stars
+  title?: string;
+  comment: string;
+  productName?: string;
+  orderId?: string;
+  images?: string[]; // Ảnh hoa thực tế do khách gửi
+  createdAt: string;
+  status: ReviewStatus; // 'PENDING' | 'APPROVED' | 'HIDDEN'
+  isPinned?: boolean; // Ghim lên đầu trang chủ
+  adminReply?: string; // Lời cảm ơn / phản hồi của tiệm
+  adminRepliedAt?: string;
+  source?: 'CUSTOMER_WEB' | 'ZALO_FEEDBACK' | 'HOTLINE';
+}
+
+

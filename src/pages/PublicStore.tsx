@@ -5,6 +5,7 @@ import { CategoryVisualGrid } from '../components/storefront/CategoryVisualGrid'
 import { CategoryPillFilters } from '../components/storefront/CategoryPillFilters';
 import { ProductsDisplayGrid } from '../components/storefront/ProductsDisplayGrid';
 import { PromotionsTickerSection } from '../components/storefront/PromotionsTickerSection';
+import { CustomerReviewsSection } from '../components/storefront/CustomerReviewsSection';
 import { FloralBlogSection } from '../components/storefront/FloralBlogSection';
 import { StoreCommitmentSection } from '../components/storefront/StoreCommitmentSection';
 
@@ -127,14 +128,17 @@ export const PublicStore: React.FC = () => {
         copiedCode={copiedCode}
       />
 
-      {/* 6. Blog & Care Articles */}
+      {/* 6. Customer Reviews & Star Ratings Showcase (Social Proof Phototiinlove) */}
+      <CustomerReviewsSection />
+
+      {/* 7. Blog & Care Articles */}
       <FloralBlogSection
         articles={articles}
         selectedArticle={selectedArticle}
         setSelectedArticle={setSelectedArticle}
       />
 
-      {/* 7. Store Commitment & Service Promise */}
+      {/* 8. Store Commitment & Service Promise */}
       <StoreCommitmentSection />
     </div>
   );

@@ -26,7 +26,9 @@ import {
   WeatherState,
   SecurityAuditLogItem,
   SecurityEventType,
-  SecuritySeverity
+  SecuritySeverity,
+  CustomerReview,
+  ReviewStatus
 } from '../types';
 import {
   INITIAL_CATEGORIES,
@@ -40,6 +42,7 @@ import {
   INITIAL_HERO_CONFIG,
   INITIAL_CONTACT_CHANNELS,
   INITIAL_MARQUEE_ANNOUNCEMENTS,
+  INITIAL_REVIEWS,
   calculateTieredShippingFee
 } from '../data/mockData';
 import { normalizePhone, isValidVietnamesePhone } from '../utils/formatters';
@@ -367,6 +370,28 @@ interface StoreContextType {
   // Points Celebration Modal
   pointsCelebrationModal: { isOpen: boolean; points: number; orderId: string } | null;
   dismissPointsCelebrationModal: () => void;
+
+  // Customer Reviews & Star Ratings System
+  reviews: CustomerReview[];
+  isReviewModalOpen: boolean;
+  setIsReviewModalOpen: (open: boolean) => void;
+  reviewTargetProduct: string | null;
+  setReviewTargetProduct: (prod: string | null) => void;
+  openReviewModalForCustomer: (productName?: string) => boolean;
+  submitCustomerReview: (data: {
+    rating: number;
+    title?: string;
+    comment: string;
+    productName?: string;
+    orderId?: string;
+    images?: string[];
+  }) => { success: boolean; message: string };
+  approveReview: (id: string) => void;
+  hideReview: (id: string) => void;
+  togglePinReview: (id: string) => void;
+  deleteReview: (id: string) => void;
+  replyReview: (id: string, replyText: string) => void;
+  addManualReview: (data: Omit<CustomerReview, 'id' | 'createdAt'>) => void;
 
   // Quick modals
   selectedProduct: FlowerProduct | null;
@@ -709,6 +734,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       accountCode: c.accountCode || `VVF-CUST-${(849201 + idx * 11111).toString().slice(0, 6)}`
     }));
   });
+
+  // Customer Reviews & Star Ratings System
+  const [reviews, setReviews] = useState<CustomerReview[]>(() => {
+    const saved = localStorage.getItem('vvf_reviews');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    return INITIAL_REVIEWS;
+  });
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
+  const [reviewTargetProduct, setReviewTargetProduct] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('vvf_reviews', JSON.stringify(reviews));
+    } catch (e) {}
+  }, [reviews]);
 
   // Single Session Role: 'ADMIN' | 'KHACHHANG' | 'GUEST'
   const [sessionRole, setSessionRole] = useState<SessionRole>(() => {
@@ -3556,6 +3602,155 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return count;
   };
 
+  /**
+   * Opens the review submission modal for a customer.
+   * Permission Rules:
+   * 1. Must be logged in as customer.
+   * 2. Must have placed at least 1 flower order previously.
+   */
+  const openReviewModalForCustomer = (productName?: string): boolean => {
+    if (!customer) {
+      showToast('Vui lòng đăng nhập tài khoản khách hàng để gửi đánh giá!', 'info');
+      setIsAuthModalOpen(true);
+      setAuthModalMode('customer');
+      return false;
+    }
+
+    const customerOrders = orders.filter((o) => o.senderPhone === customer.phone);
+    const hasPurchased = customerOrders.length > 0 || (customer.ordersCount && customer.ordersCount > 0);
+
+    if (!hasPurchased) {
+      showToast(
+        '🌸 Chức năng đánh giá chỉ dành cho khách hàng đã từng đặt mua hoa tại tiệm để đảm bảo tính chân thực 100%. Hãy đặt thử một mẫu hoa tươi xinh và quay lại đánh giá nhé!',
+        'info'
+      );
+      return false;
+    }
+
+    if (productName) {
+      setReviewTargetProduct(productName);
+    }
+    setIsReviewModalOpen(true);
+    return true;
+  };
+
+  /**
+   * Customer submits a new review.
+   * Newly submitted reviews always start with status 'PENDING' for Admin / Owner moderation.
+   */
+  const submitCustomerReview = (data: {
+    rating: number;
+    title?: string;
+    comment: string;
+    productName?: string;
+    orderId?: string;
+    images?: string[];
+  }): { success: boolean; message: string } => {
+    if (!customer) {
+      return { success: false, message: 'Vui lòng đăng nhập tài khoản trước khi gửi đánh giá.' };
+    }
+
+    const customerOrders = orders.filter((o) => o.senderPhone === customer.phone);
+    const hasPurchased = customerOrders.length > 0 || (customer.ordersCount && customer.ordersCount > 0);
+
+    if (!hasPurchased) {
+      return {
+        success: false,
+        message: 'Bạn chưa có đơn đặt hoa nào tại tiệm. Chỉ khách hàng đã mua hoa mới có thể gửi đánh giá.'
+      };
+    }
+
+    if (!data.comment || data.comment.trim().length < 5) {
+      return { success: false, message: 'Vui lòng nhập nhận xét chi tiết ít nhất 5 ký tự.' };
+    }
+
+    const newRev: CustomerReview = {
+      id: `rev-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      customerName: customer.fullName || 'Khách hàng',
+      customerPhone: customer.phone,
+      rating: data.rating || 5,
+      title: data.title?.trim() || undefined,
+      comment: data.comment.trim(),
+      productName: data.productName?.trim() || undefined,
+      orderId: data.orderId || (customerOrders[0] ? customerOrders[0].id : undefined),
+      images: data.images && data.images.length > 0 ? data.images : undefined,
+      createdAt: new Date().toLocaleDateString('vi-VN'),
+      status: 'PENDING', // Awaiting Admin/Owner approval!
+      isPinned: false,
+      source: 'CUSTOMER_WEB'
+    };
+
+    setReviews((prev) => [newRev, ...prev]);
+
+    // Send notification to Admin/Owner
+    sendAppNotification({
+      recipientRole: 'ADMIN',
+      title: `⭐ Đánh giá mới từ ${customer.fullName} (${data.rating} sao)!`,
+      message: `Khách hàng vừa gửi cảm nhận: "${data.comment.slice(0, 80)}...". Vui lòng kiểm duyệt để hiển thị lên trang chủ.`,
+      type: 'SYSTEM'
+    });
+
+    showToast(
+      '🌸 Đã gửi đánh giá thành công! Ban quản trị sẽ kiểm duyệt và đăng tải lên trang chủ sớm nhất.',
+      'success'
+    );
+
+    return {
+      success: true,
+      message: 'Đã gửi đánh giá thành công! Cảm ơn bạn đã đóng góp cảm nhận cho tiệm hoa.'
+    };
+  };
+
+  const approveReview = (id: string) => {
+    setReviews((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: 'APPROVED' } : r))
+    );
+    showToast('Đã duyệt đánh giá hiển thị lên trang chủ!', 'success');
+  };
+
+  const hideReview = (id: string) => {
+    setReviews((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: 'HIDDEN' } : r))
+    );
+    showToast('Đã ẩn đánh giá khỏi trang chủ.', 'info');
+  };
+
+  const togglePinReview = (id: string) => {
+    setReviews((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, isPinned: !r.isPinned } : r))
+    );
+  };
+
+  const deleteReview = (id: string) => {
+    setReviews((prev) => prev.filter((r) => r.id !== id));
+    showToast('Đã xóa đánh giá khỏi hệ thống.', 'info');
+  };
+
+  const replyReview = (id: string, replyText: string) => {
+    setReviews((prev) =>
+      prev.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              adminReply: replyText.trim(),
+              adminRepliedAt: new Date().toLocaleDateString('vi-VN')
+            }
+          : r
+      )
+    );
+    showToast('Đã lưu phản hồi đánh giá của tiệm!', 'success');
+  };
+
+  const addManualReview = (data: Omit<CustomerReview, 'id' | 'createdAt'>) => {
+    const newRev: CustomerReview = {
+      ...data,
+      id: `rev-manual-${Date.now()}`,
+      createdAt: new Date().toLocaleDateString('vi-VN')
+    };
+    setReviews((prev) => [newRev, ...prev]);
+    showToast('Đã thêm đánh giá khách hàng thành công!', 'success');
+  };
+
   // Security Event Logger (Security Audit Trail)
   const logSecurityEvent = (
     actor: string,
@@ -4179,6 +4374,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         testCuteVoice,
         pointsCelebrationModal,
         dismissPointsCelebrationModal,
+        reviews,
+        isReviewModalOpen,
+        setIsReviewModalOpen,
+        reviewTargetProduct,
+        setReviewTargetProduct,
+        openReviewModalForCustomer,
+        submitCustomerReview,
+        approveReview,
+        hideReview,
+        togglePinReview,
+        deleteReview,
+        replyReview,
+        addManualReview,
         selectedProduct,
         setSelectedProduct,
         isAuthModalOpen,

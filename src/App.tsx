@@ -19,6 +19,7 @@ import { AdminLockScreenModal } from './components/management/AdminLockScreenMod
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
+import { CustomerReviewModal } from './components/CustomerReviewModal';
 import { MobileBottomDock } from './components/MobileBottomDock';
 import { FloatingContactWidget } from './components/FloatingContactWidget';
 import { FloatingCartWidget } from './components/FloatingCartWidget';
@@ -46,6 +47,7 @@ export const AppContent: React.FC = () => {
     selectedProduct,
     isCartOpen,
     isAuthModalOpen,
+    isReviewModalOpen,
     isSessionLocked
   } = useStore();
   const [activePopup, setActivePopup] = useState<PopupType>(null);
@@ -56,6 +58,7 @@ export const AppContent: React.FC = () => {
     selectedProduct ||
     isCartOpen ||
     isAuthModalOpen ||
+    isReviewModalOpen ||
     activePopup ||
     isQrScannerOpen ||
     isSessionLocked
@@ -192,6 +195,7 @@ export const AppContent: React.FC = () => {
       <ProductDetailModal />
       <CartDrawer />
       <AuthModal />
+      <CustomerReviewModal />
       <InfoPopups activePopup={activePopup} onClose={() => setActivePopup(null)} />
 
       {/* Management Bottom Dock (Mobile Only when logged in as Admin/Owner - Desktop uses Top Navbar) */}
