@@ -277,34 +277,42 @@ export const MascotAssistant: React.FC = () => {
 - Tư vấn cách chăm sóc hoa tươi bền lâu (thay nước mỗi ngày, cắt vát gốc 45 độ, tránh ánh nắng gắt).
 - Trả lời súc tích, ấm áp, dưới 100 từ, tự nhiên và khuyến khích đặt hoa tại tiệm.`;
 
-          const resp = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.geminiApiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                system_instruction: {
-                  parts: [{ text: systemPrompt }]
-                },
-                contents: [
-                  {
-                    role: 'user',
-                    parts: [{ text: questionText }]
-                  }
-                ],
-                generationConfig: {
-                  temperature: 0.7,
-                  maxOutputTokens: 250
+          const chatModels = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.8-flash'];
+          for (const model of chatModels) {
+            try {
+              const resp = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${settings.geminiApiKey}`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    system_instruction: {
+                      parts: [{ text: systemPrompt }]
+                    },
+                    contents: [
+                      {
+                        role: 'user',
+                        parts: [{ text: questionText }]
+                      }
+                    ],
+                    generationConfig: {
+                      temperature: 0.7,
+                      maxOutputTokens: 250
+                    }
+                  })
                 }
-              })
-            }
-          );
+              );
 
-          if (resp.ok) {
-            const data = await resp.json();
-            const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (aiText) {
-              replyText = aiText.trim();
+              if (resp.ok) {
+                const data = await resp.json();
+                const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (aiText) {
+                  replyText = aiText.trim();
+                  break;
+                }
+              }
+            } catch (err) {
+              console.warn(`Gemini AI fallback on model ${model}:`, err);
             }
           }
         } catch (err) {

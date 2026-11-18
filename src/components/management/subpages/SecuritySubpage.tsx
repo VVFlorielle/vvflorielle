@@ -136,39 +136,49 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
     }
     setIsTestingKey(true);
     setTestKeyResult(null);
-    try {
-      const resp = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Ping test. Reply with OK' }] }]
-          })
+
+    const testModels = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+    let connectedModel = '';
+    let lastErrorMsg = '';
+
+    for (const model of testModels) {
+      try {
+        const resp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: 'Ping test. Reply with OK' }] }]
+            })
+          }
+        );
+        if (resp.ok) {
+          connectedModel = model;
+          break;
+        } else {
+          const errJson = await resp.json().catch(() => ({}));
+          lastErrorMsg = errJson?.error?.message || `Lỗi HTTP ${resp.status}`;
         }
-      );
-      if (resp.ok) {
-        setTestKeyResult({
-          success: true,
-          message: 'Khóa API hoạt động hoàn hảo! Đã kết nối thành công với Google Gemini 1.5 Flash.'
-        });
-        showToast('Kết nối Google Gemini AI thành công!', 'success');
-      } else {
-        const errJson = await resp.json().catch(() => ({}));
-        const errMsg = errJson?.error?.message || `Lỗi phản hồi (${resp.status})`;
-        setTestKeyResult({
-          success: false,
-          message: `Không thể kết nối: ${errMsg}`
-        });
+      } catch (e: any) {
+        lastErrorMsg = e.message || 'Không thể gọi tới Google API';
       }
-    } catch (e: any) {
+    }
+
+    if (connectedModel) {
+      setTestKeyResult({
+        success: true,
+        message: `Khóa API hoạt động hoàn hảo! Đã kết nối thành công với Google Gemini (${connectedModel}).`
+      });
+      showToast(`Kết nối Google Gemini AI (${connectedModel}) thành công!`, 'success');
+    } else {
       setTestKeyResult({
         success: false,
-        message: `Lỗi kết nối mạng: ${e.message || 'Không thể gọi tới Google API'}`
+        message: `Không thể kết nối: ${lastErrorMsg || 'Khóa API không hợp lệ hoặc bị giới hạn'}`
       });
-    } finally {
-      setIsTestingKey(false);
     }
+
+    setIsTestingKey(false);
   };
 
   const handleSaveGeminiKey = (e: React.FormEvent) => {

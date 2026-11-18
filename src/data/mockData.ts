@@ -998,7 +998,7 @@ export const INITIAL_SHOP_SETTINGS: ShopSettings = {
   depositRate: 50,
   depositRequired: true,
   minOrderForDeposit: 0,
-  enableAutoApproveDeposit: false,
+  enableAutoApproveDeposit: true,
   pointsPerAmount: 10000,
   pointsMultiplier: 1,
   rainSurcharge: 5000,

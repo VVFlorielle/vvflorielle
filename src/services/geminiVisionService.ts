@@ -39,7 +39,12 @@ export interface AiBillAnalysisResult {
   rawResponse?: string;
 }
 
-const CANDIDATE_MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+const CANDIDATE_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-3.8-flash',
+  'gemini-flash-latest'
+];
 
 /**
  * Extracts pure Base64 and mime type from a data URL string.
