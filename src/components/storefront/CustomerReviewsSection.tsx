@@ -109,7 +109,7 @@ export const CustomerReviewsSection: React.FC = () => {
   };
 
   return (
-    <section id="customer-reviews-section" className="relative py-12 sm:py-20 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+    <section id="customer-reviews-section" className="relative pt-8 sm:pt-14 pb-4 sm:pb-6 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
       {/* Background Decorative Blur Orbs */}
       <div className="absolute top-10 left-1/4 w-72 h-72 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-teal-100/30 rounded-full blur-3xl pointer-events-none -z-10" />
@@ -449,13 +449,8 @@ export const CustomerReviewsSection: React.FC = () => {
               })}
             </div>
 
-            {/* Pagination Dots & Navigation Prompt Footer */}
-            <div className="mt-4 pt-3 border-t border-emerald-100/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-              <span className="text-[11px] text-slate-500">
-                👈 Vuốt ngang trên điện thoại hoặc bấm nút mũi tên để xem các đánh giá khác (Tối đa 9 đánh giá)
-              </span>
-
-              {/* Indicator Dots */}
+            {/* Centered Indicator Dots */}
+            <div className="mt-3 pt-2 border-t border-emerald-100/60 flex items-center justify-center">
               <div className="flex items-center gap-1.5">
                 {limitedReviews.map((_, i) => (
                   <span
@@ -499,12 +494,6 @@ export const CustomerReviewsSection: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* 6. Footer Assurance */}
-      <div className="mt-10 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-        <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
-        <span>V&V Florielle cam kết hoa tươi 100%, bảo hành đổi mới nếu hoa dập héo khi vận chuyển!</span>
-      </div>
     </section>
   );
 };
