@@ -61,7 +61,8 @@ import {
   fetchNeonOrders,
   fetchNeonProducts,
   pushProductToNeon,
-  checkNeonHealth
+  checkNeonHealth,
+  triggerSmartWakeup
 } from '../services/neonService';
 
 interface ToastNotice {
@@ -1080,9 +1081,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     lastKnownOrderIdsRef.current = new Set(orders.map((o) => o.id));
   }, [orders]);
 
-  // 1. Initial product overlay from Neon PostgreSQL
+  // 1. Initial product overlay from Neon PostgreSQL & Smart Auto-Wakeup
   useEffect(() => {
     let isMounted = true;
+    triggerSmartWakeup('initial_page_visit');
     fetchNeonProducts().then((remoteProds) => {
       if (!isMounted || !remoteProds || remoteProds.length === 0) return;
       setProducts((prev) => {
@@ -1382,6 +1384,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (openDrawer) {
       setIsCartOpen(true);
     }
+    triggerSmartWakeup('add_to_cart_intent');
     showToast(`Đã thêm "${product.name}" vào giỏ hoa!`);
   };
 

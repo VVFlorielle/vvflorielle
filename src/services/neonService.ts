@@ -3,6 +3,34 @@ import { Order, FlowerProduct } from '../types';
 export const NEON_API_BASE = 'https://vvflorielle-api.onrender.com/api';
 
 /**
+ * Smart Auto-Wakeup Engine for Render
+ * Gửi tín hiệu ngầm đánh thức máy chủ Render ngay khi người dùng vừa mở trang web
+ * hoặc khi phát sinh tương tác (thêm vào giỏ hàng, mở thanh toán).
+ * Giúp máy chủ thức sẵn 100% trước khi khách bấm đặt đơn mà không làm chậm giao diện.
+ */
+let lastWakeupPing = 0;
+export function triggerSmartWakeup(action = 'page_visit'): void {
+  const now = Date.now();
+  // Giới hạn tần suất ping tối thiểu cách nhau 30 giây để tối ưu tài nguyên mạng
+  if (now - lastWakeupPing < 30000) return;
+  lastWakeupPing = now;
+
+  try {
+    fetch(`${NEON_API_BASE}/health`, { method: 'GET', keepalive: true })
+      .then((res) => {
+        if (res.ok) {
+          console.log(`[Smart Wakeup (${action})] Máy chủ Render đã thức và sẵn sàng 100%!`);
+        }
+      })
+      .catch(() => {
+        // Tín hiệu ngầm không gây ảnh hưởng tới UI
+      });
+  } catch {
+    // Tránh ngoại lệ môi trường mạng
+  }
+}
+
+/**
  * Health check for Neon PostgreSQL backend on Render
  */
 export async function checkNeonHealth(): Promise<boolean> {
