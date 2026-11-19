@@ -24,7 +24,16 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
   formatPrice,
   title = 'Quản Lý Voucher & Mã Ưu Đãi'
 }) => {
-  const { airdropVoucherToAllCustomers, showToast } = useStore();
+  const {
+    airdropVoucherToAllCustomers,
+    showToast,
+    isDoubleDaySimulated,
+    toggleDoubleDaySimulation,
+    isFlashSaleSimulated,
+    toggleFlashSaleSimulation,
+    isHolidaySimulated,
+    toggleHolidaySimulation
+  } = useStore();
   const [voucherToDelete, setVoucherToDelete] = useState<PromotionItem | null>(null);
   const [voucherToAirdrop, setVoucherToAirdrop] = useState<PromotionItem | null>(null);
   const [isPrivilegeModalOpen, setIsPrivilegeModalOpen] = useState(false);
@@ -92,6 +101,75 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
           >
             <Plus className="w-4 h-4" />
             <span>Tạo Voucher Mới</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 2.1 Trung Tâm Điều Khiển Sự Kiện & Giả Lập Trực Tiếp Ngoài Web */}
+      <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-50/90 via-orange-50/70 to-rose-50/90 border border-orange-200/80 space-y-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <Zap className="w-4 h-4 text-orange-600 fill-orange-600" />
+            <span>Công Tắc Kích Hoạt Chiến Dịch (Chạy Thử / Bán Livestream Ngoài Web)</span>
+          </span>
+          <span className="text-[10.5px] text-slate-500 font-semibold">
+            Bật để test hoặc mở bán sớm trước ngày/giờ
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+          {/* Nút Ngày Đôi */}
+          <button
+            type="button"
+            onClick={() => toggleDoubleDaySimulation()}
+            className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+              isDoubleDaySimulated
+                ? 'bg-rose-600 text-white border-rose-700 shadow-sm'
+                : 'bg-white text-slate-700 border-slate-200 hover:border-rose-300'
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <span>🔥 Ngày Đôi (5 Tầng 15%-35%)</span>
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-black/10">
+              {isDoubleDaySimulated ? 'ĐANG BẬT' : 'Theo lịch'}
+            </span>
+          </button>
+
+          {/* Nút Flash Deal Giờ Vàng */}
+          <button
+            type="button"
+            onClick={() => toggleFlashSaleSimulation()}
+            className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+              isFlashSaleSimulated
+                ? 'bg-orange-600 text-white border-orange-700 shadow-sm'
+                : 'bg-white text-slate-700 border-slate-200 hover:border-orange-300'
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <span>⚡ Giờ Vàng (12h &amp; 20h)</span>
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-black/10">
+              {isFlashSaleSimulated ? 'ĐANG LIVE' : 'Theo giờ'}
+            </span>
+          </button>
+
+          {/* Nút Mùng 1 / Rằm / Payday */}
+          <button
+            type="button"
+            onClick={() => toggleHolidaySimulation()}
+            className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+              isHolidaySimulated
+                ? 'bg-emerald-700 text-white border-emerald-800 shadow-sm'
+                : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300'
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <span>🏮 Mùng 1 / Rằm / Payday</span>
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-black/10">
+              {isHolidaySimulated ? 'ĐANG BẬT' : 'Theo lịch'}
+            </span>
           </button>
         </div>
       </div>

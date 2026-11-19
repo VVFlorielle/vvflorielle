@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Gift,
   Smartphone,
@@ -12,10 +12,13 @@ import {
   ShoppingBag,
   Truck,
   Flame,
-  Tag
+  Tag,
+  Clock
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { PromotionItem, UserVoucher } from '../../types';
+import { useFlashSaleTimer } from '../../hooks/useFlashSaleTimer';
+import { isVoucherVisibleOnStorefront } from '../../utils/voucherVisibility';
 
 interface PromoModalProps {
   onClose: () => void;
@@ -108,10 +111,15 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
     setIsAuthModalOpen,
     setAuthModalMode,
     setIsCartOpen,
-    showToast
+    showToast,
+    isDoubleDaySimulated,
+    isFlashSaleSimulated,
+    isHolidaySimulated
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<'ALL' | 'FREESHIP' | 'DOUBLE_DAY' | 'FLOWER'>('ALL');
+
+  const flashTimer = useFlashSaleTimer(isFlashSaleSimulated);
 
   const formatPrice = (p: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p).replace('₫', 'đ');
@@ -150,7 +158,15 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
     saveCustomerVoucher(newVoucher);
   };
 
-  const activePromotions = promotions.filter((p) => p.isActive && p.showOnPublicWeb !== false);
+  const activePromotions = useMemo(() => {
+    return promotions.filter((p) =>
+      isVoucherVisibleOnStorefront(p, {
+        isDoubleDaySimulated,
+        isFlashSaleSimulated,
+        isHolidaySimulated
+      })
+    );
+  }, [promotions, isDoubleDaySimulated, isFlashSaleSimulated, isHolidaySimulated]);
 
   const filteredPromotions = activePromotions.filter((p) => {
     if (activeTab === 'ALL') return true;
@@ -167,12 +183,30 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
       </div>
       <div className="text-center">
         <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">
-          Kho Voucher &amp; Ưu Đãi Độc Quyền ({activePromotions.length})
+          Kho Voucher &amp; Ưu Đãi Đang Áp Dụng ({activePromotions.length})
         </h3>
         <p className="text-xs text-slate-500 mt-1">
           Bấm "Lưu" để cất vào ví hội viên hoặc "Sử dụng" để tự động áp dụng khi thanh toán
         </p>
       </div>
+
+      {/* Countdown Banner nếu đang ở tab Flash / Ngày Đôi */}
+      {activeTab === 'DOUBLE_DAY' && (
+        <div className="p-3 rounded-2xl bg-gradient-to-r from-orange-100/90 to-amber-100/90 border border-orange-200/90 flex items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-1.5 font-bold text-orange-950">
+            <Flame className="w-4 h-4 text-orange-600 fill-orange-600 animate-pulse" />
+            <span>Giờ Vàng ({flashTimer.activeSlot}):</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-semibold text-slate-600">
+              {flashTimer.isLive ? 'Kết thúc trong' : 'Bắt đầu sau'}:
+            </span>
+            <span className="font-mono font-black text-xs text-orange-900 bg-white px-2 py-0.5 rounded-lg border border-orange-300">
+              {flashTimer.hours}:{flashTimer.minutes}:{flashTimer.seconds}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Tabs Phân Loại Nhanh */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs justify-center scrollbar-none">

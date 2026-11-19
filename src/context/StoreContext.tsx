@@ -127,6 +127,12 @@ interface StoreContextType {
   updateHeroConfig: (cfg: Partial<HeroBannerConfig>) => void;
   promotions: PromotionItem[];
   updatePromotions: (promos: PromotionItem[]) => void;
+  isDoubleDaySimulated: boolean;
+  toggleDoubleDaySimulation: (val?: boolean) => void;
+  isFlashSaleSimulated: boolean;
+  toggleFlashSaleSimulation: (val?: boolean) => void;
+  isHolidaySimulated: boolean;
+  toggleHolidaySimulation: (val?: boolean) => void;
   articles: BlogArticle[];
   updateArticles: (arts: BlogArticle[]) => void;
   marqueeAnnouncements: MarqueeItem[];
@@ -653,6 +659,43 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const saved = localStorage.getItem('vvf_promotions');
     return saved ? JSON.parse(saved) : INITIAL_PROMOTIONS;
   });
+
+  const [isDoubleDaySimulated, setIsDoubleDaySimulated] = useState<boolean>(() => {
+    return localStorage.getItem('vvf_sim_doubleday') === 'true';
+  });
+  const [isFlashSaleSimulated, setIsFlashSaleSimulated] = useState<boolean>(() => {
+    return localStorage.getItem('vvf_sim_flashsale') === 'true';
+  });
+  const [isHolidaySimulated, setIsHolidaySimulated] = useState<boolean>(() => {
+    return localStorage.getItem('vvf_sim_holiday') === 'true';
+  });
+
+  const toggleDoubleDaySimulation = (val?: boolean) => {
+    setIsDoubleDaySimulated((prev) => {
+      const next = val !== undefined ? val : !prev;
+      localStorage.setItem('vvf_sim_doubleday', String(next));
+      showToast(next ? '🔥 Đã BẬT sự kiện Ngày Đôi (Hiển thị 5 tầng voucher)!' : 'Đã TẮT sự kiện Ngày Đôi', 'info');
+      return next;
+    });
+  };
+
+  const toggleFlashSaleSimulation = (val?: boolean) => {
+    setIsFlashSaleSimulated((prev) => {
+      const next = val !== undefined ? val : !prev;
+      localStorage.setItem('vvf_sim_flashsale', String(next));
+      showToast(next ? '⚡ Đã BẬT Giờ Vàng Flash Sale (Kích hoạt đếm ngược & voucher)!' : 'Đã TẮT Giờ Vàng Flash Sale', 'info');
+      return next;
+    });
+  };
+
+  const toggleHolidaySimulation = (val?: boolean) => {
+    setIsHolidaySimulated((prev) => {
+      const next = val !== undefined ? val : !prev;
+      localStorage.setItem('vvf_sim_holiday', String(next));
+      showToast(next ? '🏮 Đã BẬT sự kiện Mùng 1 / Rằm / Payday!' : 'Đã TẮT sự kiện Mùng 1 / Rằm / Payday', 'info');
+      return next;
+    });
+  };
 
   const [articles, setArticles] = useState<BlogArticle[]>(() => {
     const artVersion = localStorage.getItem('vvf_articles_catalog_version');
@@ -4336,6 +4379,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateHeroConfig,
         promotions,
         updatePromotions,
+        isDoubleDaySimulated,
+        toggleDoubleDaySimulation,
+        isFlashSaleSimulated,
+        toggleFlashSaleSimulation,
+        isHolidaySimulated,
+        toggleHolidaySimulation,
         articles,
         updateArticles,
         marqueeAnnouncements,
