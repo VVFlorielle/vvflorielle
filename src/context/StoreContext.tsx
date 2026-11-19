@@ -598,26 +598,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [archivedProducts]);
 
   const [categories, setCategories] = useState<FlowerCategory[]>(() => {
+    const catVersion = localStorage.getItem('vvf_categories_catalog_version');
+    if (catVersion !== 'v9_authentic_flower_categories') {
+      localStorage.setItem('vvf_categories_catalog_version', 'v9_authentic_flower_categories');
+      const cleanList = INITIAL_CATEGORIES.filter((c) => c.id !== 'all');
+      localStorage.setItem('vvf_categories', JSON.stringify(cleanList));
+      return cleanList;
+    }
     const saved = localStorage.getItem('vvf_categories');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          const list = parsed.filter((c: FlowerCategory) => c.id !== 'all');
-          // Auto-migrate legacy unsplash images in categories to authentic local webp photos
-          const migrated = list.map((c: FlowerCategory) => {
-            const initial = INITIAL_CATEGORIES.find((init) => init.id === c.id);
-            if (initial && (c.imageUrl?.includes('unsplash.com') || c.bannerUrl?.includes('unsplash.com'))) {
-              return {
-                ...c,
-                imageUrl: initial.imageUrl,
-                bannerUrl: initial.bannerUrl
-              };
-            }
-            return c;
-          });
-          localStorage.setItem('vvf_categories', JSON.stringify(migrated));
-          return migrated;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((c: FlowerCategory) => c.id !== 'all');
         }
       } catch (e) {
         // Fallback below
@@ -632,28 +625,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [heroConfig, setHeroConfig] = useState<HeroBannerConfig>(() => {
+    const heroVersion = localStorage.getItem('vvf_hero_catalog_version');
+    if (heroVersion !== 'v9_authentic_flower_hero') {
+      localStorage.setItem('vvf_hero_catalog_version', 'v9_authentic_flower_hero');
+      localStorage.setItem('vvf_hero', JSON.stringify(INITIAL_HERO_CONFIG));
+      return INITIAL_HERO_CONFIG;
+    }
     const saved = localStorage.getItem('vvf_hero');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Automatically migrate if using older template title or older subtitle or unsplash background
-        if (
-          !parsed.title ||
-          parsed.title.includes('Hoa Tươi Thiết Kế Nghệ Thuật - 105') ||
-          !parsed.subtitle ||
-          !parsed.subtitle.startsWith('Hoa Tươi Giao Ngay Tại Hà Nội') ||
-          parsed.subtitle.includes('60 - 90 phút') ||
-          parsed.backgroundImage?.includes('unsplash.com')
-        ) {
-          const updated = {
-            ...parsed,
-            subtitle: INITIAL_HERO_CONFIG.subtitle,
-            features: INITIAL_HERO_CONFIG.features,
-            backgroundImage: parsed.backgroundImage?.includes('unsplash.com') ? INITIAL_HERO_CONFIG.backgroundImage : parsed.backgroundImage
-          };
-          localStorage.setItem('vvf_hero', JSON.stringify(updated));
-          return updated;
-        }
         return parsed;
       } catch {
         return INITIAL_HERO_CONFIG;
@@ -668,19 +649,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [articles, setArticles] = useState<BlogArticle[]>(() => {
+    const artVersion = localStorage.getItem('vvf_articles_catalog_version');
+    if (artVersion !== 'v9_authentic_flower_articles') {
+      localStorage.setItem('vvf_articles_catalog_version', 'v9_authentic_flower_articles');
+      localStorage.setItem('vvf_articles', JSON.stringify(INITIAL_ARTICLES));
+      return INITIAL_ARTICLES;
+    }
     const saved = localStorage.getItem('vvf_articles');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          const migrated = parsed.map((a: BlogArticle) => {
-            if (a.id === 'art-01' && (a.imageUrl?.includes('photo-1563245372-f21724e3856d') || a.imageUrl?.includes('photo-1587556930799'))) {
-              return { ...a, imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80' };
-            }
-            return a;
-          });
-          localStorage.setItem('vvf_articles', JSON.stringify(migrated));
-          return migrated;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
         }
       } catch (e) {}
     }
@@ -740,21 +720,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Customer Reviews & Star Ratings System
   const [reviews, setReviews] = useState<CustomerReview[]>(() => {
+    const revVersion = localStorage.getItem('vvf_reviews_catalog_version');
+    if (revVersion !== 'v9_authentic_flower_reviews') {
+      localStorage.setItem('vvf_reviews_catalog_version', 'v9_authentic_flower_reviews');
+      localStorage.setItem('vvf_reviews', JSON.stringify(INITIAL_REVIEWS));
+      return INITIAL_REVIEWS;
+    }
     const saved = localStorage.getItem('vvf_reviews');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length >= INITIAL_REVIEWS.length) {
-          // If saved reviews still contain legacy unpslash images, migrate them to new authentic review photos
-          const needsMigration = parsed.some((r: CustomerReview) => r.images?.some((img: string) => img.includes('unsplash.com')));
-          if (!needsMigration) return parsed;
-          return parsed.map((r: CustomerReview) => {
-            const initial = INITIAL_REVIEWS.find((init) => init.id === r.id);
-            if (initial && r.images?.some((img: string) => img.includes('unsplash.com'))) {
-              return { ...r, images: initial.images };
-            }
-            return r;
-          });
+          return parsed;
         }
       } catch (e) {}
     }
