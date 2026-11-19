@@ -554,8 +554,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Persistence Loaders (Enforce clean sync of exactly 54 products - 9 per category)
   const [products, setProducts] = useState<FlowerProduct[]>(() => {
     const catalogVersion = localStorage.getItem('vvf_products_catalog_version');
-    if (catalogVersion !== 'v6_54_products_sync') {
-      localStorage.setItem('vvf_products_catalog_version', 'v6_54_products_sync');
+    if (catalogVersion !== 'v7_54_products_webp_sync') {
+      localStorage.setItem('vvf_products_catalog_version', 'v7_54_products_webp_sync');
       localStorage.setItem('vvf_products', JSON.stringify(INITIAL_PRODUCTS));
       return INITIAL_PRODUCTS;
     }
