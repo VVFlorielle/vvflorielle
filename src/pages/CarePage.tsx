@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
+import { PeachBlossomTag } from '../components/PeachBlossomTag';
 import {
   Sparkles,
   Heart,
@@ -249,9 +250,7 @@ export const CarePage: React.FC = () => {
                       <Icon className="w-5 h-5" />
                     </div>
                     {tip.tag && (
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100/90 text-emerald-900 border border-emerald-200">
-                        {tip.tag}
-                      </span>
+                      <PeachBlossomTag tag={tip.tag} size="sm" />
                     )}
                   </div>
                   <h3 className="font-bold text-sm text-slate-900">{tip.title}</h3>
@@ -296,9 +295,7 @@ export const CarePage: React.FC = () => {
                       <Icon className="w-5 h-5" />
                     </div>
                     {tip.tag && (
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100/90 text-rose-900 border border-rose-200">
-                        {tip.tag}
-                      </span>
+                      <PeachBlossomTag tag={tip.tag} size="sm" />
                     )}
                   </div>
                   <h3 className="font-bold text-sm text-slate-900">{tip.title}</h3>
@@ -343,9 +340,7 @@ export const CarePage: React.FC = () => {
                       <Icon className="w-5 h-5" />
                     </div>
                     {tip.tag && (
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100/90 text-amber-900 border border-amber-200">
-                        {tip.tag}
-                      </span>
+                      <PeachBlossomTag tag={tip.tag} size="sm" />
                     )}
                   </div>
                   <h3 className="font-bold text-sm text-slate-900">{tip.title}</h3>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Clock, ArrowRight, X, Sparkles, ChevronRight } from 'lucide-react';
 import { BlogArticle } from '../../types';
+import { PeachBlossomTag } from '../PeachBlossomTag';
 
 interface FloralBlogSectionProps {
   articles: BlogArticle[];
@@ -61,9 +62,9 @@ export const FloralBlogSection: React.FC<FloralBlogSectionProps> = ({
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
-                <span className="absolute top-2.5 left-2.5 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-600/95 text-white shadow-xs">
-                  {heroArticle.category}
-                </span>
+                <div className="absolute top-2.5 left-2.5 z-10">
+                  <PeachBlossomTag tag={heroArticle.category} size="sm" />
+                </div>
 
                 {/* Dots indicator for auto-rotating */}
                 <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/40 backdrop-blur-xs px-2 py-1 rounded-full">
@@ -99,9 +100,9 @@ export const FloralBlogSection: React.FC<FloralBlogSectionProps> = ({
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
-                  <span className="absolute top-1.5 left-1.5 text-[8.5px] font-bold px-1.5 py-0.2 rounded-md bg-slate-900/80 text-white">
-                    {art.category}
-                  </span>
+                  <div className="absolute top-1.5 left-1.5 z-10 scale-90 origin-top-left">
+                    <PeachBlossomTag tag={art.category} size="sm" />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <h5 className="font-bold text-[11.5px] text-slate-800 line-clamp-2 leading-tight">
@@ -134,9 +135,9 @@ export const FloralBlogSection: React.FC<FloralBlogSectionProps> = ({
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
-                <span className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-900/70 backdrop-blur-md text-white">
-                  {art.category}
-                </span>
+                <div className="absolute top-3 left-3 z-10">
+                  <PeachBlossomTag tag={art.category} size="md" />
+                </div>
               </div>
 
               <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
@@ -175,9 +176,7 @@ export const FloralBlogSection: React.FC<FloralBlogSectionProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                {selectedArticle.category}
-              </span>
+              <PeachBlossomTag tag={selectedArticle.category} size="md" />
               <button
                 onClick={() => setSelectedArticle(null)}
                 className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
