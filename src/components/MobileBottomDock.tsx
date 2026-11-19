@@ -23,7 +23,8 @@ import {
   Download,
   X,
   Settings,
-  ScanLine
+  ScanLine,
+  QrCode
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 import { CategoryId } from '../types';
@@ -33,12 +34,16 @@ interface MobileBottomDockProps {
   onOpenCategories?: () => void;
   onOpenPopup?: (type: PopupType) => void;
   onOpenQrScanner?: () => void;
+  onOpenOrderLookup?: () => void;
+  onOpenCustomerQr?: () => void;
 }
 
 export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
   onOpenCategories,
   onOpenPopup,
   onOpenQrScanner,
+  onOpenOrderLookup,
+  onOpenCustomerQr,
 }) => {
   const {
     currentView,
@@ -179,8 +184,12 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     handleUserInteract();
     setIsCategorySheetOpen(false);
     setIsUtilityMenuOpen(false);
-    setAuthModalMode('customer');
-    setIsAuthModalOpen(true);
+    if (onOpenOrderLookup) {
+      onOpenOrderLookup();
+    } else {
+      setAuthModalMode('customer');
+      setIsAuthModalOpen(true);
+    }
   };
 
   const handleOrdersClick = () => {
@@ -643,23 +652,43 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Mẫu Hoa</span>
             </button>
 
-            {/* 3. NÚT QUÉT MÃ QR FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE) */}
+            {/* 3. NÚT FAB TRUNG TÂM NỔI LÊN (THEO VAI TRÒ KHÁCH / QUẢN TRỊ) */}
             <div className="min-w-0 flex-1 flex justify-center items-center h-full">
-              <button
-                type="button"
-                onClick={() => {
-                  handleUserInteract();
-                  if (onOpenQrScanner) {
-                    onOpenQrScanner();
-                  } else {
-                    handleOrderLookupClick();
-                  }
-                }}
-                className="w-13 h-13 sm:w-14 sm:h-14 -mt-5 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_20px_rgba(249,115,22,0.45),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3 cursor-pointer"
-                title="Quét mã QR (Tra cứu đơn hàng, cọc VietQR, thiệp hoa)"
-              >
-                <ScanLine className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
-              </button>
+              {isAdmin ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleUserInteract();
+                    if (onOpenQrScanner) {
+                      onOpenQrScanner();
+                    } else {
+                      handleOrdersClick();
+                    }
+                  }}
+                  className="w-13 h-13 sm:w-14 sm:h-14 -mt-5 shrink-0 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-700 hover:from-teal-600 hover:to-emerald-600 text-white border-2 border-white shadow-[0_8px_20px_rgba(5,150,105,0.45),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3 cursor-pointer"
+                  title="Quét mã QR đơn hàng (Camera thực tế)"
+                >
+                  <ScanLine className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleUserInteract();
+                    if (onOpenCustomerQr) {
+                      onOpenCustomerQr();
+                    } else if (onOpenQrScanner) {
+                      onOpenQrScanner();
+                    } else {
+                      handleOrdersClick();
+                    }
+                  }}
+                  className="w-13 h-13 sm:w-14 sm:h-14 -mt-5 shrink-0 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-700 hover:from-teal-600 hover:to-emerald-600 text-white border-2 border-white shadow-[0_8px_20px_rgba(5,150,105,0.45),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3 cursor-pointer"
+                  title="Mã nhận đơn & Tích điểm QR"
+                >
+                  <QrCode className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
+                </button>
+              )}
             </div>
 
             {/* 4. Đơn hàng */}
@@ -754,7 +783,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
               <span className="text-[10px] sm:text-[10.5px] font-bold leading-snug tracking-tight truncate max-w-full text-center">Mẫu Hoa</span>
             </button>
 
-            {/* 3. NÚT QUÉT MÃ QR FAB TRUNG TÂM NỔI LÊN (SUPERMARKET ORANGE - ĐỒNG BỘ CHUẨN GIAO DIỆN) */}
+            {/* 3. NÚT TRA CỨU ĐƠN HÀNG FAB TRUNG TÂM NỔI LÊN (GUEST) */}
             <div className="min-w-0 flex-1 flex justify-center items-center h-full">
               <button
                 type="button"
@@ -762,16 +791,16 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                   handleUserInteract();
                   setIsCategorySheetOpen(false);
                   setIsUtilityMenuOpen(false);
-                  if (onOpenQrScanner) {
-                    onOpenQrScanner();
+                  if (onOpenOrderLookup) {
+                    onOpenOrderLookup();
                   } else {
                     handleOrderLookupClick();
                   }
                 }}
                 className="w-13 h-13 sm:w-14 sm:h-14 -mt-5 shrink-0 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white border-2 border-white shadow-[0_8px_20px_rgba(249,115,22,0.45),inset_0_2px_3px_rgba(255,255,255,0.85)] flex items-center justify-center relative active:scale-90 transition-transform group p-3 cursor-pointer"
-                title="Quét mã QR (Tra cứu đơn hàng, cọc VietQR, thiệp hoa)"
+                title="Tra cứu tiến độ đơn hàng (Theo SĐT hoặc Mã 6 số)"
               >
-                <ScanLine className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
+                <PackageCheck className="w-6 h-6 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
               </button>
             </div>
 

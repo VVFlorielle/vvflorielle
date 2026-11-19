@@ -199,31 +199,73 @@ export async function reverseGeocodeCoordinates(
     const addr = data.address || {};
 
     const houseNumber = addr.house_number || '';
-    const road = addr.road || addr.street || addr.pedestrian || addr.suburb || '';
+    const road = addr.road || addr.street || addr.pedestrian || addr.highway || addr.suburb || '';
     const detailedAddress = [houseNumber, road].filter(Boolean).join(', ');
 
-    // Extract ward / quarter
-    const rawWard = addr.quarter || addr.suburb || addr.neighbourhood || addr.village || '';
+    // Extract ward / quarter / village / suburb candidates
+    const rawWardCandidates = [
+      addr.village,
+      addr.suburb,
+      addr.quarter,
+      addr.neighbourhood,
+      addr.city_district,
+      addr.town
+    ].filter(Boolean) as string[];
 
-    // Match district against HANOI_DISTRICTS
-    const rawDistrict = (addr.city_district || addr.county || addr.district || '').toLowerCase();
-    let matchedDistrict = HANOI_DISTRICTS.find(
-      (d) => rawDistrict.includes(d.name.toLowerCase().replace('quận ', '').replace('huyện ', '').replace('thị xã ', ''))
-    );
+    // Extract district text candidates from all address metadata and display_name
+    const rawDistrictCandidates = [
+      addr.county,
+      addr.district,
+      addr.city_district,
+      addr.town,
+      addr.suburb,
+      data.display_name
+    ].filter(Boolean) as string[];
+    const combinedDistrictText = rawDistrictCandidates.join(' ').toLowerCase();
 
+    // 1. Try matching district name in combined address text
+    let matchedDistrict = HANOI_DISTRICTS.find((d) => {
+      const cleanName = d.name.toLowerCase().replace('quận ', '').replace('huyện ', '').replace('thị xã ', '').trim();
+      return combinedDistrictText.includes(cleanName);
+    });
+
+    // 2. If not matched yet, check if any ward name across all districts appears in address text
     if (!matchedDistrict) {
-      const nearest = findNearestDistrict(lat, lng);
+      for (const d of HANOI_DISTRICTS) {
+        for (const w of d.wards) {
+          const cleanWard = w.name.toLowerCase().replace('phường ', '').replace('xã ', '').replace('thị trấn ', '').trim();
+          if (cleanWard.length > 2 && combinedDistrictText.includes(cleanWard)) {
+            matchedDistrict = d;
+            break;
+          }
+        }
+        if (matchedDistrict) break;
+      }
+    }
+
+    // 3. Fallback to nearest district center based on Haversine coordinates
+    const nearest = findNearestDistrict(lat, lng);
+    if (!matchedDistrict) {
       matchedDistrict = HANOI_DISTRICTS.find((d) => d.id === nearest.id) || HANOI_DISTRICTS[0];
     }
 
-    // Match ward inside the matched district
-    let matchedWard = matchedDistrict.wards[0].name;
-    if (rawWard) {
-      const cleanRawWard = rawWard.toLowerCase().replace('phường ', '').replace('xã ', '').replace('thị trấn ', '');
-      const foundWard = matchedDistrict.wards.find((w) =>
-        w.name.toLowerCase().includes(cleanRawWard)
-      );
-      if (foundWard) matchedWard = foundWard.name;
+    // 4. Match ward inside the matched district
+    let matchedWard = (nearest.id === matchedDistrict.id && nearest.defaultWard)
+      ? nearest.defaultWard
+      : matchedDistrict.wards[0].name;
+
+    for (const rawWard of rawWardCandidates) {
+      const cleanRawWard = rawWard.toLowerCase().replace('phường ', '').replace('xã ', '').replace('thị trấn ', '').trim();
+      if (cleanRawWard.length > 1) {
+        const found = matchedDistrict.wards.find((w) => {
+          const cleanW = w.name.toLowerCase().replace('phường ', '').replace('xã ', '').replace('thị trấn ', '').trim();
+          return cleanW.includes(cleanRawWard) || cleanRawWard.includes(cleanW);
+        });
+        if (found) {
+          matchedWard = found.name;
+          break;
+        }
+      }
     }
 
     return {

@@ -20,6 +20,8 @@ import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
 import { CustomerReviewModal } from './components/CustomerReviewModal';
+import { OrderLookupModal } from './components/OrderLookupModal';
+import { CustomerOrderQrModal } from './components/CustomerOrderQrModal';
 import { MobileBottomDock } from './components/MobileBottomDock';
 import { FloatingContactWidget } from './components/FloatingContactWidget';
 import { FloatingCartWidget } from './components/FloatingCartWidget';
@@ -48,10 +50,13 @@ export const AppContent: React.FC = () => {
     isCartOpen,
     isAuthModalOpen,
     isReviewModalOpen,
+    setIsReviewModalOpen,
     isSessionLocked
   } = useStore();
   const [activePopup, setActivePopup] = useState<PopupType>(null);
   const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
+  const [isOrderLookupOpen, setIsOrderLookupOpen] = useState(false);
+  const [isCustomerQrOpen, setIsCustomerQrOpen] = useState(false);
 
   // Lock body scroll whenever any global modal is open
   const isAnyModalOpen = Boolean(
@@ -61,6 +66,8 @@ export const AppContent: React.FC = () => {
     isReviewModalOpen ||
     activePopup ||
     isQrScannerOpen ||
+    isOrderLookupOpen ||
+    isCustomerQrOpen ||
     isSessionLocked
   );
   useBodyScrollLock(isAnyModalOpen);
@@ -177,6 +184,8 @@ export const AppContent: React.FC = () => {
             <MobileBottomDock
               onOpenPopup={(type) => setActivePopup(type)}
               onOpenQrScanner={() => setIsQrScannerOpen(true)}
+              onOpenOrderLookup={() => setIsOrderLookupOpen(true)}
+              onOpenCustomerQr={() => setIsCustomerQrOpen(true)}
             />
           )}
 
@@ -219,6 +228,19 @@ export const AppContent: React.FC = () => {
         onClose={() => setIsQrScannerOpen(false)}
         orders={orders}
         onCompleteOrder={completeOrder}
+      />
+
+      {/* Guest Order Lookup Modal */}
+      <OrderLookupModal
+        isOpen={isOrderLookupOpen}
+        onClose={() => setIsOrderLookupOpen(false)}
+      />
+
+      {/* Customer QR Delivery & Point Claim Modal */}
+      <CustomerOrderQrModal
+        isOpen={isCustomerQrOpen}
+        onClose={() => setIsCustomerQrOpen(false)}
+        onOpenReviewModal={() => setIsReviewModalOpen(true)}
       />
 
       {/* Global Scroll-to-top Floating Button (Storefront & Management) */}

@@ -213,20 +213,210 @@ export const HANOI_DISTRICTS: HanoiDistrict[] = [
     ]
   },
   {
-    id: 'ngoai-thanh',
-    name: 'Huyện Ngoại Thành Hà Nội',
+    id: 'hoai-duc',
+    name: 'Huyện Hoài Đức',
+    baseKm: 12.0,
+    wards: [
+      { name: 'Thị trấn Trạm Trôi', kmOffset: 0.0 },
+      { name: 'Xã An Khánh', kmOffset: 2.0 },
+      { name: 'Xã An Thượng', kmOffset: 3.5 },
+      { name: 'Xã Song Phương', kmOffset: 2.5 },
+      { name: 'Xã La Phù', kmOffset: 3.0 },
+      { name: 'Xã Vân Canh', kmOffset: -1.5 },
+      { name: 'Xã Kim Chung', kmOffset: -1.0 },
+      { name: 'Xã Di Trạch', kmOffset: -0.5 },
+      { name: 'Xã Đức Giang', kmOffset: 1.0 },
+      { name: 'Xã Đức Thượng', kmOffset: 1.5 },
+      { name: 'Xã Sơn Đồng', kmOffset: 1.2 },
+      { name: 'Xã Lại Yên', kmOffset: 2.0 },
+      { name: 'Xã Tiền Yên', kmOffset: 3.0 },
+      { name: 'Xã Yên Sở', kmOffset: 2.5 },
+      { name: 'Xã Đắc Sở', kmOffset: 2.8 },
+    ]
+  },
+  {
+    id: 'dan-phuong',
+    name: 'Huyện Đan Phượng',
+    baseKm: 15.0,
+    wards: [
+      { name: 'Thị trấn Phùng', kmOffset: 0.0 },
+      { name: 'Xã Tân Hội', kmOffset: -2.0 },
+      { name: 'Xã Tân Lập', kmOffset: -2.5 },
+      { name: 'Xã Đan Phượng', kmOffset: 0.5 },
+      { name: 'Xã Đồng Tháp', kmOffset: 1.2 },
+      { name: 'Xã Song Phượng', kmOffset: 1.0 },
+      { name: 'Xã Thượng Mỗ', kmOffset: 2.0 },
+      { name: 'Xã Hạ Mỗ', kmOffset: 2.2 },
+      { name: 'Xã Liên Hồng', kmOffset: 3.0 },
+      { name: 'Xã Liên Hà', kmOffset: 3.5 },
+      { name: 'Xã Hồng Hà', kmOffset: 4.0 },
+      { name: 'Xã Phương Đình', kmOffset: 2.5 },
+      { name: 'Xã Thọ An', kmOffset: 4.5 },
+      { name: 'Xã Thọ Xuân', kmOffset: 3.8 },
+      { name: 'Xã Trung Châu', kmOffset: 5.0 },
+    ]
+  },
+  {
+    id: 'thanh-tri',
+    name: 'Huyện Thanh Trì',
+    baseKm: 15.5,
+    wards: [
+      { name: 'Thị trấn Văn Điển', kmOffset: 0.0 },
+      { name: 'Xã Tân Triều', kmOffset: -4.0 },
+      { name: 'Xã Thanh Liệt', kmOffset: -3.5 },
+      { name: 'Xã Tả Thanh Oai', kmOffset: -2.0 },
+      { name: 'Xã Vĩnh Quỳnh', kmOffset: 0.5 },
+      { name: 'Xã Tam Hiệp', kmOffset: -0.5 },
+      { name: 'Xã Tứ Hiệp', kmOffset: 1.0 },
+      { name: 'Xã Ngũ Hiệp', kmOffset: 2.0 },
+      { name: 'Xã Ngọc Hồi', kmOffset: 2.5 },
+      { name: 'Xã Duyên Hà', kmOffset: 3.5 },
+      { name: 'Xã Đại Áng', kmOffset: 4.0 },
+      { name: 'Xã Vạn Phúc', kmOffset: 4.5 },
+      { name: 'Xã Yên Mỹ', kmOffset: 3.8 },
+      { name: 'Xã Đông Mỹ', kmOffset: 4.2 },
+      { name: 'Xã Liên Ninh', kmOffset: 5.0 },
+    ]
+  },
+  {
+    id: 'dong-anh',
+    name: 'Huyện Đông Anh',
+    baseKm: 18.0,
+    wards: [
+      { name: 'Thị trấn Đông Anh', kmOffset: 0.0 },
+      { name: 'Xã Kim Nỗ', kmOffset: -4.5 }, // Ngay đường Võ Văn Kiệt
+      { name: 'Xã Hải Bối', kmOffset: -4.0 }, // Chân cầu Thăng Long
+      { name: 'Xã Vĩnh Ngọc', kmOffset: -3.0 }, // Chân cầu Nhật Tân
+      { name: 'Xã Võng La', kmOffset: -3.5 },
+      { name: 'Xã Nam Hồng', kmOffset: -2.0 }, // Cắt đường Võ Văn Kiệt
+      { name: 'Xã Tiên Dương', kmOffset: -1.0 },
+      { name: 'Xã Uy Nỗ', kmOffset: 0.5 },
+      { name: 'Xã Cổ Loa', kmOffset: 1.5 },
+      { name: 'Xã Đông Hội', kmOffset: 2.0 },
+      { name: 'Xã Mai Lâm', kmOffset: 2.5 },
+      { name: 'Xã Xuân Canh', kmOffset: 1.8 },
+      { name: 'Xã Tàm Xá', kmOffset: 1.0 },
+      { name: 'Xã Dục Tú', kmOffset: 3.5 },
+      { name: 'Xã Vân Hà', kmOffset: 5.0 },
+      { name: 'Xã Liên Hà', kmOffset: 4.5 },
+      { name: 'Xã Thụy Lâm', kmOffset: 6.0 },
+      { name: 'Xã Bắc Hồng', kmOffset: 0.5 },
+      { name: 'Xã Nguyên Khê', kmOffset: 1.2 },
+    ]
+  },
+  {
+    id: 'gia-lam',
+    name: 'Huyện Gia Lâm',
+    baseKm: 20.0,
+    wards: [
+      { name: 'Thị trấn Trâu Quỳ', kmOffset: 0.0 },
+      { name: 'Thị trấn Yên Viên', kmOffset: -1.5 },
+      { name: 'Xã Đa Tốn', kmOffset: 2.5 }, // Vinhomes Ocean Park
+      { name: 'Xã Bát Tràng', kmOffset: 2.0 },
+      { name: 'Xã Cổ Bi', kmOffset: -0.5 },
+      { name: 'Xã Dương Xá', kmOffset: 2.0 },
+      { name: 'Xã Phú Thị', kmOffset: 2.2 },
+      { name: 'Xã Kim Lan', kmOffset: 3.0 },
+      { name: 'Xã Văn Đức', kmOffset: 4.0 },
+      { name: 'Xã Đông Dư', kmOffset: 1.5 },
+      { name: 'Xã Kiêu Kỵ', kmOffset: 3.5 },
+      { name: 'Xã Ninh Hiệp', kmOffset: 1.0 },
+      { name: 'Xã Yên Thường', kmOffset: 1.2 },
+      { name: 'Xã Phù Đổng', kmOffset: 2.8 },
+      { name: 'Xã Đặng Xá', kmOffset: 1.8 },
+    ]
+  },
+  {
+    id: 'me-linh',
+    name: 'Huyện Mê Linh',
     baseKm: 22.0,
     wards: [
-      { name: 'Huyện Hoài Đức', kmOffset: -10.0 }, // ~12km
-      { name: 'Huyện Đan Phượng', kmOffset: -6.0 }, // ~16km
-      { name: 'Huyện Đông Anh', kmOffset: -4.0 }, // ~18km
-      { name: 'Huyện Thanh Trì', kmOffset: -6.0 }, // ~16km
-      { name: 'Huyện Gia Lâm', kmOffset: 0.0 }, // ~22km
-      { name: 'Huyện Mê Linh', kmOffset: 3.0 }, // ~25km
-      { name: 'Huyện Thường Tín', kmOffset: 5.0 }, // ~27km
-      { name: 'Huyện Sóc Sơn', kmOffset: 10.0 }, // ~32km
-      { name: 'Thị xã Sơn Tây', kmOffset: 20.0 }, // ~42km
-      { name: 'Huyện Ba Vì', kmOffset: 30.0 }, // ~52km
+      { name: 'Xã Tiền Phong', kmOffset: -2.5 }, // Ngay đường Võ Văn Kiệt
+      { name: 'Thị trấn Quang Minh', kmOffset: -1.0 }, // KCN Quang Minh - Võ Văn Kiệt
+      { name: 'Thị trấn Chi Đông', kmOffset: 0.0 },
+      { name: 'Xã Mê Linh', kmOffset: 1.5 },
+      { name: 'Xã Tráng Việt', kmOffset: -1.8 },
+      { name: 'Xã Văn Khê', kmOffset: 0.5 },
+      { name: 'Xã Đại Thịnh', kmOffset: 1.0 },
+      { name: 'Xã Hoàng Kim', kmOffset: 2.5 },
+      { name: 'Xã Thạch Đà', kmOffset: 3.0 },
+      { name: 'Xã Chu Phan', kmOffset: 3.5 },
+      { name: 'Xã Tiến Thịnh', kmOffset: 4.0 },
+      { name: 'Xã Tự Lập', kmOffset: 4.5 },
+      { name: 'Xã Liên Mạc', kmOffset: 3.8 },
+      { name: 'Xã Thanh Lâm', kmOffset: 2.0 },
+      { name: 'Xã Tam Đồng', kmOffset: 2.8 },
+      { name: 'Xã Kim Hoa', kmOffset: 1.5 },
+      { name: 'Xã Vạn Yên', kmOffset: 5.0 },
+    ]
+  },
+  {
+    id: 'soc-son',
+    name: 'Huyện Sóc Sơn',
+    baseKm: 28.0,
+    wards: [
+      { name: 'Thị trấn Sóc Sơn', kmOffset: 0.0 },
+      { name: 'Xã Phù Lỗ', kmOffset: -4.0 }, // Quốc lộ 3 / Đường Võ Nguyên Giáp
+      { name: 'Xã Mai Đình', kmOffset: -2.5 }, // Gần Sân bay Nội Bài
+      { name: 'Xã Quang Tiến', kmOffset: -2.0 },
+      { name: 'Xã Phú Minh', kmOffset: -3.0 },
+      { name: 'Xã Tiên Dược', kmOffset: -0.5 },
+      { name: 'Xã Hiền Ninh', kmOffset: 1.5 },
+      { name: 'Xã Nam Sơn', kmOffset: 5.0 },
+      { name: 'Xã Bắc Sơn', kmOffset: 6.5 },
+      { name: 'Xã Hồng Kỳ', kmOffset: 4.5 },
+      { name: 'Xã Trung Giã', kmOffset: 5.5 },
+      { name: 'Xã Tân Minh', kmOffset: 1.8 },
+      { name: 'Xã Tân Hưng', kmOffset: 3.0 },
+      { name: 'Xã Xuân Giang', kmOffset: 2.5 },
+      { name: 'Xã Đức Hòa', kmOffset: 1.0 },
+      { name: 'Xã Đông Xuân', kmOffset: 1.5 },
+      { name: 'Xã Kim Lũ', kmOffset: 2.0 },
+      { name: 'Xã Xuân Thu', kmOffset: 2.8 },
+      { name: 'Xã Phù Linh', kmOffset: 2.0 },
+      { name: 'Xã Tân Dân', kmOffset: 1.2 },
+      { name: 'Xã Thanh Xuân', kmOffset: -1.5 },
+      { name: 'Xã Minh Phú', kmOffset: 2.5 },
+      { name: 'Xã Minh Trí', kmOffset: 4.0 },
+    ]
+  },
+  {
+    id: 'son-tay',
+    name: 'Thị xã Sơn Tây',
+    baseKm: 38.0,
+    wards: [
+      { name: 'Phường Lê Lợi', kmOffset: 0.0 },
+      { name: 'Phường Ngô Quyền', kmOffset: 0.2 },
+      { name: 'Phường Quang Trung', kmOffset: 0.5 },
+      { name: 'Phường Sơn Lộc', kmOffset: 1.0 },
+      { name: 'Phường Xuân Khanh', kmOffset: 3.5 },
+      { name: 'Phường Trung Hưng', kmOffset: 0.8 },
+      { name: 'Phường Viên Sơn', kmOffset: 1.2 },
+      { name: 'Phường Trung Sơn Trầm', kmOffset: 2.0 },
+      { name: 'Phường Phú Thịnh', kmOffset: 1.5 },
+      { name: 'Xã Đường Lâm', kmOffset: 3.0 },
+      { name: 'Xã Sơn Đông', kmOffset: 4.0 },
+      { name: 'Xã Cổ Đông', kmOffset: 3.8 },
+      { name: 'Xã Kim Sơn', kmOffset: 4.5 },
+      { name: 'Xã Thanh Mỹ', kmOffset: 2.8 },
+      { name: 'Xã Xuân Sơn', kmOffset: 3.2 },
+    ]
+  },
+  {
+    id: 'ngoai-thanh',
+    name: 'Huyện Ngoại Thành Khác (Ba Vì, Thường Tín...)',
+    baseKm: 35.0,
+    wards: [
+      { name: 'Huyện Ba Vì', kmOffset: 15.0 }, // ~50km
+      { name: 'Huyện Phúc Thọ', kmOffset: -5.0 }, // ~30km
+      { name: 'Huyện Thạch Thất', kmOffset: -2.0 }, // ~33km
+      { name: 'Huyện Quốc Oai', kmOffset: -6.0 }, // ~29km
+      { name: 'Huyện Chương Mỹ', kmOffset: -4.0 }, // ~31km
+      { name: 'Huyện Thanh Oai', kmOffset: -7.0 }, // ~28km
+      { name: 'Huyện Thường Tín', kmOffset: -5.0 }, // ~30km
+      { name: 'Huyện Phú Xuyên', kmOffset: 10.0 }, // ~45km
+      { name: 'Huyện Ứng Hòa', kmOffset: 12.0 }, // ~47km
+      { name: 'Huyện Mỹ Đức', kmOffset: 18.0 }, // ~53km
     ]
   }
 ];

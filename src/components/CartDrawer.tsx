@@ -172,8 +172,11 @@ export const CartDrawer: React.FC = () => {
     setIsLocating(true);
     try {
       const res = await resolveCurrentLocationWithAddress();
-      setSelectedDistrictId(res.districtId);
-      setSelectedWardName(res.wardName);
+      const dist = HANOI_DISTRICTS.find((d) => d.id === res.districtId) || HANOI_DISTRICTS[0];
+      setSelectedDistrictId(dist.id);
+
+      const hasWard = dist.wards.some((w) => w.name === res.wardName);
+      setSelectedWardName(hasWard ? res.wardName : (dist.wards[0]?.name || ''));
       setGpsCustomKm(res.distanceKm);
 
       if (res.detailedAddress) {

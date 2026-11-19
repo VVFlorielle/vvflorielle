@@ -721,8 +721,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Customer Reviews & Star Ratings System
   const [reviews, setReviews] = useState<CustomerReview[]>(() => {
     const revVersion = localStorage.getItem('vvf_reviews_catalog_version');
-    if (revVersion !== 'v9_authentic_flower_reviews') {
-      localStorage.setItem('vvf_reviews_catalog_version', 'v9_authentic_flower_reviews');
+    if (revVersion !== 'v11_clean_hanoi_reviews') {
+      localStorage.setItem('vvf_reviews_catalog_version', 'v11_clean_hanoi_reviews');
       localStorage.setItem('vvf_reviews', JSON.stringify(INITIAL_REVIEWS));
       return INITIAL_REVIEWS;
     }
