@@ -644,6 +644,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [promotions, setPromotions] = useState<PromotionItem[]>(() => {
+    const promoVersion = localStorage.getItem('vvf_promotions_catalog_version');
+    if (promoVersion !== 'v3.4_quy_dinh_moi') {
+      localStorage.setItem('vvf_promotions_catalog_version', 'v3.4_quy_dinh_moi');
+      localStorage.setItem('vvf_promotions', JSON.stringify(INITIAL_PROMOTIONS));
+      return INITIAL_PROMOTIONS;
+    }
     const saved = localStorage.getItem('vvf_promotions');
     return saved ? JSON.parse(saved) : INITIAL_PROMOTIONS;
   });
