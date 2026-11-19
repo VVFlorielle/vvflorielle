@@ -186,7 +186,7 @@ export const CustomerHeroCard: React.FC<CustomerHeroCardProps> = ({
                 {customer.points.toLocaleString('vi-VN')}
                 <span className="text-xs font-bold text-slate-500 ml-1">điểm</span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">100 điểm = 10.000₫ freeship</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">100 điểm = 10.000₫</p>
             </div>
 
             <div className="pl-3">

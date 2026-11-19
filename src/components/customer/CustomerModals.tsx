@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CustomerUser, SavedAddress } from '../../types';
+import { useBodyScrollLock } from '../../utils/scrollLock';
 import {
   X,
   User,
@@ -59,10 +61,21 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
   onOpenChangePhone,
   onOpenChangeEmail
 }) => {
-  if (!isOpen) return null;
+  useBodyScrollLock(isOpen);
 
-  return (
-    <div className="glass-overlay z-[120]" onClick={onClose}>
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="glass-overlay z-[100060]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-lg md:max-w-2xl w-full relative"
         onClick={(e) => e.stopPropagation()}
@@ -195,23 +208,26 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 <button
                   type="button"
                   onClick={onOpenChangePass}
-                  className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
+                  className="glass-btn-emerald-pill py-2.5 px-3 rounded-xl font-bold text-xs tracking-tight transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  Đổi Mật Khẩu
+                  <KeyRound className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <span>Đổi Mật Khẩu</span>
                 </button>
                 <button
                   type="button"
                   onClick={onOpenChangePhone}
-                  className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
+                  className="glass-btn-emerald-pill py-2.5 px-3 rounded-xl font-bold text-xs tracking-tight transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  Đổi SĐT (OTP)
+                  <Phone className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <span>Đổi SĐT (OTP)</span>
                 </button>
                 <button
                   type="button"
                   onClick={onOpenChangeEmail}
-                  className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center font-medium transition-colors cursor-pointer"
+                  className="glass-btn-emerald-pill py-2.5 px-3 rounded-xl font-bold text-xs tracking-tight transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  Đổi Gmail (OTP)
+                  <Mail className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <span>Đổi Gmail (OTP)</span>
                 </button>
               </div>
             </div>
@@ -235,7 +251,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -259,10 +276,21 @@ export const AddressBookModal: React.FC<AddressBookModalProps> = ({
   onDeleteAddress,
   onOpenAddAddress
 }) => {
-  if (!isOpen) return null;
+  useBodyScrollLock(isOpen);
 
-  return (
-    <div className="glass-overlay z-[120]" onClick={onClose}>
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="glass-overlay z-[100060]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-lg md:max-w-2xl w-full relative"
         onClick={(e) => e.stopPropagation()}
@@ -385,7 +413,8 @@ export const AddressBookModal: React.FC<AddressBookModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -427,10 +456,21 @@ export const AddEditAddressModal: React.FC<AddEditAddressModalProps> = ({
   setAddrIsDefault,
   onSave
 }) => {
-  if (!isOpen) return null;
+  useBodyScrollLock(isOpen);
 
-  return (
-    <div className="glass-overlay z-[130]" onClick={onClose}>
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="glass-overlay z-[100065]" onClick={onClose}>
       <div
         className="glass-modal-content max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
@@ -568,7 +608,8 @@ export const AddEditAddressModal: React.FC<AddEditAddressModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -588,10 +629,21 @@ export const CustomerOtpModal: React.FC<CustomerOtpModalProps> = ({
   setOtpInput,
   onSubmit
 }) => {
-  if (!isOpen) return null;
+  useBodyScrollLock(isOpen);
 
-  return (
-    <div className="glass-overlay z-[140]" onClick={onClose}>
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="glass-overlay z-[100070]" onClick={onClose}>
       <div className="glass-modal-content max-w-sm w-full relative" onClick={(e) => e.stopPropagation()}>
         <div className="glass-modal-header">
           <div className="flex items-center gap-2">
@@ -637,7 +689,8 @@ export const CustomerOtpModal: React.FC<CustomerOtpModalProps> = ({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -661,10 +714,21 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   setNewPass,
   onSubmit
 }) => {
-  if (!isOpen) return null;
+  useBodyScrollLock(isOpen);
 
-  return (
-    <div className="glass-overlay z-[140]" onClick={onClose}>
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="glass-overlay z-[100070]" onClick={onClose}>
       <div className="glass-modal-content max-w-sm w-full relative" onClick={(e) => e.stopPropagation()}>
         <div className="glass-modal-header">
           <div className="flex items-center gap-2">
@@ -722,7 +786,8 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -746,7 +811,16 @@ export const ChangeIdentityModal: React.FC<ChangeIdentityModalProps> = ({
   onRequestStep2Otp,
   onConfirmStep2
 }) => {
-  if (!isOpen) return null;
+  useBodyScrollLock(Boolean(isOpen));
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   const [step, setStep] = useState<1 | 2>(1);
 
@@ -803,7 +877,7 @@ export const ChangeIdentityModal: React.FC<ChangeIdentityModalProps> = ({
   };
 
   const handleSendStep2 = () => {
-    if (!newValue.trim()) return;
+    if (!newValue.trim() || !isOpen) return;
     const res = onRequestStep2Otp(isOpen, newValue.trim());
     if (res.success) {
       setStep2OtpSent(true);
@@ -813,15 +887,17 @@ export const ChangeIdentityModal: React.FC<ChangeIdentityModalProps> = ({
 
   const handleConfirmStep2 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newValue.trim() || !step2Otp.trim()) return;
+    if (!newValue.trim() || !step2Otp.trim() || !isOpen) return;
     const ok = onConfirmStep2(isOpen, newValue.trim(), step2Otp.trim());
     if (ok) {
       onClose();
     }
   };
 
-  return (
-    <div className="glass-overlay z-[140]" onClick={onClose}>
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="glass-overlay z-[100070]" onClick={onClose}>
       <div className="glass-modal-content max-w-sm w-full relative" onClick={(e) => e.stopPropagation()}>
         <div className="glass-modal-header">
           <div className="flex items-center gap-2">
@@ -998,7 +1074,8 @@ export const ChangeIdentityModal: React.FC<ChangeIdentityModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -1020,7 +1097,16 @@ export const AccountErasureModal: React.FC<AccountErasureModalProps> = ({
   onRequestOtp,
   onConfirmErasure
 }) => {
-  if (!isOpen) return null;
+  useBodyScrollLock(isOpen);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   const [otp, setOtp] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -1050,8 +1136,10 @@ export const AccountErasureModal: React.FC<AccountErasureModalProps> = ({
     }
   };
 
-  return (
-    <div className="glass-overlay z-[140]" onClick={onClose}>
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="glass-overlay z-[100070]" onClick={onClose}>
       <div className="glass-modal-content max-w-md w-full relative" onClick={(e) => e.stopPropagation()}>
         <div className="glass-modal-header bg-rose-50/80 border-b border-rose-100">
           <div className="flex items-center gap-2">
@@ -1159,6 +1247,7 @@ export const AccountErasureModal: React.FC<AccountErasureModalProps> = ({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

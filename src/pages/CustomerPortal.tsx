@@ -338,14 +338,16 @@ export const CustomerPortal: React.FC = () => {
       {activeTab === 'privacy' && (
         <div className="space-y-4 animate-in fade-in">
           {/* Header Card */}
-          <div className="p-5 rounded-3xl bg-linear-to-r from-emerald-900 via-teal-900 to-slate-900 text-white shadow-xl relative overflow-hidden">
+          <div className="p-5 sm:p-6 rounded-3xl bg-white/95 backdrop-blur-md border border-emerald-200/80 shadow-xs relative overflow-hidden space-y-2.5">
             <div className="relative z-10 space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
-                <ShieldCheck className="w-4 h-4" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
+                <ShieldCheck className="w-4 h-4 text-emerald-700" />
                 <span>Nghị định 13/2023/NĐ-CP về Bảo vệ Dữ liệu Cá nhân</span>
               </div>
-              <h2 className="text-lg sm:text-xl font-extrabold">Minh Bạch &amp; Kiểm Soát Dữ Liệu Cá Nhân</h2>
-              <p className="text-xs text-emerald-100/80 max-w-2xl leading-relaxed">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                Minh Bạch &amp; Kiểm Soát Dữ Liệu Cá Nhân
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
                 Tiệm Hoa Tươi Nghệ Thuật V&amp;V Florielle cam kết bảo vệ dữ liệu cá nhân của quý khách theo các tiêu chuẩn pháp lý cao nhất của Việt Nam. Dữ liệu tài khoản của bạn được niêm phong chữ ký điện tử HMAC-SHA256 chống can thiệp trái phép.
               </p>
             </div>
