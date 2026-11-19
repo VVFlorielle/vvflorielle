@@ -18,8 +18,8 @@ export const INITIAL_CATEGORIES: FlowerCategory[] = [
     name: 'Hoa Khai Trương',
     icon: 'Trophy',
     description: 'Kệ hoa 2-3 tầng, lẵng hoa mang ý nghĩa phát tài hồng phát',
-    imageUrl: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1600&q=80',
+    imageUrl: '/categories/cat-khai-truong.webp',
+    bannerUrl: '/categories/banner-khai-truong.webp',
     tagline: 'Hồng Phát Vạn Sự Hanh Thông • Tặng Kèm Banner In Thiết Kế'
   },
   {
@@ -27,8 +27,8 @@ export const INITIAL_CATEGORIES: FlowerCategory[] = [
     name: 'Hoa Sinh Nhật',
     icon: 'Gift',
     description: 'Mẫu bó hoa, giỏ hoa mây tươi tắn dành tặng người thân yêu',
-    imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1600&q=80',
+    imageUrl: '/categories/cat-sinh-nhat.webp',
+    bannerUrl: '/categories/banner-sinh-nhat.webp',
     tagline: 'Món Quà Ngọt Ngào • Miễn Phí Thiệp Viết Tay Ý Nghĩa'
   },
   {
@@ -36,8 +36,8 @@ export const INITIAL_CATEGORIES: FlowerCategory[] = [
     name: 'Hoa Tình Yêu',
     icon: 'Heart',
     description: 'Hồng đỏ Ecuador, hoa lãng mạn cho các dịp kỷ niệm',
-    imageUrl: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1600&q=80',
+    imageUrl: '/categories/cat-tinh-yeu.webp',
+    bannerUrl: '/categories/banner-tinh-yeu.webp',
     tagline: 'Trao Lời Yêu Thương Say Đắm • Nơ Ruy Băng Lụa Cao Cấp'
   },
   {
@@ -45,8 +45,8 @@ export const INITIAL_CATEGORIES: FlowerCategory[] = [
     name: 'Lan Hồ Điệp',
     icon: 'Crown',
     description: 'Chậu lan hồ điệp tuyển chọn sang trọng, cánh dày tươi lâu',
-    imageUrl: 'https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=800&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=1600&q=80',
+    imageUrl: '/categories/cat-lan-ho-diep.webp',
+    bannerUrl: '/categories/banner-lan-ho-diep.webp',
     tagline: 'Đẳng Cấp Vương Giả • Chậu Sứ Men Trắng Tinh Tế'
   },
   {
@@ -54,8 +54,8 @@ export const INITIAL_CATEGORIES: FlowerCategory[] = [
     name: 'Hoa Chúc Mừng',
     icon: 'Smile',
     description: 'Chúc mừng sự kiện, tốt nghiệp, thăng chức, ngày lễ',
-    imageUrl: 'https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=800&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=1600&q=80',
+    imageUrl: '/categories/cat-chuc-mung.webp',
+    bannerUrl: '/categories/banner-chuc-mung.webp',
     tagline: 'Tươi Trẻ Năng Động • Thiết Kế Theo Yêu Cầu Riêng'
   },
   {
@@ -63,8 +63,8 @@ export const INITIAL_CATEGORIES: FlowerCategory[] = [
     name: 'Hoa Chia Buồn',
     icon: 'Feather',
     description: 'Vòng hoa, kệ hoa kính viếng trang nghiêm lịch sự',
-    imageUrl: 'https://images.unsplash.com/photo-1507290439931-a861b5a38200?auto=format&fit=crop&w=800&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1507290439931-a861b5a38200?auto=format&fit=crop&w=1600&q=80',
+    imageUrl: '/categories/cat-chia-buon.webp',
+    bannerUrl: '/categories/banner-chia-buon.webp',
     tagline: 'Thành Kính Phân Ưu • Giao Gấp Trong 2 Giờ Kính Viếng'
   }
 ];
@@ -1613,7 +1613,7 @@ export const INITIAL_ARTICLES: BlogArticle[] = [
     category: 'Mẹo Cắm Hoa',
     readTime: '3 phút đọc',
     publishedAt: '28/10/2026',
-    imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/blog/art-01.webp',
     content: [
       'Để hoa tươi lâu, điều đầu tiên là dùng kéo sắc cắt vát 45 độ phần gốc cành hoa dưới vòi nước chảy để tránh bọt khí tràn vào mao mạch.',
       'Rửa sạch bình hoa trước khi cắm, thay nước mỗi ngày một lần và pha thêm 1/2 gói dưỡng hoa tặng kèm của V&V Florielle.',
@@ -1627,7 +1627,7 @@ export const INITIAL_ARTICLES: BlogArticle[] = [
     category: 'Phong Thủy & Ý Nghĩa',
     readTime: '4 phút đọc',
     publishedAt: '25/10/2026',
-    imageUrl: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/blog/art-02.webp',
     content: [
       'Ngày khai trương đánh dấu sự khởi đầu của một hành trình kinh doanh. Kệ hoa 2 hoặc 3 tầng với tone Đỏ (may mắn) và Vàng (phát tài) luôn là lựa chọn hàng đầu.',
       'Hoa hướng dương tượng trưng cho sự vươn lên mạnh mẽ đón ánh bình minh, trong khi hoa lan vũ nữ mang lại năng lượng tiền tài suôn sẻ.',
@@ -1641,7 +1641,7 @@ export const INITIAL_ARTICLES: BlogArticle[] = [
     category: 'Cẩm Nang Tình Yêu',
     readTime: '3 phút đọc',
     publishedAt: '20/10/2026',
-    imageUrl: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/blog/art-03.webp',
     content: [
       'Bó 9 bông hồng Ecuador: Tượng trưng cho tình yêu vĩnh cửu, trường tồn theo năm tháng.',
       'Bó 19 bông: Lời nhắn nhủ kiên định "Hãy kiên nhẫn và chờ đợi tình yêu chân thành".',
@@ -1656,7 +1656,7 @@ export const INITIAL_HERO_CONFIG: HeroBannerConfig = {
   subtitle: 'Thiết Kế Hoa Nghệ Thuật Hà Nội • Tuyển chọn hoa tươi loại 1, hoa sáp thơm & hoa lụa cao cấp thiết kế tinh tế. • Giao hỏa tốc chỉ từ 15 phút nội thành Hà Nội và 60 phút ngoại thành • Florist chụp ảnh gửi mẫu hoàn thiện duyệt trước khi giao.',
   ctaText: 'Khám Phá Mẫu Hoa Mới',
   ctaSecondaryText: 'Tư Vấn Thiết Kế Riêng',
-  backgroundImage: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1600&q=80',
+  backgroundImage: '/blog/hero-banner.webp',
   features: ['Giao hỏa tốc chỉ từ 15 phút nội thành', 'Tặng thiệp viết tay & Ruy băng lụa', 'Chụp ảnh gửi mẫu hoàn thiện trước khi giao']
 };
 
@@ -1701,7 +1701,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Lần đầu đặt hoa tại V&V Florielle mà ưng ý thực sự. Mình đặt bó hoa tặng sinh nhật bạn gái ở Cầu Giấy, hoa giao hỏa tốc chưa đầy 30 phút. Bông to, cánh dày và tươi hơn cả trên ảnh web. Florist còn viết thiệp tay chữ rất đẹp. 10/10!',
     productName: 'Bó Hoa Hồng Ecuador Đỏ Say Đắm (Chân Ái)',
     images: [
-      'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-01.webp'
     ],
     createdAt: '18/11/2026',
     status: 'APPROVED',
@@ -1719,7 +1719,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Công ty mình đặt kệ hoa khai trương đối tác ở Duy Tân. Kệ 2 tầng hoa hướng dương và hồng vàng cắm rất vững chãi và rực rỡ, banner in chữ sắc nét. Florist gửi ảnh duyệt trước khi đi giao nên mình duyệt rất nhanh.',
     productName: 'Kệ Hoa Khai Trương Phú Quý Thịnh Vượng (2 Tầng)',
     images: [
-      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-02.webp'
     ],
     createdAt: '15/11/2026',
     status: 'APPROVED',
@@ -1737,7 +1737,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Mẹ mình nhận được giỏ hoa thích lắm, cứ khen mãi tiệm chọn hoa khéo. Tone màu kem hồng nhã nhặn, cắm trong giỏ mây vintage rất hợp phòng khách. Mẹ cắm nước giữ tươi được cả tuần lễ.',
     productName: 'Giỏ Hoa Pastel Dịu Ngọt - Nắng Mới Cầu Giấy',
     images: [
-      'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-03.webp'
     ],
     createdAt: '12/11/2026',
     status: 'APPROVED',
@@ -1755,7 +1755,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Thích nhất hệ thống duyệt cọc tự động thông minh, quét mã QR xong web báo ngay chuyển trạng thái cắm hoa. Shipper giao hoa đến bọc giấy kiếng bảo vệ kỹ càng, hoa nguyên vẹn không rụng một cánh nào.',
     productName: 'Hộp Hoa Tulip Hà Lan Tinh Khôi',
     images: [
-      'https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-04.webp'
     ],
     createdAt: '08/11/2026',
     status: 'APPROVED',
@@ -1773,7 +1773,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Bó hoa tươi rói, tana trắng nhụy vàng phối baby chụp ảnh kỷ yếu Hồ Tây cực kỳ thơ luôn! Giá cả hợp lý mà hoa tươi hơn nhiều so với mua vỉa hè. Năm sau tốt nghiệp chắc chắn sẽ ủng hộ tiệm tiếp.',
     productName: 'Bó Hoa Cúc Tana Mộc Mạc Tinh Khôi',
     images: [
-      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-05.webp'
     ],
     createdAt: '05/11/2026',
     status: 'APPROVED',
@@ -1791,7 +1791,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Tiệm đóng gói và vận chuyển chậu lan hồ điệp rất chuyên nghiệp. Hoa nở đều, cành uốn nghệ thuật, chậu gốm men trắng dày dặn. Sếp mình nhận được khen hết lời, florist còn hướng dẫn mẹo tưới nước chăm hoa rất kỹ càng.',
     productName: 'Bình Hoa Lan Hồ Điệp Trắng Tinh Khôi (5 Cành)',
     images: [
-      'https://images.unsplash.com/photo-1594040226829-7f251ab46d80?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-06.webp'
     ],
     createdAt: '02/11/2026',
     status: 'APPROVED',
@@ -1809,7 +1809,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Hoa hướng dương bông to đều, cánh vàng tươi không tì vết, gói giấy báo vintage chuẩn gu trẻ trung. Florist giao đúng giờ hẹn trước cổng trường ĐH Quốc Gia Hà Nội, hỗ trợ chụp ảnh kỷ niệm siêu nhiệt tình!',
     productName: 'Bó Hoa Hướng Dương Nắng Hạ Rạng Ngời',
     images: [
-      'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-07.webp'
     ],
     createdAt: '29/10/2026',
     status: 'APPROVED',
@@ -1827,7 +1827,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Chồng mình đặt bất ngờ lẵng hoa gửi đến văn phòng làm mình xúc động phát khóc. Tông màu hồng trà phối lá bạc và cúc mẫu đơn rất sang chảnh, cắm xốp giữ ẩm tốt nên để bàn làm việc cả tuần vẫn thơm ngát.',
     productName: 'Lẵng Hoa Hồng Pastel Dịu Dàng - Hạnh Phúc Viên Mãn',
     images: [
-      'https://images.unsplash.com/photo-1533616688419-b7a585564566?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-08.webp'
     ],
     createdAt: '25/10/2026',
     status: 'APPROVED',
@@ -1845,7 +1845,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Hộp hoa baby phối màu pastel cầu vồng cực kỳ xinh xắn, bạn gái mình thích mê luôn. Shop tặng kèm đèn led đom đóm lấp lánh buổi tối lãng mạn vô cùng. Rất ưng ý dịch vụ và sự chu đáo của tiệm hoa.',
     productName: 'Hộp Hoa Baby Cầu Vồng Ngọt Ngào (Tặng Kèm Đèn Led)',
     images: [
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-09.webp'
     ],
     createdAt: '20/10/2026',
     status: 'APPROVED',
@@ -1863,7 +1863,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Kệ hoa cắm tỉ mỉ, kết hợp đồng tiền, hướng dương và hoa hồng cam gai rất đầy đặn. Băng rôn chữ vàng nổi bật, giao đúng 7h30 sáng trước giờ cắt băng khánh thành.',
     productName: 'Kệ Hoa Khai Trương Phát Tài Phát Lộc',
     images: [
-      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-10.webp'
     ],
     createdAt: '16/10/2026',
     status: 'APPROVED',
@@ -1881,7 +1881,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Cẩm tú cầu bông to tròn xoe, màu xanh lam phối lá bạc gói giấy xám sang trọng. Thầy nhận hoa khen mãi tiệm chọn hoa tươi và cắm có gu nghệ thuật cao.',
     productName: 'Bó Hoa Cẩm Tú Cầu Xanh Lam Hy Vọng',
     images: [
-      'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-11.webp'
     ],
     createdAt: '12/10/2026',
     status: 'APPROVED',
@@ -1899,7 +1899,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Ly ù vàng nở căng, bông to đều và thơm dịu không hắc. Tiệm tuyển chọn từng cành hoa búp hé đều đặn, cắm bình sứ phòng thờ rất trang nghiêm.',
     productName: 'Bình Hoa Ly Vàng Cung Đình Quý Phái',
     images: [
-      'https://images.unsplash.com/photo-1594040226829-7f251ab46d80?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-12.webp'
     ],
     createdAt: '08/10/2026',
     status: 'APPROVED',
@@ -1917,7 +1917,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Hoa rất tươi và đẹp, cắm giấy lụa trắng sang chảnh đúng mẫu mình chọn. Trừ một xíu điểm vì hôm đó mưa bão shipper giao chậm 10 phút nhưng bạn shipper dạ vâng xin lỗi rất lễ phép nên vẫn chấm 4.5 sao.',
     productName: 'Bó Hoa Hồng Trắng Tinh Khiết Mộng Mơ',
     images: [
-      'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-13.webp'
     ],
     createdAt: '04/10/2026',
     status: 'APPROVED',
@@ -1935,7 +1935,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     comment: 'Mình đặt florist thiết kế riêng theo tone tím khói sang trọng. Hoa nhập khẩu cắm form bay bổng đúng chuẩn phong cách châu Âu. Sếp khen tiệm cắm có gu khác biệt hẳn so với các tiệm hoa thông thường.',
     productName: 'Bình Hoa Nghệ Thuật Thiết Kế Riêng VIP',
     images: [
-      'https://images.unsplash.com/photo-1533616688419-b7a585564566?auto=format&fit=crop&w=600&q=80'
+      '/reviews/rev-14.webp'
     ],
     createdAt: '01/10/2026',
     status: 'APPROVED',

@@ -604,13 +604,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
           const list = parsed.filter((c: FlowerCategory) => c.id !== 'all');
-          // Auto-migrate dim sum image if present in sinh-nhat
+          // Auto-migrate legacy unsplash images in categories to authentic local webp photos
           const migrated = list.map((c: FlowerCategory) => {
-            if (c.id === 'sinh-nhat' && (c.imageUrl?.includes('photo-1563245372-f21724e3856d') || c.imageUrl?.includes('photo-1587556930799'))) {
+            const initial = INITIAL_CATEGORIES.find((init) => init.id === c.id);
+            if (initial && (c.imageUrl?.includes('unsplash.com') || c.bannerUrl?.includes('unsplash.com'))) {
               return {
                 ...c,
-                imageUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80',
-                bannerUrl: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1600&q=80'
+                imageUrl: initial.imageUrl,
+                bannerUrl: initial.bannerUrl
               };
             }
             return c;
@@ -635,18 +636,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Automatically migrate if using older template title or older subtitle
+        // Automatically migrate if using older template title or older subtitle or unsplash background
         if (
           !parsed.title ||
           parsed.title.includes('Hoa Tươi Thiết Kế Nghệ Thuật - 105') ||
           !parsed.subtitle ||
           !parsed.subtitle.startsWith('Hoa Tươi Giao Ngay Tại Hà Nội') ||
-          parsed.subtitle.includes('60 - 90 phút')
+          parsed.subtitle.includes('60 - 90 phút') ||
+          parsed.backgroundImage?.includes('unsplash.com')
         ) {
           const updated = {
             ...parsed,
             subtitle: INITIAL_HERO_CONFIG.subtitle,
-            features: INITIAL_HERO_CONFIG.features
+            features: INITIAL_HERO_CONFIG.features,
+            backgroundImage: parsed.backgroundImage?.includes('unsplash.com') ? INITIAL_HERO_CONFIG.backgroundImage : parsed.backgroundImage
           };
           localStorage.setItem('vvf_hero', JSON.stringify(updated));
           return updated;
@@ -741,7 +744,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= INITIAL_REVIEWS.length) return parsed;
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_REVIEWS.length) {
+          // If saved reviews still contain legacy unpslash images, migrate them to new authentic review photos
+          const needsMigration = parsed.some((r: CustomerReview) => r.images?.some((img: string) => img.includes('unsplash.com')));
+          if (!needsMigration) return parsed;
+          return parsed.map((r: CustomerReview) => {
+            const initial = INITIAL_REVIEWS.find((init) => init.id === r.id);
+            if (initial && r.images?.some((img: string) => img.includes('unsplash.com'))) {
+              return { ...r, images: initial.images };
+            }
+            return r;
+          });
+        }
       } catch (e) {}
     }
     return INITIAL_REVIEWS;
