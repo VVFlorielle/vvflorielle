@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
 import {
   FlowerCategory,
   FlowerProduct,
@@ -1307,9 +1307,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setNotifications((prev) => [newNotif, ...prev].slice(0, 40));
 
     // Chỉ hiển thị Banner Popup nếu thông báo dành cho đúng đối tượng đang thao tác
-    const isTargetUser = !notifData.recipientRole ||
-                         (notifData.recipientRole === 'ADMIN' && isAdmin) ||
-                         (notifData.recipientRole === 'CUSTOMER' && customer);
+    const isTargetUser =
+      (notifData.recipientRole === 'ADMIN' && isAdmin) ||
+      (notifData.recipientRole === 'CUSTOMER' &&
+        Boolean(
+          customer &&
+          (!notifData.recipientId || notifData.recipientId === customer.phone || notifData.recipientId === customer.id)
+        )) ||
+      (notifData.recipientRole === 'ALL' && (!notifData.orderId || customer || isAdmin));
 
     if (isTargetUser) {
       setActiveBannerNotification(newNotif);
@@ -1365,12 +1370,65 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
   };
 
+  // Lọc danh sách thông báo hiển thị chuẩn theo vai trò người dùng (Bảo mật & Tránh rò rỉ đơn hàng sang khách chưa đăng nhập)
+  const visibleNotifications = useMemo(() => {
+    if (isAdmin) {
+      // Quản trị viên: Xem toàn bộ thông báo nghiệp vụ tiệm hoa, thông báo đơn mới, biên lai và tin hệ thống
+      return notifications.filter((n) => n.recipientRole === 'ADMIN' || n.recipientRole === 'ALL' || !n.recipientRole);
+    }
+    if (customer) {
+      // Khách hàng đã đăng nhập: Xem thông báo chung của shop VÀ thông báo đơn hàng thuộc chính số điện thoại/ID của mình
+      return notifications.filter((n) => {
+        if (n.recipientRole === 'ADMIN') return false;
+        if (n.recipientRole === 'ALL' && !n.orderId) return true;
+        if (n.recipientRole === 'CUSTOMER') {
+          if (n.recipientId && (n.recipientId === customer.phone || n.recipientId === customer.id)) {
+            return true;
+          }
+          if (n.orderId) {
+            const matchingOrder = orders.find((o) => o.id === n.orderId);
+            if (matchingOrder && (matchingOrder.senderPhone === customer.phone || matchingOrder.recipientPhone === customer.phone)) {
+              return true;
+            }
+          }
+          return !n.recipientId && !n.orderId;
+        }
+        return false;
+      });
+    }
+    // Khách vãng lai (CHƯA ĐĂNG NHẬP):
+    // Tuyệt đối KHÔNG hiển thị thông báo đơn hàng của bất kỳ ai!
+    // Chỉ hiển thị thông báo chung toàn tiệm (tin phát thanh, sự kiện, voucher chung), không gắn với đơn hàng nào.
+    return notifications.filter((n) => {
+      return (
+        n.recipientRole === 'ALL' &&
+        !n.orderId &&
+        n.type !== 'ORDER_NEW' &&
+        n.type !== 'ORDER_STATUS' &&
+        n.type !== 'PAYMENT_BILL'
+      );
+    });
+  }, [notifications, isAdmin, customer, orders]);
+
+  const unreadNotificationCount = visibleNotifications.filter((n) => !n.isRead).length;
+
   const clearAllNotifications = () => {
-    setNotifications([]);
+    if (isAdmin) {
+      setNotifications((prev) => prev.filter((n) => n.recipientRole === 'CUSTOMER'));
+    } else if (customer) {
+      setNotifications((prev) =>
+        prev.filter((n) => {
+          const isThisCustomer =
+            n.recipientRole === 'CUSTOMER' &&
+            (n.recipientId === customer.phone || n.recipientId === customer.id);
+          return !isThisCustomer;
+        })
+      );
+    } else {
+      setNotifications((prev) => prev.filter((n) => n.recipientRole !== 'ALL' || Boolean(n.orderId)));
+    }
     showToast('Đã xóa tất cả thông báo', 'info');
   };
-
-  const unreadNotificationCount = notifications.filter((n) => !n.isRead).length;
 
   // Marquee Announcement Actions
   const addMarqueeItem = (item: Omit<MarqueeItem, 'id'>) => {
@@ -1426,9 +1484,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               hasChanges = true;
               // Auto-approve!
               sendAppNotification({
-                recipientRole: 'ALL',
+                recipientRole: 'CUSTOMER',
+                recipientId: ord.senderPhone,
                 title: `🌸 Trợ lý đã tự động duyệt cọc đơn #${ord.id}!`,
                 message: `Đơn hoa #${ord.id} đã được đối soát biên lai và tự động duyệt sang 'Đang cắm hoa'.`,
+                type: 'ORDER_STATUS',
+                orderId: ord.id
+              });
+
+              sendAppNotification({
+                recipientRole: 'ADMIN',
+                title: `🤖 Trợ lý tự động duyệt cọc đơn #${ord.id}!`,
+                message: `Đơn hoa #${ord.id} đã qua thời gian đối soát biên lai và tự động chuyển sang 'Đang cắm hoa'.`,
                 type: 'ORDER_STATUS',
                 orderId: ord.id
               });
@@ -4390,7 +4457,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateWeatherConditionSurcharge,
         shiftSurcharges,
         updateShiftSurcharges,
-        notifications,
+        notifications: visibleNotifications,
         unreadNotificationCount,
         activeBannerNotification,
         dismissBannerNotification,
