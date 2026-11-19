@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { FlowerProduct } from '../types';
 import { useStore } from '../context/StoreContext';
-import { Star, ShoppingBag, Eye, Sparkles, Zap, Flower2 } from 'lucide-react';
+import { Star, ShoppingBag, Eye, Sparkles, Zap } from 'lucide-react';
+import { PeachBlossomTag } from './PeachBlossomTag';
 
 interface ProductCardProps {
   product: FlowerProduct;
@@ -87,16 +88,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </div>
 
-        {/* Tag Badges (Màu đỏ cam gradient chuẩn TMĐT + Icon hoa đào nghệ thuật) */}
-        <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 flex flex-col gap-1 items-start">
+        {/* Khung hoa đào màu cam đặc biệt (Peach Blossom Flower Frame) */}
+        <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 flex flex-col gap-1 items-start z-10">
           {product.tag && (
-            <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#ee4d2d] to-[#f97316] text-white shadow-md shadow-orange-500/25 border border-white/40 tracking-wide select-none">
-              <Flower2 className="w-3 h-3 text-rose-100 shrink-0 animate-pulse" />
-              <span>{product.tag}</span>
-            </span>
+            <PeachBlossomTag tag={product.tag} size="md" />
           )}
           {!product.isAvailable && (
-            <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-700 text-white shadow-sm">
+            <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-700/90 text-white shadow-sm backdrop-blur-xs">
               Tạm hết hoa
             </span>
           )}
