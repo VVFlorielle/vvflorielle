@@ -599,8 +599,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [categories, setCategories] = useState<FlowerCategory[]>(() => {
     const catVersion = localStorage.getItem('vvf_categories_catalog_version');
-    if (catVersion !== 'v9_authentic_flower_categories') {
-      localStorage.setItem('vvf_categories_catalog_version', 'v9_authentic_flower_categories');
+    if (catVersion !== 'v10_user_edited_categories') {
+      localStorage.setItem('vvf_categories_catalog_version', 'v10_user_edited_categories');
       const cleanList = INITIAL_CATEGORIES.filter((c) => c.id !== 'all');
       localStorage.setItem('vvf_categories', JSON.stringify(cleanList));
       return cleanList;
