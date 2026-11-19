@@ -651,8 +651,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [promotions, setPromotions] = useState<PromotionItem[]>(() => {
     const promoVersion = localStorage.getItem('vvf_promotions_catalog_version');
-    if (promoVersion !== 'v3.4_quy_dinh_moi') {
-      localStorage.setItem('vvf_promotions_catalog_version', 'v3.4_quy_dinh_moi');
+    if (promoVersion !== 'v3.5_flash_1h_3vouchers') {
+      localStorage.setItem('vvf_promotions_catalog_version', 'v3.5_flash_1h_3vouchers');
       localStorage.setItem('vvf_promotions', JSON.stringify(INITIAL_PROMOTIONS));
       return INITIAL_PROMOTIONS;
     }
@@ -921,7 +921,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           logoHorizontalUrl: parsed.logoHorizontalUrl || INITIAL_SHOP_SETTINGS.logoHorizontalUrl || '/logo-vvflorielle-horizontal.webp',
           logoVerticalUrl: parsed.logoVerticalUrl || INITIAL_SHOP_SETTINGS.logoVerticalUrl || '/logo.png',
           faviconUrl: parsed.faviconUrl || INITIAL_SHOP_SETTINGS.faviconUrl || '/logo-vvflorielle-square.webp',
-          mascotImageUrl: parsed.mascotImageUrl || INITIAL_SHOP_SETTINGS.mascotImageUrl,
+          mascotImageUrl: (parsed.mascotImageUrl || INITIAL_SHOP_SETTINGS.mascotImageUrl || '/images/mascot/mascot-1.webp').replace(/\.png$/i, '.webp'),
           floralCornerTopImage: parsed.floralCornerTopImage || INITIAL_SHOP_SETTINGS.floralCornerTopImage,
           floralCornerTopLeftImage: parsed.floralCornerTopLeftImage ?? parsed.floralCornerTopImage ?? INITIAL_SHOP_SETTINGS.floralCornerTopLeftImage,
           floralCornerTopRightImage: parsed.floralCornerTopRightImage ?? parsed.floralCornerTopImage ?? INITIAL_SHOP_SETTINGS.floralCornerTopRightImage,

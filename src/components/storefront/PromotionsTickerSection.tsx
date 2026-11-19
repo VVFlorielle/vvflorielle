@@ -27,7 +27,8 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
     products,
     isDoubleDaySimulated,
     isFlashSaleSimulated,
-    isHolidaySimulated
+    isHolidaySimulated,
+    searchQuery
   } = useStore();
 
   const [isAllVouchersModalOpen, setIsAllVouchersModalOpen] = useState(false);
@@ -53,25 +54,87 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
     );
   }, [promotions, isDoubleDaySimulated, isFlashSaleSimulated, isHolidaySimulated]);
 
-  // Curated Flash Deal Products with modest realistic discounts (10% - 17%)
+  // Dynamic 4 Flash Deal Products personalized to customer preferences & viewing/search history
   const flashDealProducts = useMemo(() => {
-    const preferredIds = ['fl-10', 'fl-11', 'fl-13', 'fl-14'];
-    const matched = preferredIds
-      .map((id) => products.find((p) => p.id === id))
-      .filter(Boolean) as FlowerProduct[];
+    let viewedIds: string[] = [];
+    let searchKeywords: string[] = [];
+    if (typeof window !== 'undefined') {
+      try {
+        const rawViewed = localStorage.getItem('vvf_recently_viewed_product_ids');
+        if (rawViewed) viewedIds = JSON.parse(rawViewed);
+      } catch {}
+      try {
+        const rawSearch = localStorage.getItem('vvf_search_history');
+        if (rawSearch) searchKeywords = JSON.parse(rawSearch);
+      } catch {}
+    }
 
-    if (matched.length >= 4) return matched;
-    const others = products.filter(
-      (p) => p.originalPrice && p.originalPrice > p.price && !preferredIds.includes(p.id)
-    );
-    return [...matched, ...others].slice(0, 4);
-  }, [products]);
+    if (searchQuery && searchQuery.trim()) {
+      searchKeywords.unshift(searchQuery.trim().toLowerCase());
+    }
 
-  // Flash Sale Active Voucher (12h-14h or 20h-22h)
-  const activeFlashVoucher = useMemo(() => {
-    const slotCode = flashTimer.activeSlot === '12:00 - 14:00' ? 'VVF-FLASH12' : 'VVF-FLASH20';
-    return promotions.find((p) => p.code === slotCode && p.isActive);
-  }, [promotions, flashTimer.activeSlot]);
+    const preferredTokens = [
+      ...(customer?.notes || '').toLowerCase().split(/[\s,;]+/),
+      ...(customer?.favoriteFlowers || []).map((f) => f.toLowerCase()),
+      ...(customer?.tags || []).map((t) => t.toLowerCase())
+    ].filter((t: string) => t && t.length > 1);
+
+    // Candidates: Products with modest discounts (10% - 20%) or top quality flowers
+    const discounted = products.filter((p) => p.originalPrice && p.originalPrice > p.price);
+    const pool = discounted.length >= 4 ? discounted : products;
+
+    // Score and rank candidates based on customer profile & behavior
+    const scored = pool.map((p) => {
+      let score = 0;
+      const lowerName = p.name.toLowerCase();
+      const lowerCat = (p.categoryId || '').toLowerCase();
+      const lowerDesc = (p.description || '').toLowerCase();
+      const lowerFlowerTypes = (p.flowerTypes || []).map((ft) => ft.toLowerCase()).join(' ');
+
+      // Priority 1: Direct viewing history or same category as recently viewed
+      if (viewedIds.includes(p.id)) {
+        score += 6;
+      } else if (viewedIds.some((vId) => {
+        const vp = products.find((x) => x.id === vId);
+        return vp && vp.categoryId === p.categoryId;
+      })) {
+        score += 3;
+      }
+
+      // Priority 2: Matches customer's preferred styles/tones/notes
+      for (const token of preferredTokens) {
+        if (
+          lowerName.includes(token) ||
+          lowerCat.includes(token) ||
+          lowerFlowerTypes.includes(token) ||
+          lowerDesc.includes(token)
+        ) {
+          score += 4;
+        }
+      }
+
+      // Priority 3: Matches search query / history
+      for (const kw of searchKeywords) {
+        if (kw && (lowerName.includes(kw) || lowerCat.includes(kw) || lowerDesc.includes(kw))) {
+          score += 3;
+        }
+      }
+
+      // Dynamic variation jitter
+      const charSum = p.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+      const randomJitter = (charSum % 5) * 0.3 + Math.random() * 0.7;
+
+      return { product: p, score: score + randomJitter };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 4).map((s) => s.product);
+  }, [products, customer?.notes, customer?.favoriteFlowers, customer?.tags, searchQuery]);
+
+  // Curated 2 - 3 Flash Deal Vouchers available during the 1-hour window
+  const flashVouchers = useMemo(() => {
+    return promotions.filter((p) => p.campaignType === 'FLASH_DEAL' && p.isActive).slice(0, 3);
+  }, [promotions]);
 
   // Classify voucher types (Shopee style)
   const getVoucherCategory = (promo: PromotionItem) => {
@@ -182,7 +245,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Khung giờ vàng ({flashTimer.activeSlot}) — Số lượng deal giới hạn, giá ưu đãi vừa phải cho hoa tươi chất lượng cao
+                Khung giờ vàng ({flashTimer.activeSlot}) — Diễn ra trong 1h, số lượng deal giới hạn, hoa tươi chọn lọc theo sở thích của bạn
               </p>
             </div>
 
@@ -307,53 +370,81 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
             })}
           </div>
 
-          {/* Banner Voucher Giờ Vàng Bổ Trợ */}
-          {activeFlashVoucher && (
-            <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-orange-100/90 via-amber-50 to-rose-100/90 border border-orange-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <span className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4 h-4" />
+          {/* Cụm 2 - 3 Mã Deal Giờ Vàng (Chỉ 1h mỗi ca, Không hiển thị mã sao chép, chỉ Lưu & Dùng ngay theo đúng quy định) */}
+          {flashVouchers.length > 0 && (
+            <div className="space-y-2.5 pt-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+                  <span>Mã Giảm Giá Giờ Vàng (Áp dụng trong 1h)</span>
                 </span>
-                <div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs sm:text-sm font-black text-orange-900">
-                      {activeFlashVoucher.discountType === 'PERCENT'
-                        ? `Giảm ${activeFlashVoucher.discountAmount}%`
-                        : `Giảm ${formatPrice(activeFlashVoucher.discountAmount)}`}
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white text-orange-700 border border-orange-300">
-                      Voucher Giờ Vàng
-                    </span>
-                    <span className="text-[10.5px] font-semibold text-slate-600">
-                      • Đơn từ {formatPrice(activeFlashVoucher.minOrder)}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-600 mt-0.5">{activeFlashVoucher.description}</p>
-                </div>
+                <span className="text-[11px] text-orange-700 font-semibold">
+                  Tối đa 1 mã / đơn hoa
+                </span>
               </div>
 
-              {isVoucherSaved(activeFlashVoucher.code) ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCartOpen(true);
-                    showToast('Voucher Giờ Vàng đã sẵn sàng trong giỏ hàng!', 'info');
-                  }}
-                  className="shrink-0 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
-                >
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>Sử dụng ngay</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleSaveVoucher(activeFlashVoucher)}
-                  className="shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-600 to-rose-600 hover:from-orange-700 hover:to-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Lưu mã giờ vàng</span>
-                </button>
-              )}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                {flashVouchers.map((voucher) => {
+                  const isSaved = isVoucherSaved(voucher.code);
+                  const isFreeship = voucher.discountType === 'FREESHIP' || voucher.voucherScope === 'SHIPPING';
+
+                  return (
+                    <div
+                      key={voucher.id}
+                      className="p-3 rounded-2xl bg-gradient-to-br from-white via-orange-50/50 to-amber-50/60 border border-orange-200/90 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-2.5 relative overflow-hidden group"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs sm:text-sm font-black text-rose-600">
+                              {voucher.discountType === 'PERCENT'
+                                ? `Giảm ${voucher.discountAmount}%`
+                                : `Giảm ${formatPrice(voucher.discountAmount)}`}
+                            </span>
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-orange-100 text-orange-800 border border-orange-200">
+                              {voucher.badge || 'Giờ Vàng 1H'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] font-medium text-slate-700 line-clamp-1">
+                            {voucher.title}
+                          </p>
+                          <p className="text-[10px] text-slate-500">
+                            Đơn từ {formatPrice(voucher.minOrder)}
+                          </p>
+                        </div>
+
+                        <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          {isFreeship ? <Truck className="w-4 h-4" /> : <Flame className="w-4 h-4" />}
+                        </div>
+                      </div>
+
+                      {/* Nút Lưu / Dùng ngay - Không hiển thị mã thô hay nút sao chép theo đúng quy định mới */}
+                      {isSaved ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsCartOpen(true);
+                            showToast(`Voucher ${voucher.title} đã sẵn sàng trong giỏ hàng!`, 'info');
+                          }}
+                          className="w-full py-1.5 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Đã lưu • Dùng ngay</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSaveVoucher(voucher)}
+                          className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-600 hover:to-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Lưu mã</span>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

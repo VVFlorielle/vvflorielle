@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   X,
@@ -43,6 +43,20 @@ export const ProductDetailModal: React.FC = () => {
   const [cardMessage, setCardMessage] = useState('');
   const [imageError, setImageError] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+
+  // Lưu lịch sử xem hoa của khách hàng để cá nhân hóa Deal Giờ Vàng
+  useEffect(() => {
+    if (selectedProduct?.id && typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('vvf_recently_viewed_product_ids');
+        const viewed: string[] = raw ? JSON.parse(raw) : [];
+        const next = [selectedProduct.id, ...viewed.filter((id) => id !== selectedProduct.id)].slice(0, 15);
+        localStorage.setItem('vvf_recently_viewed_product_ids', JSON.stringify(next));
+      } catch {
+        // Safe fallback
+      }
+    }
+  }, [selectedProduct?.id]);
 
   if (!selectedProduct) return null;
 

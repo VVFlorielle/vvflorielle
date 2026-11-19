@@ -3,7 +3,7 @@ import { getFlashSaleState, FlashSaleState } from '../utils/voucherVisibility';
 
 export interface FlashSaleTimerResult {
   isLive: boolean;
-  activeSlot: '12:00 - 14:00' | '20:00 - 22:00';
+  activeSlot: '12:00 - 13:00' | '20:00 - 21:00';
   statusLabel: string;
   hours: string;
   minutes: string;

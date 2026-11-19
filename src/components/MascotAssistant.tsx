@@ -392,6 +392,8 @@ export const MascotAssistant: React.FC = () => {
   const chatLeft = Math.max(16, Math.min(dimensions.width - 400, isRightSide ? pos.x - 390 : pos.x + 80));
   const chatTop = Math.max(70, Math.min(dimensions.height - 540, pos.y - 180));
 
+  const mascotSrc = (settings.mascotImageUrl || '/images/mascot/mascot-1.webp').replace(/\.png$/i, '.webp');
+
   return (
     <>
       {/* 1. DRAGGABLE FLOATING AI MASCOT (Matching phototiinlove) */}
@@ -406,6 +408,7 @@ export const MascotAssistant: React.FC = () => {
             : 'left 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
         onPointerDown={handlePointerDown}
+        onClick={handleMascotClick}
       >
         {/* Floating Greeting Speech Bubble (Dynamic Left / Right depending on screen position) */}
         {!isOpen && showBubble && (
@@ -452,7 +455,10 @@ export const MascotAssistant: React.FC = () => {
           {/* Always display the transparent floral mascot logo with dynamic buoyant floating & swaying animation */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center select-none animate-mascot-float">
             <img
-              src={settings.mascotImageUrl || '/images/mascot/mascot-1.webp'}
+              src={mascotSrc}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = '/images/mascot/mascot-1.webp';
+              }}
               alt="Linh vật AI V&V Florielle"
               className={`w-full h-full object-contain pointer-events-none filter drop-shadow-[0_6px_16px_rgba(5,150,105,0.28)] transition-all duration-300 ${
                 isOpen ? 'scale-105 drop-shadow-[0_8px_20px_rgba(4,120,87,0.45)]' : ''
@@ -503,7 +509,14 @@ export const MascotAssistant: React.FC = () => {
             <div className="p-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="hidden sm:flex w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-md items-center justify-center shadow-xs border border-white/30 overflow-hidden">
-                  <img src={settings.mascotImageUrl || '/images/mascot/mascot-1.webp'} alt="Flori" className="w-7 h-7 object-contain" />
+                  <img
+                    src={mascotSrc}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = '/images/mascot/mascot-1.webp';
+                    }}
+                    alt="Flori"
+                    className="w-7 h-7 object-contain"
+                  />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
