@@ -214,7 +214,7 @@ export async function fetchNeonProducts(): Promise<FlowerProduct[]> {
       price: Number(item.price || item.basePrice || 0),
       originalPrice: item.originalPrice ? Number(item.originalPrice) : undefined,
       tag: item.tag || item.badge,
-      imageUrl: item.imageUrl || (Array.isArray(item.images) && item.images[0]) || 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80',
+      imageUrl: item.imageUrl || (Array.isArray(item.images) && item.images[0]) || '/products/fl-01.webp',
       flowerTypes: Array.isArray(item.flowerTypes) ? item.flowerTypes : [item.components?.mainFlowers || 'Hoa tươi chọn lọc'].filter(Boolean),
       description: item.description || '',
       meaning: item.meaning || item.description || '',
