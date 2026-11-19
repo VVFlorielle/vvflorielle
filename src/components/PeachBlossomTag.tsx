@@ -13,7 +13,7 @@ export const PeachBlossomTag: React.FC<PeachBlossomTagProps> = ({
 }) => {
   if (!tag) return null;
 
-  // Split words for optimal centered typographic layout in the flower core
+  // Split words for optimal centered typographic layout in the flower
   const words = tag.trim().split(/\s+/);
   const isMultiWord = words.length > 1;
 
@@ -27,15 +27,15 @@ export const PeachBlossomTag: React.FC<PeachBlossomTagProps> = ({
   const textClasses = {
     sm: isMultiWord ? 'text-[7.5px] leading-[1.0]' : 'text-[9px]',
     md: isMultiWord ? 'text-[8.5px] sm:text-[9.5px] leading-[1.05]' : 'text-[10px] sm:text-[11px]',
-    lg: isMultiWord ? 'text-[10.5px] sm:text-[12px] leading-[1.1]' : 'text-[13px] sm:text-[14px]'
+    lg: isMultiWord ? 'text-[11px] sm:text-[12.5px] leading-[1.1]' : 'text-[13px] sm:text-[14px]'
   }[size];
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center select-none filter drop-shadow-[0_2.5px_4px_rgba(234,88,12,0.45)] hover:scale-105 active:scale-95 transition-all duration-200 ${sizeClasses} ${className}`}
+      className={`relative inline-flex items-center justify-center select-none filter drop-shadow-[0_2.5px_4px_rgba(244,63,94,0.45)] hover:scale-105 active:scale-95 transition-all duration-200 ${sizeClasses} ${className}`}
       title={tag}
     >
-      {/* Khung hình bông hoa đào 5 cánh nghệ thuật màu đỏ cam gradient */}
+      {/* Khung bông hoa đào 5 cánh bo tròn tự nhiên theo ảnh mẫu, chỉ có viền ngoài và nền màu hồng */}
       <svg
         viewBox="0 0 100 100"
         className="w-full h-full"
@@ -43,72 +43,33 @@ export const PeachBlossomTag: React.FC<PeachBlossomTagProps> = ({
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Gradient màu đỏ cam hoa đào tươi tắn */}
-          <linearGradient id="peachPetalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ff5e36" />
-            <stop offset="50%" stopColor="#f97316" />
-            <stop offset="100%" stopColor="#ea580c" />
+          {/* Gradient màu hồng hoa đào tự nhiên chuẩn ảnh mẫu */}
+          <linearGradient id="peachBlossomPinkGrad" x1="10%" y1="5%" x2="90%" y2="95%">
+            <stop offset="0%" stopColor="#f472b6" />
+            <stop offset="50%" stopColor="#fb7185" />
+            <stop offset="100%" stopColor="#e11d48" />
           </linearGradient>
-
-          {/* Gradient tâm nhụy hoa đào */}
-          <radialGradient id="peachCoreGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#ffedd5" stopOpacity="0.3" />
-            <stop offset="55%" stopColor="#f97316" />
-            <stop offset="100%" stopColor="#c2410c" />
-          </radialGradient>
         </defs>
 
-        {/* 5 Cánh hoa đào (Peach blossom petals) */}
-        {[0, 72, 144, 216, 288].map((angle, idx) => (
-          <g key={idx} transform={`rotate(${angle} 50 50)`}>
-            {/* Cánh hoa xòe tròn có rãnh uốn lượn hình cánh hoa đào */}
-            <path
-              d="M 50,50 C 35,46 30,23 42,10 C 47,6 49,8 50,10 C 51,8 53,6 58,10 C 70,23 65,46 50,50 Z"
-              fill="url(#peachPetalGrad)"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-              strokeOpacity="0.8"
-            />
-            {/* Gân cánh hoa mờ tinh tế */}
-            <path
-              d="M 50,42 Q 50,23 50,11"
-              stroke="#ffedd5"
-              strokeWidth="0.8"
-              strokeOpacity="0.4"
-              strokeLinecap="round"
-            />
-          </g>
-        ))}
-
-        {/* Vùng tâm hoa hình tròn ôm trọn nội dung chữ */}
-        <circle cx="50" cy="50" r="24.5" fill="url(#peachCoreGrad)" stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.85" />
-
-        {/* Các chấm nhụy hoa đào màu vàng hoàng yến */}
-        {[0, 72, 144, 216, 288].map((angle, idx) => {
-          const rad = (angle * Math.PI) / 180;
-          return (
-            <circle
-              key={`stamen-${idx}`}
-              cx={50 + 20 * Math.sin(rad)}
-              cy={50 - 20 * Math.cos(rad)}
-              r="1.4"
-              fill="#fef08a"
-              stroke="#ea580c"
-              strokeWidth="0.4"
-            />
-          );
-        })}
+        {/* Khung bông hoa đào 5 cánh: Chỉ có viền bo tròn bên ngoài và nền bên trong để chữ, không có vòng tròn nhụy */}
+        <path
+          d="M 32.95,26.54 C 35.24,23.37 32.98,5.65 50.00,3.50 C 67.02,5.65 64.76,23.37 67.05,26.54 C 70.77,27.73 86.91,20.11 94.22,35.63 C 97.43,52.49 79.89,55.81 77.58,58.96 C 77.60,62.87 89.84,75.87 77.33,87.62 C 62.29,95.88 53.71,80.22 50.00,79.00 C 46.29,80.22 37.71,95.88 22.67,87.62 C 10.16,75.87 22.40,62.87 22.42,58.96 C 20.11,55.81 2.57,52.49 5.78,35.63 C 13.09,20.11 29.23,27.73 32.95,26.54 Z"
+          fill="url(#peachBlossomPinkGrad)"
+          stroke="#ffffff"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+        />
       </svg>
 
-      {/* Nội dung chữ tag được căn chính giữa khung hoa đào */}
-      <div className={`absolute inset-0 flex flex-col items-center justify-center text-white font-black tracking-tight text-center px-1 pointer-events-none drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)] ${textClasses}`}>
+      {/* Vị trí chữ đặt trực tiếp trên nền hoa đào màu hồng, chữ trắng nổi bật */}
+      <div className={`absolute inset-0 flex flex-col items-center justify-center text-white font-black tracking-tight text-center px-1 pointer-events-none drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.65)] ${textClasses}`}>
         {isMultiWord ? (
           <>
             <span className="uppercase font-black text-white">{words[0]}</span>
-            <span className="uppercase font-black text-amber-200">{words.slice(1).join(' ')}</span>
+            <span className="uppercase font-black text-amber-100">{words.slice(1).join(' ')}</span>
           </>
         ) : (
-          <span className="uppercase font-black tracking-wider text-amber-100">{tag}</span>
+          <span className="uppercase font-black tracking-wider text-white">{tag}</span>
         )}
       </div>
     </div>
