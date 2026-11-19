@@ -4,7 +4,18 @@ import { ArrowUp } from 'lucide-react';
 export const ScrollToTopButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 1024 : false
+  );
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,9 +54,17 @@ export const ScrollToTopButton: React.FC = () => {
 
   return (
     <div
-      className={`fixed left-3.5 sm:left-auto sm:right-6 bottom-[calc(142px+env(safe-area-inset-bottom,0px))] sm:bottom-[230px] min-[1024px]:bottom-52 z-40 select-none pointer-events-auto transition-all duration-300 animate-in fade-in zoom-in-75 ${
+      className={`fixed z-40 select-none pointer-events-auto transition-all duration-300 animate-in fade-in zoom-in-75 ${
+        isMobile
+          ? 'left-3.5 right-auto bottom-[calc(142px+env(safe-area-inset-bottom,0px))]'
+          : 'left-auto right-6 bottom-[230px] min-[1024px]:bottom-52'
+      } ${
         isScrolling ? 'opacity-35 hover:opacity-100 scale-90' : 'opacity-90 hover:opacity-100 scale-100'
       }`}
+      style={{
+        left: isMobile ? '14px' : 'auto',
+        right: isMobile ? 'auto' : '24px',
+      }}
     >
       <button
         type="button"
