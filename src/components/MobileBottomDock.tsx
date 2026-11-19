@@ -677,8 +677,6 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
                     handleUserInteract();
                     if (onOpenCustomerQr) {
                       onOpenCustomerQr();
-                    } else if (onOpenQrScanner) {
-                      onOpenQrScanner();
                     } else {
                       handleOrdersClick();
                     }

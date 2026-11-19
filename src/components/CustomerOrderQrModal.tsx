@@ -78,6 +78,26 @@ export const CustomerOrderQrModal: React.FC<CustomerOrderQrModalProps> = ({
     };
   }, []);
 
+  const handleClose = () => {
+    try {
+      stopCamera();
+    } catch (e) {
+      console.error('Error stopping camera:', e);
+    }
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   const stopCamera = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -162,13 +182,26 @@ export const CustomerOrderQrModal: React.FC<CustomerOrderQrModalProps> = ({
   )}&color=064e3b&bgcolor=ffffff&qzone=2`;
 
   return (
-    <div className="fixed inset-0 z-[100060] flex items-center justify-center p-3 sm:p-5 bg-slate-900/35 backdrop-blur-md animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/70 p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
+      className="fixed inset-0 z-[100060] flex items-center justify-center p-3 sm:p-5 bg-slate-900/35 backdrop-blur-md animate-in fade-in duration-200 select-none cursor-pointer"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/70 p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto cursor-default"
+      >
         {/* Close Button */}
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-          title="Đóng"
+          type="button"
+          onClick={handleClose}
+          className="absolute top-4 right-4 p-2.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer z-10"
+          title="Đóng (Phím Esc)"
         >
           <X className="w-5 h-5" />
         </button>
@@ -409,6 +442,18 @@ export const CustomerOrderQrModal: React.FC<CustomerOrderQrModalProps> = ({
             )}
           </div>
         )}
+
+        {/* Bottom Close Button for Mobile Accessibility */}
+        <div className="pt-2 border-t border-slate-100 flex justify-end">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <X className="w-3.5 h-3.5" />
+            <span>Đóng Cửa Sổ</span>
+          </button>
+        </div>
       </div>
     </div>
   );

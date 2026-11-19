@@ -65,7 +65,7 @@ export const AppContent: React.FC = () => {
     isAuthModalOpen ||
     isReviewModalOpen ||
     activePopup ||
-    isQrScannerOpen ||
+    (isQrScannerOpen && Boolean(isAdmin)) ||
     isOrderLookupOpen ||
     isCustomerQrOpen ||
     isSessionLocked
@@ -224,7 +224,7 @@ export const AppContent: React.FC = () => {
 
       {/* Global QR Scanner Modal for Admin & Owner */}
       <QrScannerModal
-        isOpen={isQrScannerOpen}
+        isOpen={isQrScannerOpen && Boolean(isAdmin)}
         onClose={() => setIsQrScannerOpen(false)}
         orders={orders}
         onCompleteOrder={completeOrder}
