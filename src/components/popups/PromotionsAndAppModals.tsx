@@ -13,7 +13,8 @@ import {
   Truck,
   Flame,
   Tag,
-  Clock
+  Clock,
+  Ticket
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { PromotionItem, UserVoucher } from '../../types';
@@ -119,6 +120,7 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<'ALL' | 'FREESHIP' | 'DOUBLE_DAY' | 'FLOWER'>('ALL');
+  const [animatingVoucherCode, setAnimatingVoucherCode] = useState<string | null>(null);
 
   const flashTimer = useFlashSaleTimer(isFlashSaleSimulated);
 
@@ -157,6 +159,10 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
     };
 
     saveCustomerVoucher(newVoucher);
+    setAnimatingVoucherCode(promo.code);
+    setTimeout(() => {
+      setAnimatingVoucherCode((prev) => (prev === promo.code ? null : prev));
+    }, 1000);
   };
 
   const activePromotions = useMemo(() => {
@@ -303,43 +309,49 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
                   </div>
                 </div>
 
-                {/* Smart Action Buttons: LƯU & SỬ DỤNG */}
-                {saved ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPendingVoucherToApply(promo.code);
-                      onClose();
-                      setIsCartOpen(true);
-                    }}
-                    className="shrink-0 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                    title="Mở giỏ hàng để sử dụng mã này"
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>Sử dụng</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleSaveVoucher(promo);
-                      setPendingVoucherToApply(promo.code);
-                      onClose();
-                      setIsCartOpen(true);
-                    }}
-                    className={`shrink-0 px-3.5 py-2 text-xs font-bold text-white rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
-                      isShipping
-                        ? 'bg-emerald-600 hover:bg-emerald-700'
-                        : isDouble
-                        ? 'bg-orange-600 hover:bg-orange-700'
-                        : 'bg-rose-600 hover:bg-rose-700'
-                    }`}
-                    title="Lưu voucher vào ví cá nhân & dùng ngay"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Lưu &amp; Dùng</span>
-                  </button>
-                )}
+                {/* Smart Action Buttons: LƯU & ĐÃ LƯU */}
+                <div className="relative shrink-0">
+                  {saved ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="px-3.5 py-2 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/90 rounded-xl flex items-center gap-1.5 cursor-default"
+                      title="Voucher đã lưu trong ví hội viên"
+                    >
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Đã lưu</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleSaveVoucher(promo)}
+                      className={`px-3.5 py-2 text-xs font-bold text-white rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
+                        isShipping
+                          ? 'bg-emerald-600 hover:bg-emerald-700'
+                          : isDouble
+                          ? 'bg-orange-600 hover:bg-orange-700'
+                          : 'bg-rose-600 hover:bg-rose-700'
+                      }`}
+                      title="Lưu voucher vào ví hội viên"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Lưu</span>
+                    </button>
+                  )}
+
+                  {animatingVoucherCode === promo.code && (
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 pointer-events-none select-none animate-button-voucher-float z-30">
+                      <div className={`px-2 py-0.5 rounded-full text-xs font-black text-white shadow-md flex items-center gap-0.5 ${
+                        isShipping
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-600'
+                          : 'bg-gradient-to-r from-orange-500 to-rose-600'
+                      }`}>
+                        <span>+</span>
+                        {isShipping ? <Truck className="w-3.5 h-3.5" /> : <Ticket className="w-3.5 h-3.5" />}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })

@@ -3260,15 +3260,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return false;
     }
     const currentVouchers = customer.userVouchers || [];
-    const isShip = newVoucher.voucherScope === 'SHIPPING' || newVoucher.discountType === 'FREESHIP';
     if (currentVouchers.some((v) => v.code === newVoucher.code && !v.isUsed)) {
-      triggerFloatingVoucher('Voucher đã có sẵn trong ví!', isShip);
       return false;
     }
     const updatedVouchers = [...currentVouchers, newVoucher];
     setCustomer((prev) => (prev ? { ...prev, userVouchers: updatedVouchers } : null));
     setCustomers((prev) => prev.map((c) => (c.id === customer.id ? { ...c, userVouchers: updatedVouchers } : c)));
-    triggerFloatingVoucher(`+1 Voucher ${newVoucher.code}`, isShip);
     return true;
   };
 

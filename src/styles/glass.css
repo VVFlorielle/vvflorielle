@@ -898,5 +898,30 @@ body.is-body-scroll-locked .floating-mascot-wrapper {
   animation: shopee-float-up 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Local Button Floating Voucher Badge (+ 🎫 / + 🚚) */
+@keyframes button-voucher-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 6px) scale(0.85);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -4px) scale(1.08);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -18px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -30px) scale(0.9);
+  }
+}
+
+.animate-button-voucher-float {
+  animation: button-voucher-float 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
 
 

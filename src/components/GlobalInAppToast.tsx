@@ -5,7 +5,6 @@ import { useStore } from '../context/StoreContext';
 export const GlobalInAppToast: React.FC = () => {
   const {
     toasts,
-    floatingVoucherNotice,
     activeBannerNotification,
     dismissBannerNotification
   } = useStore();
@@ -37,30 +36,7 @@ export const GlobalInAppToast: React.FC = () => {
         ))}
       </div>
 
-      {/* 2. SHOPEE STYLE FLOATING VOUCHER BADGE (Huy hiệu voucher màu Cam/Xanh bay lên rồi ẩn đi sau 1.1s chuẩn Shopee) */}
-      {floatingVoucherNotice && (
-        <div
-          key={floatingVoucherNotice.id}
-          className="fixed bottom-28 left-1/2 z-[1000001] pointer-events-none select-none animate-shopee-voucher"
-        >
-          <div
-            className={`px-4 py-2 rounded-full text-xs sm:text-[13px] font-black text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] flex items-center gap-2 border border-white/25 backdrop-blur-md ${
-              floatingVoucherNotice.isShipping
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 shadow-emerald-500/35'
-                : 'bg-gradient-to-r from-orange-500 to-rose-600 shadow-orange-500/35'
-            }`}
-          >
-            {floatingVoucherNotice.isShipping ? (
-              <Truck className="w-4 h-4 shrink-0" />
-            ) : (
-              <Ticket className="w-4 h-4 shrink-0" />
-            )}
-            <span className="tracking-wide drop-shadow-xs">{floatingVoucherNotice.text}</span>
-          </div>
-        </div>
-      )}
-
-      {/* 3. URGENT SYSTEM BANNER MODAL (Chỉ hiện khi có activeBannerNotification từ hệ thống) */}
+      {/* 2. URGENT SYSTEM BANNER MODAL (Chỉ hiện khi có activeBannerNotification từ hệ thống) */}
       {activeBannerNotification && (
         <div
           className="fixed inset-0 z-[1000000] flex items-center justify-center p-4 bg-slate-900/25 backdrop-blur-sm animate-in fade-in duration-200 select-none"
