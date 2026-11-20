@@ -53,6 +53,7 @@ export interface CartItem {
   quantity: number;
   ribbonColor: string;
   cardMessage: string;
+  isFlashDeal?: boolean;
 }
 
 export type OrderStatus = 'PENDING' | 'WAITING_DEPOSIT' | 'ARRANGING' | 'SHIPPING' | 'COMPLETED' | 'CANCELLED';

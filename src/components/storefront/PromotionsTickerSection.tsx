@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Gift, Truck, Flame, Check, ChevronRight, X, Sparkles, Tag, Clock, ShoppingBag, Eye, Zap, Ticket } from 'lucide-react';
+import { Gift, Truck, Flame, Check, ChevronRight, X, Sparkles, Tag, Clock, ShoppingBag, Eye, Zap, Ticket, Plus } from 'lucide-react';
 import { PromotionItem, UserVoucher, FlowerProduct } from '../../types';
 import { useStore } from '../../context/StoreContext';
 import { useBodyScrollLock } from '../../utils/scrollLock';
@@ -290,9 +290,9 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                 <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500 to-rose-600 text-white flex items-center justify-center shadow-md shadow-orange-500/25">
                   <Flame className="w-5 h-5 fill-white text-white animate-pulse" />
                 </span>
-                <h3 className="text-base sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                  <span>{isDoubleDayToday(isDoubleDaySimulated) ? 'Đại Tiệc Ngày Đôi' : 'Giờ Vàng Flash Sale'}</span>
-                  <span className="text-rose-600 font-extrabold">• Giá Sau Áp Voucher Tiết Kiệm Đến 25k - 50k</span>
+                <h3 className="text-base sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-1.5 flex-wrap">
+                  <span>{isDoubleDayToday(isDoubleDaySimulated) ? 'Đại Tiệc Ngày Đôi' : 'Deal Sale Giờ Vàng'}</span>
+                  <span className="text-rose-600 font-extrabold">• Tiết Kiệm Tới 50k</span>
                 </h3>
                 <span
                   className={`text-[10px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider ${
@@ -305,10 +305,10 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                   <span>{flashTimer.isLive || isDoubleDayToday(isDoubleDaySimulated) ? 'Đang Diễn Ra' : 'Sắp Mở Bán'}</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 font-medium">
                 {isDoubleDayToday(isDoubleDaySimulated)
-                  ? 'Sự kiện Ngày Đôi — Giá hiển thị là giá thực tế khi dùng mã voucher của ngày hội, không cộng dồn giảm giá kép.'
-                  : `Khung giờ vàng (${flashTimer.activeSlot}) — Giá hiển thị là giá thực tế khi áp dụng voucher sự kiện, không cộng dồn giảm giá kép.`}
+                  ? 'Sự kiện Ngày Đôi — Diễn ra trong 24 giờ'
+                  : `Khung giờ vàng (${flashTimer.activeSlot}) — Diễn ra trong 1 giờ`}
               </p>
             </div>
 
@@ -348,7 +348,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                   key={p.id}
                   className="group bg-white rounded-2xl p-2.5 sm:p-3.5 border border-orange-100 hover:border-orange-300 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-2 relative overflow-hidden"
                 >
-                  {/* Ảnh sản phẩm */}
+                  {/* Ảnh sản phẩm (Ảnh sạch 100%, không bị chèn badge che góc) */}
                   <div
                     onClick={() => setSelectedProduct(p)}
                     className="relative aspect-square rounded-xl overflow-hidden bg-slate-50 cursor-pointer"
@@ -359,13 +359,6 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
-                    {/* Badge Giảm giá theo Voucher */}
-                    <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-lg bg-rose-600 text-white font-black text-[10px] sm:text-xs shadow-md">
-                      Mã -{formatPrice(savingAmount)}
-                    </span>
-                    <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[9px] font-semibold">
-                      Deal {deal.campaignBadge}
-                    </span>
                   </div>
 
                   {/* Tên & Giá Deal Theo Phương Án 1 */}
@@ -385,7 +378,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                           {formatPrice(p.price)}
                         </span>
                         <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 border border-orange-200">
-                          Mã {matchedVoucher ? matchedVoucher.badge || matchedVoucher.code : 'Giờ Vàng'}
+                          {matchedVoucher ? matchedVoucher.badge || `Giảm ${matchedVoucher.discountAmount}%` : 'Giảm 20%'}
                         </span>
                       </div>
                       <div className="flex items-baseline gap-1">
@@ -409,15 +402,16 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                     </div>
                   </div>
 
-                  {/* Nút hành động */}
+                  {/* Nút hành động: Thêm giỏ & Mua ngay */}
                   <div className="pt-1 flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => setSelectedProduct(p)}
-                      className="flex-1 py-1.5 px-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                      onClick={() => addToCart(p, 1, undefined, undefined, false, true)}
+                      className="flex-1 py-1.5 px-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer active:scale-95"
+                      title="Thêm mẫu hoa vào giỏ hàng"
                     >
-                      <Eye className="w-3 h-3" />
-                      <span>Xem mẫu</span>
+                      <Plus className="w-3.5 h-3.5 text-orange-600" />
+                      <span>Thêm giỏ</span>
                     </button>
                     <button
                       type="button"
@@ -425,17 +419,17 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                         if (matchedVoucher && customer) {
                           handleSaveVoucher(matchedVoucher);
                         }
-                        addToCart(p);
+                        addToCart(p, 1, undefined, undefined, false, true);
                         if (matchedVoucher) {
                           setPendingVoucherToApply(matchedVoucher.code);
                         }
                         setIsCartOpen(true);
                       }}
                       className="py-1.5 px-3 rounded-xl bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700 text-white text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1"
-                      title="Thêm vào giỏ và tự động áp mã voucher"
+                      title="Mua ngay với giá ưu đãi giờ vàng"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Dùng mã</span>
+                      <span>Mua ngay</span>
                     </button>
                   </div>
                 </div>
@@ -491,32 +485,27 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                         </div>
                       </div>
 
-                      {/* Nút Lưu / Dùng ngay - Tự động kích hoạt vào giỏ hàng cho khung Giờ Vàng */}
+                      {/* Nút Lưu voucher Giờ Vàng */}
                       <div className="relative w-full">
                         {isSaved ? (
                           <button
                             type="button"
-                            onClick={() => {
-                              setPendingVoucherToApply(voucher.code);
-                              setIsCartOpen(true);
-                            }}
-                            className="w-full py-1.5 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95"
+                            disabled
+                            className="w-full py-1.5 px-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/90 font-bold text-xs flex items-center justify-center gap-1.5 cursor-default"
+                            title="Voucher đã lưu trong ví hội viên"
                           >
-                            <Check className="w-3.5 h-3.5" />
-                            <span>Đã lưu • Dùng ngay</span>
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Đã lưu</span>
                           </button>
                         ) : (
                           <button
                             type="button"
-                            onClick={() => {
-                              handleSaveVoucher(voucher);
-                              setPendingVoucherToApply(voucher.code);
-                              setIsCartOpen(true);
-                            }}
+                            onClick={() => handleSaveVoucher(voucher)}
                             className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-600 hover:to-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95"
+                            title="Lưu voucher vào ví hội viên"
                           >
                             <Sparkles className="w-3.5 h-3.5" />
-                            <span>Lưu &amp; Dùng mã</span>
+                            <span>Lưu</span>
                           </button>
                         )}
 

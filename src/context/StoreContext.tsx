@@ -59,6 +59,7 @@ import {
 } from '../utils/googleDriveArchiver';
 import { applyTheme } from '../utils/themeEngine';
 import { playNewOrderChime } from '../utils/audioNotification';
+import { getFlashSaleState } from '../utils/voucherVisibility';
 import {
   pushOrderToNeon,
   fetchNeonOrders,
@@ -160,7 +161,8 @@ interface StoreContextType {
     quantity?: number,
     ribbonColor?: string,
     cardMessage?: string,
-    openDrawer?: boolean
+    openDrawer?: boolean,
+    isFlashDeal?: boolean
   ) => void;
   updateCartItemQty: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
@@ -1324,6 +1326,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => clearInterval(interval);
   }, []);
 
+  // Auto-expire flash vouchers in customer wallet when 1h slot ends
+  useEffect(() => {
+    const flashState = getFlashSaleState(isFlashSaleSimulated);
+    if (!flashState.isLive && customer?.userVouchers?.length) {
+      const hasFlashVoucher = customer.userVouchers.some(
+        (v) => (v.campaignType === 'FLASH_DEAL' || v.code.includes('FLASH')) && !v.isUsed
+      );
+      if (hasFlashVoucher) {
+        const cleaned = customer.userVouchers.filter(
+          (v) => (v.campaignType !== 'FLASH_DEAL' && !v.code.includes('FLASH')) || v.isUsed
+        );
+        setCustomer((prev) => (prev ? { ...prev, userVouchers: cleaned } : null));
+        setCustomers((prev) => prev.map((c) => (c.id === customer.id ? { ...c, userVouchers: cleaned } : c)));
+      }
+    }
+  }, [isFlashSaleSimulated, customer?.id]);
+
   // Toast Notifier (Chỉ hiển thị tối đa 1 thông báo đồng thời, bóng kính trong suốt tự ẩn sau 2s, xuyên click)
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 6);
@@ -1585,16 +1604,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     quantity = 1,
     ribbonColor = 'Nơ lụa đỏ sang trọng',
     cardMessage = 'Chúc mừng ngày đặc biệt!',
-    openDrawer = false
+    openDrawer = false,
+    isFlashDeal = false
   ) => {
     setCart((prev) => {
       const idx = prev.findIndex((item) => item.product.id === product.id);
       if (idx > -1) {
         const next = [...prev];
         next[idx].quantity += quantity;
+        if (isFlashDeal) next[idx].isFlashDeal = true;
         return next;
       }
-      return [...prev, { product, quantity, ribbonColor, cardMessage }];
+      return [...prev, { product, quantity, ribbonColor, cardMessage, isFlashDeal }];
     });
     if (openDrawer) {
       setIsCartOpen(true);
@@ -3493,6 +3514,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     const scope: 'FLOWER' | 'SHIPPING' = promo.voucherScope || (promo.discountType === 'FREESHIP' ? 'SHIPPING' : 'FLOWER');
+
+    // 0. Flash Sale 1-hour active window enforcement
+    if (promo.campaignType === 'FLASH_DEAL' || promo.code.includes('FLASH')) {
+      const flashState = getFlashSaleState(isFlashSaleSimulated);
+      if (!flashState.isLive) {
+        return {
+          valid: false,
+          reason: 'Khung giờ vàng đã kết thúc, voucher giờ vàng đã hết hiệu lực!',
+          discountAmount: 0,
+          voucherScope: scope,
+          promo
+        };
+      }
+    }
 
     // 1. Check total usage limit
     if (promo.usageLimit && (promo.usedCount || 0) >= promo.usageLimit) {

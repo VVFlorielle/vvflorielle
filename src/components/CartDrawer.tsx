@@ -48,6 +48,7 @@ import { PaymentType, SavedAddress } from '../types';
 import { useBodyScrollLock } from '../utils/scrollLock';
 import { compressImage } from '../utils/imageCompressor';
 import { isValidVietnamesePhone } from '../utils/formatters';
+import { getFlashSaleState } from '../utils/voucherVisibility';
 import { resolveCurrentLocation, resolveCurrentLocationWithAddress } from '../utils/geolocation';
 import {
   HANOI_DISTRICTS,
@@ -112,8 +113,11 @@ export const CartDrawer: React.FC = () => {
     setIsAuthModalOpen,
     setAuthModalMode,
     pendingVoucherToApply,
-    setPendingVoucherToApply
+    setPendingVoucherToApply,
+    isFlashSaleSimulated
   } = useStore();
+
+  const flashState = useMemo(() => getFlashSaleState(isFlashSaleSimulated), [isFlashSaleSimulated]);
 
   useBodyScrollLock(isCartOpen);
 
@@ -1007,6 +1011,11 @@ export const CartDrawer: React.FC = () => {
                             <div className="text-[11px] text-slate-400 truncate mt-0.5">
                               Nơ: {item.ribbonColor}
                             </div>
+                            {item.isFlashDeal && !flashState.isLive && (
+                              <div className="text-[10px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 mt-1 inline-flex items-center gap-1">
+                                <span>⚡ Đã hết giờ vàng ưu đãi (áp dụng giá thường)</span>
+                              </div>
+                            )}
 
                             {/* Quantity Controls */}
                             <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
