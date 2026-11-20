@@ -33,7 +33,6 @@ export const VouchersModalContent: React.FC<PromoModalProps> = ({ onClose }) => 
     if (isSaved) {
       onClose();
       setIsCartOpen(true);
-      showToast('Voucher Freeship 30K đã sẵn sàng trong giỏ hàng!', 'info');
       return;
     }
     if (!customer) {
@@ -312,7 +311,6 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
                       setPendingVoucherToApply(promo.code);
                       onClose();
                       setIsCartOpen(true);
-                      showToast(`🌸 Đã kích hoạt mã ${promo.code} trong giỏ hàng!`, 'info');
                     }}
                     className="shrink-0 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                     title="Mở giỏ hàng để sử dụng mã này"

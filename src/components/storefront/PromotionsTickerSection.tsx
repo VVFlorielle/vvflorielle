@@ -373,7 +373,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                       {p.name}
                     </h4>
 
-                    {/* Hiển thị Giá niêm yết chuẩn & Giá sau áp voucher */}
+                    {/* Hiển thị Giá niêm yết chuẩn & Giá ưu đãi */}
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] text-slate-400 font-semibold line-through">
@@ -384,18 +384,10 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                         </span>
                       </div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-[10px] sm:text-[11px] font-extrabold text-rose-600 uppercase tracking-tight">
-                          Sau voucher:
-                        </span>
-                        <span className="text-sm sm:text-base font-black text-rose-600">
+                        <span className="text-sm sm:text-base font-black text-rose-600 tracking-tight">
                           {formatPrice(priceAfterVoucher)}
                         </span>
                       </div>
-                    </div>
-
-                    <div className="text-[9.5px] text-emerald-700 font-bold flex items-center gap-1">
-                      <Tag className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
-                      <span className="truncate">Tiết kiệm {formatPrice(savingAmount)} khi dùng mã</span>
                     </div>
 
                     {/* Thanh tiến độ số lượng bán ảo phong cách Shopee */}
@@ -433,12 +425,6 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                           setPendingVoucherToApply(matchedVoucher.code);
                         }
                         setIsCartOpen(true);
-                        showToast(
-                          matchedVoucher
-                            ? `🌸 Đã thêm "${p.name}" & tự động áp mã ${matchedVoucher.code}! Giá sau voucher chỉ ${formatPrice(priceAfterVoucher)}`
-                            : `Đã thêm "${p.name}" vào giỏ hàng!`,
-                          'success'
-                        );
                       }}
                       className="py-1.5 px-3 rounded-xl bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700 text-white text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1"
                       title="Thêm vào giỏ và tự động áp mã voucher"
@@ -465,7 +451,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+              <div className="flex overflow-x-auto snap-x scrollbar-none gap-2.5 pb-2 -mx-1 px-1 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 sm:mx-0 sm:px-0">
                 {flashVouchers.map((voucher) => {
                   const isSaved = isVoucherSaved(voucher.code);
                   const isFreeship = voucher.discountType === 'FREESHIP' || voucher.voucherScope === 'SHIPPING';
@@ -473,7 +459,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                   return (
                     <div
                       key={voucher.id}
-                      className="p-3 rounded-2xl bg-gradient-to-br from-white via-orange-50/50 to-amber-50/60 border border-orange-200/90 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-2.5 relative overflow-hidden group"
+                      className="w-[245px] shrink-0 sm:w-auto snap-start p-3 rounded-2xl bg-gradient-to-br from-white via-orange-50/50 to-amber-50/60 border border-orange-200/90 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-2.5 relative overflow-hidden group"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-0.5">
@@ -507,7 +493,6 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                           onClick={() => {
                             setPendingVoucherToApply(voucher.code);
                             setIsCartOpen(true);
-                            showToast(`🌸 Đã kích hoạt voucher ${voucher.title} trong giỏ hàng!`, 'success');
                           }}
                           className="w-full py-1.5 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95"
                         >
@@ -628,7 +613,6 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                       if (saved) {
                         setPendingVoucherToApply(promo.code);
                         setIsCartOpen(true);
-                        showToast(`🌸 Đã kích hoạt mã ${promo.code} trong giỏ hàng!`, 'info');
                       } else {
                         handleSaveVoucher(promo);
                         setPendingVoucherToApply(promo.code);
@@ -789,7 +773,6 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                                 setIsAllVouchersModalOpen(false);
                                 setPendingVoucherToApply(promo.code);
                                 setIsCartOpen(true);
-                                showToast(`🌸 Đã kích hoạt mã ${promo.code} trong giỏ hàng!`, 'info');
                               } else {
                                 handleSaveVoucher(promo);
                                 setPendingVoucherToApply(promo.code);

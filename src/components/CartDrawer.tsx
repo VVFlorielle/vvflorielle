@@ -298,7 +298,6 @@ export const CartDrawer: React.FC = () => {
     } else {
       setDetailStreet(addr.recipientAddress);
     }
-    showToast(`Đã chọn địa chỉ: ${addr.name}`, 'info');
   };
 
   // Payment choice
@@ -557,12 +556,10 @@ export const CartDrawer: React.FC = () => {
 
   const handleRemoveFlowerVoucher = () => {
     setAppliedFlowerVoucher(null);
-    showToast('Đã gỡ mã ưu đãi hoa', 'info');
   };
 
   const handleRemoveShippingVoucher = () => {
     setAppliedShippingVoucher(null);
-    showToast('Đã gỡ mã ưu đãi vận chuyển', 'info');
   };
 
   // Auto-apply pending voucher requested from outside (e.g. Flash Deal / Double Day click)
@@ -623,7 +620,6 @@ export const CartDrawer: React.FC = () => {
       });
       if (!res.valid) {
         setAppliedFlowerVoucher(null);
-        showToast(`Mã hoa ${appliedFlowerVoucher.code} đã tự động gỡ do đơn không còn đủ điều kiện.`, 'info');
       } else if (res.discountAmount !== appliedFlowerVoucher.discountAmount) {
         setAppliedFlowerVoucher((prev) => (prev ? { ...prev, discountAmount: res.discountAmount } : null));
       }
@@ -638,7 +634,6 @@ export const CartDrawer: React.FC = () => {
       });
       if (!res.valid) {
         setAppliedShippingVoucher(null);
-        showToast(`Mã vận chuyển ${appliedShippingVoucher.code} đã tự động gỡ do đơn không còn đủ điều kiện.`, 'info');
       } else if (res.discountAmount !== appliedShippingVoucher.discountAmount) {
         setAppliedShippingVoucher((prev) => (prev ? { ...prev, discountAmount: res.discountAmount } : null));
       }

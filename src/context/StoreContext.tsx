@@ -70,10 +70,16 @@ import {
 } from '../services/neonService';
 import { analyzePaymentBillWithGemini, AiBillAnalysisResult } from '../services/geminiVisionService';
 
-interface ToastNotice {
+export interface ToastNotice {
   id: string;
   message: string;
   type: 'success' | 'info' | 'error';
+}
+
+export interface FloatingVoucherNotice {
+  id: string;
+  text: string;
+  isShipping: boolean;
 }
 
 interface StoreContextType {
@@ -409,10 +415,12 @@ interface StoreContextType {
   authModalMode: 'customer' | 'admin' | 'register' | 'forgot';
   setAuthModalMode: (mode: 'customer' | 'admin' | 'register' | 'forgot') => void;
 
-  // Toasts
+  // Toasts & Shopee Floating Voucher
   toasts: ToastNotice[];
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
   dismissToast: (id?: string) => void;
+  floatingVoucherNotice: FloatingVoucherNotice | null;
+  triggerFloatingVoucher: (text: string, isShipping?: boolean) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -1111,6 +1119,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const [toasts, setToasts] = useState<ToastNotice[]>([]);
+  const [floatingVoucherNotice, setFloatingVoucherNotice] = useState<FloatingVoucherNotice | null>(null);
+
+  const triggerFloatingVoucher = (text: string, isShipping = false) => {
+    const id = Date.now().toString() + Math.random().toString(36).substring(2, 6);
+    setFloatingVoucherNotice({ id, text, isShipping });
+    setTimeout(() => {
+      setFloatingVoucherNotice((prev) => (prev?.id === id ? null : prev));
+    }, 1250);
+  };
   const bannerTimerRef = useRef<any>(null);
 
   // Synchronizers
@@ -1307,13 +1324,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => clearInterval(interval);
   }, []);
 
-  // Toast Notifier (Tối đa 3 thông báo đồng thời, bóng kính tự ẩn sau 1.8s, xuyên click)
+  // Toast Notifier (Chỉ hiển thị tối đa 1 thông báo đồng thời, bóng kính trong suốt tự ẩn sau 2s, xuyên click)
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 6);
-    setToasts((prev) => [...prev.slice(-2), { id, message, type }]);
+    setToasts([{ id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 1800);
+    }, 2000);
   };
 
   const dismissToast = (id?: string) => {
@@ -1596,7 +1613,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const removeFromCart = (productId: string) => {
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
-    showToast('Đã xóa mẫu hoa khỏi giỏ', 'info');
   };
 
   const clearCart = () => setCart([]);
@@ -3239,19 +3255,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const saveCustomerVoucher = (newVoucher: UserVoucher): boolean => {
     if (!customer) {
-      showToast('Lưu mã không thành công! Vui lòng đăng nhập hội viên để lưu ưu đãi vào ví', 'error');
+      showToast('🌸 Vui lòng đăng nhập số điện thoại để lưu ưu đãi vào ví hội viên nha!', 'info');
       setIsAuthModalOpen(true);
       return false;
     }
     const currentVouchers = customer.userVouchers || [];
+    const isShip = newVoucher.voucherScope === 'SHIPPING' || newVoucher.discountType === 'FREESHIP';
     if (currentVouchers.some((v) => v.code === newVoucher.code && !v.isUsed)) {
-      showToast(`Mã ưu đãi "${newVoucher.title}" đã có sẵn trong ví của bạn!`, 'info');
+      triggerFloatingVoucher('Voucher đã có sẵn trong ví!', isShip);
       return false;
     }
     const updatedVouchers = [...currentVouchers, newVoucher];
     setCustomer((prev) => (prev ? { ...prev, userVouchers: updatedVouchers } : null));
     setCustomers((prev) => prev.map((c) => (c.id === customer.id ? { ...c, userVouchers: updatedVouchers } : c)));
-    showToast(`Đã lưu ưu đãi "${newVoucher.title}" vào Ví Voucher! 🎉`, 'success');
+    triggerFloatingVoucher(`+1 Voucher ${newVoucher.code}`, isShip);
     return true;
   };
 
@@ -4528,7 +4545,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setAuthModalMode,
         toasts,
         showToast,
-        dismissToast
+        dismissToast,
+        floatingVoucherNotice,
+        triggerFloatingVoucher
       }}
     >
       {children}

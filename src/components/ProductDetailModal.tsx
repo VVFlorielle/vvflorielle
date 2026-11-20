@@ -76,7 +76,6 @@ export const ProductDetailModal: React.FC = () => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(productShareUrl);
       setIsCopied(true);
-      showToast('Đã sao chép liên kết mẫu hoa vào khay nhớ tạm!', 'success');
       setTimeout(() => setIsCopied(false), 2000);
     }
   };
