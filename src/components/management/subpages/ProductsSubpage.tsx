@@ -438,17 +438,17 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
             <span className="text-[11px] text-slate-400">Bố cục 4 mẫu 1 hàng chuẩn desktop</span>
           </div>
 
-          {/* BULK ACTION BAR KHI CHỌN NHIỀU MẪU HOA */}
+          {/* BULK ACTION BAR KHI CHỌN NHIỀU MẪU HOA - TONE XANH NHẠT MỜ MƯỢT TƯƠI SÁNG */}
           {selectedActiveProductIds.length > 0 && (
-            <div className="sticky top-20 z-30 p-3 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white shadow-xl flex items-center justify-between gap-3 flex-wrap border border-white/20">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-lg">
+            <div className="sticky top-20 z-30 p-3 rounded-2xl bg-gradient-to-r from-emerald-50/95 via-teal-50/90 to-emerald-100/95 backdrop-blur-md border border-emerald-200/90 text-slate-800 shadow-xl shadow-emerald-900/10 flex items-center justify-between gap-3 flex-wrap animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-black bg-emerald-600 text-white px-3 py-1 rounded-xl shadow-xs">
                   Đã chọn {selectedActiveProductIds.length}/{filteredProducts.length} mẫu
                 </span>
                 <button
                   type="button"
                   onClick={handleToggleSelectAllActive}
-                  className="text-xs text-slate-300 hover:text-white underline cursor-pointer"
+                  className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 underline underline-offset-2 cursor-pointer transition-colors"
                 >
                   {selectedActiveProductIds.length === filteredProducts.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
                 </button>
@@ -461,7 +461,7 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
                     batchUpdateProductFulfillmentType(selectedActiveProductIds, 'CHO_CAM');
                     setSelectedActiveProductIds([]);
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-all cursor-pointer active:scale-95"
+                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
                   title="Chuyển các mẫu đã chọn sang Chờ Cắm (chuẩn bị >= 90 phút)"
                 >
                   <span>🌸 Chuyển sang Chờ Cắm</span>
@@ -473,7 +473,7 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
                     batchUpdateProductFulfillmentType(selectedActiveProductIds, 'SAN_GIAO');
                     setSelectedActiveProductIds([]);
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-all cursor-pointer active:scale-95"
+                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
                   title="Chuyển các mẫu đã chọn sang Sẵn Giao (chuẩn bị 15 phút)"
                 >
                   <span>⚡ Chuyển sang Sẵn Giao</span>
@@ -485,7 +485,7 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
                     batchUpdateProductFulfillmentType(selectedActiveProductIds, 'NONE');
                     setSelectedActiveProductIds([]);
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-medium transition-all cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl bg-white/90 hover:bg-white text-slate-700 hover:text-slate-900 border border-emerald-200/90 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                   title="Ẩn nhãn cho các mẫu đã chọn"
                 >
                   <span>Ẩn nhãn</span>
@@ -494,7 +494,7 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedActiveProductIds([])}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-emerald-100/80 transition-colors cursor-pointer"
                   title="Hủy chọn"
                 >
                   <X className="w-4 h-4" />
