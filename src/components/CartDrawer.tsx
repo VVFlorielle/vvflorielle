@@ -110,7 +110,9 @@ export const CartDrawer: React.FC = () => {
     isAdmin,
     activeAdminUser,
     setIsAuthModalOpen,
-    setAuthModalMode
+    setAuthModalMode,
+    pendingVoucherToApply,
+    setPendingVoucherToApply
   } = useStore();
 
   useBodyScrollLock(isCartOpen);
@@ -562,6 +564,16 @@ export const CartDrawer: React.FC = () => {
     setAppliedShippingVoucher(null);
     showToast('Đã gỡ mã ưu đãi vận chuyển', 'info');
   };
+
+  // Auto-apply pending voucher requested from outside (e.g. Flash Deal / Double Day click)
+  useEffect(() => {
+    if (pendingVoucherToApply && isCartOpen) {
+      if (customer || isAdmin) {
+        handleApplyVoucherCode(pendingVoucherToApply);
+        setPendingVoucherToApply(null);
+      }
+    }
+  }, [pendingVoucherToApply, isCartOpen, customer]);
 
   // Auto-pick best 2 vouchers
   const handleAutoPickBest = () => {

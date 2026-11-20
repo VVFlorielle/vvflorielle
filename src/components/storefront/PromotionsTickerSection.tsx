@@ -4,7 +4,7 @@ import { PromotionItem, UserVoucher, FlowerProduct } from '../../types';
 import { useStore } from '../../context/StoreContext';
 import { useBodyScrollLock } from '../../utils/scrollLock';
 import { useFlashSaleTimer } from '../../hooks/useFlashSaleTimer';
-import { isVoucherVisibleOnStorefront } from '../../utils/voucherVisibility';
+import { isVoucherVisibleOnStorefront, isDoubleDayToday } from '../../utils/voucherVisibility';
 
 interface PromotionsTickerSectionProps {
   promotions: PromotionItem[];
@@ -28,7 +28,9 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
     isDoubleDaySimulated,
     isFlashSaleSimulated,
     isHolidaySimulated,
-    searchQuery
+    searchQuery,
+    pendingVoucherToApply,
+    setPendingVoucherToApply
   } = useStore();
 
   const [isAllVouchersModalOpen, setIsAllVouchersModalOpen] = useState(false);
@@ -136,6 +138,60 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
     return promotions.filter((p) => p.campaignType === 'FLASH_DEAL' && p.isActive).slice(0, 3);
   }, [promotions]);
 
+  // Helper to calculate best campaign voucher & effective price after voucher (Phương án 1: Tránh giảm giá kép)
+  const getPairedCampaignVoucher = (productPrice: number) => {
+    const isDouble = isDoubleDayToday(isDoubleDaySimulated);
+
+    // 1. Double Day Campaign (if active today)
+    if (isDouble) {
+      const ddVouchers = promotions
+        .filter((p) => p.campaignType === 'DOUBLE_DAY' && p.isActive && p.voucherScope === 'FLOWER')
+        .sort((a, b) => (b.minOrder || 0) - (a.minOrder || 0));
+      
+      const matched = ddVouchers.find((v) => productPrice >= (v.minOrder || 0));
+      if (matched) {
+        const discountVal = matched.discountType === 'PERCENT'
+          ? Math.min(matched.maxDiscount || Infinity, Math.round((productPrice * matched.discountAmount) / 100))
+          : matched.discountAmount;
+        return {
+          voucher: matched,
+          discountAmount: discountVal,
+          priceAfterVoucher: Math.max(0, productPrice - discountVal),
+          campaignBadge: matched.badge || 'Ngày Đôi',
+          campaignType: 'DOUBLE_DAY' as const
+        };
+      }
+    }
+
+    // 2. Flash Sale Giờ Vàng (default live campaign)
+    const flashVouchersList = promotions
+      .filter((p) => p.campaignType === 'FLASH_DEAL' && p.isActive && p.voucherScope === 'FLOWER')
+      .sort((a, b) => (b.minOrder || 0) - (a.minOrder || 0));
+
+    const matched = flashVouchersList.find((v) => productPrice >= (v.minOrder || 0)) || flashVouchersList[flashVouchersList.length - 1];
+    if (matched) {
+      const discountVal = matched.discountType === 'PERCENT'
+        ? Math.min(matched.maxDiscount || Infinity, Math.round((productPrice * matched.discountAmount) / 100))
+        : matched.discountAmount;
+      return {
+        voucher: matched,
+        discountAmount: discountVal,
+        priceAfterVoucher: Math.max(0, productPrice - discountVal),
+        campaignBadge: matched.badge || 'Giờ Vàng',
+        campaignType: 'FLASH_DEAL' as const
+      };
+    }
+
+    // Default fallback
+    return {
+      voucher: null,
+      discountAmount: 15000,
+      priceAfterVoucher: Math.max(0, productPrice - 15000),
+      campaignBadge: 'Giờ Vàng',
+      campaignType: 'FLASH_DEAL' as const
+    };
+  };
+
   // Classify voucher types (Shopee style)
   const getVoucherCategory = (promo: PromotionItem) => {
     if (promo.discountType === 'FREESHIP' || promo.voucherScope === 'SHIPPING') {
@@ -230,22 +286,24 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                   <Flame className="w-5 h-5 fill-white text-white animate-pulse" />
                 </span>
                 <h3 className="text-base sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                  <span>Giờ Vàng Flash Sale</span>
-                  <span className="text-rose-600 font-extrabold">• Deal Hoa Tươi Giảm 10% - 17%</span>
+                  <span>{isDoubleDayToday(isDoubleDaySimulated) ? 'Đại Tiệc Ngày Đôi' : 'Giờ Vàng Flash Sale'}</span>
+                  <span className="text-rose-600 font-extrabold">• Giá Sau Áp Voucher Tiết Kiệm Đến 25k - 50k</span>
                 </h3>
                 <span
                   className={`text-[10px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider ${
-                    flashTimer.isLive
+                    flashTimer.isLive || isDoubleDayToday(isDoubleDaySimulated)
                       ? 'bg-rose-600 text-white shadow-sm shadow-rose-600/30 animate-pulse'
                       : 'bg-amber-100 text-amber-900 border border-amber-300'
                   }`}
                 >
                   <Zap className="w-3 h-3 fill-current" />
-                  <span>{flashTimer.isLive ? 'Đang Diễn Ra' : 'Sắp Mở Bán'}</span>
+                  <span>{flashTimer.isLive || isDoubleDayToday(isDoubleDaySimulated) ? 'Đang Diễn Ra' : 'Sắp Mở Bán'}</span>
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Khung giờ vàng ({flashTimer.activeSlot}) — Diễn ra trong 1h, số lượng deal giới hạn, hoa tươi chọn lọc theo sở thích của bạn
+                {isDoubleDayToday(isDoubleDaySimulated)
+                  ? 'Sự kiện Ngày Đôi — Giá hiển thị là giá thực tế khi dùng mã voucher của ngày hội, không cộng dồn giảm giá kép.'
+                  : `Khung giờ vàng (${flashTimer.activeSlot}) — Giá hiển thị là giá thực tế khi áp dụng voucher sự kiện, không cộng dồn giảm giá kép.`}
               </p>
             </div>
 
@@ -271,11 +329,13 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
             </div>
           </div>
 
-          {/* Lưới 4 Sản Phẩm Deal Giảm Giá Vừa Phải */}
+          {/* Lưới 4 Sản Phẩm Deal - Phương Án 1: Hiển thị giá sau áp voucher chuẩn TMĐT */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {flashDealProducts.map((p, idx) => {
-              const baseOrig = p.originalPrice || p.price;
-              const discountPct = Math.round(((baseOrig - p.price) / baseOrig) * 100);
+              const deal = getPairedCampaignVoucher(p.price);
+              const matchedVoucher = deal.voucher;
+              const savingAmount = deal.discountAmount;
+              const priceAfterVoucher = deal.priceAfterVoucher;
               const soldCount = 14 + (idx * 3); // Mock nhịp điệu bán hàng sinh động
 
               return (
@@ -294,16 +354,16 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
-                    {/* Badge % Giảm giá vừa phải */}
+                    {/* Badge Giảm giá theo Voucher */}
                     <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-lg bg-rose-600 text-white font-black text-[10px] sm:text-xs shadow-md">
-                      -{discountPct}%
+                      Mã -{formatPrice(savingAmount)}
                     </span>
                     <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[9px] font-semibold">
-                      Deal Giờ Vàng
+                      Deal {deal.campaignBadge}
                     </span>
                   </div>
 
-                  {/* Tên & Giá Deal */}
+                  {/* Tên & Giá Deal Theo Phương Án 1 */}
                   <div className="space-y-1">
                     <h4
                       onClick={() => setSelectedProduct(p)}
@@ -313,23 +373,33 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                       {p.name}
                     </h4>
 
-                    <div className="flex items-baseline gap-1.5 flex-wrap">
-                      <span className="text-sm sm:text-base font-black text-rose-600">
-                        {formatPrice(p.price)}
-                      </span>
-                      {p.originalPrice && (
-                        <span className="text-[10px] sm:text-xs text-slate-400 line-through">
-                          {formatPrice(p.originalPrice)}
+                    {/* Hiển thị Giá niêm yết chuẩn & Giá sau áp voucher */}
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] text-slate-400 font-semibold line-through">
+                          {formatPrice(p.price)}
                         </span>
-                      )}
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 border border-orange-200">
+                          Mã {matchedVoucher ? matchedVoucher.badge || matchedVoucher.code : 'Giờ Vàng'}
+                        </span>
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-[10px] sm:text-[11px] font-extrabold text-rose-600 uppercase tracking-tight">
+                          Sau voucher:
+                        </span>
+                        <span className="text-sm sm:text-base font-black text-rose-600">
+                          {formatPrice(priceAfterVoucher)}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="text-[9.5px] text-emerald-700 font-bold">
-                      Tiết kiệm {formatPrice(baseOrig - p.price)}
+                    <div className="text-[9.5px] text-emerald-700 font-bold flex items-center gap-1">
+                      <Tag className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                      <span className="truncate">Tiết kiệm {formatPrice(savingAmount)} khi dùng mã</span>
                     </div>
 
                     {/* Thanh tiến độ số lượng bán ảo phong cách Shopee */}
-                    <div className="pt-1">
+                    <div className="pt-0.5">
                       <div className="w-full h-1.5 bg-orange-100 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-orange-500 to-rose-600 rounded-full"
@@ -355,14 +425,26 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                     <button
                       type="button"
                       onClick={() => {
+                        if (matchedVoucher && customer) {
+                          handleSaveVoucher(matchedVoucher);
+                        }
                         addToCart(p);
+                        if (matchedVoucher) {
+                          setPendingVoucherToApply(matchedVoucher.code);
+                        }
                         setIsCartOpen(true);
-                        showToast(`Đã thêm "${p.name}" vào giỏ hàng với giá Flash Deal!`, 'success');
+                        showToast(
+                          matchedVoucher
+                            ? `🌸 Đã thêm "${p.name}" & tự động áp mã ${matchedVoucher.code}! Giá sau voucher chỉ ${formatPrice(priceAfterVoucher)}`
+                            : `Đã thêm "${p.name}" vào giỏ hàng!`,
+                          'success'
+                        );
                       }}
-                      className="py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700 text-white text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95 flex items-center justify-center"
-                      title="Thêm vào giỏ hàng ngay"
+                      className="py-1.5 px-3 rounded-xl bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700 text-white text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                      title="Thêm vào giỏ và tự động áp mã voucher"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Dùng mã</span>
                     </button>
                   </div>
                 </div>
@@ -379,7 +461,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                   <span>Mã Giảm Giá Giờ Vàng (Áp dụng trong 1h)</span>
                 </span>
                 <span className="text-[11px] text-orange-700 font-semibold">
-                  Tối đa 1 mã / đơn hoa
+                  Tối đa 1 mã hoa / đơn
                 </span>
               </div>
 
@@ -418,13 +500,14 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                         </div>
                       </div>
 
-                      {/* Nút Lưu / Dùng ngay - Không hiển thị mã thô hay nút sao chép theo đúng quy định mới */}
+                      {/* Nút Lưu / Dùng ngay - Tự động kích hoạt vào giỏ hàng */}
                       {isSaved ? (
                         <button
                           type="button"
                           onClick={() => {
+                            setPendingVoucherToApply(voucher.code);
                             setIsCartOpen(true);
-                            showToast(`Voucher ${voucher.title} đã sẵn sàng trong giỏ hàng!`, 'info');
+                            showToast(`🌸 Đã kích hoạt voucher ${voucher.title} trong giỏ hàng!`, 'success');
                           }}
                           className="w-full py-1.5 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95"
                         >
@@ -434,11 +517,15 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                       ) : (
                         <button
                           type="button"
-                          onClick={() => handleSaveVoucher(voucher)}
+                          onClick={() => {
+                            handleSaveVoucher(voucher);
+                            setPendingVoucherToApply(voucher.code);
+                            setIsCartOpen(true);
+                          }}
                           className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-600 hover:to-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95"
                         >
                           <Sparkles className="w-3.5 h-3.5" />
-                          <span>Lưu mã</span>
+                          <span>Lưu &amp; Dùng mã</span>
                         </button>
                       )}
                     </div>
@@ -539,10 +626,13 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                     type="button"
                     onClick={() => {
                       if (saved) {
+                        setPendingVoucherToApply(promo.code);
                         setIsCartOpen(true);
-                        showToast('Voucher đã lưu trong ví, sẵn sàng sử dụng khi thanh toán!', 'info');
+                        showToast(`🌸 Đã kích hoạt mã ${promo.code} trong giỏ hàng!`, 'info');
                       } else {
                         handleSaveVoucher(promo);
+                        setPendingVoucherToApply(promo.code);
+                        setIsCartOpen(true);
                       }
                     }}
                     className={`text-[9.5px] sm:text-xs py-1 sm:py-1.5 px-2 sm:px-3.5 rounded-lg sm:rounded-xl font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs shrink-0 ${
@@ -559,7 +649,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                     ) : (
                       <>
                         <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
-                        <span>Lưu</span>
+                        <span>Lưu &amp; Dùng</span>
                       </>
                     )}
                   </button>
@@ -697,10 +787,14 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                             onClick={() => {
                               if (saved) {
                                 setIsAllVouchersModalOpen(false);
+                                setPendingVoucherToApply(promo.code);
                                 setIsCartOpen(true);
-                                showToast('Voucher đã lưu trong ví, sẵn sàng sử dụng khi thanh toán!', 'info');
+                                showToast(`🌸 Đã kích hoạt mã ${promo.code} trong giỏ hàng!`, 'info');
                               } else {
                                 handleSaveVoucher(promo);
+                                setPendingVoucherToApply(promo.code);
+                                setIsAllVouchersModalOpen(false);
+                                setIsCartOpen(true);
                               }
                             }}
                             className={`text-xs py-1.5 px-3.5 rounded-xl font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
@@ -717,7 +811,7 @@ export const PromotionsTickerSection: React.FC<PromotionsTickerSectionProps> = (
                             ) : (
                               <>
                                 <Sparkles className="w-3.5 h-3.5" />
-                                <span>Lưu</span>
+                                <span>Lưu &amp; Dùng</span>
                               </>
                             )}
                           </button>

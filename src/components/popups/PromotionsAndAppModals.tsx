@@ -114,7 +114,9 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
     showToast,
     isDoubleDaySimulated,
     isFlashSaleSimulated,
-    isHolidaySimulated
+    isHolidaySimulated,
+    pendingVoucherToApply,
+    setPendingVoucherToApply
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<'ALL' | 'FREESHIP' | 'DOUBLE_DAY' | 'FLOWER'>('ALL');
@@ -307,9 +309,10 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
                   <button
                     type="button"
                     onClick={() => {
+                      setPendingVoucherToApply(promo.code);
                       onClose();
                       setIsCartOpen(true);
-                      showToast('Voucher đã lưu trong ví, sẵn sàng sử dụng khi đặt hoa!', 'info');
+                      showToast(`🌸 Đã kích hoạt mã ${promo.code} trong giỏ hàng!`, 'info');
                     }}
                     className="shrink-0 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                     title="Mở giỏ hàng để sử dụng mã này"
@@ -320,7 +323,12 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
                 ) : (
                   <button
                     type="button"
-                    onClick={() => handleSaveVoucher(promo)}
+                    onClick={() => {
+                      handleSaveVoucher(promo);
+                      setPendingVoucherToApply(promo.code);
+                      onClose();
+                      setIsCartOpen(true);
+                    }}
                     className={`shrink-0 px-3.5 py-2 text-xs font-bold text-white rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
                       isShipping
                         ? 'bg-emerald-600 hover:bg-emerald-700'
@@ -328,10 +336,10 @@ export const PromotionsModalContent: React.FC<PromoModalProps> = ({ onClose }) =
                         ? 'bg-orange-600 hover:bg-orange-700'
                         : 'bg-rose-600 hover:bg-rose-700'
                     }`}
-                    title="Lưu voucher vào ví cá nhân"
+                    title="Lưu voucher vào ví cá nhân & dùng ngay"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Lưu</span>
+                    <span>Lưu &amp; Dùng</span>
                   </button>
                 )}
               </div>

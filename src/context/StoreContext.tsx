@@ -252,6 +252,8 @@ interface StoreContextType {
   exportCustomerPersonalDataJson: () => void;
 
   // 2-Tier Voucher & Loyalty System (Shopee Standard)
+  pendingVoucherToApply: string | null;
+  setPendingVoucherToApply: (code: string | null) => void;
   validateVoucherForOrder: (
     voucherCode: string,
     context: {
@@ -669,6 +671,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isHolidaySimulated, setIsHolidaySimulated] = useState<boolean>(() => {
     return localStorage.getItem('vvf_sim_holiday') === 'true';
   });
+
+  const [pendingVoucherToApply, setPendingVoucherToApply] = useState<string | null>(null);
 
   const toggleDoubleDaySimulation = (val?: boolean) => {
     setIsDoubleDaySimulated((prev) => {
@@ -4448,6 +4452,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         confirmIdentityChangeStep2,
         requestCustomerAccountErasure,
         exportCustomerPersonalDataJson,
+        pendingVoucherToApply,
+        setPendingVoucherToApply,
         validateVoucherForOrder,
         autoPickBestVouchers,
         calculateMaxAllowedPoints,
