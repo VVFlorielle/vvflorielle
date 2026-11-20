@@ -223,6 +223,9 @@ interface StoreContextType {
   adjustOrderShippingFee: (orderId: string, newShippingFee: number) => void;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
   completeOrder: (orderId: string) => void;
+  deleteOrder: (orderId: string) => boolean;
+  deleteCancelledOrders: (orderIds: string[]) => number;
+  clearAllCancelledOrders: () => number;
   syncBillToGoogleDrive: (orderId: string) => Promise<{ success: boolean; url?: string; error?: string }>;
   archiveExpiredOrdersBills: (retentionDays?: number) => { archivedCount: number; freedBytes: number };
   purgeOrderBillImage: (orderId: string) => void;
@@ -2756,6 +2759,56 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast(`Đã xóa ảnh cục bộ đơn #${orderId} để giải phóng bộ nhớ!`, 'info');
   };
 
+  const deleteOrder = (orderId: string): boolean => {
+    const target = orders.find((o) => o.id === orderId);
+    if (!target) {
+      showToast('Không tìm thấy đơn hàng cần xóa!', 'error');
+      return false;
+    }
+    if (target.status !== 'CANCELLED') {
+      showToast('Chỉ có thể xóa các đơn hàng đã ở trạng thái ĐÃ HỦY!', 'error');
+      return false;
+    }
+
+    const updated = orders.filter((o) => o.id !== orderId);
+    setOrders(updated);
+    localStorage.setItem('vvf_orders', JSON.stringify(updated));
+    showToast(`Đã xóa vĩnh viễn đơn hủy #${orderId}!`, 'success');
+    return true;
+  };
+
+  const deleteCancelledOrders = (orderIds: string[]): number => {
+    if (!orderIds || orderIds.length === 0) return 0;
+    const targetIdsSet = new Set(orderIds);
+    const toDelete = orders.filter((o) => targetIdsSet.has(o.id) && o.status === 'CANCELLED');
+    if (toDelete.length === 0) {
+      showToast('Không có đơn hủy nào hợp lệ để xóa!', 'info');
+      return 0;
+    }
+
+    const toDeleteIds = new Set(toDelete.map((o) => o.id));
+    const updated = orders.filter((o) => !toDeleteIds.has(o.id));
+    setOrders(updated);
+    localStorage.setItem('vvf_orders', JSON.stringify(updated));
+    showToast(`Đã xóa vĩnh viễn ${toDelete.length} đơn hủy đã chọn!`, 'success');
+    return toDelete.length;
+  };
+
+  const clearAllCancelledOrders = (): number => {
+    const cancelledOrders = orders.filter((o) => o.status === 'CANCELLED');
+    if (cancelledOrders.length === 0) {
+      showToast('Hiện không có đơn hủy nào cần dọn dẹp!', 'info');
+      return 0;
+    }
+
+    const count = cancelledOrders.length;
+    const updated = orders.filter((o) => o.status !== 'CANCELLED');
+    setOrders(updated);
+    localStorage.setItem('vvf_orders', JSON.stringify(updated));
+    showToast(`Đã dọn sạch toàn bộ ${count} đơn hủy khỏi hệ thống!`, 'success');
+    return count;
+  };
+
   const getStorageUsageStats = () => {
     return calculateLocalStorageUsage();
   };
@@ -4487,6 +4540,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         adjustOrderShippingFee,
         updateOrderStatus,
         completeOrder,
+        deleteOrder,
+        deleteCancelledOrders,
+        clearAllCancelledOrders,
         syncBillToGoogleDrive,
         archiveExpiredOrdersBills,
         purgeOrderBillImage,

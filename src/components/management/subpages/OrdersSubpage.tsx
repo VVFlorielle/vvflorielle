@@ -24,9 +24,13 @@ import {
   Clock,
   Bot,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  Trash2,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { Order, OrderStatus } from '../../../types';
+import { ActionConfirmModal } from '../ManagementModals';
 
 interface OrdersSubpageProps {
   orders: Order[];
@@ -63,12 +67,18 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
   initialSearch = '',
   onOpenStorageManager
 }) => {
-  const { settings } = useStore();
+  const { settings, deleteOrder, deleteCancelledOrders, clearAllCancelledOrders } = useStore();
   const [orderSearch, setOrderSearch] = useState(initialSearch);
   const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | OrderStatus>('ALL');
   const [depositFilter, setDepositFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [orderToPrint, setOrderToPrint] = useState<Order | null>(null);
   const [viewMode, setViewMode] = useState<'LIST' | 'CALENDAR'>('LIST');
+
+  // Cancelled Orders Multi-Select & Delete State
+  const [selectedCancelledOrderIds, setSelectedCancelledOrderIds] = useState<string[]>([]);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+  const [isClearAllModalOpen, setIsClearAllModalOpen] = useState(false);
 
   // Reject / Reason Modal State
   const [rejectModalState, setRejectModalState] = useState<{
@@ -89,8 +99,15 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
   // Sample image modal
   const [previewSampleImage, setPreviewSampleImage] = useState<string | null>(null);
 
-  // Khóa cuộn trang khi mở bất kỳ popup nào (Từ chối, Xem ảnh mẫu, In phiếu)
-  useBodyScrollLock(rejectModalState.isOpen || Boolean(previewSampleImage) || Boolean(orderToPrint));
+  // Khóa cuộn trang khi mở bất kỳ popup nào (Từ chối, Xem ảnh mẫu, In phiếu, Xóa đơn)
+  useBodyScrollLock(
+    rejectModalState.isOpen ||
+    Boolean(previewSampleImage) ||
+    Boolean(orderToPrint) ||
+    Boolean(orderToDelete) ||
+    isBulkDeleteModalOpen ||
+    isClearAllModalOpen
+  );
 
   const filteredOrders = orders.filter((o) => {
     const matchSearch =
@@ -106,6 +123,24 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
       (depositFilter === 'PENDING' && !o.isDepositPaid && o.depositStatus !== 'REJECTED');
     return matchSearch && matchStatus && matchDeposit;
   });
+
+  const cancelledOrders = orders.filter((o) => o.status === 'CANCELLED');
+  const filteredCancelledOrders = filteredOrders.filter((o) => o.status === 'CANCELLED');
+
+  const handleToggleSelectCancelledOrder = (id: string) => {
+    setSelectedCancelledOrderIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAllCancelled = () => {
+    const allCancelledIds = filteredCancelledOrders.map((o) => o.id);
+    if (selectedCancelledOrderIds.length === allCancelledIds.length && allCancelledIds.length > 0) {
+      setSelectedCancelledOrderIds([]);
+    } else {
+      setSelectedCancelledOrderIds(allCancelledIds);
+    }
+  };
 
   // Xuất file CSV danh sách đơn hàng cho Admin & Chủ Tiệm
   const handleExportOrdersCsv = () => {
@@ -225,16 +260,40 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
     return { label: `📅 ${dateStr}`, bg: 'bg-slate-100 text-slate-800 border-slate-300' };
   };
 
-  const renderOrderCard = (order: Order, isCalendarView = false) => (
-    <div
-      key={order.id}
-      className="p-4 rounded-2xl bg-white/95 border border-slate-200/80 shadow-sm space-y-3"
-    >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono font-extrabold text-sm text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-lg border border-purple-200">
-            #{order.id}
-          </span>
+  const renderOrderCard = (order: Order, isCalendarView = false) => {
+    const isCancelled = order.status === 'CANCELLED';
+    const isSelected = selectedCancelledOrderIds.includes(order.id);
+
+    return (
+      <div
+        key={order.id}
+        className={`p-4 rounded-2xl bg-white/95 border transition-all space-y-3 ${
+          isSelected
+            ? 'border-rose-400 ring-2 ring-rose-300/40 shadow-md'
+            : isCancelled
+            ? 'border-rose-200/80 bg-rose-50/15 shadow-sm'
+            : 'border-slate-200/80 shadow-sm'
+        }`}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+          <div className="flex items-center gap-2 flex-wrap">
+            {isCancelled && (
+              <button
+                type="button"
+                onClick={() => handleToggleSelectCancelledOrder(order.id)}
+                className="p-0.5 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                title={isSelected ? 'Bỏ chọn đơn hủy này' : 'Tích chọn để xóa'}
+              >
+                {isSelected ? (
+                  <CheckSquare className="w-4 h-4 text-rose-600" />
+                ) : (
+                  <Square className="w-4 h-4 text-slate-400" />
+                )}
+              </button>
+            )}
+            <span className="font-mono font-extrabold text-sm text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-lg border border-purple-200">
+              #{order.id}
+            </span>
           <span className="text-[11px] text-slate-400">({order.createdAt})</span>
           {isCalendarView && (
             <span className="font-extrabold text-xs text-purple-900 bg-purple-100/90 px-2.5 py-0.5 rounded-lg border border-purple-300 flex items-center gap-1 shadow-2xs">
@@ -629,10 +688,21 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
 
           {/* 6. Status CANCELLED */}
           {order.status === 'CANCELLED' && (
-            <span className="text-rose-800 bg-rose-50 border border-rose-200 px-3 py-1 rounded-xl text-xs font-medium flex items-center gap-1.5">
-              <XCircle className="w-3.5 h-3.5 text-rose-600" />
-              <span>Đã hủy {order.cancellationReason ? `(${order.cancellationReason})` : ''}</span>
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-rose-800 bg-rose-50 border border-rose-200 px-3 py-1 rounded-xl text-xs font-medium flex items-center gap-1.5">
+                <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Đã hủy {order.cancellationReason ? `(${order.cancellationReason})` : ''}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setOrderToDelete(order)}
+                className="px-2.5 py-1 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-200 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                title={`Xóa vĩnh viễn đơn hủy #${order.id}`}
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                <span>Xóa đơn này</span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -648,6 +718,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
       </div>
     </div>
   );
+};
 
   return (
     <div className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px] animate-in fade-in duration-200">
@@ -724,7 +795,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
               {st === 'ARRANGING' && 'Đang cắm'}
               {st === 'SHIPPING' && 'Đang giao'}
               {st === 'COMPLETED' && 'Hoàn thành'}
-              {st === 'CANCELLED' && 'Đã hủy'}
+              {st === 'CANCELLED' && (cancelledOrders.length > 0 ? `Đã hủy (${cancelledOrders.length})` : 'Đã hủy')}
             </button>
           ))}
         </div>
@@ -750,6 +821,65 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           </button>
         ))}
       </div>
+
+      {/* BULK ACTION BAR CHO ĐƠN HÀNG ĐÃ HỦY - TONE XANH NHẠT MỜ MƯỢT TƯƠI SÁNG & ROSE */}
+      {(orderStatusFilter === 'CANCELLED' || selectedCancelledOrderIds.length > 0) && (
+        <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-50/95 via-teal-50/90 to-emerald-100/95 backdrop-blur-md border border-emerald-200/90 text-slate-800 shadow-lg shadow-emerald-900/10 flex items-center justify-between gap-3 flex-wrap animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs font-black bg-rose-600 text-white px-3 py-1 rounded-xl shadow-xs">
+              Đã chọn {selectedCancelledOrderIds.length}/{filteredCancelledOrders.length} đơn hủy
+            </span>
+            {filteredCancelledOrders.length > 0 && (
+              <button
+                type="button"
+                onClick={handleToggleSelectAllCancelled}
+                className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 underline underline-offset-2 cursor-pointer transition-colors"
+              >
+                {selectedCancelledOrderIds.length === filteredCancelledOrders.length && filteredCancelledOrders.length > 0
+                  ? 'Bỏ chọn tất cả'
+                  : 'Chọn tất cả đơn hủy'}
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {selectedCancelledOrderIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsBulkDeleteModalOpen(true)}
+                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
+                title="Xóa vĩnh viễn các đơn hủy đã chọn"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Xóa {selectedCancelledOrderIds.length} đơn đã chọn</span>
+              </button>
+            )}
+
+            {cancelledOrders.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsClearAllModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-white/90 hover:bg-rose-50 text-rose-700 hover:text-rose-900 border border-rose-200/90 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                title="Dọn sạch toàn bộ các đơn hàng đã bị hủy khỏi cơ sở dữ liệu"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                <span>Dọn sạch tất cả đơn hủy ({cancelledOrders.length})</span>
+              </button>
+            )}
+
+            {selectedCancelledOrderIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedCancelledOrderIds([])}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-emerald-100/80 transition-colors cursor-pointer"
+                title="Bỏ chọn"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* View Switcher: List vs Delivery Calendar */}
       <div className="flex items-center justify-between gap-2 pt-1">
@@ -1118,6 +1248,53 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
         </div>,
         document.body
       )}
+
+      {/* 1. Modal Single Cancelled Order Delete Confirmation */}
+      <ActionConfirmModal
+        isOpen={Boolean(orderToDelete)}
+        onClose={() => setOrderToDelete(null)}
+        onConfirm={() => {
+          if (orderToDelete) {
+            deleteOrder(orderToDelete.id);
+            setSelectedCancelledOrderIds((prev) => prev.filter((id) => id !== orderToDelete.id));
+            setOrderToDelete(null);
+          }
+        }}
+        title="Xóa Vĩnh Viễn Đơn Hủy"
+        message={`Bạn có chắc chắn muốn xóa vĩnh viễn đơn hủy #${orderToDelete?.id} của khách "${orderToDelete?.senderName}" không? Thao tác này sẽ giải phóng bộ nhớ và không thể khôi phục lại.`}
+        confirmText="Xóa Vĩnh Viễn"
+        type="danger"
+      />
+
+      {/* 2. Modal Bulk Cancelled Orders Delete Confirmation */}
+      <ActionConfirmModal
+        isOpen={isBulkDeleteModalOpen}
+        onClose={() => setIsBulkDeleteModalOpen(false)}
+        onConfirm={() => {
+          deleteCancelledOrders(selectedCancelledOrderIds);
+          setSelectedCancelledOrderIds([]);
+          setIsBulkDeleteModalOpen(false);
+        }}
+        title="Xóa Hàng Loạt Đơn Hủy Đã Chọn"
+        message={`Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedCancelledOrderIds.length} đơn hủy đã chọn không? Toàn bộ dữ liệu của các đơn này sẽ được giải phóng hoàn toàn khỏi hệ thống.`}
+        confirmText={`Xóa ${selectedCancelledOrderIds.length} Đơn Hủy`}
+        type="danger"
+      />
+
+      {/* 3. Modal Clear All Cancelled Orders Confirmation */}
+      <ActionConfirmModal
+        isOpen={isClearAllModalOpen}
+        onClose={() => setIsClearAllModalOpen(false)}
+        onConfirm={() => {
+          clearAllCancelledOrders();
+          setSelectedCancelledOrderIds([]);
+          setIsClearAllModalOpen(false);
+        }}
+        title="Dọn Sạch Toàn Bộ Đơn Hủy"
+        message={`CẢNH BÁO: Thao tác này sẽ xóa vĩnh viễn toàn bộ ${cancelledOrders.length} đơn hàng đã bị hủy khỏi cơ sở dữ liệu để giải phóng bộ nhớ. Bạn có chắc chắn muốn dọn sạch tất cả không?`}
+        confirmText={`Dọn Sạch ${cancelledOrders.length} Đơn`}
+        type="danger"
+      />
     </div>
   );
 };
