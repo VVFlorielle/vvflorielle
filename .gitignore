@@ -8,3 +8,4 @@ screenshot.png
 *.docx
 PROJECT_HANDOVER*
 sua/
+android/build/

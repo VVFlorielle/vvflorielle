@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   AlertCircle,
   FileText,
-  Calendar
+  Calendar,
+  RefreshCw
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Order, OrderStatus } from '../types';
@@ -45,9 +46,12 @@ export const OrderLookupModal: React.FC<OrderLookupModalProps> = ({
 
   // Camera QR scanner state for greeting card / bill
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isCameraLoading, setIsCameraLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const scanIntervalRef = useRef<any>(null);
+  const isScanningRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -92,55 +96,120 @@ export const OrderLookupModal: React.FC<OrderLookupModalProps> = ({
   }, [isOpen]);
 
   const stopCamera = () => {
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current);
+      scanIntervalRef.current = null;
+    }
+    isScanningRef.current = false;
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+        videoRef.current.srcObject = null;
+      } catch (e) {}
+    }
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      try {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      } catch (e) {}
       streamRef.current = null;
     }
     setIsCameraActive(false);
+    setIsCameraLoading(false);
     setCameraError(null);
+  };
+
+  const attachVideoRef = (el: HTMLVideoElement | null) => {
+    videoRef.current = el;
+    if (el && streamRef.current && el.srcObject !== streamRef.current) {
+      el.srcObject = streamRef.current;
+      el.onloadedmetadata = () => {
+        el.play().catch(() => {});
+        setIsCameraLoading(false);
+      };
+      el.play().then(() => setIsCameraLoading(false)).catch(() => {});
+    }
   };
 
   const startCamera = async () => {
     try {
       setCameraError(null);
+      setIsCameraLoading(true);
       setIsCameraActive(true);
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
+
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
+      }
+      isScanningRef.current = false;
+      if (streamRef.current) {
+        try {
+          streamRef.current.getTracks().forEach((t) => t.stop());
+        } catch (e) {}
+        streamRef.current = null;
       }
 
-      // If BarcodeDetector is available, scan continuously
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Thiết bị không hỗ trợ camera trực tiếp.');
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280, max: 1280 },
+          height: { ideal: 720, max: 720 },
+          frameRate: { ideal: 24, max: 30 }
+        },
+        audio: false
+      });
+
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play().catch((err) => console.warn('Autoplay prevented:', err));
+          setIsCameraLoading(false);
+        };
+        videoRef.current.play().then(() => setIsCameraLoading(false)).catch(() => {});
+      }
+
+      // If BarcodeDetector is available, scan continuously with backpressure protection
       if ('BarcodeDetector' in window) {
         const barcodeDetector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
-        const intervalId = setInterval(async () => {
-          if (!streamRef.current) {
-            clearInterval(intervalId);
+        scanIntervalRef.current = setInterval(async () => {
+          if (!streamRef.current || !videoRef.current || isScanningRef.current) {
             return;
           }
-          if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+          if (videoRef.current.readyState >= 2) {
+            isScanningRef.current = true;
             try {
               const barcodes = await barcodeDetector.detect(videoRef.current);
-              if (barcodes.length > 0) {
+              if (barcodes && barcodes.length > 0) {
                 const rawValue = barcodes[0].rawValue;
-                handleCodeDetected(rawValue);
-                clearInterval(intervalId);
+                if (rawValue) {
+                  if (scanIntervalRef.current) {
+                    clearInterval(scanIntervalRef.current);
+                    scanIntervalRef.current = null;
+                  }
+                  handleCodeDetected(rawValue);
+                }
               }
-            } catch (e) {}
+            } catch (e) {
+            } finally {
+              isScanningRef.current = false;
+            }
           }
-        }, 500);
+        }, 280);
       }
     } catch (err: any) {
       console.error('Camera error:', err);
+      setIsCameraActive(false);
+      setIsCameraLoading(false);
       setCameraError(
         err.name === 'NotAllowedError'
           ? 'Trình duyệt chưa được cấp quyền Camera. Vui lòng nhấn Cho phép (Allow) để quét mã QR.'
-          : 'Không thể truy cập camera trên thiết bị này.'
+          : 'Không thể truy cập camera trên thiết bị này hoặc camera đang bận.'
       );
-      setIsCameraActive(false);
     }
   };
 
@@ -317,14 +386,20 @@ export const OrderLookupModal: React.FC<OrderLookupModalProps> = ({
 
         {/* Camera Live Stream Viewfinder */}
         {isCameraActive && (
-          <div className="relative aspect-square max-w-[260px] mx-auto rounded-3xl bg-slate-900 border-4 border-orange-400/60 overflow-hidden shadow-xl animate-in zoom-in-95 duration-200">
+          <div className="relative aspect-square max-w-[260px] mx-auto rounded-3xl bg-slate-900 border-4 border-orange-400/60 overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 flex flex-col items-center justify-center">
             <video
-              ref={videoRef}
+              ref={attachVideoRef}
               autoPlay
               playsInline
               muted
               className="w-full h-full object-cover"
             />
+            {isCameraLoading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-xs z-10 text-white space-y-2">
+                <RefreshCw className="w-8 h-8 text-orange-400 animate-spin" />
+                <span className="text-xs font-semibold text-orange-200">Đang khởi động camera...</span>
+              </div>
+            )}
             <div className="absolute inset-0 border-2 border-dashed border-white/60 m-8 rounded-2xl pointer-events-none" />
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-orange-400 to-transparent shadow-[0_0_15px_#f97316] animate-bounce-laser" />
             <div className="absolute bottom-2 left-2 right-2 text-center text-[10px] text-white/90 bg-black/50 py-1 px-2 rounded-xl backdrop-blur-xs">
