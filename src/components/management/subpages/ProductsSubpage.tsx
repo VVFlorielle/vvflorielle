@@ -124,8 +124,12 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
     permanentlyDeleteArchivedProduct,
     permanentlyDeleteMultipleArchivedProducts,
     backupTrashToGoogleDrive,
-    restoreTrashFromGoogleDrive
+    restoreTrashFromGoogleDrive,
+    batchUpdateProductFulfillmentType
   } = useStore();
+
+  // Multi-selection state cho mẫu hoa đang bán
+  const [selectedActiveProductIds, setSelectedActiveProductIds] = useState<string[]>([]);
 
   // Modal Popup Nổi Quản Lý Bản Nháp & Kho Đã Xóa
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -247,6 +251,21 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
     setSelectedArchiveIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+  };
+
+  // Active Catalog Multi-Select Handlers
+  const handleToggleSelectActiveProduct = (id: string) => {
+    setSelectedActiveProductIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAllActive = () => {
+    if (selectedActiveProductIds.length === filteredProducts.length && filteredProducts.length > 0) {
+      setSelectedActiveProductIds([]);
+    } else {
+      setSelectedActiveProductIds(filteredProducts.map((p) => p.id));
+    }
   };
 
   const discountedCount = products.filter(
@@ -419,9 +438,75 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
             <span className="text-[11px] text-slate-400">Bố cục 4 mẫu 1 hàng chuẩn desktop</span>
           </div>
 
+          {/* BULK ACTION BAR KHI CHỌN NHIỀU MẪU HOA */}
+          {selectedActiveProductIds.length > 0 && (
+            <div className="sticky top-20 z-30 p-3 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white shadow-xl flex items-center justify-between gap-3 flex-wrap border border-white/20">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-lg">
+                  Đã chọn {selectedActiveProductIds.length}/{filteredProducts.length} mẫu
+                </span>
+                <button
+                  type="button"
+                  onClick={handleToggleSelectAllActive}
+                  className="text-xs text-slate-300 hover:text-white underline cursor-pointer"
+                >
+                  {selectedActiveProductIds.length === filteredProducts.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    batchUpdateProductFulfillmentType(selectedActiveProductIds, 'CHO_CAM');
+                    setSelectedActiveProductIds([]);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-all cursor-pointer active:scale-95"
+                  title="Chuyển các mẫu đã chọn sang Chờ Cắm (chuẩn bị >= 90 phút)"
+                >
+                  <span>🌸 Chuyển sang Chờ Cắm</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    batchUpdateProductFulfillmentType(selectedActiveProductIds, 'SAN_GIAO');
+                    setSelectedActiveProductIds([]);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-all cursor-pointer active:scale-95"
+                  title="Chuyển các mẫu đã chọn sang Sẵn Giao (chuẩn bị 15 phút)"
+                >
+                  <span>⚡ Chuyển sang Sẵn Giao</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    batchUpdateProductFulfillmentType(selectedActiveProductIds, 'NONE');
+                    setSelectedActiveProductIds([]);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-medium transition-all cursor-pointer"
+                  title="Ẩn nhãn cho các mẫu đã chọn"
+                >
+                  <span>Ẩn nhãn</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedActiveProductIds([])}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  title="Hủy chọn"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* 4-COLUMN GRID */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredProducts.map((product) => {
+              const isSelected = selectedActiveProductIds.includes(product.id);
               const discountPercent =
                 product.originalPrice && product.originalPrice > product.price
                   ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -430,8 +515,52 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
               return (
                 <div
                   key={product.id}
-                  className="p-3 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-300 shadow-2xs hover:shadow-md transition-all space-y-2.5 flex flex-col justify-between group"
+                  className={`p-3 rounded-2xl bg-white border transition-all space-y-2 flex flex-col justify-between group ${
+                    isSelected
+                      ? 'border-emerald-500 shadow-md ring-2 ring-emerald-500/20'
+                      : 'border-slate-200/80 hover:border-emerald-300 shadow-2xs hover:shadow-md'
+                  }`}
                 >
+                  {/* Top: Checkbox chọn nhiều & Badge trạng thái Chờ Cắm / Sẵn Giao */}
+                  <div className="flex items-center justify-between gap-1 pb-1.5 border-b border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleSelectActiveProduct(product.id)}
+                      className="p-0.5 text-slate-500 hover:text-emerald-700 flex items-center gap-1.5 cursor-pointer"
+                      title={isSelected ? 'Bỏ chọn mẫu này' : 'Tích chọn để đổi trạng thái'}
+                    >
+                      {isSelected ? (
+                        <CheckSquare className="w-4 h-4 text-emerald-600" />
+                      ) : (
+                        <Square className="w-4 h-4 text-slate-400" />
+                      )}
+                      <span className="text-[10px] text-slate-400 font-mono">#{product.id}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextType = product.fulfillmentType === 'SAN_GIAO' ? 'CHO_CAM' : product.fulfillmentType === 'NONE' ? 'SAN_GIAO' : 'SAN_GIAO';
+                        batchUpdateProductFulfillmentType([product.id], nextType);
+                      }}
+                      className="cursor-pointer transition-transform active:scale-95"
+                      title="Nhấn để đổi nhanh: Chờ Cắm / Sẵn Giao"
+                    >
+                      {product.fulfillmentType === 'SAN_GIAO' ? (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-0.5">
+                          <span>⚡</span> Sẵn Giao
+                        </span>
+                      ) : product.fulfillmentType === 'NONE' ? (
+                        <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                          Ẩn nhãn
+                        </span>
+                      ) : (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-0.5">
+                          <span>🌸</span> Chờ Cắm
+                        </span>
+                      )}
+                    </button>
+                  </div>
                   {/* Product Top: Thumbnail with safe error handling + badges */}
                   <div className="space-y-2">
                     <ProductThumbnail

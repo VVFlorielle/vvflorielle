@@ -42,7 +42,7 @@ import {
   RefreshCw,
   Bot
 } from 'lucide-react';
-import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel, FlowerCategory, CustomerTier } from '../../types';
+import { ShopSettings, PromotionItem, Order, CustomerUser, FlowerProduct, CategoryId, ContactChannel, FlowerCategory, CustomerTier, FlowerFulfillmentType } from '../../types';
 import { AVAILABLE_MASCOTS } from '../../data/mockData';
 import { useBodyScrollLock } from '../../utils/scrollLock';
 import { compressImage } from '../../utils/imageCompressor';
@@ -1926,6 +1926,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [desc, setDesc] = useState('');
   const [tag, setTag] = useState('Mới');
   const [isAvailable, setIsAvailable] = useState(true);
+  const [fulfillmentType, setFulfillmentType] = useState<FlowerFulfillmentType>('CHO_CAM');
 
   // Sync state whenever product or modal opens
   useEffect(() => {
@@ -1950,6 +1951,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setDesc(product.description || '');
       setTag(product.tag || '');
       setIsAvailable(product.isAvailable !== false);
+      setFulfillmentType(product.fulfillmentType || 'CHO_CAM');
     } else {
       // Default reset for new product
       setName('');
@@ -1965,6 +1967,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setDesc('Thiết kế tuyển chọn từ hoa tươi nhập khẩu loại 1, cắm theo phong cách hiện đại sang trọng.');
       setTag('Mới');
       setIsAvailable(true);
+      setFulfillmentType('CHO_CAM');
     }
   }, [isOpen, product]);
 
@@ -2065,6 +2068,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       meaning: meaning.trim(),
       flowerTypes: flowers.split(',').map((f) => f.trim()).filter(Boolean),
       isAvailable,
+      fulfillmentType,
       tag: tag.trim() || (discountPercent > 0 ? `-${discountPercent}%` : undefined),
       gradientTheme: product?.gradientTheme || {
         bg: 'from-emerald-500/10 to-teal-500/10',
@@ -2448,6 +2452,52 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                       }`}
                     />
                   </button>
+                </div>
+
+                {/* Fulfillment Lead Time Badge */}
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div>
+                    <span className="font-bold text-xs text-slate-800 block">Hình Thức Chuẩn Bị &amp; Nhãn Giao Hàng</span>
+                    <span className="text-[10px] text-slate-500">Hiển thị nhãn hoa đào bên phải ảnh và tính thời gian hẹn giao tối thiểu</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setFulfillmentType('CHO_CAM')}
+                      className={`px-2 py-2 rounded-lg text-xs font-semibold flex flex-col items-center gap-0.5 border transition-all cursor-pointer ${
+                        fulfillmentType === 'CHO_CAM'
+                          ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-xs ring-1 ring-rose-400'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className="text-xs">🌸 Chờ Cắm</span>
+                      <span className="text-[9px] text-rose-600/80 font-normal">Tối thiểu 90p</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFulfillmentType('SAN_GIAO')}
+                      className={`px-2 py-2 rounded-lg text-xs font-semibold flex flex-col items-center gap-0.5 border transition-all cursor-pointer ${
+                        fulfillmentType === 'SAN_GIAO'
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-xs ring-1 ring-emerald-400'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className="text-xs">⚡ Sẵn Giao</span>
+                      <span className="text-[9px] text-emerald-600/80 font-normal">Có sẵn (15p)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFulfillmentType('NONE')}
+                      className={`px-2 py-2 rounded-lg text-xs font-semibold flex flex-col items-center gap-0.5 border transition-all cursor-pointer ${
+                        fulfillmentType === 'NONE'
+                          ? 'bg-slate-200 border-slate-300 text-slate-800 shadow-xs ring-1 ring-slate-400'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className="text-xs">Ẩn nhãn</span>
+                      <span className="text-[9px] text-slate-400 font-normal">Không gắn tag</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 

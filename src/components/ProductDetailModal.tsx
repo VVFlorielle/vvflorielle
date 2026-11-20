@@ -153,8 +153,19 @@ export const ProductDetailModal: React.FC = () => {
 
               {/* Khung hoa đào màu cam đặc biệt (Peach Blossom Flower Frame) */}
               {selectedProduct.tag && (
-                <div className="absolute top-3 left-3 z-10">
-                  <PeachBlossomTag tag={selectedProduct.tag} size="lg" />
+                <div className="absolute top-3 left-3 z-10 pointer-events-none">
+                  <PeachBlossomTag tag={selectedProduct.tag} size="md" />
+                </div>
+              )}
+
+              {/* Khung hoa đào trạng thái vận hành bên phải */}
+              {selectedProduct.fulfillmentType !== 'NONE' && (
+                <div className="absolute top-3 right-3 z-10 pointer-events-none">
+                  {selectedProduct.fulfillmentType === 'SAN_GIAO' ? (
+                    <PeachBlossomTag tag="Sẵn Giao" theme="emerald" size="sm" iconPosition="right" />
+                  ) : (
+                    <PeachBlossomTag tag="Chờ Cắm" theme="rose" size="sm" iconPosition="right" />
+                  )}
                 </div>
               )}
             </div>
@@ -202,6 +213,27 @@ export const ProductDetailModal: React.FC = () => {
                   </span>
                 )}
               </div>
+
+              {/* Thông tin quy cách chuẩn bị & thời gian hoàn thiện */}
+              {selectedProduct.fulfillmentType !== 'NONE' && (
+                <div className="mb-3.5">
+                  {selectedProduct.fulfillmentType === 'SAN_GIAO' ? (
+                    <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-emerald-50/90 border border-emerald-200/90 text-emerald-900 text-xs">
+                      <PeachBlossomTag tag="Sẵn Giao" theme="emerald" size="sm" />
+                      <span className="font-medium leading-relaxed">
+                        Mẫu hoa có sẵn tại tiệm • Đóng gói bọc màng bảo vệ <strong>15 phút</strong>, sẵn sàng giao ngay hỏa tốc.
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-rose-50/90 border border-rose-200/90 text-rose-950 text-xs">
+                      <PeachBlossomTag tag="Chờ Cắm" theme="rose" size="sm" />
+                      <span className="font-medium leading-relaxed">
+                        Mẫu hoa tươi thiết kế • Florist cắm mới theo yêu cầu, thời gian chuẩn bị tối thiểu <strong>90 phút</strong> trước giờ giao.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Description & Meaning */}
               <p className="text-xs text-slate-600 leading-relaxed mb-3">

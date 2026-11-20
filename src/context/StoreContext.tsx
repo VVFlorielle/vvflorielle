@@ -28,7 +28,8 @@ import {
   SecurityEventType,
   SecuritySeverity,
   CustomerReview,
-  ReviewStatus
+  ReviewStatus,
+  FlowerFulfillmentType
 } from '../types';
 import {
   INITIAL_CATEGORIES,
@@ -102,6 +103,7 @@ interface StoreContextType {
   deleteProduct: (id: string) => void;
   applyBulkDiscount: (discountPercent: number, categoryId?: string, eventName?: string) => void;
   restoreOriginalPrices: (categoryId?: string) => void;
+  batchUpdateProductFulfillmentType: (productIds: string[], fulfillmentType: FlowerFulfillmentType) => void;
 
   // Archived Products (Recycle Bin & Google Drive Backup)
   archivedProducts: ArchivedFlowerProduct[];
@@ -1917,6 +1919,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       })
     );
     showToast('Đã khôi phục giá gốc toàn bộ sản phẩm!', 'info');
+  };
+
+  const batchUpdateProductFulfillmentType = (productIds: string[], fulfillmentType: FlowerFulfillmentType) => {
+    if (!productIds.length) return;
+    setProducts((prev) => {
+      const updated = prev.map((p) => {
+        if (productIds.includes(p.id)) {
+          return { ...p, fulfillmentType };
+        }
+        return p;
+      });
+      return updated;
+    });
+    const label = fulfillmentType === 'SAN_GIAO' ? 'Sẵn Giao' : fulfillmentType === 'CHO_CAM' ? 'Chờ Cắm' : 'Ẩn nhãn';
+    showToast(`Đã chuyển ${productIds.length} mẫu hoa sang trạng thái: "${label}"!`, 'success');
   };
 
   // Category Operations
@@ -4411,6 +4428,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         deleteProduct,
         applyBulkDiscount,
         restoreOriginalPrices,
+        batchUpdateProductFulfillmentType,
         archivedProducts,
         deleteProductToArchive,
         restoreArchivedProduct,

@@ -352,6 +352,32 @@ export const CartDrawer: React.FC = () => {
 
   const specialHoursSurcharge = specialHoursCheck.surcharge;
 
+  // Phát hiện đơn có hoa tươi cần cắm mới (Chờ Cắm) hay chỉ toàn hoa sẵn
+  const hasCustomArrangedFlowers = useMemo(() => {
+    return selectedCartItems.some((item) => (item.product.fulfillmentType || 'CHO_CAM') !== 'SAN_GIAO');
+  }, [selectedCartItems]);
+
+  const isUnder90MinNotice = useMemo(() => {
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    if (deliveryDate !== todayStr || !hasCustomArrangedFlowers) return false;
+    const now = new Date();
+    const curMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (deliveryTimeSlot.includes('Giao hỏa tốc')) {
+      return false;
+    }
+
+    const matchEnd = deliveryTimeSlot.match(/-\s*(\d{1,2}):(\d{2})/);
+    if (matchEnd) {
+      const [_, endH, endM] = matchEnd;
+      const endMinutes = parseInt(endH, 10) * 60 + parseInt(endM, 10);
+      if (endMinutes - curMinutes < 90) {
+        return true;
+      }
+    }
+    return false;
+  }, [deliveryDate, deliveryTimeSlot, hasCustomArrangedFlowers]);
+
   // Account role detection for Cart experience
   const isOwnerAccount = Boolean(isAdmin && (activeAdminUser === 'chuquan' || activeAdminUser === 'vvflorielle'));
   const isTestAdminAccount = Boolean(isAdmin && activeAdminUser === 'admin');
@@ -1004,7 +1030,18 @@ export const CartDrawer: React.FC = () => {
                           />
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-xs text-slate-800 line-clamp-1">{item.product.name}</h4>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <h4 className="font-bold text-xs text-slate-800 line-clamp-1">{item.product.name}</h4>
+                              {item.product.fulfillmentType !== 'NONE' && (
+                                <span className={`text-[8.5px] font-extrabold px-1.5 py-0.2 rounded shrink-0 ${
+                                  item.product.fulfillmentType === 'SAN_GIAO'
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                    : 'bg-rose-100 text-rose-800 border border-rose-200'
+                                }`}>
+                                  {item.product.fulfillmentType === 'SAN_GIAO' ? 'Sẵn Giao' : 'Chờ Cắm'}
+                                </span>
+                              )}
+                            </div>
                             <div className="text-[#ee4d2d] font-black text-xs mt-0.5 fixed-semantic product-price tracking-tight">
                               {formatPrice(item.product.price)}
                             </div>
@@ -1488,6 +1525,17 @@ export const CartDrawer: React.FC = () => {
                       })}
                     </select>
                   </div>
+                  {isUnder90MinNotice && (
+                    <div className="col-span-2 text-[11px] text-amber-900 bg-amber-50/95 border border-amber-300/80 rounded-xl p-2.5 flex items-start gap-2 shadow-2xs">
+                      <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="space-y-0.5 leading-relaxed">
+                        <span className="font-bold text-amber-950 block">⚠️ Lưu ý thời gian chuẩn bị hoa tươi:</span>
+                        <span>
+                          Đơn hàng có mẫu hoa <strong>"Chờ Cắm"</strong> cần tối thiểu <strong>90 phút</strong> để florist tuyển chọn hoa tươi mới và cắm hoa tỉ mỉ. Quý khách vui lòng chọn khung giờ hẹn sau ít nhất 90 phút để đảm bảo hoa tươi đẹp nhất nhé!
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>

@@ -88,10 +88,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </div>
 
-        {/* Khung hoa đào màu cam đặc biệt (Peach Blossom Flower Frame) */}
-        <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 flex flex-col gap-1 items-start z-10">
+        {/* Khung hoa đào màu cam đặc biệt (Peach Blossom Flower Frame) bên trái */}
+        <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 flex flex-col gap-1 items-start z-10 pointer-events-none">
           {product.tag && (
-            <PeachBlossomTag tag={product.tag} size="md" />
+            <PeachBlossomTag tag={product.tag} size="sm" />
           )}
           {!product.isAvailable && (
             <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-700/90 text-white shadow-sm backdrop-blur-xs">
@@ -99,6 +99,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
           )}
         </div>
+
+        {/* Khung hoa đào trạng thái vận hành: Chờ Cắm vs Sẵn Giao bên phải */}
+        {product.fulfillmentType !== 'NONE' && (
+          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 pointer-events-none">
+            {product.fulfillmentType === 'SAN_GIAO' ? (
+              <PeachBlossomTag tag="Sẵn Giao" theme="emerald" size="sm" iconPosition="right" />
+            ) : (
+              <PeachBlossomTag tag="Chờ Cắm" theme="rose" size="sm" iconPosition="right" />
+            )}
+          </div>
+        )}
 
         {/* Hover Quick Action Buttons */}
         <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-xl m-2.5">

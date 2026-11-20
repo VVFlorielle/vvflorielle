@@ -12,6 +12,8 @@ export interface FlowerCategory {
   isActive?: boolean;
 }
 
+export type FlowerFulfillmentType = 'CHO_CAM' | 'SAN_GIAO' | 'NONE';
+
 export interface FlowerProduct {
   id: string;
   name: string;
@@ -32,6 +34,7 @@ export interface FlowerProduct {
   rating: number;
   reviewCount: number;
   relatedProductIds?: string[];
+  fulfillmentType?: FlowerFulfillmentType;
 }
 
 export interface ArchivedFlowerProduct {
