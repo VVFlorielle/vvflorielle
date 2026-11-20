@@ -1326,16 +1326,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-expire flash vouchers in customer wallet when 1h slot ends
+  // Auto-expire flash vouchers in customer wallet when 1h slot ends (hết giờ vàng là xóa sạch ví flash deal, ca sau phải săn và lưu lại từ đầu)
   useEffect(() => {
     const flashState = getFlashSaleState(isFlashSaleSimulated);
     if (!flashState.isLive && customer?.userVouchers?.length) {
       const hasFlashVoucher = customer.userVouchers.some(
-        (v) => (v.campaignType === 'FLASH_DEAL' || v.code.includes('FLASH')) && !v.isUsed
+        (v) => v.campaignType === 'FLASH_DEAL' || v.code.includes('FLASH')
       );
       if (hasFlashVoucher) {
         const cleaned = customer.userVouchers.filter(
-          (v) => (v.campaignType !== 'FLASH_DEAL' && !v.code.includes('FLASH')) || v.isUsed
+          (v) => v.campaignType !== 'FLASH_DEAL' && !v.code.includes('FLASH')
         );
         setCustomer((prev) => (prev ? { ...prev, userVouchers: cleaned } : null));
         setCustomers((prev) => prev.map((c) => (c.id === customer.id ? { ...c, userVouchers: cleaned } : c)));
@@ -3535,15 +3535,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     // 2. Check if already used by this customer
+    const isFlashVoucher = promo.campaignType === 'FLASH_DEAL' || promo.code.includes('FLASH');
     const user = context.customer || customer;
     if (user) {
-      if (promo.usedByCustomerIds && promo.usedByCustomerIds.includes(user.id)) {
+      if (!isFlashVoucher && promo.usedByCustomerIds && promo.usedByCustomerIds.includes(user.id)) {
         return { valid: false, reason: 'Bạn đã từng sử dụng voucher này rồi!', discountAmount: 0, voucherScope: scope, promo };
       }
       if (user.userVouchers) {
-        const matchingUv = user.userVouchers.find((uv) => uv.code.toUpperCase() === code);
-        if (matchingUv && matchingUv.isUsed) {
-          return { valid: false, reason: 'Voucher này trong ví của bạn đã được sử dụng!', discountAmount: 0, voucherScope: scope, promo };
+        const matchingUv = user.userVouchers.find((uv) => uv.code.toUpperCase() === code && uv.isUsed);
+        if (matchingUv) {
+          return { valid: false, reason: 'Voucher này trong ví của bạn đã được sử dụng trong phiên hiện tại!', discountAmount: 0, voucherScope: scope, promo };
         }
       }
     }
