@@ -367,7 +367,7 @@ export const CustomerOrdersTab: React.FC<CustomerOrdersTabProps> = ({
       {/* Modal Preview ảnh mẫu thiết kế riêng */}
       {previewSampleImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100060] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setPreviewSampleImage(null)}
         >
           <div

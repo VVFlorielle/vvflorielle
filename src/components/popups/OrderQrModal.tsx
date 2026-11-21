@@ -27,7 +27,7 @@ export const OrderQrModal: React.FC<OrderQrModalProps> = ({
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${qrData}&margin=10`;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200 select-none">
+    <div className="fixed inset-0 z-[100060] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200 select-none">
       <div className="relative w-full max-w-sm bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-5 sm:p-6 space-y-4 text-center">
         {/* Close Button */}
         <button

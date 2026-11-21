@@ -686,7 +686,7 @@ export const ReviewsSubpage: React.FC = () => {
 
       {/* 4. Manual Review Modal */}
       {isManualModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[100050] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 bg-slate-800 text-white flex items-center justify-between shrink-0">
               <h3 className="text-base font-bold flex items-center gap-2">
@@ -875,7 +875,7 @@ export const ReviewsSubpage: React.FC = () => {
       {/* 5. Lightbox Modal */}
       {zoomImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[100050] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           onClick={() => setZoomImage(null)}
         >
           <div className="relative max-w-xl max-h-[85vh] bg-white rounded-3xl p-2" onClick={(e) => e.stopPropagation()}>

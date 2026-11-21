@@ -168,7 +168,7 @@ export const FloralBlogSection: React.FC<FloralBlogSectionProps> = ({
       {/* Selected Article Reading Modal */}
       {selectedArticle && (
         <div
-          className="glass-overlay z-50 flex items-center justify-center p-4 animate-in fade-in"
+          className="glass-overlay z-[100000] flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setSelectedArticle(null)}
         >
           <div

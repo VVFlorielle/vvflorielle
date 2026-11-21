@@ -240,7 +240,7 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="glass-overlay z-[9995]" onClick={() => setIsAuthModalOpen(false)}>
+    <div className="glass-overlay z-[100000]" onClick={() => setIsAuthModalOpen(false)}>
       <div
         className="glass-modal-content max-w-sm sm:max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
