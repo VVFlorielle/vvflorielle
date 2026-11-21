@@ -551,9 +551,9 @@ export const MascotAssistant: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quick FAQ Chips */}
-              <div className="px-2.5 py-1.5 bg-slate-50 border-b border-slate-200/80 overflow-x-auto flex items-center gap-1 text-xs no-scrollbar">
-                <span className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
+              {/* Quick FAQ Chips: Co giãn 2 hàng flex-wrap trên mobile, không bị khuất ngang */}
+              <div className="px-2.5 py-1.5 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center gap-1 text-xs">
+                <span className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1 mr-0.5">
                   <HelpCircle className="w-3 h-3 text-emerald-600" />
                   <span>Hỏi nhanh:</span>
                 </span>
@@ -561,7 +561,7 @@ export const MascotAssistant: React.FC = () => {
                   <button
                     key={idx}
                     onClick={() => handleSendQuestion(chip.q, chip.a)}
-                    className="py-0.5 px-2 rounded-lg bg-white hover:bg-emerald-50 text-[10px] font-semibold text-slate-700 hover:text-emerald-800 border border-slate-200/80 hover:border-emerald-300 whitespace-nowrap shadow-2xs transition-all shrink-0"
+                    className="py-0.5 px-2 rounded-lg bg-white hover:bg-emerald-50 text-[10px] font-semibold text-slate-700 hover:text-emerald-800 border border-slate-200/80 hover:border-emerald-300 whitespace-nowrap shadow-2xs transition-all cursor-pointer"
                   >
                     {chip.q}
                   </button>
