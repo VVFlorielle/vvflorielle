@@ -594,10 +594,11 @@ export const AdminPortal: React.FC = () => {
             <button
               type="button"
               onClick={handleBackToDashboard}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+              className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 flex items-center justify-center border border-slate-200 transition-all cursor-pointer shadow-2xs"
+              title="Trở về Bàn làm việc"
+              aria-label="Trở về Bàn làm việc"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>← Trở về Bàn Làm Việc</span>
+              <ArrowLeft className="w-4 h-4" />
             </button>
           </div>
           <ReviewsSubpage />

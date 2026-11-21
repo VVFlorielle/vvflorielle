@@ -46,6 +46,11 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
   const [editSettings, setEditSettings] = useState<ShopSettings>(settings);
   const [channelToDelete, setChannelToDelete] = useState<ContactChannel | null>(null);
 
+  // Đồng bộ thời gian thực khi settings thay đổi từ các phân hệ khác (như Bảo mật cấp 2)
+  React.useEffect(() => {
+    setEditSettings(settings);
+  }, [settings]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSaveSettings(editSettings);
@@ -53,16 +58,16 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Header căn giữa chuẩn Phototiinlove kèm nút Trở về Bàn Làm Việc */}
+      {/* Header căn giữa chuẩn Phototiinlove kèm nút Trở về Bàn Làm Việc (Icon gọn gàng) */}
       <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
         <button
           type="button"
           onClick={onBackToDashboard}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-bold text-xs border border-slate-200/80 transition-all cursor-pointer shrink-0"
-          title="Quay về bàn làm việc quản trị"
+          className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 flex items-center justify-center border border-slate-200/80 transition-all cursor-pointer shrink-0 shadow-2xs"
+          title="Trở về Bàn làm việc"
+          aria-label="Trở về Bàn làm việc"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Bàn làm việc</span>
         </button>
         <div className="text-center mx-auto px-2">
           <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-600">
@@ -72,7 +77,7 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
             {title}
           </h2>
         </div>
-        <div className="w-10 sm:w-28 shrink-0" />
+        <div className="w-8 h-8 shrink-0" />
       </div>
 
       {/* 1. Main Store Configuration Form */}

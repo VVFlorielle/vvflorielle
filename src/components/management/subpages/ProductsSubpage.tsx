@@ -295,18 +295,17 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
 
   return (
     <div className="glass-panel p-5 sm:p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200 select-none">
-      {/* 1. Header căn giữa chuẩn Phototiinlove có nút Back */}
+      {/* 1. Header căn giữa chuẩn Phototiinlove có nút Back (Icon gọn gàng) */}
       <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
-        <div className="w-auto shrink-0">
-          <button
-            type="button"
-            onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer bg-white shadow-2xs"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 text-slate-600" />
-            <span>← Trở về Bàn Làm Việc</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onBackToDashboard}
+          className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 flex items-center justify-center border border-slate-200/80 transition-all cursor-pointer shrink-0 shadow-2xs"
+          title="Trở về Bàn làm việc"
+          aria-label="Trở về Bàn làm việc"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
         <div className="text-center mx-auto px-2">
           <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
             KHO HOA TƯƠI &amp; BẢNG GIÁ
@@ -315,7 +314,7 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
             {title}
           </h2>
         </div>
-        <div className="w-10 sm:w-28 shrink-0" />
+        <div className="w-8 h-8 shrink-0" />
       </div>
 
       {/* 2. ACTION TOOLBAR (GỌN GÀNG TỐI ƯU MOBILE & DESKTOP) */}

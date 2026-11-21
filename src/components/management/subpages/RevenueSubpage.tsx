@@ -270,15 +270,27 @@ export const RevenueSubpage: React.FC<RevenueSubpageProps> = ({
 
   return (
     <div className="glass-panel p-4 sm:p-6 space-y-6 rounded-[28px] animate-in fade-in duration-200">
-      {/* 1. Header căn giữa chuẩn Phototiinlove */}
-      <div className="pb-3 border-b border-slate-200/80 text-center">
-        <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-          TÀI CHÍNH &amp; DÒNG TIỀN
-        </small>
-        <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight flex items-center justify-center gap-2">
-          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
-          <span>{title}</span>
-        </h2>
+      {/* 1. Header căn giữa chuẩn Phototiinlove kèm nút Trở về Bàn Làm Việc (Icon gọn gàng) */}
+      <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
+        <button
+          type="button"
+          onClick={onBackToDashboard}
+          className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 flex items-center justify-center border border-slate-200/80 transition-all cursor-pointer shrink-0 shadow-2xs"
+          title="Trở về Bàn làm việc"
+          aria-label="Trở về Bàn làm việc"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <div className="text-center mx-auto px-2">
+          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
+            TÀI CHÍNH &amp; DÒNG TIỀN
+          </small>
+          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight flex items-center justify-center gap-2">
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
+            <span>{title}</span>
+          </h2>
+        </div>
+        <div className="w-8 h-8 shrink-0" />
       </div>
 
       {/* 2. Filter Toolbar & Xuất Báo Cáo (Matching phototiinlove) */}

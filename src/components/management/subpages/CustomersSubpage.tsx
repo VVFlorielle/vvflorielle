@@ -107,14 +107,26 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
 
   return (
     <div className="glass-panel p-4 sm:p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200">
-      {/* 1. Header căn giữa chuẩn Phototiinlove */}
-      <div className="pb-3 border-b border-slate-200/80 text-center">
-        <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-purple-700">
-          KHÁCH HÀNG &amp; HỘI VIÊN
-        </small>
-        <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
-          {title}
-        </h2>
+      {/* 1. Header căn giữa chuẩn Phototiinlove kèm nút Trở về Bàn Làm Việc (Icon gọn gàng) */}
+      <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
+        <button
+          type="button"
+          onClick={onBackToDashboard}
+          className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-purple-50 text-slate-600 hover:text-purple-700 flex items-center justify-center border border-slate-200/80 transition-all cursor-pointer shrink-0 shadow-2xs"
+          title="Trở về Bàn làm việc"
+          aria-label="Trở về Bàn làm việc"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <div className="text-center mx-auto px-2">
+          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-purple-700">
+            KHÁCH HÀNG &amp; HỘI VIÊN
+          </small>
+          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
+            {title}
+          </h2>
+        </div>
+        <div className="w-8 h-8 shrink-0" />
       </div>
 
       {/* 2. Tiêu đề phụ & Mô tả căn giữa kèm Action Bar hàng 2 */}
