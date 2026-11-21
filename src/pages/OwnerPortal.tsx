@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
-import { restoreScrollPosition } from '../utils/scrollRestoration';
+import { restoreScrollPosition, saveTabScroll, getTabScroll } from '../utils/scrollRestoration';
 import { playNewOrderChime } from '../utils/audioNotification';
 import {
   Flower2,
@@ -121,30 +121,49 @@ export const OwnerPortal: React.FC = () => {
 
   const pendingReviewsCount = (reviews || []).filter((r) => r.status === 'PENDING').length;
 
-  // Scroll Restoration Reference (Phototiinlove battle-tested navigation)
-  const lastDashboardScrollYRef = useRef(0);
-
+  // Scroll Restoration Engine (Phototiinlove battle-tested navigation)
   const navigateToTab = (tab: any) => {
-    if (activeTab === 'dashboard') {
-      lastDashboardScrollYRef.current = window.scrollY || document.documentElement.scrollTop || 0;
-    }
+    saveTabScroll(activeTab);
     setActiveTab(tab);
     if (typeof window !== 'undefined') {
       const targetHash = tab === 'dashboard' ? '#owner' : `#owner/${tab}`;
       window.history.pushState({ adminTab: tab }, '', targetHash);
     }
-    if (tab !== 'dashboard') {
+    const savedY = getTabScroll(tab);
+    if (savedY > 0) {
+      restoreScrollPosition(savedY);
+    } else {
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
   };
 
   const handleBackToDashboard = () => {
+    saveTabScroll(activeTab);
     setActiveTab('dashboard');
     if (typeof window !== 'undefined') {
-      window.history.replaceState({ adminTab: 'dashboard' }, '', '#owner');
+      window.history.pushState({ adminTab: 'dashboard' }, '', '#owner');
     }
-    restoreScrollPosition(lastDashboardScrollYRef.current);
+    const dashboardY = getTabScroll('dashboard');
+    restoreScrollPosition(dashboardY);
   };
+
+  // Tự động khôi phục vị trí cuộn khi người dùng bấm nút Back trình duyệt / vuốt màn hình điện thoại
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const hash = window.location.hash;
+      let targetTab = 'dashboard';
+      if (hash.startsWith('#owner/')) {
+        targetTab = hash.replace('#owner/', '') || 'dashboard';
+      } else if (e.state && e.state.adminTab) {
+        targetTab = e.state.adminTab;
+      }
+      setActiveTab(targetTab);
+      const targetY = getTabScroll(targetTab);
+      restoreScrollPosition(targetY);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [setActiveTab]);
 
   // Tự động phát chuông khi có đơn hàng mới phát sinh (Chuẩn Florist)
   const previousOrderCountRef = useRef(orders.length);

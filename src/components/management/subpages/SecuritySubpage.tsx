@@ -23,6 +23,7 @@ import {
   X,
   Eye,
   EyeOff,
+  ArrowLeft,
   Bot,
   Sparkles,
   Cpu
@@ -101,6 +102,9 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
     }
   };
 
+  // Password and PIN tab switch state
+  const [activeCredTab, setActiveCredTab] = useState<'PASSWORD' | 'PIN'>('PASSWORD');
+
   // Password state
   const [currentPassForPass, setCurrentPassForPass] = useState('');
   const [newPasswordInput, setNewPasswordInput] = useState('');
@@ -112,9 +116,10 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
   const [newPinInput, setNewPinInput] = useState('');
   const [confirmPinInput, setConfirmPinInput] = useState('');
 
-  // Gmail config state
+  // Gmail config state: Phân định rành mạch giữa hòm thư gửi tiệm (vvflorielle) và hòm thư nhận admin (traivuho)
+  const [editSenderEmail, setEditSenderEmail] = useState(() => localStorage.getItem('vvf_sender_email') || 'vvflorielle@gmail.com');
   const [editAdminEmail, setEditAdminEmail] = useState(adminEmail);
-  const [editAppPassword, setEditAppPassword] = useState('');
+  const [editAppPassword, setEditAppPassword] = useState(() => localStorage.getItem('vvf_gmail_app_pw') || '');
 
   // Google Gemini AI Key State (Security Level 2)
   const [geminiApiKeyInput, setGeminiApiKeyInput] = useState<string>(settings?.geminiApiKey || '');
@@ -356,13 +361,14 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header căn giữa */}
       <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
-        <div className="w-10 sm:w-28 shrink-0">
+        <div className="w-auto shrink-0">
           <button
             type="button"
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 font-bold transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer bg-white shadow-2xs"
           >
-            &larr; Tổng quan
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-600" />
+            <span>← Trở về Bàn Làm Việc</span>
           </button>
         </div>
         <div className="text-center mx-auto px-2">
@@ -826,179 +832,204 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
         document.body
       )}
 
-      {/* CARD 2: ĐỔI MẬT KHẨU ĐĂNG NHẬP QUẢN TRỊ */}
+      {/* CARD 2 & 3: ĐỔI MẬT KHẨU & MÃ PIN (GỌN 2 TAB CON THÔNG MINH) */}
+      <div className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px]">
+        <div className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+              <KeyRound className="w-4 h-4 text-purple-700" />
+              <span>Đổi Mật Khẩu Đăng Nhập &amp; Mã PIN Cấp 2</span>
+            </h3>
+            <p className="text-xs text-slate-500">Chuyển đổi giữa 2 tab để cập nhật thông tin bảo mật quản trị</p>
+          </div>
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/80">
+            <button
+              type="button"
+              onClick={() => setActiveCredTab('PASSWORD')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeCredTab === 'PASSWORD'
+                  ? 'bg-white text-purple-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              🔑 Đổi Mật Khẩu
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveCredTab('PIN')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeCredTab === 'PIN'
+                  ? 'bg-white text-purple-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              🔢 Đổi Mã PIN
+            </button>
+          </div>
+        </div>
+
+        {activeCredTab === 'PASSWORD' ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (newPasswordInput !== confirmPasswordInput) {
+                showToast('Mật khẩu xác nhận không khớp!', 'error');
+                return;
+              }
+              const success = changeAdminCredentials(currentPassForPass, undefined, newPasswordInput);
+              if (success) {
+                setCurrentPassForPass('');
+                setNewPasswordInput('');
+                setConfirmPasswordInput('');
+              }
+            }}
+            className="space-y-4 pt-1"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div>
+                <label className="text-[11px] text-slate-500 block mb-1">Mật khẩu hiện tại</label>
+                <input
+                  type="password"
+                  required
+                  value={currentPassForPass}
+                  onChange={(e) => setCurrentPassForPass(e.target.value)}
+                  className="glass-input w-full text-xs py-2 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-slate-500 block mb-1">Mật khẩu mới</label>
+                <input
+                  type="password"
+                  required
+                  value={newPasswordInput}
+                  onChange={(e) => setNewPasswordInput(e.target.value)}
+                  className="glass-input w-full text-xs py-2 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-slate-500 block mb-1">Xác nhận mật khẩu mới</label>
+                <input
+                  type="password"
+                  required
+                  value={confirmPasswordInput}
+                  onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                  className="glass-input w-full text-xs py-2 rounded-xl"
+                />
+              </div>
+            </div>
+            <div>
+              <button type="submit" className="btn-primary text-xs py-2 px-5 rounded-xl cursor-pointer">
+                Cập Nhật Mật Khẩu
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (newPinInput.length !== 8 && newPinInput.length !== 6) {
+                showToast('Mã PIN gồm 6 hoặc 8 chữ số!', 'error');
+                return;
+              }
+              if (newPinInput !== confirmPinInput) {
+                showToast('Mã PIN xác nhận không khớp!', 'error');
+                return;
+              }
+              const success = changeAdminCredentials(currentPassForPin, currentPinForPin, undefined, newPinInput);
+              if (success) {
+                setCurrentPassForPin('');
+                setCurrentPinForPin('');
+                setNewPinInput('');
+                setConfirmPinInput('');
+              }
+            }}
+            className="space-y-4 pt-1"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <label className="text-[11px] text-slate-500 block mb-1">Mật khẩu quản trị</label>
+                <input
+                  type="password"
+                  required
+                  value={currentPassForPin}
+                  onChange={(e) => setCurrentPassForPin(e.target.value)}
+                  className="glass-input w-full text-xs py-2 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-slate-500 block mb-1">Mã PIN hiện tại</label>
+                <input
+                  type="password"
+                  required
+                  value={currentPinForPin}
+                  onChange={(e) => setCurrentPinForPin(e.target.value)}
+                  className="glass-input w-full text-xs py-2 font-mono rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-slate-500 block mb-1">Mã PIN mới</label>
+                <input
+                  type="password"
+                  required
+                  value={newPinInput}
+                  onChange={(e) => setNewPinInput(e.target.value)}
+                  className="glass-input w-full text-xs py-2 font-mono rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-slate-500 block mb-1">Xác nhận PIN mới</label>
+                <input
+                  type="password"
+                  required
+                  value={confirmPinInput}
+                  onChange={(e) => setConfirmPinInput(e.target.value)}
+                  className="glass-input w-full text-xs py-2 font-mono rounded-xl"
+                />
+              </div>
+            </div>
+            <div>
+              <button type="submit" className="btn-primary text-xs py-2 px-5 rounded-xl cursor-pointer">
+                Cập Nhật Mã PIN
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+
+      {/* CARD 4: CẤU HÌNH GMAIL APP PASSWORD PHÁT THƯ TỰ ĐỘNG */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (newPasswordInput !== confirmPasswordInput) {
-            showToast('Mật khẩu xác nhận không khớp!', 'error');
-            return;
-          }
-          const success = changeAdminCredentials(currentPassForPass, undefined, newPasswordInput);
-          if (success) {
-            setCurrentPassForPass('');
-            setNewPasswordInput('');
-            setConfirmPasswordInput('');
-          }
-        }}
-        className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px]"
-      >
-        <div className="border-b border-slate-200 pb-3">
-          <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-            <Lock className="w-4 h-4 text-purple-700" />
-            <span>Đổi Mật Khẩu Đăng Nhập Quản Trị</span>
-          </h3>
-          <p className="text-xs text-slate-500">Mật khẩu áp dụng cho tài khoản quản trị hiện tại</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Mật khẩu hiện tại</label>
-            <input
-              type="password"
-              required
-              value={currentPassForPass}
-              onChange={(e) => setCurrentPassForPass(e.target.value)}
-              className="glass-input w-full text-xs py-2 rounded-xl"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Mật khẩu mới</label>
-            <input
-              type="password"
-              required
-              value={newPasswordInput}
-              onChange={(e) => setNewPasswordInput(e.target.value)}
-              className="glass-input w-full text-xs py-2 rounded-xl"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Xác nhận mật khẩu mới</label>
-            <input
-              type="password"
-              required
-              value={confirmPasswordInput}
-              onChange={(e) => setConfirmPasswordInput(e.target.value)}
-              className="glass-input w-full text-xs py-2 rounded-xl"
-            />
-          </div>
-        </div>
-
-        <div>
-          <button type="submit" className="btn-primary text-xs py-2 px-5 rounded-xl cursor-pointer">
-            Cập Nhật Mật Khẩu
-          </button>
-        </div>
-      </form>
-
-      {/* CARD 3: ĐỔI MÃ PIN BẢO MẬT CẤP 2 */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (newPinInput.length !== 8 && newPinInput.length !== 6) {
-            showToast('Mã PIN gồm 6 hoặc 8 chữ số!', 'error');
-            return;
-          }
-          if (newPinInput !== confirmPinInput) {
-            showToast('Mã PIN xác nhận không khớp!', 'error');
-            return;
-          }
-          const success = changeAdminCredentials(currentPassForPin, currentPinForPin, undefined, newPinInput);
-          if (success) {
-            setCurrentPassForPin('');
-            setCurrentPinForPin('');
-            setNewPinInput('');
-            setConfirmPinInput('');
-          }
-        }}
-        className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px]"
-      >
-        <div className="border-b border-slate-200 pb-3">
-          <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-            <KeyRound className="w-4 h-4 text-purple-700" />
-            <span>Đổi Mã PIN Bảo Mật Cấp 2</span>
-          </h3>
-          <p className="text-xs text-slate-500">Mã PIN 6 hoặc 8 số bảo mật cấp 2 dùng chung cho hệ thống</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-          <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Mật khẩu quản trị</label>
-            <input
-              type="password"
-              required
-              value={currentPassForPin}
-              onChange={(e) => setCurrentPassForPin(e.target.value)}
-              className="glass-input w-full text-xs py-2 rounded-xl"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Mã PIN hiện tại</label>
-            <input
-              type="password"
-              required
-              value={currentPinForPin}
-              onChange={(e) => setCurrentPinForPin(e.target.value)}
-              className="glass-input w-full text-xs py-2 font-mono rounded-xl"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Mã PIN mới</label>
-            <input
-              type="password"
-              required
-              value={newPinInput}
-              onChange={(e) => setNewPinInput(e.target.value)}
-              className="glass-input w-full text-xs py-2 font-mono rounded-xl"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Xác nhận PIN mới</label>
-            <input
-              type="password"
-              required
-              value={confirmPinInput}
-              onChange={(e) => setConfirmPinInput(e.target.value)}
-              className="glass-input w-full text-xs py-2 font-mono rounded-xl"
-            />
-          </div>
-        </div>
-
-        <div>
-          <button type="submit" className="btn-primary text-xs py-2 px-5 rounded-xl cursor-pointer">
-            Cập Nhật Mã PIN
-          </button>
-        </div>
-      </form>
-
-      {/* CARD 4: CẤU HÌNH GMAIL APP PASSWORD GỬI OTP */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
+          localStorage.setItem('vvf_sender_email', editSenderEmail.trim());
+          localStorage.setItem('vvf_gmail_app_pw', editAppPassword.trim());
           saveGmailConfig(editAdminEmail.trim(), editAppPassword.trim());
+          showToast('Đã lưu cấu hình email gửi tự động của tiệm!', 'success');
         }}
         className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px]"
       >
         <div className="border-b border-slate-200 pb-3">
           <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
             <Mail className="w-4 h-4 text-purple-700" />
-            <span>Cấu Hình Gmail App Password Gửi OTP Khôi Phục</span>
+            <span>Hệ Thống Gửi Email Tự Động (Tổng Đài Tiệm vvflorielle@gmail.com)</span>
           </h3>
-          <p className="text-xs text-slate-500">Dùng để gửi mã OTP khi quên mật khẩu hoặc quên mã PIN</p>
+          <p className="text-xs text-slate-500">
+            Dùng tài khoản Gmail của tiệm để phát mã OTP xác thực và thông báo đơn hàng cho khách &amp; chủ quán
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
           <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Gmail gửi thư</label>
+            <label className="text-[11px] text-slate-500 block mb-1 font-bold">1. Hộp thư phát tự động (Của tiệm)</label>
             <input
               type="email"
-              value={editAdminEmail}
-              onChange={(e) => setEditAdminEmail(e.target.value)}
-              className="glass-input w-full text-xs py-2 rounded-xl"
+              value={editSenderEmail}
+              onChange={(e) => setEditSenderEmail(e.target.value)}
+              className="glass-input w-full text-xs py-2 rounded-xl bg-purple-50/50 font-medium"
+              placeholder="vvflorielle@gmail.com"
             />
           </div>
           <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Mật khẩu ứng dụng (16 ký tự)</label>
+            <label className="text-[11px] text-slate-500 block mb-1 font-bold">2. Mật khẩu ứng dụng 16 ký tự</label>
             <input
               type="password"
               value={editAppPassword}
@@ -1007,20 +1038,31 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
               placeholder="xxxx xxxx xxxx xxxx"
             />
           </div>
+          <div>
+            <label className="text-[11px] text-slate-500 block mb-1 font-bold">3. Hộp thư nhận OTP Quản trị (Chủ tiệm)</label>
+            <input
+              type="email"
+              value={editAdminEmail}
+              onChange={(e) => setEditAdminEmail(e.target.value)}
+              className="glass-input w-full text-xs py-2 rounded-xl bg-emerald-50/50 font-bold text-emerald-900"
+              placeholder="traivuho@gmail.com"
+            />
+          </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2 pt-1">
           <button type="submit" className="btn-primary text-xs py-2 px-5 rounded-xl cursor-pointer">
-            Lưu Cấu Hình Gmail
+            Lưu Cấu Hình Email
           </button>
           <button
             type="button"
             onClick={() => {
               requestPinResetOtp(editAdminEmail);
             }}
-            className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer"
+            className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer flex items-center gap-1.5"
           >
-            Gửi Thử Nghiệm OTP
+            <Mail className="w-3.5 h-3.5 text-purple-700" />
+            <span>Gửi Thử Nghiệm OTP Tới Chủ Quán</span>
           </button>
         </div>
       </form>
@@ -1113,6 +1155,32 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
               <span className="font-medium">{testKeyResult.message}</span>
             </div>
           )}
+
+          {/* Công Tắc Bật Nhanh Tự Động Duyệt Cọc Bằng Gemini AI */}
+          <div className="p-3.5 rounded-2xl bg-purple-100/60 border border-purple-200 flex items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <label htmlFor="quickAutoApproveToggle" className="text-xs font-bold text-purple-950 flex items-center gap-1.5 cursor-pointer">
+                <Bot className="w-4 h-4 text-purple-700" />
+                <span>Bật AI Tự Động Quét Bill &amp; Duyệt Cọc VietQR</span>
+              </label>
+              <p className="text-[11px] text-purple-800/80">
+                Khi khách hàng tải ảnh biên lai VietQR, Gemini AI sẽ tự động đọc ảnh và chuyển đơn sang &quot;Đang cắm hoa&quot;
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input
+                type="checkbox"
+                id="quickAutoApproveToggle"
+                checked={settings?.enableAutoApproveDeposit ?? false}
+                onChange={(e) => {
+                  updateSettings?.({ enableAutoApproveDeposit: e.target.checked });
+                  showToast(e.target.checked ? '🤖 Đã BẬT AI tự động duyệt cọc VietQR!' : 'Đã TẮT tự động duyệt cọc AI', 'info');
+                }}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 pt-1">

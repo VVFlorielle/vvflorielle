@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Plus,
@@ -140,6 +140,14 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [productToDelete, setProductToDelete] = useState<FlowerProduct | null>(null);
 
+  // Catalog Pagination State (12 hoặc 24 mẫu / trang để tránh cuộn dài)
+  const [catalogPage, setCatalogPage] = useState(1);
+  const [catalogPageSize, setCatalogPageSize] = useState<number | 'ALL'>(12);
+
+  useEffect(() => {
+    setCatalogPage(1);
+  }, [searchQuery, selectedCategoryFilter]);
+
   // Archive / Trash State
   const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
   const [archiveCategoryFilter, setArchiveCategoryFilter] = useState<string>('all');
@@ -165,6 +173,19 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
 
     return matchesSearch && matchesCategory;
   });
+
+  // Phân trang danh mục mẫu hoa
+  const totalPages =
+    catalogPageSize === 'ALL'
+      ? 1
+      : Math.max(1, Math.ceil(filteredProducts.length / Number(catalogPageSize)));
+  const displayedProducts =
+    catalogPageSize === 'ALL'
+      ? filteredProducts
+      : filteredProducts.slice(
+          (catalogPage - 1) * Number(catalogPageSize),
+          catalogPage * Number(catalogPageSize)
+        );
 
   // Calculate Days for Archive Time Filter
   const getDaysSince = (isoDateStr: string): number => {
@@ -274,14 +295,27 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
 
   return (
     <div className="glass-panel p-5 sm:p-6 space-y-5 rounded-[28px] animate-in fade-in duration-200 select-none">
-      {/* 1. Header căn giữa chuẩn Phototiinlove */}
-      <div className="pb-3 border-b border-slate-200/80 text-center">
-        <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-          KHO HOA TƯƠI &amp; BẢNG GIÁ
-        </small>
-        <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
-          {title}
-        </h2>
+      {/* 1. Header căn giữa chuẩn Phototiinlove có nút Back */}
+      <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
+        <div className="w-auto shrink-0">
+          <button
+            type="button"
+            onClick={onBackToDashboard}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer bg-white shadow-2xs"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-600" />
+            <span>← Trở về Bàn Làm Việc</span>
+          </button>
+        </div>
+        <div className="text-center mx-auto px-2">
+          <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
+            KHO HOA TƯƠI &amp; BẢNG GIÁ
+          </small>
+          <h2 className="font-extrabold text-sm sm:text-lg text-slate-900 tracking-tight">
+            {title}
+          </h2>
+        </div>
+        <div className="w-10 sm:w-28 shrink-0" />
       </div>
 
       {/* 2. ACTION TOOLBAR (GỌN GÀNG TỐI ƯU MOBILE & DESKTOP) */}
@@ -362,8 +396,8 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
               />
             </div>
 
-            {/* Category Filter Chips */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 text-xs">
+            {/* Category Filter Chips (Tự rớt 2 hàng trên mobile, không cuộn ngang) */}
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
               <button
                 type="button"
                 onClick={() => setSelectedCategoryFilter('all')}
@@ -422,8 +456,8 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
             </div>
           </div>
 
-          {/* Summary stats strip */}
-          <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+          {/* Summary stats strip (Đã xóa chú thích thừa layout) */}
+          <div className="flex items-center justify-between text-xs text-slate-500 px-1 flex-wrap gap-2">
             <div className="flex items-center gap-3">
               <span>
                 Hiển thị <strong>{filteredProducts.length}</strong> / {products.length} mẫu hoa
@@ -435,7 +469,6 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-slate-400">Bố cục 4 mẫu 1 hàng chuẩn desktop</span>
           </div>
 
           {/* BULK ACTION BAR KHI CHỌN NHIỀU MẪU HOA - TONE XANH NHẠT MỜ MƯỢT TƯƠI SÁNG */}
@@ -503,9 +536,9 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
             </div>
           )}
 
-          {/* 4-COLUMN GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredProducts.map((product) => {
+          {/* 2 CỘT MOBILE, 3-4 CỘT TABLET/DESKTOP */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+            {displayedProducts.map((product) => {
               const isSelected = selectedActiveProductIds.includes(product.id);
               const discountPercent =
                 product.originalPrice && product.originalPrice > product.price
@@ -642,6 +675,61 @@ export const ProductsSubpage: React.FC<ProductsSubpageProps> = ({
               <p className="text-xs text-slate-500">
                 Thử thay đổi từ khóa tìm kiếm hoặc bấm &quot;Thêm Mẫu Hoa Mới&quot; để tạo mẫu hoa thiết kế.
               </p>
+            </div>
+          )}
+
+          {/* THANH PHÂN TRANG MẪU HOA (PAGINATION) */}
+          {filteredProducts.length > 0 && (
+            <div className="mt-4 p-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500 font-medium">Hiển thị:</span>
+                <div className="inline-flex rounded-xl bg-slate-100 p-0.5 border border-slate-200">
+                  {([12, 24, 'ALL'] as const).map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => {
+                        setCatalogPageSize(size);
+                        setCatalogPage(1);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+                        catalogPageSize === size
+                          ? 'bg-white text-emerald-800 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      {size === 'ALL' ? 'Tất cả' : `${size}/trang`}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-slate-400 font-mono text-[11px]">
+                  (Tổng {filteredProducts.length} mẫu)
+                </span>
+              </div>
+
+              {catalogPageSize !== 'ALL' && totalPages > 1 && (
+                <div className="flex items-center gap-1.5 ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => setCatalogPage((p) => Math.max(1, p - 1))}
+                    disabled={catalogPage <= 1}
+                    className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-xs cursor-pointer"
+                  >
+                    ← Trước
+                  </button>
+                  <span className="px-2 font-bold text-slate-800">
+                    Trang {catalogPage} / {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCatalogPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={catalogPage >= totalPages}
+                    className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-xs cursor-pointer"
+                  >
+                    Sau →
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

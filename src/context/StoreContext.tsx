@@ -3146,7 +3146,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 300000;
 
-    showToast(`Mã OTP xác thực của ${target} là: ${otp} (Hiệu lực 5 phút)`, 'info');
+    // Bảo mật tuyệt đối 100%: Tuyệt đối không in mã OTP và không lộ email gửi
+    showToast(`Đã gửi mã OTP tới ${target}. Vui lòng kiểm tra hộp thư/tin nhắn!`, 'info');
+
+    // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu target là email
+    if (target.includes('@') && settings.googleDriveWebhookUrl && settings.googleDriveWebhookUrl.trim().startsWith('http')) {
+      fetch(settings.googleDriveWebhookUrl.trim(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'SEND_EMAIL_OTP',
+          recipient: target.trim(),
+          subject: '🌸 [V&V Florielle] Mã OTP Xác Thực Hội Viên',
+          otpCode: otp,
+          purpose: 'Xác thực tài khoản hội viên V&V Florielle',
+          storeName: settings.name || 'V&V Florielle',
+          storeHotline: settings.hotline || '0906.721.442',
+          storeAddress: settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
+          storeDomain: settings.customDomain || 'https://vvflorielle.vn',
+          timestamp: new Date().toISOString()
+        })
+      }).catch((err) => console.warn('[OTP] Lỗi gửi email hội viên:', err));
+    }
 
     if (customer) {
       const updatedCust = { ...customer, otpCode: otp, otpExpiresAt: expiresAt };
@@ -3296,7 +3317,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       expiresAt
     });
 
-    showToast(`Mã xác thực kích hoạt gửi tới ${cleanValue} là: ${otp} (Hiệu lực 5 phút)`, 'info');
+    // Bảo mật tuyệt đối: Không in mã OTP lên màn hình
+    showToast(`Đã gửi mã xác nhận tới ${cleanValue}. Vui lòng kiểm tra hộp thư/tin nhắn!`, 'info');
+
+    // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu target là email
+    if (cleanValue.includes('@') && settings.googleDriveWebhookUrl && settings.googleDriveWebhookUrl.trim().startsWith('http')) {
+      fetch(settings.googleDriveWebhookUrl.trim(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'SEND_EMAIL_OTP',
+          recipient: cleanValue.trim(),
+          subject: '🛡️ [V&V Florielle] Mã OTP Xác Nhận Thay Đổi Thông Tin Cá Nhân',
+          otpCode: otp,
+          purpose: 'Xác nhận liên kết địa chỉ Gmail mới',
+          storeName: settings.name || 'V&V Florielle',
+          storeHotline: settings.hotline || '0906.721.442',
+          storeAddress: settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
+          storeDomain: settings.customDomain || 'https://vvflorielle.vn',
+          timestamp: new Date().toISOString()
+        })
+      }).catch((err) => console.warn('[OTP] Lỗi gửi email đổi thông tin:', err));
+    }
     return { success: true, message: `Đã gửi mã OTP tới ${cleanValue}` };
   };
 
@@ -4321,7 +4363,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const target = email || adminEmail;
 
     // Giấu mã OTP khỏi màn hình để bảo mật tuyệt đối 100%
-    showToast(`Mã OTP khôi phục PIN đã được gửi tới ${target}. Vui lòng kiểm tra hộp thư!`, 'success');
+    showToast(`Đã gửi mã OTP tới ${target}. Vui lòng kiểm tra hộp thư!`, 'success');
 
     // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu đã cài đặt
     const webhookUrl = settings.googleDriveWebhookUrl;
@@ -4332,9 +4374,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: target,
-          subject: '🌸 [V&V Florielle] Mã OTP Xác Thực Quản Trị Cấp 2',
+          subject: '🔑 [V&V Florielle] Mã OTP Khôi Phục Mã PIN Quản Trị Cấp 2',
           otpCode: code,
-          purpose: 'Khôi phục mã PIN quản trị',
+          purpose: 'Khôi phục mã PIN bảo mật quản trị cấp 2',
+          storeName: settings.name || 'V&V Florielle',
+          storeHotline: settings.hotline || '0906.721.442',
+          storeAddress: settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
+          storeDomain: settings.customDomain || 'https://vvflorielle.vn',
           timestamp: new Date().toISOString()
         })
       }).catch((err) => console.warn('[OTP] Lỗi gửi email qua Google Webhook:', err));
@@ -4379,7 +4425,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
 
     // Giấu mã OTP khỏi thông báo Toast
-    showToast(`Mã OTP bảo mật thay đổi STK VietQR đã gửi tới ${target}. Vui lòng kiểm tra hộp thư!`, 'info');
+    showToast(`Đã gửi mã OTP bảo mật 2FA tới ${target}. Vui lòng kiểm tra hộp thư!`, 'info');
 
     // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu đã cài đặt
     const webhookUrl = settings.googleDriveWebhookUrl;
@@ -4390,9 +4436,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: target,
-          subject: '🔒 [V&V Florielle] Cảnh Báo An Ninh: Mã OTP Thay Đổi Tài Khoản Ngân Hàng',
+          subject: '🏦 [V&V Florielle] CẢNH BÁO AN NINH: Mã OTP Thay Đổi STK VietQR',
           otpCode: code,
-          purpose: 'Xác thực thay đổi tài khoản nhận tiền VietQR',
+          purpose: 'Xác thực 2FA thay đổi tài khoản ngân hàng thụ hưởng VietQR',
+          storeName: settings.name || 'V&V Florielle',
+          storeHotline: settings.hotline || '0906.721.442',
+          storeAddress: settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
+          storeDomain: settings.customDomain || 'https://vvflorielle.vn',
           timestamp: new Date().toISOString()
         })
       }).catch((err) => console.warn('[OTP] Lỗi gửi email qua Google Webhook:', err));

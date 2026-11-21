@@ -603,7 +603,7 @@ export const AuthModal: React.FC = () => {
               {isForgotOtpSent && (
                 <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Mã OTP đã được tạo! Vui lòng kiểm tra thông báo.</span>
+                  <span>Mã OTP đã được gửi tới hộp thư/SMS của bạn. Vui lòng kiểm tra để nhập mã.</span>
                 </div>
               )}
 

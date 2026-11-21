@@ -7,8 +7,6 @@ import {
   Pencil,
   ExternalLink,
   Sparkles,
-  CheckCircle2,
-  Flower2,
   ArrowLeft,
   ShieldCheck,
   ShieldAlert,
@@ -16,12 +14,10 @@ import {
   CloudRain,
   Moon,
   Sun,
-  Percent,
   AlertTriangle,
   Bot
 } from 'lucide-react';
 import { ShopSettings, ContactChannel } from '../../../types';
-import { AVAILABLE_MASCOTS, AVAILABLE_FLORAL_CORNERS } from '../../../data/mockData';
 import { ActionConfirmModal } from '../ManagementModals';
 
 interface StoreConfigSubpageProps {
@@ -57,9 +53,17 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Header căn giữa chuẩn Phototiinlove */}
+      {/* Header căn giữa chuẩn Phototiinlove kèm nút Trở về Bàn Làm Việc */}
       <div className="relative flex items-center justify-between min-h-[44px] pb-3 border-b border-slate-200/80">
-        <div className="w-10 sm:w-28 shrink-0" />
+        <button
+          type="button"
+          onClick={onBackToDashboard}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-bold text-xs border border-slate-200/80 transition-all cursor-pointer shrink-0"
+          title="Quay về bàn làm việc quản trị"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span className="hidden sm:inline">Bàn làm việc</span>
+        </button>
         <div className="text-center mx-auto px-2">
           <small className="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-600">
             CẤU HÌNH HỆ THỐNG
@@ -72,7 +76,7 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
       </div>
 
       {/* 1. Main Store Configuration Form */}
-      <form onSubmit={handleSubmit} className="glass-panel p-5 sm:p-6 space-y-6 rounded-[28px]">
+      <form onSubmit={handleSubmit} className="glass-panel p-4 sm:p-6 space-y-5 rounded-[28px]">
         <div className="border-b border-slate-200 pb-3">
           <h3 className="font-bold text-base text-slate-800">Cấu Hình Cửa Hàng V&amp;V Florielle</h3>
           <p className="text-xs text-slate-500">
@@ -80,10 +84,11 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
           </p>
         </div>
 
-        <div className="space-y-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-3.5 text-xs">
+          {/* Nhóm 1: Tên thương hiệu & Khẩu hiệu (2 cột) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
             <div>
-              <label className="text-[11px] text-slate-500 block mb-1">Tên thương hiệu</label>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Tên thương hiệu</label>
               <input
                 type="text"
                 value={editSettings.name}
@@ -93,7 +98,7 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
             </div>
 
             <div>
-              <label className="text-[11px] text-slate-500 block mb-1">Khẩu hiệu / Slogan</label>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Khẩu hiệu / Slogan</label>
               <input
                 type="text"
                 value={editSettings.slogan}
@@ -103,52 +108,43 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Nhóm 2: Hotline & Zalo (2 cột song song ngay trên Mobile) */}
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
             <div>
-              <label className="text-[11px] text-slate-500 block mb-1">Hotline tư vấn</label>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Hotline tư vấn</label>
               <input
                 type="text"
                 value={editSettings.hotline}
                 onChange={(e) => setEditSettings({ ...editSettings, hotline: e.target.value })}
-                className="glass-input w-full text-xs py-2 rounded-xl"
+                className="glass-input w-full text-xs py-2 rounded-xl font-mono"
               />
             </div>
 
             <div>
-              <label className="text-[11px] text-slate-500 block mb-1">Số Zalo đặt hoa</label>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Số Zalo đặt hoa</label>
               <input
                 type="text"
                 value={editSettings.zalo}
                 onChange={(e) => setEditSettings({ ...editSettings, zalo: e.target.value })}
-                className="glass-input w-full text-xs py-2 rounded-xl"
+                className="glass-input w-full text-xs py-2 rounded-xl font-mono"
               />
             </div>
+          </div>
 
+          {/* Nhóm 3: Email & Khung giờ mở cửa (2 cột song song) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
             <div>
-              <label className="text-[11px] text-slate-500 block mb-1">Email cửa hàng</label>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Email tiệm gửi hóa đơn/OTP</label>
               <input
                 type="email"
                 value={editSettings.email}
                 onChange={(e) => setEditSettings({ ...editSettings, email: e.target.value })}
-                className="glass-input w-full text-xs py-2 rounded-xl"
+                className="glass-input w-full text-xs py-2 rounded-xl font-mono"
               />
             </div>
-          </div>
 
-          <div>
-            <label className="text-[11px] text-slate-500 block mb-1">Địa chỉ Showroom (Trụ sở chính)</label>
-            <input
-              type="text"
-              value={editSettings.address}
-              onChange={(e) => setEditSettings({ ...editSettings, address: e.target.value })}
-              className="glass-input w-full text-xs py-2 rounded-xl font-medium"
-            />
-          </div>
-
-          {/* Opening Hours & Operational Status Badge */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-[11px] text-slate-500 block mb-1">Khung giờ mở cửa hàng ngày</label>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Khung giờ mở cửa hàng ngày</label>
               <input
                 type="text"
                 value={editSettings.openingHours || '07:30 - 22:00'}
@@ -156,22 +152,33 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                 placeholder="VD: 07:30 - 22:00"
                 className="glass-input w-full text-xs py-2 rounded-xl font-mono"
               />
-              <span className="text-[10px] text-slate-400">Định dạng chuẩn: Giờ:Phút - Giờ:Phút (VD: 07:30 - 22:00)</span>
+            </div>
+          </div>
+
+          {/* Nhóm 4: Địa chỉ Showroom & Trạng thái hoạt động */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
+            <div className="sm:col-span-2">
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Địa chỉ Showroom (Trụ sở chính)</label>
+              <input
+                type="text"
+                value={editSettings.address}
+                onChange={(e) => setEditSettings({ ...editSettings, address: e.target.value })}
+                className="glass-input w-full text-xs py-2 rounded-xl font-medium"
+              />
             </div>
 
             <div>
-              <label className="text-[11px] text-slate-500 block mb-1">Huy hiệu trạng thái tiệm (Nút liên hệ)</label>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Trạng thái tiệm</label>
               <select
                 value={editSettings.storeOperationalStatus || 'AUTO'}
                 onChange={(e) => setEditSettings({ ...editSettings, storeOperationalStatus: e.target.value as any })}
                 className="glass-input w-full text-xs py-2 rounded-xl font-semibold"
               >
-                <option value="AUTO">⚡ Tự động theo giờ (Mở Cửa / Tạm Nghỉ / Đóng Cửa)</option>
-                <option value="OPEN">🟢 Mở Cửa (Luôn mở nhận đơn)</option>
-                <option value="BREAK">🟠 Tạm Nghỉ (Nghỉ giữa ca / Quá tải đơn)</option>
-                <option value="CLOSED">🔴 Đóng Cửa (Nghỉ lễ / Hết hoa)</option>
+                <option value="AUTO">⚡ Tự động theo giờ</option>
+                <option value="OPEN">🟢 Mở Cửa</option>
+                <option value="BREAK">🟠 Tạm Nghỉ</option>
+                <option value="CLOSED">🔴 Đóng Cửa</option>
               </select>
-              <span className="text-[10px] text-slate-400">Hiển thị gọn: &quot;Mở Cửa&quot;, &quot;Tạm Nghỉ&quot; hoặc &quot;Đóng Cửa&quot;</span>
             </div>
           </div>
 
@@ -191,12 +198,12 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
             </div>
           </div>
 
-          {/* Advanced Store Settings: Domain, Distance Shipping & Assistant */}
+          {/* Advanced Store Settings: Domain, Distance Shipping & Assistant (2 CỘT GỌN GÀNG) */}
           <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3">
             <h4 className="font-bold text-xs text-slate-800">Cấu Hình Tên Miền Riêng, Vận Chuyển &amp; Trợ Lý AI</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Tên miền thương hiệu</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+              <div className="col-span-2 sm:col-span-1">
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">Tên miền thương hiệu</label>
                 <input
                   type="text"
                   value={editSettings.customDomain || ''}
@@ -205,8 +212,8 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
               </div>
-              <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Thời gian giao hoa cam kết</label>
+              <div className="col-span-2 sm:col-span-2">
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">Thời gian giao hoa cam kết</label>
                 <input
                   type="text"
                   value={editSettings.deliveryTimeEstimate || 'Từ 15 phút nội thành, 60 phút ngoại thành'}
@@ -214,10 +221,9 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   placeholder="Từ 15 phút nội thành, 60 phút ngoại thành"
                   className="glass-input w-full text-xs py-2 rounded-xl"
                 />
-                <span className="text-[10px] text-slate-400">Đồng bộ lên tiêu đề, popups và trợ lý ảo</span>
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Phí vận chuyển theo km (đ/km)</label>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">Phí km (đ/km)</label>
                 <input
                   type="number"
                   step={1000}
@@ -225,10 +231,10 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   onChange={(e) => setEditSettings({ ...editSettings, shippingFeePerKm: Number(e.target.value) })}
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
-                <span className="text-[10px] text-slate-400">Mặc định 10.000đ/km (tính ngoài 12km)</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">Ngoài 12km: 10.000đ/km</span>
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Ngưỡng đơn Freeship (đ)</label>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">Ngưỡng Freeship (đ)</label>
                 <input
                   type="number"
                   step={50000}
@@ -236,10 +242,10 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   onChange={(e) => setEditSettings({ ...editSettings, freeShipThreshold: Number(e.target.value) })}
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
-                <span className="text-[10px] text-slate-400">Đơn từ mức này được Freeship trong bán kính</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">Mặc định: 400.000đ</span>
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Bán kính áp dụng Freeship (km)</label>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">Bán kính Freeship (km)</label>
                 <input
                   type="number"
                   min={1}
@@ -248,10 +254,10 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   onChange={(e) => setEditSettings({ ...editSettings, freeShipRadiusKm: Number(e.target.value) })}
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
-                <span className="text-[10px] text-slate-400">Mặc định bán kính &le; 3km quanh 105 Doãn Kế Thiện</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">&le; 3km quanh showroom</span>
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Thời gian AI tự duyệt bill (phút)</label>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">AI tự duyệt bill (phút)</label>
                 <input
                   type="number"
                   min={1}
@@ -260,10 +266,10 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   onChange={(e) => setEditSettings({ ...editSettings, autoApproveWaitMinutes: Number(e.target.value) })}
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
-                <span className="text-[10px] text-slate-400">Nếu admin bận cắm hoa sau 2 phút, trợ lý tự duyệt</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">Chờ cắm hoa: 2 phút</span>
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Bán kính cảnh báo hoa giảm tươi (km)</label>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">Cảnh báo hoa xa (km)</label>
                 <input
                   type="number"
                   min={5}
@@ -272,10 +278,10 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   onChange={(e) => setEditSettings({ ...editSettings, warnDeliveryRadiusKm: Number(e.target.value) })}
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
-                <span className="text-[10px] text-slate-400">Vượt số km này khách phải tích cam kết chịu trách nhiệm</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">Khách cam kết tươi</span>
               </div>
               <div>
-                <label className="text-[11px] text-slate-500 block mb-1">Bán kính giao hoa tối đa (km)</label>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">Giao tối đa (km)</label>
                 <input
                   type="number"
                   min={10}
@@ -284,7 +290,7 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                   onChange={(e) => setEditSettings({ ...editSettings, maxDeliveryRadiusKm: Number(e.target.value) })}
                   className="glass-input w-full text-xs py-2 rounded-xl font-mono"
                 />
-                <span className="text-[10px] text-slate-400">Vượt quá sẽ chặn đặt online &amp; chuyển sang gọi Hotline</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">Vượt mức gọi Hotline</span>
               </div>
             </div>
 
@@ -592,117 +598,6 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
                     Chọn x2 vào các dịp lễ 14/2, 8/3, 20/10 để kích cầu khách đặt sớm.
                   </span>
                 </div>
-              </div>
-            </div>
-
-            {/* Mascot Selection */}
-            <div className="pt-3 border-t border-slate-200/60 space-y-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Chọn Linh Vật Trợ Lý Ảo Flori (Bộ 6 Mẫu Tách Nền)</span>
-                  </label>
-                  <p className="text-[11px] text-slate-500">
-                    Bấm vào bất kỳ linh vật nào bên dưới để đặt làm linh vật hiển thị chính thức của tiệm hoa.
-                  </p>
-                </div>
-                {editSettings.mascotImageUrl && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                    <span>Đang chọn 1 mẫu</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
-                {AVAILABLE_MASCOTS.map((m) => {
-                  const isSelected = editSettings.mascotImageUrl === m.url;
-                  return (
-                    <div
-                      key={m.id}
-                      onClick={() => setEditSettings({ ...editSettings, mascotImageUrl: m.url })}
-                      className={`p-2.5 rounded-2xl border transition-all cursor-pointer text-center relative flex flex-col items-center justify-between ${
-                        isSelected
-                          ? 'bg-emerald-50/90 border-emerald-500 ring-2 ring-emerald-500/30 shadow-md'
-                          : 'bg-white/80 hover:bg-white border-slate-200 hover:border-emerald-300 hover:shadow-sm'
-                      }`}
-                    >
-                      {isSelected && (
-                        <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-emerald-600 text-white text-[9px] flex items-center justify-center font-bold">
-                          ✓
-                        </span>
-                      )}
-                      <div className="w-16 h-16 flex items-center justify-center overflow-hidden mb-1">
-                        <img
-                          src={m.url}
-                          alt={m.name}
-                          className="w-full h-full object-contain filter drop-shadow-sm transition-transform hover:scale-110"
-                        />
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-800 line-clamp-1">{m.name}</span>
-                      <span
-                        className={`text-[9px] mt-1 px-2 py-0.5 rounded-full font-bold ${
-                          isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
-                        }`}
-                      >
-                        {isSelected ? 'Đang dùng' : 'Chọn mẫu'}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="flex gap-2 items-center pt-1">
-                <input
-                  type="text"
-                  placeholder="Hoặc dán URL ảnh linh vật tùy chỉnh khác..."
-                  value={editSettings.mascotImageUrl || ''}
-                  onChange={(e) => setEditSettings({ ...editSettings, mascotImageUrl: e.target.value })}
-                  className="glass-input flex-1 text-xs py-2 rounded-xl font-mono"
-                />
-                {editSettings.mascotImageUrl && (
-                  <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-                    <img src={editSettings.mascotImageUrl} alt="Preview" className="w-7 h-7 object-contain" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Floral Corners Preview */}
-            <div className="pt-3 border-t border-slate-200/60 space-y-2">
-              <div>
-                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <Flower2 className="w-3.5 h-3.5 text-rose-500" />
-                  <span>Bộ 4 Tệp Ảnh Hoa Góc Trang Trí (E:\VVFlorielle\public\images\floral\)</span>
-                </label>
-                <p className="text-[11px] text-slate-500">
-                  Cụm hoa nghệ thuật chụp thực tế đã được tách nền trong suốt 100%, trang trí nhẹ nhàng quanh Hero Banner.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {AVAILABLE_FLORAL_CORNERS.map((fc) => (
-                  <div
-                    key={fc.id}
-                    className="p-3 rounded-2xl bg-white/80 border border-slate-200 flex items-center gap-3 shadow-2xs"
-                  >
-                    <div className="w-16 h-16 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
-                      <img src={fc.webpUrl} alt={fc.name} className="w-full h-full object-contain" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h5 className="font-bold text-xs text-slate-900 truncate">{fc.name}</h5>
-                      <p className="text-[10px] text-slate-500 font-mono truncate mt-0.5">{fc.webpUrl}</p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                          Đã tách nền sạch 100%
-                        </span>
-                        <span className="text-[9px] text-slate-400">WebP + PNG</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
 

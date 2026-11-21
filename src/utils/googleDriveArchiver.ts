@@ -28,11 +28,15 @@ function doPost(e) {
       var subject = data.subject || "🌸 [V&V Florielle] Mã OTP Xác Thực Quản Trị Cấp 2";
       var otpCode = data.otpCode || "";
       var purpose = data.purpose || "Xác thực bảo mật tài khoản tiệm";
+      var storeName = data.storeName || "V&V Florielle Boutique";
+      var storeHotline = data.storeHotline || "0906.721.442";
+      var storeAddress = data.storeAddress || "105 Doãn Kế Thiện, Cầu Giấy, Hà Nội";
+      var storeDomain = data.storeDomain || "https://vvflorielle.vn";
 
       var htmlBody = ""
         + "<div style='font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;'>"
         + "  <div style='text-align: center; margin-bottom: 20px;'>"
-        + "    <h2 style='color: #047857; margin: 0;'>🌸 V&V Florielle Boutique</h2>"
+        + "    <h2 style='color: #047857; margin: 0;'>🌸 " + storeName + "</h2>"
         + "    <p style='color: #64748b; font-size: 13px; margin-top: 4px;'>Tiệm Hoa Nghệ Thuật & Thiết Kế Cao Cấp Hà Nội</p>"
         + "  </div>"
         + "  <div style='background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 18px; text-align: center; margin-bottom: 20px;'>"
@@ -40,12 +44,17 @@ function doPost(e) {
         + "    <div style='font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #047857; font-family: monospace;'>" + otpCode + "</div>"
         + "    <p style='color: #64748b; font-size: 12px; margin: 8px 0 0 0;'>Mã có hiệu lực trong 5 phút. Mục đích: " + purpose + ".</p>"
         + "  </div>"
-        + "  <p style='color: #475569; font-size: 13px; line-height: 1.6;'>Yêu cầu này được gửi từ Trang Quản Trị V&V Florielle. Tuyệt đối không cung cấp mã này cho bất kỳ ai để đảm bảo an toàn kho hàng và doanh thu của tiệm.</p>"
+        + "  <p style='color: #475569; font-size: 13px; line-height: 1.6;'>Yêu cầu này được gửi từ Trang Quản Trị " + storeName + ". Tuyệt đối không cung cấp mã này cho bất kỳ ai để đảm bảo an toàn kho hàng và doanh thu của tiệm.</p>"
+        + "  <div style='margin-top: 20px; padding-top: 14px; border-top: 1px dashed #cbd5e1; font-size: 11px; color: #64748b; text-align: center; line-height: 1.6;'>"
+        + "    <strong>" + storeName + "</strong> • Hotline: " + storeHotline + "<br/>"
+        + "    Showroom: " + storeAddress + "<br/>"
+        + "    Website chính thức: <a href='" + storeDomain + "' style='color: #047857; text-decoration: none; font-weight: bold;'>" + storeDomain + "</a>"
+        + "  </div>"
         + "</div>";
 
       GmailApp.sendEmail(recipient, subject, "Mã xác thực OTP của bạn là: " + otpCode, {
         htmlBody: htmlBody,
-        name: "V&V Florielle Boutique"
+        name: storeName
       });
 
       return ContentService.createTextOutput(JSON.stringify({
