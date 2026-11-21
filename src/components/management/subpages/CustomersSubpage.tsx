@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Eye, Award, KeyRound, Edit3, Trash2, ArrowLeft, UserPlus, Download, Ban, ShieldCheck, CheckCircle2, Gift } from 'lucide-react';
 import { CustomerUser, Order } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
@@ -41,6 +41,14 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
   const [customerToDelete, setCustomerToDelete] = useState<CustomerUser | null>(null);
   const [isPrivilegeModalOpen, setIsPrivilegeModalOpen] = useState(false);
   const [selectedCustForPrivilege, setSelectedCustForPrivilege] = useState<CustomerUser | null>(null);
+  const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
+  const [expandedCustId, setExpandedCustId] = useState<string | null>(null);
+  const [customersPage, setCustomersPage] = useState<number>(1);
+  const [customersPageSize, setCustomersPageSize] = useState<number | 'ALL'>(10);
+
+  useEffect(() => {
+    setCustomersPage(1);
+  }, [customerSearch, customerTierFilter, customerStatusFilter]);
 
   const filteredCustomers = customers.filter((c) => {
     const matchSearch =
@@ -56,6 +64,19 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
       c.status === customerStatusFilter;
     return matchSearch && matchTier && matchStatus;
   });
+
+  // Phân trang khách hàng
+  const totalPages =
+    customersPageSize === 'ALL'
+      ? 1
+      : Math.max(1, Math.ceil(filteredCustomers.length / Number(customersPageSize)));
+  const displayedCustomers =
+    customersPageSize === 'ALL'
+      ? filteredCustomers
+      : filteredCustomers.slice(
+          (customersPage - 1) * Number(customersPageSize),
+          customersPage * Number(customersPageSize)
+        );
 
   const handleExportCustomersCsv = () => {
     if (filteredCustomers.length === 0) return;
@@ -209,32 +230,134 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
       </div>
     </div>
 
-      {/* Search box (Fixed padding and perfectly centered icon, no overlap) */}
-      <div className="relative max-w-md">
-        <input
-          type="text"
-          placeholder="Tìm theo tên, số điện thoại, ghi chú hoặc email..."
-          value={customerSearch}
-          onChange={(e) => setCustomerSearch(e.target.value)}
-          className="glass-input w-full text-xs py-2.5 !pl-10 !pr-4 rounded-xl"
-        />
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      {/* Search box & View Switcher */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative max-w-md flex-1 min-w-[240px]">
+          <input
+            type="text"
+            placeholder="Tìm theo tên, số điện thoại, ghi chú hoặc email..."
+            value={customerSearch}
+            onChange={(e) => setCustomerSearch(e.target.value)}
+            className="glass-input w-full text-xs py-2.5 !pl-10 !pr-4 rounded-xl"
+          />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
+
+        {/* Chế độ xem Compact 1 dòng */}
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200/80 text-xs font-bold shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsCompactMode(false)}
+            className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              !isCompactMode
+                ? 'bg-white text-purple-950 shadow-xs border border-slate-200/80'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            🗂️ Thẻ hội viên
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsCompactMode(true)}
+            className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              isCompactMode
+                ? 'bg-purple-700 text-white shadow-xs'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            📋 Thu gọn 1 dòng
+          </button>
+        </div>
       </div>
 
       {/* Customers List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className={isCompactMode ? "space-y-2.5" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
         {filteredCustomers.length === 0 ? (
           <div className="py-12 text-center text-slate-400 text-xs col-span-2">
             Không tìm thấy khách hàng nào phù hợp với điều kiện tìm kiếm.
           </div>
         ) : (
-          filteredCustomers.map((cust) => {
+          displayedCustomers.map((cust) => {
             const history = getCustomerOrderHistory(cust.phone);
+            const isExpanded = expandedCustId === cust.id;
+
+            if (isCompactMode && !isExpanded) {
+              return (
+                <div
+                  key={cust.id}
+                  onClick={() => setExpandedCustId(cust.id)}
+                  className="p-3 rounded-2xl bg-white border border-slate-200/80 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer flex items-center justify-between gap-2.5 text-xs group"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
+                      {cust.fullName.charAt(0)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-bold text-slate-900 truncate">{cust.fullName}</span>
+                        <span className="font-mono text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200 hidden sm:inline">
+                          {cust.accountCode || `VVF-${cust.id.slice(-4)}`}
+                        </span>
+                        <span
+                          className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded-full ${
+                            cust.tier === 'Kim Cương'
+                              ? 'bg-purple-100 text-purple-800'
+                              : cust.tier === 'Vàng'
+                              ? 'bg-amber-100 text-amber-800'
+                              : cust.tier === 'Bạc'
+                              ? 'bg-slate-100 text-slate-700'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}
+                        >
+                          {cust.tier}
+                        </span>
+                        {cust.status === 'BLOCKED' && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                            🚫 KHÓA
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono truncate mt-0.5">
+                        {cust.phone} {cust.email ? `• ${cust.email}` : ''}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 shrink-0 text-right">
+                    <div>
+                      <div className="text-xs font-extrabold text-emerald-700">{cust.points} điểm</div>
+                      <div className="text-[10px] text-slate-400">{cust.ordersCount} đơn • {formatPrice(cust.totalSpent)}</div>
+                    </div>
+                    <button
+                      type="button"
+                      className="p-1.5 rounded-xl bg-slate-100 group-hover:bg-purple-50 text-slate-400 group-hover:text-purple-700 transition-colors"
+                      title="Xem chi tiết & thao tác"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div
                 key={cust.id}
-                className="p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-3 min-w-0 overflow-hidden"
+                className={`p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-3 min-w-0 overflow-hidden ${
+                  isCompactMode && isExpanded ? 'border-purple-300 ring-2 ring-purple-500/20' : ''
+                }`}
               >
+                {isCompactMode && isExpanded && (
+                  <div className="flex justify-end pb-1 border-b border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedCustId(null)}
+                      className="text-[11px] font-bold text-slate-500 hover:text-purple-700 underline cursor-pointer"
+                    >
+                      ▲ Thu gọn lại
+                    </button>
+                  </div>
+                )}
                 {/* Responsive Customer Header: No overflow on small mobile */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2.5 min-w-0">
                   <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
@@ -426,6 +549,54 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
           })
         )}
       </div>
+
+      {/* Phân trang danh sách khách hàng */}
+      {filteredCustomers.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200/80 text-xs font-medium text-slate-600">
+          <div className="flex items-center gap-2">
+            <span>Hiển thị</span>
+            <select
+              value={customersPageSize}
+              onChange={(e) => {
+                const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
+                setCustomersPageSize(val);
+                setCustomersPage(1);
+              }}
+              className="px-2.5 py-1 rounded-xl bg-white border border-slate-300 font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+            >
+              <option value={10}>10 hội viên / trang</option>
+              <option value={20}>20 hội viên / trang</option>
+              <option value={50}>50 hội viên / trang</option>
+              <option value="ALL">Tất cả ({filteredCustomers.length})</option>
+            </select>
+            <span>trong tổng số <strong>{filteredCustomers.length}</strong> khách hàng</span>
+          </div>
+
+          {customersPageSize !== 'ALL' && totalPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={customersPage <= 1}
+                onClick={() => setCustomersPage((p) => Math.max(1, p - 1))}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                Trước
+              </button>
+              <div className="px-3 py-1 font-bold text-purple-900 bg-purple-50 rounded-xl border border-purple-200/60">
+                {customersPage} / {totalPages}
+              </div>
+              <button
+                type="button"
+                disabled={customersPage >= totalPages}
+                onClick={() => setCustomersPage((p) => Math.min(totalPages, p + 1))}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                Sau
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* In-App Action Confirm Modal: No Browser Dialogs! */}
       <ActionConfirmModal

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Gift, Plus, Trash2, ArrowLeft, Pencil, Send, Tag, Navigation, Flame, Clock, Users, Zap, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { PromotionItem } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
@@ -38,6 +38,12 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
   const [voucherToAirdrop, setVoucherToAirdrop] = useState<PromotionItem | null>(null);
   const [isPrivilegeModalOpen, setIsPrivilegeModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'ALL' | 'PUBLIC' | 'PRIVATE' | 'FLOWER' | 'SHIPPING'>('ALL');
+  const [promoPage, setPromoPage] = useState<number>(1);
+  const [promoPageSize, setPromoPageSize] = useState<number | 'ALL'>(8);
+
+  useEffect(() => {
+    setPromoPage(1);
+  }, [activeTab]);
 
   const filteredPromotions = useMemo(() => {
     return promotions.filter((p) => {
@@ -48,6 +54,19 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
       return true;
     });
   }, [promotions, activeTab]);
+
+  const totalPromoPages =
+    promoPageSize === 'ALL'
+      ? 1
+      : Math.max(1, Math.ceil(filteredPromotions.length / Number(promoPageSize)));
+
+  const displayedPromotions =
+    promoPageSize === 'ALL'
+      ? filteredPromotions
+      : filteredPromotions.slice(
+          (promoPage - 1) * Number(promoPageSize),
+          promoPage * Number(promoPageSize)
+        );
 
   const counts = useMemo(() => {
     return {
@@ -250,147 +269,201 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredPromotions.map((promo) => {
-          const isShipping = promo.voucherScope === 'SHIPPING' || promo.discountType === 'FREESHIP';
+        {filteredPromotions.length === 0 ? (
+          <div className="py-12 text-center text-slate-400 text-xs col-span-full">
+            Không có voucher nào trong danh mục này.
+          </div>
+        ) : (
+          displayedPromotions.map((promo) => {
+            const isShipping = promo.voucherScope === 'SHIPPING' || promo.discountType === 'FREESHIP';
 
-          return (
-            <div
-              key={promo.id}
-              className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm space-y-3 flex flex-col justify-between hover:border-slate-300 transition-all"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-mono font-black text-xs text-emerald-900 bg-emerald-100/90 px-2 py-0.5 rounded-lg border border-emerald-300">
-                      {promo.code}
-                    </span>
+            return (
+              <div
+                key={promo.id}
+                className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm space-y-3 flex flex-col justify-between hover:border-slate-300 transition-all"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono font-black text-xs text-emerald-900 bg-emerald-100/90 px-2 py-0.5 rounded-lg border border-emerald-300">
+                        {promo.code}
+                      </span>
+                      <span
+                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${
+                          isShipping
+                            ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                            : 'bg-rose-100 text-rose-800 border border-rose-200'
+                        }`}
+                      >
+                        {isShipping ? 'VẬN CHUYỂN' : 'GIẢM GIÁ HOA'}
+                      </span>
+                    </div>
+
                     <span
-                      className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${
-                        isShipping
-                          ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                          : 'bg-rose-100 text-rose-800 border border-rose-200'
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        promo.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
                       }`}
                     >
-                      {isShipping ? 'VẬN CHUYỂN' : 'GIẢM GIÁ HOA'}
+                      {promo.isActive ? 'Đang áp dụng' : 'Tạm dừng'}
                     </span>
                   </div>
 
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      promo.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
-                    }`}
-                  >
-                    {promo.isActive ? 'Đang áp dụng' : 'Tạm dừng'}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                  {promo.badge && (
-                    <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
-                      {promo.badge}
-                    </span>
-                  )}
-                  {promo.hourlyDealStart && (
-                    <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-rose-200">
-                      <Flame className="w-3 h-3 text-rose-600 fill-rose-600" />
-                      <span>{promo.hourlyDealStart}-{promo.hourlyDealEnd}</span>
-                    </span>
-                  )}
-                  {promo.showOnPublicWeb === false ? (
-                    <span className="text-[10px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
-                      Mã ẩn / Ví hội viên
-                    </span>
-                  ) : (
-                    <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      Công khai
-                    </span>
-                  )}
-                </div>
-
-                <h4 className="font-bold text-xs text-slate-900 mt-2">{promo.title}</h4>
-                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{promo.description}</p>
-
-                <div className="mt-2.5 pt-2 border-t border-slate-100 space-y-1 text-xs text-slate-600">
-                  <div className="flex justify-between">
-                    <span>Mức giảm:</span>
-                    <strong className="text-rose-700 font-extrabold">{formatPrice(promo.discountAmount)}</strong>
+                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                    {promo.badge && (
+                      <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
+                        {promo.badge}
+                      </span>
+                    )}
+                    {promo.hourlyDealStart && (
+                      <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-rose-200">
+                        <Flame className="w-3 h-3 text-rose-600 fill-rose-600" />
+                        <span>{promo.hourlyDealStart}-{promo.hourlyDealEnd}</span>
+                      </span>
+                    )}
+                    {promo.showOnPublicWeb === false ? (
+                      <span className="text-[10px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+                        Mã ẩn / Ví hội viên
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        Công khai
+                      </span>
+                    )}
                   </div>
-                  <div className="flex justify-between">
-                    <span>Đơn tối thiểu:</span>
-                    <strong className="text-slate-800">{formatPrice(promo.minOrder)}</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Lượt đã dùng:</span>
-                    <strong className="text-slate-700">
-                      {promo.usedCount || 0} / {promo.usageLimit ? `${promo.usageLimit} lượt` : 'Không giới hạn'}
-                    </strong>
-                  </div>
-                  {promo.maxShippingRadiusKm && (
-                    <div className="flex justify-between text-blue-700">
-                      <span>Bán kính ship tối đa:</span>
-                      <strong>{promo.maxShippingRadiusKm} km</strong>
+
+                  <h4 className="font-bold text-xs text-slate-900 mt-2">{promo.title}</h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{promo.description}</p>
+
+                  <div className="mt-2.5 pt-2 border-t border-slate-100 space-y-1 text-xs text-slate-600">
+                    <div className="flex justify-between">
+                      <span>Mức giảm:</span>
+                      <strong className="text-rose-700 font-extrabold">{formatPrice(promo.discountAmount)}</strong>
                     </div>
-                  )}
-                  {promo.pointsToRedeem && (
-                    <div className="flex justify-between text-emerald-700 font-semibold">
-                      <span>Điểm đổi:</span>
-                      <strong>{promo.pointsToRedeem} điểm</strong>
+                    <div className="flex justify-between">
+                      <span>Đơn tối thiểu:</span>
+                      <strong className="text-slate-800">{formatPrice(promo.minOrder)}</strong>
                     </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs gap-1">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const updated = promotions.map((p) => (p.id === promo.id ? { ...p, isActive: !p.isActive } : p));
-                      updatePromotions(updated);
-                    }}
-                    className="text-purple-700 hover:text-purple-900 text-[11px] font-semibold cursor-pointer"
-                  >
-                    {promo.isActive ? 'Tạm dừng' : 'Kích hoạt'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setVoucherToAirdrop(promo)}
-                    className="text-emerald-700 hover:text-emerald-900 text-[11px] font-bold flex items-center gap-0.5 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200 cursor-pointer"
-                    title="Phát trực tiếp vào ví tất cả khách hàng"
-                  >
-                    <Send className="w-3 h-3 text-emerald-600" />
-                    <span>Airdrop</span>
-                  </button>
+                    <div className="flex justify-between">
+                      <span>Lượt đã dùng:</span>
+                      <strong className="text-slate-700">
+                        {promo.usedCount || 0} / {promo.usageLimit ? `${promo.usageLimit} lượt` : 'Không giới hạn'}
+                      </strong>
+                    </div>
+                    {promo.maxShippingRadiusKm && (
+                      <div className="flex justify-between text-blue-700">
+                        <span>Bán kính ship tối đa:</span>
+                        <strong>{promo.maxShippingRadiusKm} km</strong>
+                      </div>
+                    )}
+                    {promo.pointsToRedeem && (
+                      <div className="flex justify-between text-emerald-700 font-semibold">
+                        <span>Điểm đổi:</span>
+                        <strong>{promo.pointsToRedeem} điểm</strong>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  {onOpenEditVoucher && (
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs gap-1">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => onOpenEditVoucher(promo)}
-                      className="p-1 rounded-lg text-slate-500 hover:text-purple-700 hover:bg-purple-50 cursor-pointer flex items-center gap-1 font-semibold text-[11px]"
-                      title="Chỉnh sửa voucher"
+                      onClick={() => {
+                        const updated = promotions.map((p) => (p.id === promo.id ? { ...p, isActive: !p.isActive } : p));
+                        updatePromotions(updated);
+                      }}
+                      className="text-purple-700 hover:text-purple-900 text-[11px] font-semibold cursor-pointer"
                     >
-                      <Pencil className="w-3.5 h-3.5" />
-                      <span>Sửa</span>
+                      {promo.isActive ? 'Tạm dừng' : 'Kích hoạt'}
                     </button>
-                  )}
 
-                  <button
-                    type="button"
-                    onClick={() => setVoucherToDelete(promo)}
-                    className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
-                    title="Xóa voucher"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setVoucherToAirdrop(promo)}
+                      className="text-emerald-700 hover:text-emerald-900 text-[11px] font-bold flex items-center gap-0.5 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200 cursor-pointer"
+                      title="Phát trực tiếp vào ví tất cả khách hàng"
+                    >
+                      <Send className="w-3 h-3 text-emerald-600" />
+                      <span>Airdrop</span>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    {onOpenEditVoucher && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenEditVoucher(promo)}
+                        className="p-1 rounded-lg text-slate-500 hover:text-purple-700 hover:bg-purple-50 cursor-pointer flex items-center gap-1 font-semibold text-[11px]"
+                        title="Chỉnh sửa voucher"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>Sửa</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setVoucherToDelete(promo)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                      title="Xóa voucher"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
+
+      {/* Phân trang danh sách voucher */}
+      {filteredPromotions.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200/80 text-xs font-medium text-slate-600">
+          <div className="flex items-center gap-2">
+            <span>Hiển thị</span>
+            <select
+              value={promoPageSize}
+              onChange={(e) => {
+                const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
+                setPromoPageSize(val);
+                setPromoPage(1);
+              }}
+              className="px-2.5 py-1 rounded-xl bg-white border border-slate-300 font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-rose-500 cursor-pointer"
+            >
+              <option value={6}>6 voucher / trang</option>
+              <option value={8}>8 voucher / trang</option>
+              <option value={12}>12 voucher / trang</option>
+              <option value="ALL">Tất cả ({filteredPromotions.length})</option>
+            </select>
+            <span>trong tổng số <strong>{filteredPromotions.length}</strong> voucher</span>
+          </div>
+
+          {promoPageSize !== 'ALL' && totalPromoPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={promoPage <= 1}
+                onClick={() => setPromoPage((p) => Math.max(1, p - 1))}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                Trước
+              </button>
+              <div className="px-3 py-1 font-bold text-rose-900 bg-rose-50 rounded-xl border border-rose-200/60">
+                {promoPage} / {totalPromoPages}
+              </div>
+              <button
+                type="button"
+                disabled={promoPage >= totalPromoPages}
+                onClick={() => setPromoPage((p) => Math.min(totalPromoPages, p + 1))}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                Sau
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Modal xác nhận xóa */}
       <ActionConfirmModal

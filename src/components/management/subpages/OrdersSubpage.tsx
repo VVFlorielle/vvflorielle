@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '../../../context/StoreContext';
 import { useBodyScrollLock } from '../../../utils/scrollLock';
@@ -86,6 +86,14 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
   const [depositFilter, setDepositFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [orderToPrint, setOrderToPrint] = useState<Order | null>(null);
   const [viewMode, setViewMode] = useState<'LIST' | 'CALENDAR'>('LIST');
+  const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [ordersPage, setOrdersPage] = useState<number>(1);
+  const [ordersPageSize, setOrdersPageSize] = useState<number | 'ALL'>(10);
+
+  useEffect(() => {
+    setOrdersPage(1);
+  }, [orderSearch, orderStatusFilter, depositFilter]);
 
   // Cancelled Orders Multi-Select & Delete State
   const [selectedCancelledOrderIds, setSelectedCancelledOrderIds] = useState<string[]>([]);
@@ -204,6 +212,19 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
 
     return matchSearch && matchStatus && matchDeposit;
   });
+
+  // Phân trang đơn hàng
+  const totalPages =
+    ordersPageSize === 'ALL'
+      ? 1
+      : Math.max(1, Math.ceil(filteredOrders.length / Number(ordersPageSize)));
+  const displayedOrders =
+    ordersPageSize === 'ALL'
+      ? filteredOrders
+      : filteredOrders.slice(
+          (ordersPage - 1) * Number(ordersPageSize),
+          ordersPage * Number(ordersPageSize)
+        );
 
   const filteredCancelledOrders = filteredOrders.filter((o) => o.status === 'CANCELLED');
 
@@ -920,6 +941,78 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
   );
 };
 
+  // Compact Row View: 1 dòng siêu gọn cho Mobile & Desktop
+  const renderCompactOrderRow = (order: Order) => {
+    const isExpanded = expandedOrderId === order.id;
+    if (isExpanded) {
+      return (
+        <div key={order.id} className="space-y-2">
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setExpandedOrderId(null)}
+              className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer"
+            >
+              ▲ Thu gọn lại
+            </button>
+          </div>
+          {renderOrderCard(order, false)}
+        </div>
+      );
+    }
+
+    const itemsSummary = order.items.map((it) => `${it.productName} (x${it.quantity})`).join(', ');
+    const isDepositDone = order.isDepositPaid || order.depositStatus === 'APPROVED';
+
+    return (
+      <div
+        key={order.id}
+        onClick={() => setExpandedOrderId(order.id)}
+        className="p-3 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer flex items-center justify-between gap-2.5 text-xs group"
+      >
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <span className="font-mono font-black text-xs text-purple-800 bg-purple-50 px-2 py-0.5 rounded-lg shrink-0">
+            #{order.id}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-slate-900 truncate">{order.recipientName || order.senderName}</span>
+              <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">{order.recipientPhone || order.senderPhone}</span>
+              <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${
+                order.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
+                order.status === 'CANCELLED' ? 'bg-rose-100 text-rose-800' :
+                order.status === 'SHIPPING' ? 'bg-blue-100 text-blue-800' :
+                order.status === 'ARRANGING' ? 'bg-purple-100 text-purple-800' :
+                'bg-amber-100 text-amber-800'
+              }`}>
+                {getStatusLabel(order.status)}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              {itemsSummary} • Giao: {order.deliveryDate || 'Hôm nay'} ({order.deliveryTimeSlot || 'Trong ngày'})
+            </p>
+          </div>
+        </div>
+
+        <div className="text-right shrink-0 flex items-center gap-2">
+          <div>
+            <div className="font-black text-sm text-emerald-700">{formatPrice(order.totalAmount)}</div>
+            <span className={`text-[9.5px] font-bold block ${isDepositDone ? 'text-emerald-600' : 'text-amber-600'}`}>
+              {isDepositDone ? '✓ Đã cọc 50%' : '⏳ Chờ cọc'}
+            </span>
+          </div>
+          <button
+            type="button"
+            className="p-1.5 rounded-xl bg-slate-100 group-hover:bg-emerald-50 text-slate-400 group-hover:text-emerald-700 transition-colors"
+            title="Xem chi tiết & duyệt đơn"
+          >
+            <Eye className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px] animate-in fade-in duration-200">
       {/* 1. Header căn giữa chuẩn Phototiinlove kèm nút Trở về Bàn Làm Việc (Icon gọn gàng) */}
@@ -1180,7 +1273,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
       )}
 
       {/* View Switcher: List vs Delivery Calendar */}
-      <div className="flex items-center justify-between gap-2 pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200/80">
           <button
             type="button"
@@ -1206,6 +1299,34 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
             <span>📅 Lịch Giao Hoa Theo Khung Giờ</span>
           </button>
         </div>
+
+        {/* Chế độ thu gọn Compact 1 dòng khi ở view LIST */}
+        {viewMode === 'LIST' && (
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200/80 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setIsCompactMode(false)}
+              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                !isCompactMode
+                  ? 'bg-white text-purple-950 shadow-xs border border-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              🗂️ Thẻ đầy đủ
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsCompactMode(true)}
+              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                isCompactMode
+                  ? 'bg-purple-700 text-white shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              📋 Thu gọn 1 dòng
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Orders Table Cards */}
@@ -1215,7 +1336,9 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
             Không tìm thấy đơn hàng nào phù hợp với bộ lọc.
           </div>
         ) : viewMode === 'LIST' ? (
-          filteredOrders.map((order) => renderOrderCard(order, false))
+          displayedOrders.map((order) =>
+            isCompactMode ? renderCompactOrderRow(order) : renderOrderCard(order, false)
+          )
         ) : (
           /* CALENDAR VIEW (Grouped by Delivery Date & Time Slot) */
           groupedOrdersByDate.map(([dateStr, dateOrders]) => {
@@ -1250,6 +1373,54 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           })
         )}
       </div>
+
+      {/* Phân trang danh sách đơn hàng */}
+      {viewMode === 'LIST' && filteredOrders.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200/80 text-xs font-medium text-slate-600">
+          <div className="flex items-center gap-2">
+            <span>Hiển thị</span>
+            <select
+              value={ordersPageSize}
+              onChange={(e) => {
+                const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
+                setOrdersPageSize(val);
+                setOrdersPage(1);
+              }}
+              className="px-2.5 py-1 rounded-xl bg-white border border-slate-300 font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+            >
+              <option value={10}>10 đơn / trang</option>
+              <option value={20}>20 đơn / trang</option>
+              <option value={50}>50 đơn / trang</option>
+              <option value="ALL">Tất cả ({filteredOrders.length})</option>
+            </select>
+            <span>trong tổng số <strong>{filteredOrders.length}</strong> đơn</span>
+          </div>
+
+          {ordersPageSize !== 'ALL' && totalPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={ordersPage <= 1}
+                onClick={() => setOrdersPage((p) => Math.max(1, p - 1))}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                Trước
+              </button>
+              <div className="px-3 py-1 font-bold text-purple-900 bg-purple-50 rounded-xl border border-purple-200/60">
+                {ordersPage} / {totalPages}
+              </div>
+              <button
+                type="button"
+                disabled={ordersPage >= totalPages}
+                onClick={() => setOrdersPage((p) => Math.min(totalPages, p + 1))}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                Sau
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Reject Modal (Dùng createPortal vào document.body để nổi hẳn lên toàn màn hình, căn giữa tuyệt đối) */}
       {rejectModalState.isOpen && typeof document !== 'undefined' && createPortal(

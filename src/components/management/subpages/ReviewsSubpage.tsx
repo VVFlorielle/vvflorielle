@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../../../context/StoreContext';
 import { CustomerReview, ReviewStatus } from '../../../types';
 import { compressImage } from '../../../utils/imageCompressor';
@@ -40,6 +40,12 @@ export const ReviewsSubpage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'HIDDEN'>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [starFilter, setStarFilter] = useState<string>('ALL');
+  const [reviewPage, setReviewPage] = useState<number>(1);
+  const [reviewPageSize, setReviewPageSize] = useState<number | 'ALL'>(10);
+
+  useEffect(() => {
+    setReviewPage(1);
+  }, [activeTab, starFilter, searchQuery]);
 
   // Modals & Inline Editors
   const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
@@ -100,6 +106,20 @@ export const ReviewsSubpage: React.FC = () => {
       return true;
     });
   }, [reviews, activeTab, starFilter, searchQuery]);
+
+  // Phân trang đánh giá
+  const totalReviewPages =
+    reviewPageSize === 'ALL'
+      ? 1
+      : Math.max(1, Math.ceil(filteredReviews.length / Number(reviewPageSize)));
+
+  const displayedReviews =
+    reviewPageSize === 'ALL'
+      ? filteredReviews
+      : filteredReviews.slice(
+          (reviewPage - 1) * Number(reviewPageSize),
+          reviewPage * Number(reviewPageSize)
+        );
 
   const handleOpenReply = (review: CustomerReview) => {
     setReplyingReviewId(review.id);
@@ -344,13 +364,13 @@ export const ReviewsSubpage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredReviews.map((review) => {
+          {displayedReviews.map((review) => {
             const isReplying = replyingReviewId === review.id;
 
             return (
               <div
                 key={review.id}
-                className={`bg-white rounded-3xl p-5 sm:p-6 border transition-all ${
+                className={`bg-white rounded-3xl p-4 sm:p-6 border transition-all ${
                   review.status === 'PENDING'
                     ? 'border-amber-300 ring-2 ring-amber-500/15 shadow-md shadow-amber-900/5'
                     : review.status === 'APPROVED'
@@ -613,6 +633,54 @@ export const ReviewsSubpage: React.FC = () => {
               </div>
             );
           })}
+
+          {/* Phân trang danh sách đánh giá */}
+          {filteredReviews.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200/80 text-xs font-medium text-slate-600 bg-white p-4 rounded-2xl border border-slate-200/60 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span>Hiển thị</span>
+                <select
+                  value={reviewPageSize}
+                  onChange={(e) => {
+                    const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
+                    setReviewPageSize(val);
+                    setReviewPage(1);
+                  }}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-slate-300 font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+                >
+                  <option value={5}>5 đánh giá / trang</option>
+                  <option value={10}>10 đánh giá / trang</option>
+                  <option value={20}>20 đánh giá / trang</option>
+                  <option value="ALL">Tất cả ({filteredReviews.length})</option>
+                </select>
+                <span>trong tổng số <strong>{filteredReviews.length}</strong> đánh giá</span>
+              </div>
+
+              {reviewPageSize !== 'ALL' && totalReviewPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={reviewPage <= 1}
+                    onClick={() => setReviewPage((p) => Math.max(1, p - 1))}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+                  >
+                    Trước
+                  </button>
+                  <div className="px-3 py-1 font-bold text-emerald-900 bg-emerald-50 rounded-xl border border-emerald-200/60">
+                    {reviewPage} / {totalReviewPages}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={reviewPage >= totalReviewPages}
+                    onClick={() => setReviewPage((p) => Math.min(totalReviewPages, p + 1))}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+                  >
+                    Sau
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
