@@ -1197,6 +1197,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           googleDriveWebhookUrl: parsed.googleDriveWebhookUrl || INITIAL_SHOP_SETTINGS.googleDriveWebhookUrl,
           googleDriveFolderUrl: parsed.googleDriveFolderUrl || INITIAL_SHOP_SETTINGS.googleDriveFolderUrl,
           googleDriveFolderId: parsed.googleDriveFolderId || INITIAL_SHOP_SETTINGS.googleDriveFolderId,
+          geminiApiKey: (parsed.geminiApiKey && parsed.geminiApiKey.trim()) || INITIAL_SHOP_SETTINGS.geminiApiKey || '',
         };
         localStorage.setItem('vvf_settings', JSON.stringify(merged));
         return merged;

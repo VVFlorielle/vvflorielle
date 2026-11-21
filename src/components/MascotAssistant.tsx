@@ -277,7 +277,7 @@ export const MascotAssistant: React.FC = () => {
 - Tư vấn cách chăm sóc hoa tươi bền lâu (thay nước mỗi ngày, cắt vát gốc 45 độ, tránh ánh nắng gắt).
 - Trả lời súc tích, ấm áp, dưới 100 từ, tự nhiên và khuyến khích đặt hoa tại tiệm.`;
 
-          const chatModels = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.8-flash'];
+          const chatModels = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.8-flash'];
           for (const model of chatModels) {
             try {
               const resp = await fetch(

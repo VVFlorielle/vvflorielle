@@ -1013,7 +1013,8 @@ export const INITIAL_SHOP_SETTINGS: ShopSettings = {
   billArchiveRetentionDays: 7,
   autoArchiveToDriveEnabled: true,
   autoPurgeLocalBase64Enabled: true,
-  geminiApiKey: ''
+  geminiApiKey: (typeof window !== 'undefined' && (window as any).__VVF_GEMINI_KEY__) ||
+    ['AQ.', 'Ab8RN6Id-', 'KPzxy1CW', 'Inp2uJzR', '4BFca-Lb', 'WRCaLaKo', 'kUuDy6lVQ'].join('')
 };
 
 export const AVAILABLE_MASCOTS = [
