@@ -275,7 +275,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
                 onClick={() => onOpenPopup && onOpenPopup('policy')}
                 className="hover:text-emerald-700 hover:underline cursor-pointer transition-colors"
               >
-                Chính sách cọc &amp; hoàn hủy
+                Chính sách bảo mật và chính sách mua hàng
               </button>
               <span className="text-slate-300">•</span>
               <button

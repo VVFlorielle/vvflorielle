@@ -52,6 +52,7 @@ export const AuthModal: React.FC = () => {
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
+  const [agreedToPolicy, setAgreedToPolicy] = useState(true);
 
   // Forgot Password State
   const [forgotIdentifier, setForgotIdentifier] = useState('');
@@ -131,6 +132,10 @@ export const AuthModal: React.FC = () => {
     }
     if (regPassword !== regConfirmPassword) {
       showToast('Mật khẩu xác nhận không khớp nhau!', 'error');
+      return;
+    }
+    if (!agreedToPolicy) {
+      showToast('Vui lòng tích chọn đồng ý với chính sách bảo mật và chính sách mua hàng!', 'error');
       return;
     }
 
@@ -481,6 +486,48 @@ export const AuthModal: React.FC = () => {
                     className="glass-input w-full text-xs py-2 px-3 rounded-xl"
                   />
                 </div>
+              </div>
+
+              {/* Checkbox Chấp nhận Chính sách bảo mật và chính sách mua hàng */}
+              <div className="pt-1">
+                <label className="flex items-start gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={agreedToPolicy}
+                    onChange={(e) => setAgreedToPolicy(e.target.checked)}
+                    className="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer w-3.5 h-3.5 shrink-0"
+                  />
+                  <span className="text-[11px] text-slate-600 leading-snug">
+                    Tôi đồng ý với{' '}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new CustomEvent('open-policy-modal'));
+                        }
+                      }}
+                      className="text-emerald-700 hover:text-emerald-900 font-bold underline underline-offset-2 inline-block cursor-pointer"
+                    >
+                      chính sách bảo mật và chính sách mua hàng
+                    </button>
+                    {' '}(<button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new CustomEvent('open-policy-modal'));
+                        }
+                      }}
+                      className="text-emerald-700 hover:text-emerald-900 font-semibold underline inline-block cursor-pointer"
+                    >
+                      Xem chi tiết
+                    </button>)
+                  </span>
+                </label>
               </div>
 
               <div className="pt-2">
