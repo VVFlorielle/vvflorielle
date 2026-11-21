@@ -120,6 +120,13 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
   const [editSenderEmail, setEditSenderEmail] = useState(() => localStorage.getItem('vvf_sender_email') || 'vvflorielle@gmail.com');
   const [editAdminEmail, setEditAdminEmail] = useState(adminEmail);
   const [editAppPassword, setEditAppPassword] = useState(() => localStorage.getItem('vvf_gmail_app_pw') || '');
+  const [editWebhookUrl, setEditWebhookUrl] = useState(() => settings?.googleDriveWebhookUrl || '');
+
+  useEffect(() => {
+    if (settings?.googleDriveWebhookUrl !== undefined) {
+      setEditWebhookUrl(settings.googleDriveWebhookUrl);
+    }
+  }, [settings?.googleDriveWebhookUrl]);
 
   // Google Gemini AI Key State (Security Level 2)
   const [geminiApiKeyInput, setGeminiApiKeyInput] = useState<string>(settings?.geminiApiKey || '');
@@ -995,14 +1002,17 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
         )}
       </div>
 
-      {/* CARD 4: CẤU HÌNH GMAIL APP PASSWORD PHÁT THƯ TỰ ĐỘNG */}
+      {/* CARD 4: CẤU HÌNH GMAIL APP PASSWORD & WEBHOOK PHÁT THƯ TỰ ĐỘNG */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           localStorage.setItem('vvf_sender_email', editSenderEmail.trim());
           localStorage.setItem('vvf_gmail_app_pw', editAppPassword.trim());
           saveGmailConfig(editAdminEmail.trim(), editAppPassword.trim());
-          showToast('Đã lưu cấu hình email gửi tự động của tiệm!', 'success');
+          if (updateSettings) {
+            updateSettings({ googleDriveWebhookUrl: editWebhookUrl.trim() });
+          }
+          showToast('Đã lưu cấu hình email và Webhook của tiệm!', 'success');
         }}
         className="glass-panel p-5 sm:p-6 space-y-4 rounded-[28px]"
       >
@@ -1047,15 +1057,33 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
               placeholder="traivuho@gmail.com"
             />
           </div>
+          <div className="sm:col-span-3">
+            <label className="text-[11px] text-slate-600 block mb-1 font-bold">
+              4. Đường link Webhook Google Apps Script (Bắt đầu bằng https://script.google.com/.../exec)
+            </label>
+            <input
+              type="text"
+              value={editWebhookUrl}
+              onChange={(e) => setEditWebhookUrl(e.target.value)}
+              className="glass-input w-full text-xs py-2.5 font-mono rounded-xl bg-purple-50/30"
+              placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+            />
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              Dán toàn bộ đường link nhận được ở Bước 4 (dài dạng https://.../exec, không cắt ngắn). Webhook này dùng để gửi thư thật từ vvflorielle@gmail.com và sao lưu bill lên Google Drive.
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <button type="submit" className="btn-primary text-xs py-2 px-5 rounded-xl cursor-pointer">
-            Lưu Cấu Hình Email
+            Lưu Cấu Hình Email &amp; Webhook
           </button>
           <button
             type="button"
             onClick={() => {
+              if (editWebhookUrl.trim() && updateSettings && editWebhookUrl.trim() !== settings?.googleDriveWebhookUrl) {
+                updateSettings({ googleDriveWebhookUrl: editWebhookUrl.trim() });
+              }
               requestPinResetOtp(editAdminEmail);
             }}
             className="btn-secondary text-xs py-2 px-4 rounded-xl cursor-pointer flex items-center gap-1.5"
