@@ -221,9 +221,11 @@ interface StoreContextType {
   approveOrderDeposit: (orderId: string, approvedBy?: 'ADMIN' | 'AUTO_ASSISTANT') => void;
   rejectOrderDeposit: (orderId: string, reason: string) => void;
   adjustOrderShippingFee: (orderId: string, newShippingFee: number) => void;
-  updateOrderStatus: (orderId: string, status: OrderStatus) => void;
+  updateOrderStatus: (orderId: string, status: OrderStatus, cancellationReason?: string) => void;
+  markDeliveryFailed: (orderId: string, reason: string) => void;
   completeOrder: (orderId: string) => void;
   deleteOrder: (orderId: string) => boolean;
+  forceDeleteOrder: (orderId: string, pin: string) => boolean;
   deleteCancelledOrders: (orderIds: string[]) => number;
   clearAllCancelledOrders: () => number;
   syncBillToGoogleDrive: (orderId: string) => Promise<{ success: boolean; url?: string; error?: string }>;
@@ -2533,34 +2535,66 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast(`Đã cập nhật phí vận chuyển đơn #${orderId}!`, 'success');
   };
 
-  const updateOrderStatus = (orderId: string, status: OrderStatus) => {
+  const updateOrderStatus = (orderId: string, status: OrderStatus, cancellationReason?: string) => {
     if (status === 'COMPLETED') {
       completeOrder(orderId);
       return;
     }
-    const isArrangedOrShipping = status === 'ARRANGING' || status === 'SHIPPING';
-    setOrders((prev) =>
-      prev.map((o) => {
+
+    setOrders((prev) => {
+      const updatedOrders = prev.map((o) => {
         if (o.id === orderId) {
-          const updated: Order = {
-            ...o,
-            status,
-            ...(isArrangedOrShipping
-              ? {
-                  isDepositPaid: true,
-                  depositStatus: 'APPROVED',
-                  depositApprovedBy: o.depositApprovedBy || 'ADMIN',
-                  paymentApprovedAt: o.paymentApprovedAt || new Date().toLocaleString('vi-VN'),
-                  paymentStatus: o.paymentType === 'VIETQR_FULL' ? 'PAID' : 'PARTIAL_PAID'
-                }
-              : {})
-          };
+          let updated: Order = { ...o, status };
+
+          if (status === 'PENDING') {
+            // Reset về trạng thái mới tạo
+            updated = {
+              ...updated,
+              isDepositPaid: false,
+              depositStatus: 'PENDING',
+              paymentStatus: 'UNPAID',
+              depositApprovedBy: undefined,
+              paymentApprovedAt: undefined,
+              cancellationReason: undefined
+            };
+          } else if (status === 'WAITING_DEPOSIT') {
+            // Chờ khách chuyển cọc 50%
+            updated = {
+              ...updated,
+              isDepositPaid: false,
+              depositStatus: 'PENDING',
+              paymentStatus: 'UNPAID',
+              cancellationReason: undefined
+            };
+          } else if (status === 'ARRANGING' || status === 'SHIPPING') {
+            // Đã duyệt cọc và đang cắm hoa / shipper đang giao
+            const isFull = o.paymentType === 'VIETQR_FULL';
+            updated = {
+              ...updated,
+              isDepositPaid: true,
+              depositStatus: 'APPROVED',
+              depositApprovedBy: o.depositApprovedBy || 'ADMIN',
+              paymentApprovedAt: o.paymentApprovedAt || new Date().toLocaleString('vi-VN'),
+              paymentStatus: isFull ? 'PAID' : 'PARTIAL_PAID',
+              cancellationReason: undefined
+            };
+          } else if (status === 'CANCELLED') {
+            // Đã hủy đơn: Cập nhật rõ ràng trạng thái cọc và thanh toán
+            updated = {
+              ...updated,
+              depositStatus: o.isDepositPaid ? 'APPROVED' : 'REJECTED',
+              cancellationReason: cancellationReason || o.cancellationReason || 'Admin đổi trạng thái sang Hủy'
+            };
+          }
+
           pushOrderToNeon(updated).catch((err) => console.warn('[Neon API] Sync order status error:', err));
           return updated;
         }
         return o;
-      })
-    );
+      });
+      localStorage.setItem('vvf_orders', JSON.stringify(updatedOrders));
+      return updatedOrders;
+    });
 
     if (status === 'SHIPPING') {
       const target = orders.find((o) => o.id === orderId);
@@ -2577,6 +2611,36 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     showToast(`Cập nhật trạng thái đơn #${orderId} sang: ${status}`);
+  };
+
+  const markDeliveryFailed = (orderId: string, reason: string) => {
+    const target = orders.find((o) => o.id === orderId);
+    if (!target) return;
+
+    setOrders((prev) => {
+      const updatedOrders = prev.map((o) =>
+        o.id === orderId
+          ? {
+              ...o,
+              status: 'CANCELLED' as OrderStatus,
+              cancellationReason: reason.trim() || 'Giao hàng không thành công'
+            }
+          : o
+      );
+      localStorage.setItem('vvf_orders', JSON.stringify(updatedOrders));
+      return updatedOrders;
+    });
+
+    sendAppNotification({
+      recipientRole: 'CUSTOMER',
+      recipientId: target.senderPhone,
+      title: `🥀 Đơn hoa #${orderId} giao không thành công`,
+      message: `Lý do: ${reason}. Shipper của tiệm không thể bàn giao hoa. Quý khách vui lòng liên hệ Hotline tiệm để được hỗ trợ kiểm tra lại.`,
+      type: 'ORDER_STATUS',
+      orderId
+    });
+
+    showToast(`Đã ghi nhận giao thất bại đơn #${orderId}. Lý do: ${reason}`, 'info');
   };
 
   const completeOrder = (orderId: string) => {
@@ -2774,6 +2838,42 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setOrders(updated);
     localStorage.setItem('vvf_orders', JSON.stringify(updated));
     showToast(`Đã xóa vĩnh viễn đơn hủy #${orderId}!`, 'success');
+    return true;
+  };
+
+  const forceDeleteOrder = (orderId: string, pin: string): boolean => {
+    if (!verifyAdminPin(pin)) {
+      showToast('Mã PIN cấp 2 không chính xác!', 'error');
+      return false;
+    }
+
+    const target = orders.find((o) => o.id === orderId);
+    if (!target) {
+      showToast('Không tìm thấy đơn hàng cần xóa!', 'error');
+      return false;
+    }
+
+    // Nếu đơn đã hoàn thành và từng tặng điểm thưởng cho khách -> Thu hồi lại số điểm đó
+    if (target.status === 'COMPLETED' && target.pointsAwarded && target.pointsAwarded > 0) {
+      const pointsToRevoke = target.pointsAwarded;
+      setCustomers((prev) =>
+        prev.map((c) =>
+          (target.customerId && c.id === target.customerId) || normalizePhone(c.phone) === normalizePhone(target.senderPhone)
+            ? { ...c, points: Math.max(0, c.points - pointsToRevoke) }
+            : c
+        )
+      );
+      setCustomer((prev) =>
+        prev && ((target.customerId && prev.id === target.customerId) || normalizePhone(prev.phone) === normalizePhone(target.senderPhone))
+          ? { ...prev, points: Math.max(0, prev.points - pointsToRevoke) }
+          : prev
+      );
+    }
+
+    const updated = orders.filter((o) => o.id !== orderId);
+    setOrders(updated);
+    localStorage.setItem('vvf_orders', JSON.stringify(updated));
+    showToast(`Đã xóa vĩnh viễn đơn #${orderId} bằng mã PIN cấp 2!`, 'success');
     return true;
   };
 
@@ -4539,8 +4639,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         rejectOrderDeposit,
         adjustOrderShippingFee,
         updateOrderStatus,
+        markDeliveryFailed,
         completeOrder,
         deleteOrder,
+        forceDeleteOrder,
         deleteCancelledOrders,
         clearAllCancelledOrders,
         syncBillToGoogleDrive,

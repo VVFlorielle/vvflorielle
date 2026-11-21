@@ -27,7 +27,10 @@ import {
   AlertTriangle,
   Trash2,
   CheckSquare,
-  Square
+  Square,
+  Lock,
+  KeyRound,
+  ShieldCheck
 } from 'lucide-react';
 import { Order, OrderStatus } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
@@ -67,7 +70,16 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
   initialSearch = '',
   onOpenStorageManager
 }) => {
-  const { settings, deleteOrder, deleteCancelledOrders, clearAllCancelledOrders } = useStore();
+  const {
+    settings,
+    deleteOrder,
+    forceDeleteOrder,
+    deleteCancelledOrders,
+    clearAllCancelledOrders,
+    markDeliveryFailed,
+    verifyAdminPin
+  } = useStore();
+
   const [orderSearch, setOrderSearch] = useState(initialSearch);
   const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | OrderStatus>('ALL');
   const [depositFilter, setDepositFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
@@ -79,6 +91,23 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
   const [isClearAllModalOpen, setIsClearAllModalOpen] = useState(false);
+
+  // Level-2 PIN Override Modal for Dropdown
+  const [pendingStatusOverride, setPendingStatusOverride] = useState<{ orderId: string; newStatus: OrderStatus; oldStatus: OrderStatus } | null>(null);
+  const [overridePinInput, setOverridePinInput] = useState('');
+  const [overridePinError, setOverridePinError] = useState('');
+
+  // Confirm Successful Delivery Modal
+  const [orderToConfirmDelivery, setOrderToConfirmDelivery] = useState<Order | null>(null);
+
+  // Delivery Failed Modal (Reason required)
+  const [orderToFailDelivery, setOrderToFailDelivery] = useState<Order | null>(null);
+  const [failReason, setFailReason] = useState('Khách không nghe máy sau 3 cuộc gọi');
+
+  // Force Delete Modal with Level-2 PIN
+  const [orderToForceDelete, setOrderToForceDelete] = useState<Order | null>(null);
+  const [forceDeletePinInput, setForceDeletePinInput] = useState('');
+  const [forceDeletePinError, setForceDeletePinError] = useState('');
 
   // Reject / Reason Modal State
   const [rejectModalState, setRejectModalState] = useState<{
@@ -99,15 +128,60 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
   // Sample image modal
   const [previewSampleImage, setPreviewSampleImage] = useState<string | null>(null);
 
-  // Khóa cuộn trang khi mở bất kỳ popup nào (Từ chối, Xem ảnh mẫu, In phiếu, Xóa đơn)
+  // Khóa cuộn trang khi mở bất kỳ popup nào (Từ chối, Xem ảnh mẫu, In phiếu, Xóa đơn, PIN, Giao hàng)
   useBodyScrollLock(
     rejectModalState.isOpen ||
     Boolean(previewSampleImage) ||
     Boolean(orderToPrint) ||
     Boolean(orderToDelete) ||
     isBulkDeleteModalOpen ||
-    isClearAllModalOpen
+    isClearAllModalOpen ||
+    Boolean(pendingStatusOverride) ||
+    Boolean(orderToConfirmDelivery) ||
+    Boolean(orderToFailDelivery) ||
+    Boolean(orderToForceDelete)
   );
+
+  // Tính số lượng thống kê chuẩn xác cho từng tab
+  const totalOrdersCount = orders.length;
+  const pendingCount = orders.filter((o) => o.status === 'PENDING').length;
+  const waitingDepositCount = orders.filter((o) => o.status === 'WAITING_DEPOSIT').length;
+  const arrangingCount = orders.filter((o) => o.status === 'ARRANGING').length;
+  const shippingCount = orders.filter((o) => o.status === 'SHIPPING').length;
+  const completedCount = orders.filter((o) => o.status === 'COMPLETED').length;
+  const cancelledOrders = orders.filter((o) => o.status === 'CANCELLED');
+  const cancelledCount = cancelledOrders.length;
+
+  // Lọc cọc: Tính số lượng cọc cho các đơn chưa hủy
+  const activeOrders = orders.filter((o) => o.status !== 'CANCELLED');
+  const depositPendingCount = activeOrders.filter((o) => !o.isDepositPaid && o.depositStatus !== 'REJECTED').length;
+  const depositApprovedCount = activeOrders.filter((o) => o.isDepositPaid || o.depositStatus === 'APPROVED').length;
+  const depositRejectedCount = orders.filter((o) => o.depositStatus === 'REJECTED').length;
+
+  // Đồng bộ hóa 2 chiều 2 hàng bộ lọc
+  const handleSelectOrderStatus = (st: 'ALL' | OrderStatus) => {
+    setOrderStatusFilter(st);
+    if (st === 'WAITING_DEPOSIT') {
+      setDepositFilter('PENDING');
+    } else if (st === 'ARRANGING' || st === 'SHIPPING' || st === 'COMPLETED') {
+      setDepositFilter('APPROVED');
+    } else {
+      setDepositFilter('ALL');
+    }
+  };
+
+  const handleSelectDepositFilter = (dp: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED') => {
+    setDepositFilter(dp);
+    if (dp === 'PENDING') {
+      setOrderStatusFilter('WAITING_DEPOSIT');
+    } else if (dp === 'APPROVED') {
+      if (orderStatusFilter === 'ALL' || orderStatusFilter === 'WAITING_DEPOSIT' || orderStatusFilter === 'CANCELLED' || orderStatusFilter === 'PENDING') {
+        setOrderStatusFilter('ARRANGING');
+      }
+    } else {
+      setOrderStatusFilter('ALL');
+    }
+  };
 
   const filteredOrders = orders.filter((o) => {
     const matchSearch =
@@ -115,16 +189,21 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
       o.senderName.toLowerCase().includes(orderSearch.toLowerCase()) ||
       o.senderPhone.includes(orderSearch) ||
       o.recipientName.toLowerCase().includes(orderSearch.toLowerCase());
+
+    if (o.status === 'CANCELLED') {
+      return matchSearch && (orderStatusFilter === 'ALL' || orderStatusFilter === 'CANCELLED');
+    }
+
     const matchStatus = orderStatusFilter === 'ALL' || o.status === orderStatusFilter;
     const matchDeposit =
       depositFilter === 'ALL' ||
       (depositFilter === 'APPROVED' && Boolean(o.isDepositPaid || o.depositStatus === 'APPROVED')) ||
       (depositFilter === 'REJECTED' && o.depositStatus === 'REJECTED') ||
       (depositFilter === 'PENDING' && !o.isDepositPaid && o.depositStatus !== 'REJECTED');
+
     return matchSearch && matchStatus && matchDeposit;
   });
 
-  const cancelledOrders = orders.filter((o) => o.status === 'CANCELLED');
   const filteredCancelledOrders = filteredOrders.filter((o) => o.status === 'CANCELLED');
 
   const handleToggleSelectCancelledOrder = (id: string) => {
@@ -260,6 +339,56 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
     return { label: `📅 ${dateStr}`, bg: 'bg-slate-100 text-slate-800 border-slate-300' };
   };
 
+  const getStatusLabel = (st: OrderStatus) => {
+    switch (st) {
+      case 'PENDING': return '1. Chờ tiệm duyệt kho';
+      case 'WAITING_DEPOSIT': return '2. Chờ khách cọc 50%';
+      case 'ARRANGING': return '3. Florist đang cắm hoa';
+      case 'SHIPPING': return '4. Shipper đang giao';
+      case 'COMPLETED': return '5. Đã hoàn thành';
+      case 'CANCELLED': return 'Đã hủy / Từ chối';
+      default: return st;
+    }
+  };
+
+  const handleConfirmOverrideStatusWithPin = () => {
+    if (!pendingStatusOverride) return;
+    if (!verifyAdminPin(overridePinInput.trim())) {
+      setOverridePinError('Mã PIN cấp 2 không chính xác. Vui lòng thử lại!');
+      return;
+    }
+    updateOrderStatus(pendingStatusOverride.orderId, pendingStatusOverride.newStatus);
+    setPendingStatusOverride(null);
+    setOverridePinInput('');
+    setOverridePinError('');
+  };
+
+  const handleConfirmDeliverySuccess = () => {
+    if (!orderToConfirmDelivery) return;
+    completeOrder(orderToConfirmDelivery.id);
+    setOrderToConfirmDelivery(null);
+  };
+
+  const handleConfirmDeliveryFailed = () => {
+    if (!orderToFailDelivery || !failReason.trim()) return;
+    markDeliveryFailed(orderToFailDelivery.id, failReason.trim());
+    setOrderToFailDelivery(null);
+    setFailReason('Khách không nghe máy sau 3 cuộc gọi');
+  };
+
+  const handleConfirmForceDeleteWithPin = () => {
+    if (!orderToForceDelete) return;
+    const ok = forceDeleteOrder(orderToForceDelete.id, forceDeletePinInput.trim());
+    if (ok) {
+      setSelectedCancelledOrderIds((prev) => prev.filter((id) => id !== orderToForceDelete.id));
+      setOrderToForceDelete(null);
+      setForceDeletePinInput('');
+      setForceDeletePinError('');
+    } else {
+      setForceDeletePinError('Mã PIN cấp 2 không chính xác!');
+    }
+  };
+
   const renderOrderCard = (order: Order, isCalendarView = false) => {
     const isCancelled = order.status === 'CANCELLED';
     const isSelected = selectedCancelledOrderIds.includes(order.id);
@@ -303,12 +432,18 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           )}
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-              order.paymentStatus === 'PAID'
+              order.status === 'CANCELLED'
+                ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                : order.paymentStatus === 'PAID'
                 ? 'bg-emerald-100 text-emerald-800'
                 : 'bg-amber-100 text-amber-800'
             }`}
           >
-            {order.paymentStatus === 'PAID' ? 'ĐÃ THANH TOÁN ĐỦ' : 'THANH TOÁN MỘT PHẦN / COD'}
+            {order.status === 'CANCELLED'
+              ? 'ĐÃ HỦY ĐƠN'
+              : order.paymentStatus === 'PAID'
+              ? 'ĐÃ THANH TOÁN ĐỦ'
+              : 'THANH TOÁN MỘT PHẦN / COD'}
           </span>
           {order.isCustomDesign && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
@@ -317,7 +452,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           )}
         </div>
 
-        {/* Status updater dropdown & Print button */}
+        {/* Status updater dropdown & Print button & Force Delete */}
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -329,11 +464,19 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
             <span className="hidden sm:inline">In Phiếu Giao</span>
             <span className="sm:hidden">In Phiếu</span>
           </button>
+
           <span className="text-xs text-slate-500">Quy trình:</span>
           <select
             value={order.status}
-            onChange={(e) => updateOrderStatus(order.id, e.target.value as OrderStatus)}
+            onChange={(e) => {
+              const nextStatus = e.target.value as OrderStatus;
+              if (nextStatus === order.status) return;
+              setPendingStatusOverride({ orderId: order.id, newStatus: nextStatus, oldStatus: order.status });
+              setOverridePinInput('');
+              setOverridePinError('');
+            }}
             className="text-xs font-semibold py-1 px-3 rounded-xl border border-purple-200 bg-purple-50 text-purple-900 focus:outline-none cursor-pointer"
+            title="Can thiệp quy trình thủ công (Yêu cầu mã PIN cấp 2)"
           >
             <option value="PENDING">1. Chờ tiệm duyệt kho</option>
             <option value="WAITING_DEPOSIT">2. Chờ khách cọc 50%</option>
@@ -342,6 +485,21 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
             <option value="COMPLETED">5. Đã hoàn thành</option>
             <option value="CANCELLED">Đã hủy / Từ chối</option>
           </select>
+
+          {role === 'OWNER' && order.status !== 'CANCELLED' && (
+            <button
+              type="button"
+              onClick={() => {
+                setOrderToForceDelete(order);
+                setForceDeletePinInput('');
+                setForceDeletePinError('');
+              }}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              title={`Xóa cưỡng chế đơn #${order.id} (Yêu cầu mã PIN cấp 2)`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -474,9 +632,20 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
             </span>
           </div>
           <div className="mt-1">
-            {order.status === 'COMPLETED' ? (
+            {order.status === 'CANCELLED' ? (
+              <span className="text-[10px] font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded-full border border-rose-200 flex items-center gap-1">
+                <span>🥀</span>
+                <span>
+                  Đơn đã hủy {order.isDepositPaid ? '(Đã cọc 50% - Cần đối soát)' : '(Chưa thu cọc)'}
+                </span>
+              </span>
+            ) : order.status === 'COMPLETED' ? (
               <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
                 ✓ Đã thanh toán 100% (Đã cọc + Thu đủ khi giao)
+              </span>
+            ) : order.status === 'PENDING' ? (
+              <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                ⏳ Chờ tiệm duyệt nhận đơn
               </span>
             ) : order.isDepositPaid ? (
               <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
@@ -494,7 +663,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
               </span>
             ) : (
               <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
-                ⏳ Chờ xác nhận cọc
+                ⏳ Chờ khách chuyển cọc 50%
               </span>
             )}
           </div>
@@ -665,17 +834,35 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
             </button>
           )}
 
-          {/* 4. Status SHIPPING */}
+          {/* 4. Status SHIPPING - CẶP NÚT GIAO THÀNH CÔNG & GIAO THẤT BẠI KÈM XÁC NHẬN */}
           {order.status === 'SHIPPING' && (
-            <button
-              type="button"
-              disabled={submittingOrderId === order.id}
-              onClick={() => handleCompleteOrderGuarded(order.id)}
-              className="btn-primary text-xs py-1.5 px-3.5 bg-purple-700 hover:bg-purple-800 rounded-xl shadow-sm flex items-center gap-1.5 cursor-pointer font-bold"
-            >
-              <Award className="w-3.5 h-3.5" />
-              <span>{submittingOrderId === order.id ? 'Đang hoàn tất...' : 'Xác Nhận Đã Giao & Tích Lũy Điểm'}</span>
-            </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Nút 1: Xác Nhận Giao Thành Công */}
+              <button
+                type="button"
+                disabled={submittingOrderId === order.id}
+                onClick={() => setOrderToConfirmDelivery(order)}
+                className="btn-primary text-xs py-1.5 px-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl shadow-sm flex items-center gap-1.5 cursor-pointer font-bold transition-all active:scale-95"
+                title="Xác nhận shipper đã bàn giao hoa thành công đến tay người nhận"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Xác Nhận Đã Giao Thành Công</span>
+              </button>
+
+              {/* Nút 2: Báo Giao Thất Bại / Hủy Đơn */}
+              <button
+                type="button"
+                onClick={() => {
+                  setOrderToFailDelivery(order);
+                  setFailReason('Khách không nghe máy sau 3 cuộc gọi');
+                }}
+                className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                title="Báo cáo shipper không giao được hoa (khách boom hàng, sai địa chỉ...)"
+              >
+                <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Giao Thất Bại / Hủy Đơn</span>
+              </button>
+            </div>
           )}
 
           {/* 5. Status COMPLETED */}
@@ -777,49 +964,135 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           </div>
         </div>
 
-        {/* Status Filter */}
+        {/* Status Filter (Hàng 1: Quy trình tiến độ) */}
         <div className="flex items-center gap-1.5 overflow-x-auto text-xs py-1 scrollbar-none">
-          {(['ALL', 'PENDING', 'WAITING_DEPOSIT', 'ARRANGING', 'SHIPPING', 'COMPLETED', 'CANCELLED'] as const).map((st) => (
-            <button
-              key={st}
-              onClick={() => setOrderStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
-                orderStatusFilter === st
-                  ? 'bg-purple-700 text-white font-semibold shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {st === 'ALL' && 'Tất cả'}
-              {st === 'PENDING' && 'Chờ duyệt kho'}
-              {st === 'WAITING_DEPOSIT' && 'Chờ cọc 50%'}
-              {st === 'ARRANGING' && 'Đang cắm'}
-              {st === 'SHIPPING' && 'Đang giao'}
-              {st === 'COMPLETED' && 'Hoàn thành'}
-              {st === 'CANCELLED' && (cancelledOrders.length > 0 ? `Đã hủy (${cancelledOrders.length})` : 'Đã hủy')}
-            </button>
-          ))}
+          <button
+            type="button"
+            onClick={() => handleSelectOrderStatus('ALL')}
+            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+              orderStatusFilter === 'ALL'
+                ? 'bg-purple-700 text-white font-semibold shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Tất cả ({totalOrdersCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSelectOrderStatus('PENDING')}
+            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+              orderStatusFilter === 'PENDING'
+                ? 'bg-purple-700 text-white font-semibold shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Chờ duyệt kho ({pendingCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSelectOrderStatus('WAITING_DEPOSIT')}
+            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+              orderStatusFilter === 'WAITING_DEPOSIT'
+                ? 'bg-purple-700 text-white font-semibold shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Chờ cọc 50% ({waitingDepositCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSelectOrderStatus('ARRANGING')}
+            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+              orderStatusFilter === 'ARRANGING'
+                ? 'bg-purple-700 text-white font-semibold shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Đang cắm ({arrangingCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSelectOrderStatus('SHIPPING')}
+            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+              orderStatusFilter === 'SHIPPING'
+                ? 'bg-purple-700 text-white font-semibold shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Đang giao ({shippingCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSelectOrderStatus('COMPLETED')}
+            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+              orderStatusFilter === 'COMPLETED'
+                ? 'bg-purple-700 text-white font-semibold shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Hoàn thành ({completedCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSelectOrderStatus('CANCELLED')}
+            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+              orderStatusFilter === 'CANCELLED'
+                ? 'bg-rose-700 text-white font-semibold shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Đã hủy ({cancelledCount})
+          </button>
         </div>
       </div>
 
-      {/* Deposit Status Filter Sub-Bar */}
+      {/* Deposit Status Filter Sub-Bar (Hàng 2: Trạng thái cọc) */}
       <div className="flex items-center gap-2 overflow-x-auto text-xs py-1 border-b border-slate-100 scrollbar-none">
         <span className="text-[11px] text-slate-400 font-semibold shrink-0">Lọc cọc:</span>
-        {(['ALL', 'PENDING', 'APPROVED', 'REJECTED'] as const).map((dp) => (
-          <button
-            key={dp}
-            onClick={() => setDepositFilter(dp)}
-            className={`px-2.5 py-1 rounded-lg whitespace-nowrap transition-all cursor-pointer font-medium text-[11px] ${
-              depositFilter === dp
-                ? 'bg-amber-600 text-white font-bold shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
-            }`}
-          >
-            {dp === 'ALL' && 'Tất cả trạng thái cọc'}
-            {dp === 'PENDING' && '⏳ Chờ duyệt cọc'}
-            {dp === 'APPROVED' && '✓ Đã duyệt cọc'}
-            {dp === 'REJECTED' && '⚠️ Cọc bị từ chối'}
-          </button>
-        ))}
+        <button
+          type="button"
+          onClick={() => handleSelectDepositFilter('ALL')}
+          className={`px-2.5 py-1 rounded-lg whitespace-nowrap transition-all cursor-pointer font-medium text-[11px] ${
+            depositFilter === 'ALL'
+              ? 'bg-amber-600 text-white font-bold shadow-xs'
+              : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
+          }`}
+        >
+          Tất cả trạng thái cọc ({totalOrdersCount})
+        </button>
+        <button
+          type="button"
+          onClick={() => handleSelectDepositFilter('PENDING')}
+          className={`px-2.5 py-1 rounded-lg whitespace-nowrap transition-all cursor-pointer font-medium text-[11px] ${
+            depositFilter === 'PENDING'
+              ? 'bg-amber-600 text-white font-bold shadow-xs'
+              : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
+          }`}
+        >
+          ⏳ Chờ duyệt cọc ({depositPendingCount})
+        </button>
+        <button
+          type="button"
+          onClick={() => handleSelectDepositFilter('APPROVED')}
+          className={`px-2.5 py-1 rounded-lg whitespace-nowrap transition-all cursor-pointer font-medium text-[11px] ${
+            depositFilter === 'APPROVED'
+              ? 'bg-emerald-600 text-white font-bold shadow-xs'
+              : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
+          }`}
+        >
+          ✓ Đã duyệt cọc ({depositApprovedCount})
+        </button>
+        <button
+          type="button"
+          onClick={() => handleSelectDepositFilter('REJECTED')}
+          className={`px-2.5 py-1 rounded-lg whitespace-nowrap transition-all cursor-pointer font-medium text-[11px] ${
+            depositFilter === 'REJECTED'
+              ? 'bg-rose-600 text-white font-bold shadow-xs'
+              : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
+          }`}
+        >
+          ⚠️ Cọc bị từ chối ({depositRejectedCount})
+        </button>
       </div>
 
       {/* BULK ACTION BAR CHO ĐƠN HÀNG ĐÃ HỦY - TONE XANH NHẠT MỜ MƯỢT TƯƠI SÁNG & ROSE */}
@@ -1295,6 +1568,265 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
         confirmText={`Dọn Sạch ${cancelledOrders.length} Đơn`}
         type="danger"
       />
+
+      {/* 4. Modal Confirm Successful Delivery */}
+      <ActionConfirmModal
+        isOpen={Boolean(orderToConfirmDelivery)}
+        onClose={() => setOrderToConfirmDelivery(null)}
+        onConfirm={handleConfirmDeliverySuccess}
+        title="Xác Nhận Đã Giao Thành Công"
+        message={`Bạn có chắc chắn mẫu hoa của đơn #${orderToConfirmDelivery?.id} đã được shipper bàn giao tận tay người nhận "${orderToConfirmDelivery?.recipientName}" và thu đủ tiền còn lại (nếu có)? Hệ thống sẽ chuyển trạng thái sang ĐÃ HOÀN THÀNH và tự động cộng điểm thưởng cho khách hàng.`}
+        confirmText="Xác Nhận Đã Giao Thành Công"
+        type="info"
+      />
+
+      {/* 5. Modal Delivery Failed with Reason Required */}
+      {orderToFailDelivery && typeof document !== 'undefined' && createPortal(
+        <div className="glass-overlay z-[100000] p-4 flex items-center justify-center animate-in fade-in duration-200" onClick={() => setOrderToFailDelivery(null)}>
+          <div className="glass-modal-content max-w-md w-full rounded-[28px] border border-white/80 bg-white shadow-2xl overflow-hidden p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold shadow-xs">
+                  <XCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm sm:text-base text-slate-900">Báo Giao Thất Bại &amp; Hủy Đơn</h3>
+                  <p className="text-[11px] text-slate-500">Đơn hàng #{orderToFailDelivery.id}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOrderToFailDelivery(null)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 block">
+                Lý do giao không thành công * (Lưu lại làm bằng chứng đối soát)
+              </label>
+              
+              {/* Quick suggestion pills */}
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {[
+                  'Khách không nghe máy sau 3 cuộc gọi',
+                  'Khách từ chối nhận hoa / Hủy ngang',
+                  'Địa chỉ giao không chính xác / Không tìm thấy',
+                  'Hoa bị dập nát / Shipper hoàn đơn'
+                ].map((sug) => (
+                  <button
+                    key={sug}
+                    type="button"
+                    onClick={() => setFailReason(sug)}
+                    className={`text-[10px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                      failReason === sug
+                        ? 'bg-rose-100 text-rose-800 border-rose-300 font-bold'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {sug}
+                  </button>
+                ))}
+              </div>
+
+              <textarea
+                rows={3}
+                value={failReason}
+                onChange={(e) => setFailReason(e.target.value)}
+                placeholder="Nhập chi tiết lý do shipper không giao được hoa..."
+                className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:border-rose-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setOrderToFailDelivery(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                disabled={!failReason.trim()}
+                onClick={handleConfirmDeliveryFailed}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer disabled:opacity-50"
+              >
+                Xác Nhận Giao Thất Bại
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* 6. Modal Level-2 PIN Override for Dropdown */}
+      {pendingStatusOverride && typeof document !== 'undefined' && createPortal(
+        <div className="glass-overlay z-[100000] p-4 flex items-center justify-center animate-in fade-in duration-200" onClick={() => setPendingStatusOverride(null)}>
+          <div className="glass-modal-content max-w-md w-full rounded-[28px] border border-white/80 bg-white shadow-2xl overflow-hidden p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold shadow-xs">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm sm:text-base text-slate-900">Xác Nhận Can Thiệp Quy Trình</h3>
+                  <p className="text-[11px] text-slate-500">Đơn hàng #{pendingStatusOverride.orderId}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPendingStatusOverride(null)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 space-y-1">
+                <p>
+                  Bạn đang can thiệp chuyển quy trình từ: <strong className="text-slate-900">{getStatusLabel(pendingStatusOverride.oldStatus)}</strong> sang: <strong className="text-purple-800">{getStatusLabel(pendingStatusOverride.newStatus)}</strong>.
+                </p>
+                <p className="text-[11px] text-amber-800">
+                  * Thao tác này sẽ tự động đồng bộ lại toàn bộ dữ liệu tiền cọc và thanh toán bên dưới thẻ đơn.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Nhập Mã PIN Quản Trị Cấp 2 (6 số) *
+                </label>
+                <input
+                  type="password"
+                  maxLength={8}
+                  autoFocus
+                  value={overridePinInput}
+                  onChange={(e) => {
+                    setOverridePinInput(e.target.value);
+                    setOverridePinError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleConfirmOverrideStatusWithPin();
+                  }}
+                  placeholder="Nhập mã PIN 6 số..."
+                  className="w-full text-center tracking-widest text-base font-mono font-bold p-2.5 rounded-xl border border-slate-300 focus:border-purple-600 focus:outline-none"
+                />
+                {overridePinError && (
+                  <p className="text-[11px] text-rose-600 font-semibold mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>{overridePinError}</span>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setPendingStatusOverride(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                disabled={!overridePinInput.trim()}
+                onClick={handleConfirmOverrideStatusWithPin}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-purple-700 hover:bg-purple-800 text-white shadow-xs cursor-pointer disabled:opacity-50"
+              >
+                Xác Nhận Đổi Trạng Thái
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* 7. Modal Force Delete with Level-2 PIN */}
+      {orderToForceDelete && typeof document !== 'undefined' && createPortal(
+        <div className="glass-overlay z-[100000] p-4 flex items-center justify-center animate-in fade-in duration-200" onClick={() => setOrderToForceDelete(null)}>
+          <div className="glass-modal-content max-w-md w-full rounded-[28px] border border-white/80 bg-white shadow-2xl overflow-hidden p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold shadow-xs">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm sm:text-base text-slate-900">Xóa Cưỡng Chế Đơn Hàng</h3>
+                  <p className="text-[11px] text-slate-500">Đơn hàng #{orderToForceDelete.id}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOrderToForceDelete(null)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 space-y-1">
+                <p>
+                  <strong>CẢNH BÁO NGUY HIỂM:</strong> Bạn đang chuẩn bị xóa cưỡng chế đơn #{orderToForceDelete.id} của khách "{orderToForceDelete.senderName}".
+                </p>
+                <p className="text-[11px] text-rose-800">
+                  * Nếu đơn đã từng tặng điểm thưởng cho khách, hệ thống sẽ tự động thu hồi lại số điểm đó. Dữ liệu đơn sẽ bị xóa sạch khỏi bộ nhớ.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Nhập Mã PIN Quản Trị Cấp 2 (6 số) để xác nhận xóa *
+                </label>
+                <input
+                  type="password"
+                  maxLength={8}
+                  autoFocus
+                  value={forceDeletePinInput}
+                  onChange={(e) => {
+                    setForceDeletePinInput(e.target.value);
+                    setForceDeletePinError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleConfirmForceDeleteWithPin();
+                  }}
+                  placeholder="Nhập mã PIN 6 số..."
+                  className="w-full text-center tracking-widest text-base font-mono font-bold p-2.5 rounded-xl border border-slate-300 focus:border-rose-600 focus:outline-none"
+                />
+                {forceDeletePinError && (
+                  <p className="text-[11px] text-rose-600 font-semibold mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>{forceDeletePinError}</span>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setOrderToForceDelete(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                disabled={!forceDeletePinInput.trim()}
+                onClick={handleConfirmForceDeleteWithPin}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer disabled:opacity-50"
+              >
+                Xóa Cưỡng Chế Vĩnh Viễn
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
