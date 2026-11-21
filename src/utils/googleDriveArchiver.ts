@@ -25,18 +25,20 @@ function doPost(e) {
     // =========================================================================
     if (data.action === "SEND_EMAIL_OTP") {
       var recipient = data.recipient || "traivuho@gmail.com";
-      var subject = data.subject || "[V&V Florielle] Mã OTP Xác Thực Quản Trị Cấp 2";
+      var subject = data.subject || "✿ [V&V Florielle] Mã OTP Xác Thực Quản Trị Cấp 2";
       var otpCode = data.otpCode || "";
       var purpose = data.purpose || "Xác thực bảo mật tài khoản tiệm";
       var storeName = data.storeName || "V&V Florielle Boutique";
       var storeHotline = data.storeHotline || "0906.721.442";
       var storeAddress = data.storeAddress || "105 Doãn Kế Thiện, Cầu Giấy, Hà Nội";
-      var storeDomain = data.storeDomain || "https://vvflorielle.vn";
+      var storeDomain = data.storeDomain || "https://vvflorielle.pages.dev";
+      var storeLogo = data.storeLogo || "https://vvflorielle.pages.dev/logo-vvflorielle-square.png";
 
       var htmlBody = ""
         + "<div style='font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;'>"
         + "  <div style='text-align: center; margin-bottom: 20px;'>"
-        + "    <h2 style='color: #047857; margin: 0;'>" + storeName + "</h2>"
+        + "    <img src='" + storeLogo + "' alt='V&V Florielle' style='width: 64px; height: 64px; border-radius: 16px; object-fit: cover; display: inline-block; margin-bottom: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(4,120,87,0.12);' />"
+        + "    <h2 style='color: #047857; margin: 0; font-size: 20px; font-weight: bold;'>" + storeName + "</h2>"
         + "    <p style='color: #64748b; font-size: 13px; margin-top: 4px;'>Tiệm Hoa Nghệ Thuật & Thiết Kế Cao Cấp Hà Nội</p>"
         + "  </div>"
         + "  <div style='background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 18px; text-align: center; margin-bottom: 20px;'>"

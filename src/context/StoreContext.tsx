@@ -3151,19 +3151,24 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu target là email
     if (target.includes('@') && settings.googleDriveWebhookUrl && settings.googleDriveWebhookUrl.trim().startsWith('http')) {
+      const storeLogoUrl = (settings.logoVerticalUrl && settings.logoVerticalUrl.startsWith('http'))
+        ? settings.logoVerticalUrl
+        : `${(settings.customDomain && settings.customDomain.startsWith('http')) ? settings.customDomain : 'https://vvflorielle.pages.dev'}${settings.logoVerticalUrl || '/logo-vvflorielle-square.png'}`;
+
       fetch(settings.googleDriveWebhookUrl.trim(), {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: target.trim(),
-          subject: '[V&V Florielle] Mã OTP Xác Thực Hội Viên',
+          subject: '✿ [V&V Florielle] Mã OTP Xác Thực Hội Viên',
           otpCode: otp,
           purpose: 'Xác thực tài khoản hội viên V&V Florielle',
           storeName: settings.name || 'V&V Florielle',
           storeHotline: settings.hotline || '0906.721.442',
           storeAddress: settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
-          storeDomain: settings.customDomain || 'https://vvflorielle.vn',
+          storeDomain: settings.customDomain || 'https://vvflorielle.pages.dev',
+          storeLogo: storeLogoUrl,
           timestamp: new Date().toISOString()
         })
       }).catch((err) => console.warn('[OTP] Lỗi gửi email hội viên:', err));
@@ -3322,19 +3327,24 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu target là email
     if (cleanValue.includes('@') && settings.googleDriveWebhookUrl && settings.googleDriveWebhookUrl.trim().startsWith('http')) {
+      const storeLogoUrl = (settings.logoVerticalUrl && settings.logoVerticalUrl.startsWith('http'))
+        ? settings.logoVerticalUrl
+        : `${(settings.customDomain && settings.customDomain.startsWith('http')) ? settings.customDomain : 'https://vvflorielle.pages.dev'}${settings.logoVerticalUrl || '/logo-vvflorielle-square.png'}`;
+
       fetch(settings.googleDriveWebhookUrl.trim(), {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: cleanValue.trim(),
-          subject: '[V&V Florielle] Mã OTP Xác Nhận Thay Đổi Thông Tin Cá Nhân',
+          subject: '✿ [V&V Florielle] Mã OTP Xác Nhận Thay Đổi Thông Tin Cá Nhân',
           otpCode: otp,
           purpose: 'Xác nhận liên kết địa chỉ Gmail mới',
           storeName: settings.name || 'V&V Florielle',
           storeHotline: settings.hotline || '0906.721.442',
           storeAddress: settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
-          storeDomain: settings.customDomain || 'https://vvflorielle.vn',
+          storeDomain: settings.customDomain || 'https://vvflorielle.pages.dev',
+          storeLogo: storeLogoUrl,
           timestamp: new Date().toISOString()
         })
       }).catch((err) => console.warn('[OTP] Lỗi gửi email đổi thông tin:', err));
@@ -4368,19 +4378,24 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu đã cài đặt
     const webhookUrl = settings.googleDriveWebhookUrl;
     if (webhookUrl && webhookUrl.trim().startsWith('http')) {
+      const storeLogoUrl = (settings.logoVerticalUrl && settings.logoVerticalUrl.startsWith('http'))
+        ? settings.logoVerticalUrl
+        : `${(settings.customDomain && settings.customDomain.startsWith('http')) ? settings.customDomain : 'https://vvflorielle.pages.dev'}${settings.logoVerticalUrl || '/logo-vvflorielle-square.png'}`;
+
       fetch(webhookUrl.trim(), {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: target,
-          subject: '[V&V Florielle] Mã OTP Khôi Phục Mã PIN Quản Trị Cấp 2',
+          subject: '✿ [V&V Florielle] Mã OTP Khôi Phục Mã PIN Quản Trị Cấp 2',
           otpCode: code,
           purpose: 'Khôi phục mã PIN bảo mật quản trị cấp 2',
           storeName: settings.name || 'V&V Florielle',
           storeHotline: settings.hotline || '0906.721.442',
           storeAddress: settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
-          storeDomain: settings.customDomain || 'https://vvflorielle.vn',
+          storeDomain: settings.customDomain || 'https://vvflorielle.pages.dev',
+          storeLogo: storeLogoUrl,
           timestamp: new Date().toISOString()
         })
       }).catch((err) => console.warn('[OTP] Lỗi gửi email qua Google Webhook:', err));
@@ -4430,19 +4445,24 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu đã cài đặt
     const webhookUrl = settings.googleDriveWebhookUrl;
     if (webhookUrl && webhookUrl.trim().startsWith('http')) {
+      const storeLogoUrl = (settings.logoVerticalUrl && settings.logoVerticalUrl.startsWith('http'))
+        ? settings.logoVerticalUrl
+        : `${(settings.customDomain && settings.customDomain.startsWith('http')) ? settings.customDomain : 'https://vvflorielle.pages.dev'}${settings.logoVerticalUrl || '/logo-vvflorielle-square.png'}`;
+
       fetch(webhookUrl.trim(), {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: target,
-          subject: '[V&V Florielle] CẢNH BÁO AN NINH: Mã OTP Thay Đổi STK VietQR',
+          subject: '✿ [V&V Florielle] CẢNH BÁO AN NINH: Mã OTP Thay Đổi STK VietQR',
           otpCode: code,
           purpose: 'Xác thực 2FA thay đổi tài khoản ngân hàng thụ hưởng VietQR',
           storeName: settings.name || 'V&V Florielle',
           storeHotline: settings.hotline || '0906.721.442',
           storeAddress: settings.address || '105 Doãn Kế Thiện, Cầu Giấy, Hà Nội',
-          storeDomain: settings.customDomain || 'https://vvflorielle.vn',
+          storeDomain: settings.customDomain || 'https://vvflorielle.pages.dev',
+          storeLogo: storeLogoUrl,
           timestamp: new Date().toISOString()
         })
       }).catch((err) => console.warn('[OTP] Lỗi gửi email qua Google Webhook:', err));
