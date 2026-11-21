@@ -448,7 +448,7 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
                       setSecurityPinInput(e.target.value);
                       if (pinErrorMsg) setPinErrorMsg('');
                     }}
-                    placeholder="Nhập mã cấp 2 (Mặc định: 1909203)"
+                    placeholder="Nhập mã bảo mật cấp 2..."
                     className="w-full !pl-10 !pr-14 py-3 rounded-2xl bg-slate-50 border border-slate-300 text-center font-mono font-black tracking-widest text-slate-900 text-base focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
                     autoFocus
                   />
@@ -1106,7 +1106,7 @@ export const SecuritySubpage: React.FC<SecuritySubpageProps> = ({
               <span>Khóa Bảo Mật Google Gemini AI (Duyệt Cọc Tự Động &amp; Trợ Lý Flori)</span>
             </h3>
             <p className="text-xs text-slate-500">
-              Chỉ bảo mật cấp 2 (Mã PIN 1909203) mới có quyền cấu hình, đổi hoặc xóa khóa API
+              Chỉ khi mở khóa bảo mật cấp 2 mới có quyền cấu hình, đổi hoặc xóa khóa API
             </p>
           </div>
           <div className="flex items-center gap-1.5 self-start sm:self-auto">
