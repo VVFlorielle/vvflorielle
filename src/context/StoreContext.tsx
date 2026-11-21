@@ -4319,7 +4319,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setAdminPinOtp({ code, expiresAt: Date.now() + 5 * 60 * 1000 });
     const target = email || adminEmail;
-    showToast(`Mã OTP khôi phục PIN đã gửi tới ${target}: ${code}`, 'success');
+
+    // Giấu mã OTP khỏi màn hình để bảo mật tuyệt đối 100%
+    showToast(`Mã OTP khôi phục PIN đã được gửi tới ${target}. Vui lòng kiểm tra hộp thư!`, 'success');
+
+    // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu đã cài đặt
+    const webhookUrl = settings.googleDriveWebhookUrl;
+    if (webhookUrl && webhookUrl.trim().startsWith('http')) {
+      fetch(webhookUrl.trim(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'SEND_EMAIL_OTP',
+          recipient: target,
+          subject: '🌸 [V&V Florielle] Mã OTP Xác Thực Quản Trị Cấp 2',
+          otpCode: code,
+          purpose: 'Khôi phục mã PIN quản trị',
+          timestamp: new Date().toISOString()
+        })
+      }).catch((err) => console.warn('[OTP] Lỗi gửi email qua Google Webhook:', err));
+    }
+
     return true;
   };
 
@@ -4357,7 +4377,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       'WARNING',
       `Yêu cầu mã xác thực OTP 2FA để thay đổi tài khoản ngân hàng VietQR gửi tới ${target}.`
     );
-    showToast(`Mã OTP bảo mật thay đổi STK VietQR đã gửi tới ${target}: ${code}`, 'info');
+
+    // Giấu mã OTP khỏi thông báo Toast
+    showToast(`Mã OTP bảo mật thay đổi STK VietQR đã gửi tới ${target}. Vui lòng kiểm tra hộp thư!`, 'info');
+
+    // Tự động kích hoạt gửi thư thật qua Webhook Google Apps Script nếu đã cài đặt
+    const webhookUrl = settings.googleDriveWebhookUrl;
+    if (webhookUrl && webhookUrl.trim().startsWith('http')) {
+      fetch(webhookUrl.trim(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'SEND_EMAIL_OTP',
+          recipient: target,
+          subject: '🔒 [V&V Florielle] Cảnh Báo An Ninh: Mã OTP Thay Đổi Tài Khoản Ngân Hàng',
+          otpCode: code,
+          purpose: 'Xác thực thay đổi tài khoản nhận tiền VietQR',
+          timestamp: new Date().toISOString()
+        })
+      }).catch((err) => console.warn('[OTP] Lỗi gửi email qua Google Webhook:', err));
+    }
+
     return true;
   };
 

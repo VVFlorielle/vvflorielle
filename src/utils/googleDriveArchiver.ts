@@ -19,6 +19,41 @@ export const GOOGLE_APPS_SCRIPT_TEMPLATE = `/**
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+
+    // =========================================================================
+    // XỬ LÝ 1: TỰ ĐỘNG GỬI EMAIL MÃ OTP BẢO MẬT 2FA (QUA GMAIL TIỆM)
+    // =========================================================================
+    if (data.action === "SEND_EMAIL_OTP") {
+      var recipient = data.recipient || "traivuho@gmail.com";
+      var subject = data.subject || "🌸 [V&V Florielle] Mã OTP Xác Thực Quản Trị Cấp 2";
+      var otpCode = data.otpCode || "";
+      var purpose = data.purpose || "Xác thực bảo mật tài khoản tiệm";
+
+      var htmlBody = ""
+        + "<div style='font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;'>"
+        + "  <div style='text-align: center; margin-bottom: 20px;'>"
+        + "    <h2 style='color: #047857; margin: 0;'>🌸 V&V Florielle Boutique</h2>"
+        + "    <p style='color: #64748b; font-size: 13px; margin-top: 4px;'>Tiệm Hoa Nghệ Thuật & Thiết Kế Cao Cấp Hà Nội</p>"
+        + "  </div>"
+        + "  <div style='background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 18px; text-align: center; margin-bottom: 20px;'>"
+        + "    <p style='color: #166534; font-size: 14px; margin: 0 0 10px 0; font-weight: bold;'>MÃ XÁC THỰC BẢO MẬT (OTP 2FA)</p>"
+        + "    <div style='font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #047857; font-family: monospace;'>" + otpCode + "</div>"
+        + "    <p style='color: #64748b; font-size: 12px; margin: 8px 0 0 0;'>Mã có hiệu lực trong 5 phút. Mục đích: " + purpose + ".</p>"
+        + "  </div>"
+        + "  <p style='color: #475569; font-size: 13px; line-height: 1.6;'>Yêu cầu này được gửi từ Trang Quản Trị V&V Florielle. Tuyệt đối không cung cấp mã này cho bất kỳ ai để đảm bảo an toàn kho hàng và doanh thu của tiệm.</p>"
+        + "</div>";
+
+      GmailApp.sendEmail(recipient, subject, "Mã xác thực OTP của bạn là: " + otpCode, {
+        htmlBody: htmlBody,
+        name: "V&V Florielle Boutique"
+      });
+
+      return ContentService.createTextOutput(JSON.stringify({
+        success: true,
+        message: "Đã gửi email OTP thành công qua Gmail"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     if (!data.base64Image) {
       return ContentService.createTextOutput(JSON.stringify({
         success: false,
