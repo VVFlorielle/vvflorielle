@@ -205,12 +205,12 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs font-bold scrollbar-none">
+      {/* Filter Tabs (Responsive 2 hàng trên mobile/tablet, 0 scroll ngang) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-nowrap gap-1.5 pb-1 text-xs font-bold">
         <button
           type="button"
           onClick={() => setActiveTab('ALL')}
-          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer shrink-0 ${
+          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer justify-center flex items-center ${
             activeTab === 'ALL'
               ? 'bg-slate-900 text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -221,50 +221,50 @@ export const PromotionsSubpage: React.FC<PromotionsSubpageProps> = ({
         <button
           type="button"
           onClick={() => setActiveTab('PUBLIC')}
-          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer shrink-0 flex items-center gap-1 ${
+          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer justify-center flex items-center gap-1 ${
             activeTab === 'PUBLIC'
               ? 'bg-emerald-700 text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
-          <Eye className="w-3.5 h-3.5" />
-          <span>Công khai web ({counts.public})</span>
+          <Eye className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">Công khai ({counts.public})</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('PRIVATE')}
-          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer shrink-0 flex items-center gap-1 ${
+          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer justify-center flex items-center gap-1 ${
             activeTab === 'PRIVATE'
               ? 'bg-purple-700 text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
-          <EyeOff className="w-3.5 h-3.5" />
-          <span>Mã ẩn / Sinh nhật ({counts.private})</span>
+          <EyeOff className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">Mã ẩn / SN ({counts.private})</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('FLOWER')}
-          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer shrink-0 flex items-center gap-1 ${
+          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer justify-center flex items-center gap-1 ${
             activeTab === 'FLOWER'
               ? 'bg-rose-600 text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
-          <Tag className="w-3.5 h-3.5" />
-          <span>🌸 Voucher Hoa Tươi ({counts.flower})</span>
+          <Tag className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">🌸 Hoa Tươi ({counts.flower})</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('SHIPPING')}
-          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer shrink-0 flex items-center gap-1 ${
+          className={`py-1.5 px-3 rounded-xl transition-all cursor-pointer justify-center flex items-center gap-1 col-span-2 sm:col-span-1 ${
             activeTab === 'SHIPPING'
               ? 'bg-blue-600 text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
-          <Navigation className="w-3.5 h-3.5" />
-          <span>🚚 Voucher Vận Chuyển ({counts.shipping})</span>
+          <Navigation className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">🚚 Vận Chuyển ({counts.shipping})</span>
         </button>
       </div>
 

@@ -62,15 +62,15 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
   return (
     <div className="space-y-6 select-none animate-in fade-in duration-200">
       {/* ================================================================
-          1. THANH PHÂN LOẠI NHANH TRÊN MOBILE (SEGMENTED FILTER PILLS)
+          1. THANH PHÂN LOẠI NHANH TRÊN MOBILE (2 HÀNG 6 NÚT, 0 SCROLL NGANG)
           Giúp người dùng trên điện thoại bấm lọc ngay phân khu cần thao tác
           Đảm bảo mỗi nút chỉ có đúng 1 icon gọn gàng, không bị trùng lặp icon
           ================================================================ */}
-      <div className="flex sm:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-0.5">
+      <div className="grid grid-cols-3 gap-1.5 sm:hidden py-1 px-0.5">
         <button
           type="button"
           onClick={() => setSelectedGroupFilter('ALL')}
-          className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-2 py-1.5 rounded-full text-[11px] font-bold justify-center flex items-center gap-1 transition-all cursor-pointer ${
             selectedGroupFilter === 'ALL'
               ? 'theme-active-tab text-white shadow-xs'
               : 'bg-white/90 text-slate-700 border border-slate-200 hover:bg-slate-50'
@@ -78,7 +78,7 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
           style={selectedGroupFilter === 'ALL' ? { backgroundColor: 'var(--primary-color, #059669)', color: '#ffffff' } : undefined}
         >
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
-          <span>Tất cả</span>
+          <span className="truncate">Tất cả</span>
           <span className="text-[9.5px] opacity-75">({totalActionsCount})</span>
         </button>
 
@@ -96,7 +96,7 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
               key={gId}
               type="button"
               onClick={() => setSelectedGroupFilter(gId)}
-              className={`px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-2 py-1.5 rounded-full text-[11px] font-bold justify-center flex items-center gap-1 transition-all cursor-pointer ${
                 isSelected
                   ? 'theme-active-tab text-white shadow-xs'
                   : 'bg-white/90 text-slate-700 border border-slate-200 hover:bg-slate-50'
@@ -104,7 +104,7 @@ export const ManagementFunctionalGrid: React.FC<ManagementFunctionalGridProps> =
               style={isSelected ? { backgroundColor: 'var(--primary-color, #059669)', color: '#ffffff' } : undefined}
             >
               <span className="text-xs shrink-0 flex items-center">{group.groupIcon}</span>
-              <span>{cleanShortTitle}</span>
+              <span className="truncate">{cleanShortTitle}</span>
               <span className="text-[9.5px] opacity-75">({group.items.length})</span>
             </button>
           );

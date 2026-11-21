@@ -191,38 +191,40 @@ export const CustomersSubpage: React.FC<CustomersSubpageProps> = ({
             )}
           </div>
 
-          {/* Tier & Status Filters */}
-          <div className="flex flex-col sm:items-end gap-1.5 text-xs">
-            <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Tier & Status Filters (2 hàng sạch sẽ, 0 scroll ngang) */}
+          <div className="flex flex-col sm:items-end gap-1.5 text-xs w-full sm:w-auto">
+            <div className="grid grid-cols-3 sm:flex items-center gap-1.5 w-full sm:w-auto">
               {['ALL', 'Thành viên mới', 'Bạc', 'Vàng', 'Kim Cương'].map((tier) => (
                 <button
                   key={tier}
                   onClick={() => setCustomerTierFilter(tier)}
-                  className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
+                  className={`px-2 sm:px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer text-center justify-center flex items-center ${
                     customerTierFilter === tier
                       ? 'bg-purple-700 text-white font-semibold shadow-sm'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
-                  {tier === 'ALL' ? 'Tất cả hạng' : tier}
+                  <span className="truncate">{tier === 'ALL' ? 'Tất cả hạng' : tier}</span>
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="grid grid-cols-2 sm:flex items-center gap-1.5 w-full sm:w-auto">
             {(['ALL', 'ACTIVE', 'BLOCKED', 'DELETED'] as const).map((st) => (
               <button
                 key={st}
                 onClick={() => setCustomerStatusFilter(st)}
-                className={`px-2.5 py-0.5 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
+                className={`px-2 py-1 rounded-lg text-[11px] font-medium transition-all cursor-pointer text-center justify-center flex items-center ${
                   customerStatusFilter === st
                     ? 'bg-slate-800 text-white font-bold shadow-2xs'
                     : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200/60'
                 }`}
               >
-                {st === 'ALL' && 'Tất cả trạng thái'}
-                {st === 'ACTIVE' && '✓ Hoạt động'}
-                {st === 'BLOCKED' && '🚫 Tạm khóa'}
-                {st === 'DELETED' && 'Ẩn danh (NĐ13)'}
+                <span className="truncate">
+                  {st === 'ALL' && 'Tất cả trạng thái'}
+                  {st === 'ACTIVE' && '✓ Hoạt động'}
+                  {st === 'BLOCKED' && '🚫 Tạm khóa'}
+                  {st === 'DELETED' && 'Ẩn danh (NĐ13)'}
+                </span>
               </button>
             ))}
           </div>

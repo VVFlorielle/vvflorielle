@@ -40,24 +40,26 @@ export const CustomerOrdersTab: React.FC<CustomerOrdersTabProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Order Status Filters */}
-      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl text-xs font-semibold overflow-x-auto">
+      {/* Order Status Filters (2x3 grid trên mobile, flex trên desktop, 0 scroll ngang) */}
+      <div className="grid grid-cols-3 sm:flex sm:flex-nowrap items-center gap-1 bg-slate-100 p-1.5 rounded-2xl text-[11px] sm:text-xs font-semibold">
         {(['ALL', 'PENDING', 'WAITING_DEPOSIT', 'ARRANGING', 'SHIPPING', 'COMPLETED'] as const).map((st) => (
           <button
             key={st}
             onClick={() => setStatusFilter(st)}
-            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-2 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer text-center justify-center flex items-center ${
               statusFilter === st
                 ? 'bg-white text-emerald-800 shadow-sm font-bold'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
           >
-            {st === 'ALL' && 'Tất cả'}
-            {st === 'PENDING' && 'Chờ duyệt kho'}
-            {st === 'WAITING_DEPOSIT' && 'Chờ cọc 50%'}
-            {st === 'ARRANGING' && 'Đang cắm hoa'}
-            {st === 'SHIPPING' && 'Đang giao'}
-            {st === 'COMPLETED' && 'Đã hoàn tất'}
+            <span className="truncate">
+              {st === 'ALL' && 'Tất cả'}
+              {st === 'PENDING' && 'Chờ duyệt'}
+              {st === 'WAITING_DEPOSIT' && 'Chờ cọc 50%'}
+              {st === 'ARRANGING' && 'Đang cắm'}
+              {st === 'SHIPPING' && 'Đang giao'}
+              {st === 'COMPLETED' && 'Hoàn tất'}
+            </span>
           </button>
         ))}
       </div>

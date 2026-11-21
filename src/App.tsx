@@ -101,26 +101,12 @@ export const AppContent: React.FC = () => {
     window.addEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
     window.addEventListener('open-policy-modal', handleOpenPolicy);
 
-    const handlePopState = () => {
-      const hash = window.location.hash;
-      if (currentView === 'admin' || currentView === 'owner') {
-        if (hash.includes('/')) {
-          const tab = hash.split('/')[1];
-          setActiveAdminTab(tab);
-        } else {
-          setActiveAdminTab('dashboard');
-        }
-      }
-    };
-    window.addEventListener('popstate', handlePopState);
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('open-custom-design-modal', handleOpenCustomDesign);
       window.removeEventListener('open-shipping-modal', handleOpenShipping);
       window.removeEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
       window.removeEventListener('open-policy-modal', handleOpenPolicy);
-      window.removeEventListener('popstate', handlePopState);
     };
   }, [currentView, setActiveAdminTab]);
 

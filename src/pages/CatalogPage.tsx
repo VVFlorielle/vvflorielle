@@ -129,14 +129,14 @@ export const CatalogPage: React.FC = () => {
 
       {/* Filter & Search Bar */}
       <div className="glass-panel p-4 rounded-3xl border border-emerald-200/60 shadow-sm space-y-3">
-        {/* Category Pills Slider */}
-        <div className="flex items-center gap-2 overflow-x-auto pt-1 pb-2.5 px-0.5 scrollbar-none">
+        {/* Category Pills (Tự co giãn 2 hàng trên mobile/tablet, 0 scroll ngang) */}
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1 pb-2.5 px-0.5">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
               selectedCategory === 'all'
                 ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
-                : 'bg-white/80 text-slate-700 hover:bg-emerald-50 hover:text-emerald-900'
+                : 'bg-white/80 text-slate-700 hover:bg-emerald-50 hover:text-emerald-900 border border-slate-200/60'
             }`}
           >
             🌸 Tất Cả ({products.length})
@@ -149,10 +149,10 @@ export const CatalogPage: React.FC = () => {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                     selectedCategory === cat.id
                       ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
-                      : 'bg-white/80 text-slate-700 hover:bg-emerald-50 hover:text-emerald-900'
+                      : 'bg-white/80 text-slate-700 hover:bg-emerald-50 hover:text-emerald-900 border border-slate-200/60'
                   }`}
                 >
                   {cat.name} ({count})

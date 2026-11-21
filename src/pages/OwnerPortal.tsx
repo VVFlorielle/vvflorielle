@@ -125,10 +125,6 @@ export const OwnerPortal: React.FC = () => {
   const navigateToTab = (tab: any) => {
     saveTabScroll(activeTab);
     setActiveTab(tab);
-    if (typeof window !== 'undefined') {
-      const targetHash = tab === 'dashboard' ? '#owner' : `#owner/${tab}`;
-      window.history.pushState({ adminTab: tab }, '', targetHash);
-    }
     const savedY = getTabScroll(tab);
     if (savedY > 0) {
       restoreScrollPosition(savedY);
@@ -140,9 +136,6 @@ export const OwnerPortal: React.FC = () => {
   const handleBackToDashboard = () => {
     saveTabScroll(activeTab);
     setActiveTab('dashboard');
-    if (typeof window !== 'undefined') {
-      window.history.pushState({ adminTab: 'dashboard' }, '', '#owner');
-    }
     const dashboardY = getTabScroll('dashboard');
     restoreScrollPosition(dashboardY);
   };
@@ -150,9 +143,13 @@ export const OwnerPortal: React.FC = () => {
   // Tự động khôi phục vị trí cuộn khi người dùng bấm nút Back trình duyệt / vuốt màn hình điện thoại
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
+      const rawPath = window.location.pathname;
       const hash = window.location.hash;
       let targetTab = 'dashboard';
-      if (hash.startsWith('#owner/')) {
+      const ownerMatch = rawPath.match(/^\/owner(?:\/([a-zA-Z0-9_-]+))?/i);
+      if (ownerMatch && ownerMatch[1]) {
+        targetTab = ownerMatch[1];
+      } else if (hash.startsWith('#owner/')) {
         targetTab = hash.replace('#owner/', '') || 'dashboard';
       } else if (e.state && e.state.adminTab) {
         targetTab = e.state.adminTab;

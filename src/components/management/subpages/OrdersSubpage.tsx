@@ -1082,12 +1082,12 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           </div>
         </div>
 
-        {/* Status Filter (Hàng 1: Quy trình tiến độ) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs py-1 scrollbar-none">
+        {/* Status Filter (Hàng 1: Quy trình tiến độ - 2 hàng tự co giãn responsive grid, 0 scroll ngang) */}
+        <div className="grid grid-cols-2 min-[500px]:grid-cols-4 lg:flex lg:flex-nowrap items-center gap-1.5 text-xs py-1">
           <button
             type="button"
             onClick={() => handleSelectOrderStatus('ALL')}
-            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium text-center justify-center flex items-center ${
               orderStatusFilter === 'ALL'
                 ? 'bg-purple-700 text-white font-semibold shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1098,7 +1098,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           <button
             type="button"
             onClick={() => handleSelectOrderStatus('PENDING')}
-            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium text-center justify-center flex items-center ${
               orderStatusFilter === 'PENDING'
                 ? 'bg-purple-700 text-white font-semibold shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1109,7 +1109,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           <button
             type="button"
             onClick={() => handleSelectOrderStatus('WAITING_DEPOSIT')}
-            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium text-center justify-center flex items-center ${
               orderStatusFilter === 'WAITING_DEPOSIT'
                 ? 'bg-purple-700 text-white font-semibold shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1120,7 +1120,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           <button
             type="button"
             onClick={() => handleSelectOrderStatus('ARRANGING')}
-            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium text-center justify-center flex items-center ${
               orderStatusFilter === 'ARRANGING'
                 ? 'bg-purple-700 text-white font-semibold shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1131,7 +1131,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           <button
             type="button"
             onClick={() => handleSelectOrderStatus('SHIPPING')}
-            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium text-center justify-center flex items-center ${
               orderStatusFilter === 'SHIPPING'
                 ? 'bg-purple-700 text-white font-semibold shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1142,7 +1142,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           <button
             type="button"
             onClick={() => handleSelectOrderStatus('COMPLETED')}
-            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium text-center justify-center flex items-center ${
               orderStatusFilter === 'COMPLETED'
                 ? 'bg-purple-700 text-white font-semibold shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1153,7 +1153,7 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
           <button
             type="button"
             onClick={() => handleSelectOrderStatus('CANCELLED')}
-            className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium text-center justify-center flex items-center ${
               orderStatusFilter === 'CANCELLED'
                 ? 'bg-rose-700 text-white font-semibold shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1164,8 +1164,8 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
         </div>
       </div>
 
-      {/* Deposit Status Filter Sub-Bar (Hàng 2: Trạng thái cọc) */}
-      <div className="flex items-center gap-2 overflow-x-auto text-xs py-1 border-b border-slate-100 scrollbar-none">
+      {/* Deposit Status Filter Sub-Bar (Hàng 2: Trạng thái cọc - Flex wrap hiển thị toàn bộ trên mobile) */}
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs py-1 border-b border-slate-100">
         <span className="text-[11px] text-slate-400 font-semibold shrink-0">Lọc cọc:</span>
         <button
           type="button"

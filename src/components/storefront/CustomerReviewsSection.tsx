@@ -302,7 +302,7 @@ export const CustomerReviewsSection: React.FC = () => {
           <div
             ref={filterScrollRef}
             onScroll={checkFilterScroll}
-            className="flex items-center justify-start sm:justify-center gap-1 sm:gap-2 overflow-x-auto scrollbar-none py-0.5 px-0.5 scroll-smooth"
+            className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 py-0.5 px-0.5"
           >
             {/* Tất cả */}
             <button

@@ -60,7 +60,7 @@ export const ProductDetailModal: React.FC = () => {
 
   if (!selectedProduct) return null;
 
-  const productShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/#product/${selectedProduct.id}` : '';
+  const productShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/san-pham/${selectedProduct.id}` : '';
 
   const handleShareZalo = () => {
     const url = `https://zalo.me/share?url=${encodeURIComponent(productShareUrl)}&text=${encodeURIComponent(`Mẫu hoa ${selectedProduct.name} tuyệt đẹp tại V&V Florielle`)}`;

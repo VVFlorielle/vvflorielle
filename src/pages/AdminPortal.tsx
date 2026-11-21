@@ -130,10 +130,6 @@ export const AdminPortal: React.FC = () => {
   const navigateToTab = (tab: any) => {
     saveTabScroll(activeTab);
     setActiveTab(tab);
-    if (typeof window !== 'undefined') {
-      const targetHash = tab === 'dashboard' ? '#admin' : `#admin/${tab}`;
-      window.history.pushState({ adminTab: tab }, '', targetHash);
-    }
     const savedY = getTabScroll(tab);
     if (savedY > 0) {
       restoreScrollPosition(savedY);
@@ -145,9 +141,6 @@ export const AdminPortal: React.FC = () => {
   const handleBackToDashboard = () => {
     saveTabScroll(activeTab);
     setActiveTab('dashboard');
-    if (typeof window !== 'undefined') {
-      window.history.pushState({ adminTab: 'dashboard' }, '', '#admin');
-    }
     const dashboardY = getTabScroll('dashboard');
     restoreScrollPosition(dashboardY);
   };
@@ -155,9 +148,13 @@ export const AdminPortal: React.FC = () => {
   // Tự động khôi phục vị trí cuộn khi người dùng bấm nút Back trình duyệt / vuốt màn hình điện thoại
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
+      const rawPath = window.location.pathname;
       const hash = window.location.hash;
       let targetTab = 'dashboard';
-      if (hash.startsWith('#admin/')) {
+      const adminMatch = rawPath.match(/^\/admin(?:\/([a-zA-Z0-9_-]+))?/i);
+      if (adminMatch && adminMatch[1]) {
+        targetTab = adminMatch[1];
+      } else if (hash.startsWith('#admin/')) {
         targetTab = hash.replace('#admin/', '') || 'dashboard';
       } else if (e.state && e.state.adminTab) {
         targetTab = e.state.adminTab;

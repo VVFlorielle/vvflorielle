@@ -296,53 +296,62 @@ export const RevenueSubpage: React.FC<RevenueSubpageProps> = ({
       {/* 2. Filter Toolbar & Xuất Báo Cáo (Matching phototiinlove) */}
       <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/90 shadow-2xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Quick Date Presets */}
-          <div className="flex items-center gap-1.5 flex-wrap text-xs">
-            <span className="text-slate-500 font-semibold flex items-center gap-1 mr-1">
+          {/* Quick Date Presets (2x3 grid trên mobile, flex trên desktop) */}
+          <div className="w-full sm:w-auto">
+            <div className="text-slate-500 font-semibold flex items-center gap-1 mb-1.5 sm:hidden text-xs">
               <Calendar className="w-3.5 h-3.5" />
               <span>Thời gian:</span>
-            </span>
-            {[
-              { id: 'today', label: 'Hôm nay' },
-              { id: 'yesterday', label: 'Hôm qua' },
-              { id: 'week', label: '7 ngày qua' },
-              { id: 'month', label: 'Tháng này' },
-              { id: 'lastMonth', label: 'Tháng trước' },
-              { id: 'custom', label: 'Tùy chọn...' }
-            ].map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setDateRange(p.id as any)}
-                className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-                  dateRange === p.id
-                    ? 'bg-emerald-700 text-white shadow-2xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Payment Method Filter */}
-            <div className="flex items-center gap-1 text-xs">
-              <span className="text-slate-500 font-semibold mr-1">Thanh toán:</span>
-              {(['ALL', 'VIETQR', 'COD'] as const).map((m) => (
+            </div>
+            <div className="grid grid-cols-3 sm:flex items-center gap-1.5 text-xs">
+              <span className="hidden sm:flex text-slate-500 font-semibold items-center gap-1 mr-1">
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Thời gian:</span>
+              </span>
+              {[
+                { id: 'today', label: 'Hôm nay' },
+                { id: 'yesterday', label: 'Hôm qua' },
+                { id: 'week', label: '7 ngày qua' },
+                { id: 'month', label: 'Tháng này' },
+                { id: 'lastMonth', label: 'Tháng trước' },
+                { id: 'custom', label: 'Tùy chọn...' }
+              ].map((p) => (
                 <button
-                  key={m}
+                  key={p.id}
                   type="button"
-                  onClick={() => setPaymentMethodFilter(m)}
-                  className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
-                    paymentMethodFilter === m
-                      ? 'bg-emerald-700 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  onClick={() => setDateRange(p.id as any)}
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-center justify-center flex items-center ${
+                    dateRange === p.id
+                      ? 'bg-emerald-700 text-white shadow-2xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
                   }`}
                 >
-                  {m === 'ALL' ? 'Tất cả' : m === 'VIETQR' ? 'VietQR' : 'Tiền mặt/COD'}
+                  <span className="truncate">{p.label}</span>
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-between sm:justify-start">
+            {/* Payment Method Filter */}
+            <div className="w-full sm:w-auto">
+              <div className="text-slate-500 font-semibold mb-1 sm:hidden text-xs">Thanh toán:</div>
+              <div className="grid grid-cols-3 sm:flex items-center gap-1 text-xs">
+                <span className="hidden sm:inline text-slate-500 font-semibold mr-1">Thanh toán:</span>
+                {(['ALL', 'VIETQR', 'COD'] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setPaymentMethodFilter(m)}
+                    className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer text-center justify-center flex items-center ${
+                      paymentMethodFilter === m
+                        ? 'bg-emerald-700 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <span className="truncate">{m === 'ALL' ? 'Tất cả' : m === 'VIETQR' ? 'VietQR' : 'Tiền mặt/COD'}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Export CSV Button */}

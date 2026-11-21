@@ -524,57 +524,210 @@ function speakCuteVoice(rawText: string) {
 }
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Navigation & View
-  const [currentView, setCurrentView] = useState<StoreView>(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.toLowerCase();
-      if (hash.startsWith('#customer')) return 'customer';
-      if (hash.startsWith('#admin')) return 'admin';
-      if (hash.startsWith('#owner')) return 'owner';
-      if (hash === '#catalog' || hash === '#mau-hoa') return 'catalog';
-      if (hash === '#about' || hash === '#gioi-thieu') return 'about';
-      if (hash === '#contact' || hash === '#lien-he') return 'contact';
-      if (hash === '#care' || hash === '#cam-nang') return 'care';
+  // Helper to parse deep link on initial load
+  const initialDeepLink = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return { view: 'store' as StoreView, cat: 'all' as CategoryId, productId: null as string | null, cartOpen: false, adminTab: 'dashboard' };
     }
-    return 'store';
-  });
+    const rawPath = window.location.pathname;
+    const path = rawPath.toLowerCase().replace(/\/+$/, '') || '/';
+    const hash = window.location.hash.toLowerCase();
 
-  useEffect(() => {
-    const handleHashChange = () => {
-      const rawHash = window.location.hash;
-      const hash = rawHash.toLowerCase();
-      if (hash.startsWith('#customer')) setCurrentView('customer');
-      else if (hash.startsWith('#admin')) {
-        setCurrentView('admin');
-        if (rawHash.includes('/')) {
-          const tab = rawHash.split('/')[1];
-          if (tab) setActiveAdminTab(tab);
-        }
-      }
-      else if (hash.startsWith('#owner')) {
-        setCurrentView('owner');
-        if (rawHash.includes('/')) {
-          const tab = rawHash.split('/')[1];
-          if (tab) setActiveAdminTab(tab);
-        }
-      }
-      else if (hash === '#catalog' || hash === '#mau-hoa') setCurrentView('catalog');
-      else if (hash === '#about' || hash === '#gioi-thieu') setCurrentView('about');
-      else if (hash === '#contact' || hash === '#lien-he') setCurrentView('contact');
-      else if (hash === '#care' || hash === '#cam-nang') setCurrentView('care');
-      else if (hash === '' || hash === '#store') setCurrentView('store');
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    // 1. Cart
+    if (path === '/gio-hang' || hash === '#cart' || hash === '#gio-hang') {
+      return { view: 'store' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: true, adminTab: 'dashboard' };
+    }
+
+    // 2. Product: /san-pham/:id or #product/:id or #san-pham/:id
+    const prodMatch = rawPath.match(/^\/san-pham\/([a-zA-Z0-9_-]+)/i) || window.location.hash.match(/^#(?:product|san-pham)\/([a-zA-Z0-9_-]+)/i);
+    if (prodMatch) {
+      return { view: 'catalog' as StoreView, cat: 'all' as CategoryId, productId: prodMatch[1], cartOpen: false, adminTab: 'dashboard' };
+    }
+
+    // 3. Category: /danh-muc/:catId
+    const catMatch = rawPath.match(/^\/danh-muc\/([a-zA-Z0-9_-]+)/i);
+    if (catMatch) {
+      const validCats = ['all', 'khai-truong', 'sinh-nhat', 'tinh-yeu', 'lan-ho-diep', 'chuc-mung', 'chia-buon'];
+      const cat = validCats.includes(catMatch[1]) ? (catMatch[1] as CategoryId) : 'all';
+      return { view: 'catalog' as StoreView, cat, productId: null, cartOpen: false, adminTab: 'dashboard' };
+    }
+
+    // 4. Admin / Owner: /admin/:tab or /owner/:tab or #admin/:tab or #owner/:tab
+    const adminMatch = rawPath.match(/^\/admin(?:\/([a-zA-Z0-9_-]+))?/i);
+    if (adminMatch || hash.startsWith('#admin')) {
+      const tab = (adminMatch && adminMatch[1]) || (hash.includes('/') ? hash.split('/')[1] : 'dashboard');
+      return { view: 'admin' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: false, adminTab: tab || 'dashboard' };
+    }
+    const ownerMatch = rawPath.match(/^\/owner(?:\/([a-zA-Z0-9_-]+))?/i);
+    if (ownerMatch || hash.startsWith('#owner')) {
+      const tab = (ownerMatch && ownerMatch[1]) || (hash.includes('/') ? hash.split('/')[1] : 'dashboard');
+      return { view: 'owner' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: false, adminTab: tab || 'dashboard' };
+    }
+
+    // 5. Customer Portal: /hoi-vien or /customer or #customer
+    if (path === '/hoi-vien' || path === '/customer' || hash.startsWith('#customer')) {
+      return { view: 'customer' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: false, adminTab: 'dashboard' };
+    }
+
+    // 6. Static Pages
+    if (path === '/mau-hoa' || path === '/catalog' || hash === '#catalog' || hash === '#mau-hoa') {
+      return { view: 'catalog' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: false, adminTab: 'dashboard' };
+    }
+    if (path === '/gioi-thieu' || path === '/about' || hash === '#about' || hash === '#gioi-thieu') {
+      return { view: 'about' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: false, adminTab: 'dashboard' };
+    }
+    if (path === '/lien-he' || path === '/contact' || hash === '#contact' || hash === '#lien-he') {
+      return { view: 'contact' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: false, adminTab: 'dashboard' };
+    }
+    if (path === '/cam-nang' || path === '/care' || hash === '#care' || hash === '#cam-nang') {
+      return { view: 'care' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: false, adminTab: 'dashboard' };
+    }
+
+    return { view: 'store' as StoreView, cat: 'all' as CategoryId, productId: null, cartOpen: false, adminTab: 'dashboard' };
   }, []);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
-  const [searchQuery, setSearchQuery] = useState('');
 
-  // Cart & Modals
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<FlowerProduct | null>(null);
+  // Navigation & View States
+  const [currentView, _setCurrentView] = useState<StoreView>(initialDeepLink.view);
+  const [selectedCategory, _setSelectedCategory] = useState<CategoryId>(initialDeepLink.cat);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeAdminTab, _setActiveAdminTab] = useState<string>(initialDeepLink.adminTab);
+
+  // Cart & Modals States
+  const [isCartOpen, _setIsCartOpen] = useState(initialDeepLink.cartOpen);
+  const [selectedProduct, _setSelectedProduct] = useState<FlowerProduct | null>(() => {
+    if (!initialDeepLink.productId) return null;
+    const id = initialDeepLink.productId;
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('vvf_products') : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const found = parsed.find((p: FlowerProduct) => p.id === id);
+          if (found) return found;
+        }
+      }
+    } catch {}
+    return INITIAL_PRODUCTS.find((p) => p.id === id) || null;
+  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'customer' | 'admin' | 'register' | 'forgot'>('customer');
+
+  // URL Synchronization & Browser History Engine (PopState / Back / Forward / Clean URL Router)
+  const isPopStateRef = useRef(false);
+
+  const syncBrowserUrl = (
+    view: StoreView,
+    cat: CategoryId,
+    prod: FlowerProduct | null,
+    cart: boolean,
+    adminTab: string,
+    mode: 'push' | 'replace' = 'push'
+  ) => {
+    if (typeof window === 'undefined' || isPopStateRef.current) return;
+
+    let targetPath = '/';
+    let docTitle = 'V&V Florielle - Tiệm Hoa Nghệ Thuật & Thiết Kế Cao Cấp Hà Nội';
+
+    if (cart) {
+      targetPath = '/gio-hang';
+      docTitle = 'Giỏ Hàng | V&V Florielle';
+    } else if (prod) {
+      targetPath = `/san-pham/${prod.id}`;
+      docTitle = `${prod.name} | V&V Florielle`;
+    } else {
+      switch (view) {
+        case 'catalog':
+          if (cat && cat !== 'all') {
+            targetPath = `/danh-muc/${cat}`;
+            const cObj = INITIAL_CATEGORIES.find((c) => c.id === cat);
+            docTitle = `${cObj?.name || 'Mẫu Hoa'} | V&V Florielle`;
+          } else {
+            targetPath = '/mau-hoa';
+            docTitle = 'Mẫu Hoa Tươi Nghệ Thuật | V&V Florielle';
+          }
+          break;
+        case 'about':
+          targetPath = '/gioi-thieu';
+          docTitle = 'Giới Thiệu Tiệm Hoa | V&V Florielle';
+          break;
+        case 'contact':
+          targetPath = '/lien-he';
+          docTitle = 'Liên Hệ & Ghé Tiệm | V&V Florielle';
+          break;
+        case 'care':
+          targetPath = '/cam-nang';
+          docTitle = 'Cẩm Nang Chăm Sóc Hoa | V&V Florielle';
+          break;
+        case 'customer':
+          targetPath = '/hoi-vien';
+          docTitle = 'Cổng Hội Viên & Tra Cứu Đơn Hoa | V&V Florielle';
+          break;
+        case 'admin':
+          targetPath = adminTab && adminTab !== 'dashboard' ? `/admin/${adminTab}` : '/admin';
+          docTitle = 'Bảng Quản Trị Hệ Thống | V&V Florielle';
+          break;
+        case 'owner':
+          targetPath = adminTab && adminTab !== 'dashboard' ? `/owner/${adminTab}` : '/owner';
+          docTitle = 'Bảng Chủ Tiệm Florist | V&V Florielle';
+          break;
+        case 'store':
+        default:
+          targetPath = '/';
+          docTitle = 'V&V Florielle - Tiệm Hoa Nghệ Thuật & Thiết Kế Cao Cấp Hà Nội';
+          break;
+      }
+    }
+
+    if (window.location.pathname !== targetPath) {
+      if (mode === 'replace') {
+        window.history.replaceState({ view, cat, productId: prod?.id, cart, adminTab }, '', targetPath);
+      } else {
+        window.history.pushState({ view, cat, productId: prod?.id, cart, adminTab }, '', targetPath);
+      }
+    }
+    document.title = docTitle;
+  };
+
+  // Exposed Setters with automatic URL & Title synchronization
+  const setCurrentView = (view: StoreView) => {
+    _setCurrentView(view);
+    _setSelectedProduct(null);
+    _setIsCartOpen(false);
+    syncBrowserUrl(view, selectedCategory, null, false, activeAdminTab, 'push');
+  };
+
+  const setSelectedCategory = (cat: CategoryId) => {
+    _setSelectedCategory(cat);
+    _setSelectedProduct(null);
+    if (currentView === 'catalog') {
+      syncBrowserUrl('catalog', cat, null, false, activeAdminTab, 'push');
+    }
+  };
+
+  const setSelectedProduct = (prod: FlowerProduct | null) => {
+    _setSelectedProduct(prod);
+    if (prod) {
+      syncBrowserUrl(currentView, selectedCategory, prod, false, activeAdminTab, 'push');
+    } else {
+      syncBrowserUrl(currentView, selectedCategory, null, isCartOpen, activeAdminTab, 'push');
+    }
+  };
+
+  const setIsCartOpen = (open: boolean) => {
+    _setIsCartOpen(open);
+    if (open) {
+      syncBrowserUrl(currentView, selectedCategory, selectedProduct, true, activeAdminTab, 'push');
+    } else {
+      syncBrowserUrl(currentView, selectedCategory, selectedProduct, false, activeAdminTab, 'push');
+    }
+  };
+
+  const setActiveAdminTab = (tab: string) => {
+    _setActiveAdminTab(tab);
+    if (currentView === 'admin' || currentView === 'owner') {
+      syncBrowserUrl(currentView, selectedCategory, null, false, tab, 'push');
+    }
+  };
 
   // Persistence Loaders (Enforce clean sync of exactly 54 products - 9 per category)
   const [products, setProducts] = useState<FlowerProduct[]>(() => {
@@ -875,13 +1028,100 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const saved = localStorage.getItem('vvf_admin_view_mode') as AdminViewMode;
     return saved || 'STUDIO_CMS';
   });
-  const [activeAdminTab, setActiveAdminTab] = useState<string>(() => {
-    if (typeof window !== 'undefined' && window.location.hash.includes('/')) {
-      const parts = window.location.hash.split('/');
-      if (parts[1]) return parts[1];
-    }
-    return 'dashboard';
-  });
+  // URL Synchronization on mount and PopState / HashChange Listener
+  useEffect(() => {
+    // Initial sync
+    syncBrowserUrl(currentView, selectedCategory, selectedProduct, isCartOpen, activeAdminTab, 'replace');
+
+    const handlePopState = () => {
+      isPopStateRef.current = true;
+      const rawPath = window.location.pathname;
+      const cleanPath = rawPath.toLowerCase().replace(/\/+$/, '') || '/';
+      const hash = window.location.hash.toLowerCase();
+
+      // 1. Cart
+      if (cleanPath === '/gio-hang' || hash === '#cart' || hash === '#gio-hang') {
+        _setIsCartOpen(true);
+        _setSelectedProduct(null);
+        setTimeout(() => { isPopStateRef.current = false; }, 50);
+        return;
+      } else {
+        _setIsCartOpen(false);
+      }
+
+      // 2. Product Modal
+      const prodMatch = rawPath.match(/^\/san-pham\/([a-zA-Z0-9_-]+)/i) || window.location.hash.match(/^#(?:product|san-pham)\/([a-zA-Z0-9_-]+)/i);
+      if (prodMatch) {
+        const id = prodMatch[1];
+        const found = products.find((p) => p.id === id) || INITIAL_PRODUCTS.find((p) => p.id === id);
+        if (found) {
+          _setSelectedProduct(found);
+          setTimeout(() => { isPopStateRef.current = false; }, 50);
+          return;
+        }
+      } else {
+        _setSelectedProduct(null);
+      }
+
+      // 3. Category
+      const catMatch = rawPath.match(/^\/danh-muc\/([a-zA-Z0-9_-]+)/i);
+      if (catMatch) {
+        _setCurrentView('catalog');
+        _setSelectedCategory(catMatch[1] as CategoryId);
+        setTimeout(() => { isPopStateRef.current = false; }, 50);
+        return;
+      }
+
+      // 4. Admin / Owner
+      const adminMatch = rawPath.match(/^\/admin(?:\/([a-zA-Z0-9_-]+))?/i);
+      if (adminMatch || hash.startsWith('#admin')) {
+        const tab = (adminMatch && adminMatch[1]) || (hash.includes('/') ? hash.split('/')[1] : 'dashboard');
+        _setCurrentView('admin');
+        _setActiveAdminTab(tab || 'dashboard');
+        setTimeout(() => { isPopStateRef.current = false; }, 50);
+        return;
+      }
+      const ownerMatch = rawPath.match(/^\/owner(?:\/([a-zA-Z0-9_-]+))?/i);
+      if (ownerMatch || hash.startsWith('#owner')) {
+        const tab = (ownerMatch && ownerMatch[1]) || (hash.includes('/') ? hash.split('/')[1] : 'dashboard');
+        _setCurrentView('owner');
+        _setActiveAdminTab(tab || 'dashboard');
+        setTimeout(() => { isPopStateRef.current = false; }, 50);
+        return;
+      }
+
+      // 5. Customer
+      if (cleanPath === '/hoi-vien' || cleanPath === '/customer' || hash.startsWith('#customer')) {
+        _setCurrentView('customer');
+        setTimeout(() => { isPopStateRef.current = false; }, 50);
+        return;
+      }
+
+      // 6. Pages
+      if (cleanPath === '/mau-hoa' || cleanPath === '/catalog' || hash === '#catalog' || hash === '#mau-hoa') {
+        _setCurrentView('catalog');
+        _setSelectedCategory('all');
+      } else if (cleanPath === '/gioi-thieu' || cleanPath === '/about' || hash === '#about' || hash === '#gioi-thieu') {
+        _setCurrentView('about');
+      } else if (cleanPath === '/lien-he' || cleanPath === '/contact' || hash === '#contact' || hash === '#lien-he') {
+        _setCurrentView('contact');
+      } else if (cleanPath === '/cam-nang' || cleanPath === '/care' || hash === '#care' || hash === '#cam-nang') {
+        _setCurrentView('care');
+      } else {
+        _setCurrentView('store');
+      }
+
+      setTimeout(() => { isPopStateRef.current = false; }, 50);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('hashchange', handlePopState);
+    };
+  }, [products]);
 
   const [adminPin, setAdminPin] = useState<string>(() => {
     return localStorage.getItem('vvf_admin_pin') || '1909203';
