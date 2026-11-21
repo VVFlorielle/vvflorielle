@@ -4,6 +4,7 @@ import { CustomDesignModal } from './popups/CustomDesignModal';
 import { FlowerCareModal } from './popups/FlowerCareModal';
 import { ShippingPolicyModal } from './popups/ShippingPolicyModal';
 import { WeddingEventModal } from './popups/WeddingEventModal';
+import { StorePolicyModal } from './popups/StorePolicyModal';
 import {
   GuaranteeModalContent,
   LocationsModalContent,
@@ -29,6 +30,7 @@ export type PopupType =
   | 'about'
   | 'app-download'
   | 'custom-design'
+  | 'policy'
   | null;
 
 interface InfoPopupsProps {
@@ -45,6 +47,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
     activePopup === 'care' ||
     activePopup === 'custom-design' ||
     activePopup === 'shipping' ||
+    activePopup === 'policy' ||
     activePopup === 'wedding-event';
 
   return (
@@ -74,6 +77,7 @@ export const InfoPopups: React.FC<InfoPopupsProps> = ({ activePopup, onClose }) 
         {/* Modal Inner Contents (no-scrollbar, safe max-height above bottom dock) */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 no-scrollbar">
           {activePopup === 'custom-design' && <CustomDesignModal onClose={onClose} />}
+          {activePopup === 'policy' && <StorePolicyModal onClose={onClose} />}
           {activePopup === 'care' && <FlowerCareModal onClose={onClose} />}
           {activePopup === 'shipping' && <ShippingPolicyModal onClose={onClose} />}
           {activePopup === 'wedding-event' && <WeddingEventModal onClose={onClose} />}

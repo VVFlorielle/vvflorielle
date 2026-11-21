@@ -1694,6 +1694,21 @@ export const CartDrawer: React.FC = () => {
                     <div><strong>Cắm hoa &amp; Giao tận tay:</strong> Nhận cọc xong, florist tiến hành cắm hoa và shipper giao nhanh chóng.</div>
                   </div>
                 </div>
+
+                <div className="pt-1.5 border-t border-amber-200/60 flex items-center justify-between text-[10.5px]">
+                  <span className="text-amber-900 font-semibold">Chính sách cọc &amp; hoàn hủy minh bạch:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('open-policy-modal'));
+                      }
+                    }}
+                    className="text-emerald-800 hover:text-emerald-950 font-bold underline cursor-pointer"
+                  >
+                    Xem quy định ↗
+                  </button>
+                </div>
               </div>
 
               {/* Collapsible VietQR Preview for Early Deposit */}

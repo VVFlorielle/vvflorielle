@@ -30,7 +30,8 @@ import {
   Square,
   Lock,
   KeyRound,
-  ShieldCheck
+  ShieldCheck,
+  FileText
 } from 'lucide-react';
 import { Order, OrderStatus } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
@@ -471,12 +472,24 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
             onChange={(e) => {
               const nextStatus = e.target.value as OrderStatus;
               if (nextStatus === order.status) return;
+
+              // Cho phép chuyển đổi linh hoạt giữa Bước 1 (Chờ tiệm duyệt kho) và Bước 2 (Chờ khách cọc 50%) mà KHÔNG CẦN NHẬP MÃ PIN (để sửa ngay khi lỡ bấm nhầm)
+              const isInitialToggle =
+                (order.status === 'PENDING' && nextStatus === 'WAITING_DEPOSIT') ||
+                (order.status === 'WAITING_DEPOSIT' && nextStatus === 'PENDING');
+
+              if (isInitialToggle) {
+                updateOrderStatus(order.id, nextStatus);
+                return;
+              }
+
+              // Các trạng thái can thiệp sâu (Đang cắm hoa, Đang giao, Hoàn thành, Đã hủy) yêu cầu xác thực mã PIN cấp 2
               setPendingStatusOverride({ orderId: order.id, newStatus: nextStatus, oldStatus: order.status });
               setOverridePinInput('');
               setOverridePinError('');
             }}
             className="text-xs font-semibold py-1 px-3 rounded-xl border border-purple-200 bg-purple-50 text-purple-900 focus:outline-none cursor-pointer"
-            title="Can thiệp quy trình thủ công (Yêu cầu mã PIN cấp 2)"
+            title="Quy trình đơn hàng (Đổi giữa Chờ kho và Chờ cọc tự do; đổi trạng thái khác yêu cầu mã PIN cấp 2)"
           >
             <option value="PENDING">1. Chờ tiệm duyệt kho</option>
             <option value="WAITING_DEPOSIT">2. Chờ khách cọc 50%</option>
@@ -1638,6 +1651,33 @@ export const OrdersSubpage: React.FC<OrdersSubpageProps> = ({
                 placeholder="Nhập chi tiết lý do shipper không giao được hoa..."
                 className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:border-rose-500 focus:outline-none"
               />
+
+              {/* Căn cứ chính sách cửa hàng để đối chiếu cọc & cước vận chuyển */}
+              <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/90 text-amber-950 space-y-1 text-[11px]">
+                <div className="font-bold flex items-center justify-between">
+                  <span className="flex items-center gap-1 text-amber-900">
+                    <FileText className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Căn cứ Chính sách Tiệm (Điều 3):</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('open-policy-modal'));
+                      }
+                    }}
+                    className="text-[10px] text-emerald-700 hover:text-emerald-900 font-bold underline cursor-pointer"
+                  >
+                    Xem văn bản ↗
+                  </button>
+                </div>
+                <p className="text-slate-600 leading-snug">
+                  • <strong>Bảo quản lưu kho:</strong> Mẫu hoa lưu giữ phòng lạnh showroom 12 - 24 giờ.
+                </p>
+                <p className="text-slate-600 leading-snug">
+                  • <strong>Đối soát cọc:</strong> Tiệm giữ lại <strong>50% cọc</strong> để bù trừ hoa tươi đã cắm. Nếu khách thanh toán 100% muốn nhận lại tiền thừa, khách cần thanh toán <strong>cước phí vận chuyển thực tế phát sinh</strong>.
+                </p>
+              </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">

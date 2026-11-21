@@ -95,9 +95,11 @@ export const AppContent: React.FC = () => {
     const handleOpenCustomDesign = () => setActivePopup('custom-design');
     const handleOpenShipping = () => setActivePopup('shipping');
     const handleOpenWeddingEvent = () => setActivePopup('wedding-event');
+    const handleOpenPolicy = () => setActivePopup('policy');
     window.addEventListener('open-custom-design-modal', handleOpenCustomDesign);
     window.addEventListener('open-shipping-modal', handleOpenShipping);
     window.addEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
+    window.addEventListener('open-policy-modal', handleOpenPolicy);
 
     const handlePopState = () => {
       const hash = window.location.hash;
@@ -117,6 +119,7 @@ export const AppContent: React.FC = () => {
       window.removeEventListener('open-custom-design-modal', handleOpenCustomDesign);
       window.removeEventListener('open-shipping-modal', handleOpenShipping);
       window.removeEventListener('open-wedding-event-modal', handleOpenWeddingEvent);
+      window.removeEventListener('open-policy-modal', handleOpenPolicy);
       window.removeEventListener('popstate', handlePopState);
     };
   }, [currentView, setActiveAdminTab]);

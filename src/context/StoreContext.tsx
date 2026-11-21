@@ -921,6 +921,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return localStorage.getItem('vvf_admin_session_locked') === 'true';
   });
 
+  // Pending notification timers for debouncing order approval notifications (30s-45s grace window)
+  const pendingApprovalNotificationTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
   // Shop Settings
   const [settings, setSettings] = useState<ShopSettings>(() => {
     const saved = localStorage.getItem('vvf_settings');
@@ -2231,19 +2234,42 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       )
     );
 
-    sendAppNotification({
-      recipientRole: 'CUSTOMER',
-      recipientId: target.senderPhone,
-      title: `🌸 Tiệm đã duyệt đơn hoa #${orderId}!`,
-      message: `Kho hoa tươi đã sẵn sàng! Mời bạn quét mã VietQR để thanh toán cọc 50% (${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(target.depositAmount)}). Sau khi nhận cọc, tiệm sẽ lên hoa ngay!`,
-      type: 'ORDER_STATUS',
-      orderId
-    });
+    // Hủy bỏ timer thông báo cũ nếu có
+    if (pendingApprovalNotificationTimers.current.has(orderId)) {
+      clearTimeout(pendingApprovalNotificationTimers.current.get(orderId)!);
+      pendingApprovalNotificationTimers.current.delete(orderId);
+    }
 
-    showToast(`Đã duyệt nhận đơn #${orderId}! Hệ thống đã báo khách quét mã cọc 50%.`, 'success');
+    // Thiết lập độ trễ 45 giây trước khi gửi thông báo đến khách hàng
+    // Giúp Florist/Admin có thời gian sửa lại nếu lỡ tay bấm nhầm duyệt đơn mà khách không bị bối rối bởi nhiều thông báo
+    const timer = setTimeout(() => {
+      const currentOrders = JSON.parse(localStorage.getItem('vvf_orders') || '[]') as Order[];
+      const freshOrder = currentOrders.find((o) => o.id === orderId);
+      if (freshOrder && freshOrder.status === 'WAITING_DEPOSIT') {
+        sendAppNotification({
+          recipientRole: 'CUSTOMER',
+          recipientId: freshOrder.senderPhone,
+          title: `🌸 Tiệm đã duyệt đơn hoa #${orderId}!`,
+          message: `Kho hoa tươi đã sẵn sàng! Mời bạn quét mã VietQR để thanh toán cọc 50% (${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(freshOrder.depositAmount)}). Sau khi nhận cọc, tiệm sẽ lên hoa ngay!`,
+          type: 'ORDER_STATUS',
+          orderId
+        });
+      }
+      pendingApprovalNotificationTimers.current.delete(orderId);
+    }, 45000);
+
+    pendingApprovalNotificationTimers.current.set(orderId, timer);
+
+    showToast(`Đã duyệt nhận đơn #${orderId}! Hệ thống sẽ gửi thông báo đến khách sau 45s (có thể chỉnh lại nếu bấm nhầm).`, 'success');
   };
 
   const rejectOrder = (orderId: string, reason: string) => {
+    // Hủy timer duyệt đơn nếu có
+    if (pendingApprovalNotificationTimers.current.has(orderId)) {
+      clearTimeout(pendingApprovalNotificationTimers.current.get(orderId)!);
+      pendingApprovalNotificationTimers.current.delete(orderId);
+    }
+
     const target = orders.find((o) => o.id === orderId);
     if (!target) return;
 
@@ -2541,6 +2567,35 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
+    // Hủy bỏ timer thông báo duyệt đơn đang chờ (nếu admin đổi về PENDING hoặc CANCELLED)
+    if (status === 'PENDING' || status === 'CANCELLED') {
+      if (pendingApprovalNotificationTimers.current.has(orderId)) {
+        clearTimeout(pendingApprovalNotificationTimers.current.get(orderId)!);
+        pendingApprovalNotificationTimers.current.delete(orderId);
+      }
+    } else if (status === 'WAITING_DEPOSIT') {
+      if (pendingApprovalNotificationTimers.current.has(orderId)) {
+        clearTimeout(pendingApprovalNotificationTimers.current.get(orderId)!);
+        pendingApprovalNotificationTimers.current.delete(orderId);
+      }
+      const timer = setTimeout(() => {
+        const currentOrders = JSON.parse(localStorage.getItem('vvf_orders') || '[]') as Order[];
+        const freshOrder = currentOrders.find((o) => o.id === orderId);
+        if (freshOrder && freshOrder.status === 'WAITING_DEPOSIT') {
+          sendAppNotification({
+            recipientRole: 'CUSTOMER',
+            recipientId: freshOrder.senderPhone,
+            title: `🌸 Tiệm đã duyệt đơn hoa #${orderId}!`,
+            message: `Kho hoa tươi đã sẵn sàng! Mời bạn quét mã VietQR để thanh toán cọc 50% (${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(freshOrder.depositAmount)}). Sau khi nhận cọc, tiệm sẽ lên hoa ngay!`,
+            type: 'ORDER_STATUS',
+            orderId
+          });
+        }
+        pendingApprovalNotificationTimers.current.delete(orderId);
+      }, 45000);
+      pendingApprovalNotificationTimers.current.set(orderId, timer);
+    }
+
     setOrders((prev) => {
       const updatedOrders = prev.map((o) => {
         if (o.id === orderId) {
@@ -2824,6 +2879,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteOrder = (orderId: string): boolean => {
+    if (pendingApprovalNotificationTimers.current.has(orderId)) {
+      clearTimeout(pendingApprovalNotificationTimers.current.get(orderId)!);
+      pendingApprovalNotificationTimers.current.delete(orderId);
+    }
+
     const target = orders.find((o) => o.id === orderId);
     if (!target) {
       showToast('Không tìm thấy đơn hàng cần xóa!', 'error');
@@ -2842,6 +2902,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const forceDeleteOrder = (orderId: string, pin: string): boolean => {
+    if (pendingApprovalNotificationTimers.current.has(orderId)) {
+      clearTimeout(pendingApprovalNotificationTimers.current.get(orderId)!);
+      pendingApprovalNotificationTimers.current.delete(orderId);
+    }
+
     if (!verifyAdminPin(pin)) {
       showToast('Mã PIN cấp 2 không chính xác!', 'error');
       return false;

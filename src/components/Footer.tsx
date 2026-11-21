@@ -9,7 +9,8 @@ import {
   HeartHandshake,
   QrCode,
   Gift,
-  Droplets
+  Droplets,
+  FileText
 } from 'lucide-react';
 import { PopupType } from './InfoPopups';
 
@@ -234,24 +235,64 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPopup }) => {
                 </div>
               </div>
 
-              <div className="text-[7.5px] min-[375px]:text-[8.5px] sm:text-[11px] text-slate-500 pt-1 border-t border-slate-100/80 flex items-center justify-between gap-1">
-                <span className="shrink-0">Cú pháp:</span>
-                <span className="font-mono bg-white px-1 sm:px-2 py-0.5 rounded border border-slate-200 text-emerald-800 font-bold truncate text-[7.5px] min-[375px]:text-[8.5px] sm:text-xs">
-                  VVF [Mã]
-                </span>
+              <div className="text-[7.5px] min-[375px]:text-[8.5px] sm:text-[11px] text-slate-500 pt-1 border-t border-slate-100/80 flex flex-col gap-1">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="shrink-0">Cú pháp:</span>
+                  <span className="font-mono bg-white px-1 sm:px-2 py-0.5 rounded border border-slate-200 text-emerald-800 font-bold truncate text-[7.5px] min-[375px]:text-[8.5px] sm:text-xs">
+                    VVF [Mã]
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onOpenPopup && onOpenPopup('policy')}
+                  className="text-left text-[7.5px] min-[375px]:text-[8.5px] sm:text-[10.5px] text-emerald-700 hover:text-emerald-900 font-bold flex items-center gap-1 cursor-pointer hover:underline transition-colors mt-0.5"
+                >
+                  <FileText className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+                  <span className="truncate">Quy định cọc &amp; hoàn hủy ↗</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* 3. BOTTOM COPYRIGHT */}
-          <div className="pt-2 sm:pt-4 border-t border-white/80 flex flex-col sm:flex-row items-center justify-between text-[8.5px] min-[375px]:text-[9.5px] sm:text-xs text-slate-400 gap-1 sm:gap-2 text-center sm:text-left">
-            <div className="truncate">
-              © {new Date().getFullYear()} {settings.name}. All rights reserved.
+          {/* 3. BOTTOM COPYRIGHT & POLICIES */}
+          <div className="pt-2 sm:pt-4 border-t border-white/80 flex flex-col md:flex-row items-center justify-between text-[8.5px] min-[375px]:text-[9.5px] sm:text-xs text-slate-400 gap-1.5 sm:gap-2 text-center md:text-left">
+            <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+              <div className="truncate">
+                © {new Date().getFullYear()} {settings.name}. All rights reserved.
+              </div>
+              <span className="hidden sm:inline">•</span>
+              <div className="flex items-center gap-2 text-[8px] min-[375px]:text-[9px] sm:text-[11px] text-slate-500 font-medium shrink-0">
+                <span>Boutique Florist</span>
+                <span>•</span>
+                <span>Hoa Tươi • Hoa Sáp • Hoa Lụa</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 text-[8px] min-[375px]:text-[9px] sm:text-[11px] text-slate-500 font-medium shrink-0">
-              <span>Boutique Florist</span>
-              <span>•</span>
-              <span>Đa Dạng Hoa Tươi • Hoa Sáp • Hoa Lụa</span>
+
+            {/* Policy quick links */}
+            <div className="flex items-center flex-wrap justify-center gap-2 sm:gap-3 text-[8px] min-[375px]:text-[9px] sm:text-[11px] text-slate-600 font-semibold shrink-0">
+              <button
+                type="button"
+                onClick={() => onOpenPopup && onOpenPopup('policy')}
+                className="hover:text-emerald-700 hover:underline cursor-pointer transition-colors"
+              >
+                Chính sách cọc &amp; hoàn hủy
+              </button>
+              <span className="text-slate-300">•</span>
+              <button
+                type="button"
+                onClick={() => onOpenPopup && onOpenPopup('shipping')}
+                className="hover:text-emerald-700 hover:underline cursor-pointer transition-colors"
+              >
+                Chính sách giao hàng
+              </button>
+              <span className="text-slate-300">•</span>
+              <button
+                type="button"
+                onClick={() => onOpenPopup && onOpenPopup('guarantee')}
+                className="hover:text-emerald-700 hover:underline cursor-pointer transition-colors"
+              >
+                Bảo hành hoa tươi 2H
+              </button>
             </div>
           </div>
 
