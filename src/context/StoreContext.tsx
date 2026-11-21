@@ -3157,7 +3157,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: target.trim(),
-          subject: '🌸 [V&V Florielle] Mã OTP Xác Thực Hội Viên',
+          subject: '[V&V Florielle] Mã OTP Xác Thực Hội Viên',
           otpCode: otp,
           purpose: 'Xác thực tài khoản hội viên V&V Florielle',
           storeName: settings.name || 'V&V Florielle',
@@ -3328,7 +3328,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: cleanValue.trim(),
-          subject: '🛡️ [V&V Florielle] Mã OTP Xác Nhận Thay Đổi Thông Tin Cá Nhân',
+          subject: '[V&V Florielle] Mã OTP Xác Nhận Thay Đổi Thông Tin Cá Nhân',
           otpCode: otp,
           purpose: 'Xác nhận liên kết địa chỉ Gmail mới',
           storeName: settings.name || 'V&V Florielle',
@@ -4374,7 +4374,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: target,
-          subject: '🔑 [V&V Florielle] Mã OTP Khôi Phục Mã PIN Quản Trị Cấp 2',
+          subject: '[V&V Florielle] Mã OTP Khôi Phục Mã PIN Quản Trị Cấp 2',
           otpCode: code,
           purpose: 'Khôi phục mã PIN bảo mật quản trị cấp 2',
           storeName: settings.name || 'V&V Florielle',
@@ -4436,7 +4436,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify({
           action: 'SEND_EMAIL_OTP',
           recipient: target,
-          subject: '🏦 [V&V Florielle] CẢNH BÁO AN NINH: Mã OTP Thay Đổi STK VietQR',
+          subject: '[V&V Florielle] CẢNH BÁO AN NINH: Mã OTP Thay Đổi STK VietQR',
           otpCode: code,
           purpose: 'Xác thực 2FA thay đổi tài khoản ngân hàng thụ hưởng VietQR',
           storeName: settings.name || 'V&V Florielle',
