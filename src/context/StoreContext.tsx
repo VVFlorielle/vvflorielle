@@ -686,6 +686,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     }
     document.title = docTitle;
+
+    // Dynamic Robots Meta Tag: strictly NOINDEX on Admin / Owner / Customer / Cart
+    const isPrivateArea = view === 'admin' || view === 'owner' || view === 'customer' || cart;
+    let robotsMeta = document.querySelector('meta[name="robots"]');
+    if (!robotsMeta) {
+      robotsMeta = document.createElement('meta');
+      robotsMeta.setAttribute('name', 'robots');
+      document.head.appendChild(robotsMeta);
+    }
+    robotsMeta.setAttribute('content', isPrivateArea ? 'noindex, nofollow, noarchive' : 'index, follow');
   };
 
   // Exposed Setters with automatic URL & Title synchronization
@@ -1032,6 +1042,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     // Initial sync
     syncBrowserUrl(currentView, selectedCategory, selectedProduct, isCartOpen, activeAdminTab, 'replace');
+
+    // Friendly notice if requested product deep-link is no longer available
+    if (initialDeepLink.productId && !selectedProduct) {
+      setTimeout(() => {
+        showToast('Mẫu hoa bạn tìm hiện đã hết hoặc đổi mẫu mới. Mời bạn tham khảo bộ sưu tập hoa mới nhất nhé!', 'info');
+      }, 500);
+    }
 
     const handlePopState = () => {
       isPopStateRef.current = true;

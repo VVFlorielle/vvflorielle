@@ -15,8 +15,10 @@ import {
   Moon,
   Sun,
   AlertTriangle,
-  Bot
+  Bot,
+  Download
 } from 'lucide-react';
+import { useStore } from '../../../context/StoreContext';
 import { ShopSettings, ContactChannel } from '../../../types';
 import { ActionConfirmModal } from '../ManagementModals';
 
@@ -45,6 +47,48 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
 }) => {
   const [editSettings, setEditSettings] = useState<ShopSettings>(settings);
   const [channelToDelete, setChannelToDelete] = useState<ContactChannel | null>(null);
+  const { products, showToast } = useStore();
+
+  const handleExportSitemap = () => {
+    const domain = (editSettings.customDomain || window.location.origin).replace(/\/+$/, '');
+    const today = new Date().toISOString().split('T')[0];
+
+    const urls = [
+      { loc: `${domain}/`, freq: 'daily', prio: '1.0' },
+      { loc: `${domain}/mau-hoa`, freq: 'daily', prio: '0.9' },
+      { loc: `${domain}/gioi-thieu`, freq: 'weekly', prio: '0.7' },
+      { loc: `${domain}/lien-he`, freq: 'weekly', prio: '0.7' },
+      { loc: `${domain}/cam-nang`, freq: 'weekly', prio: '0.8' },
+    ];
+
+    const categories = ['khai-truong', 'sinh-nhat', 'tinh-yeu', 'lan-ho-diep', 'chuc-mung', 'chia-buon'];
+    categories.forEach((cat) => {
+      urls.push({ loc: `${domain}/danh-muc/${cat}`, freq: 'daily', prio: '0.8' });
+    });
+
+    products.forEach((p) => {
+      urls.push({ loc: `${domain}/san-pham/${p.id}`, freq: 'weekly', prio: '0.8' });
+    });
+
+    const xml = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      ...urls.map((u) => `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${u.freq}</changefreq>\n    <priority>${u.prio}</priority>\n  </url>`),
+      '</urlset>'
+    ].join('\n');
+
+    const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sitemap.xml';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showToast(`Đã xuất sitemap.xml thành công với ${urls.length} đường dẫn chuẩn SEO!`, 'success');
+  };
 
   // Đồng bộ thời gian thực khi settings thay đổi từ các phân hệ khác (như Bảo mật cấp 2)
   React.useEffect(() => {
@@ -208,7 +252,18 @@ export const StoreConfigSubpage: React.FC<StoreConfigSubpageProps> = ({
             <h4 className="font-bold text-xs text-slate-800">Cấu Hình Tên Miền Riêng, Vận Chuyển &amp; Trợ Lý AI</h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
               <div className="col-span-2 sm:col-span-1">
-                <label className="text-[11px] font-semibold text-slate-600 block mb-1">Tên miền thương hiệu</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] font-semibold text-slate-600">Tên miền thương hiệu</label>
+                  <button
+                    type="button"
+                    onClick={handleExportSitemap}
+                    className="text-[10px] text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1 hover:underline"
+                    title="Xuất file sitemap.xml chứa 100% sản phẩm và danh mục mới nhất để nộp Google Search Console"
+                  >
+                    <Download className="w-2.5 h-2.5" />
+                    <span>Xuất Sitemap.xml</span>
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={editSettings.customDomain || ''}

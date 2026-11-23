@@ -1,5 +1,11 @@
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /admin/
+Disallow: /owner
+Disallow: /owner/
+Disallow: /hoi-vien
+Disallow: /customer
+Disallow: /gio-hang
 
-Sitemap: https://vvflorielle.vn/sitemap.xml
+Sitemap: https://vvflorielle.pages.dev/sitemap.xml
