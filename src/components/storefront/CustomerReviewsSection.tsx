@@ -213,10 +213,6 @@ export const CustomerReviewsSection: React.FC = () => {
 
       {/* 1. Header & Title */}
       <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14 space-y-2.5">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold tracking-wide uppercase shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-          <span>Cảm Nhận & Đánh Giá Thực Tế</span>
-        </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
           Khách Hàng Nói Gì Về{' '}
           <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
