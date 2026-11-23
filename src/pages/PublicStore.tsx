@@ -15,6 +15,7 @@ export const PublicStore: React.FC = () => {
     categories,
     selectedCategory,
     setSelectedCategory,
+    navigateToCatalog,
     searchQuery,
     setSearchQuery,
     settings,
@@ -111,8 +112,7 @@ export const PublicStore: React.FC = () => {
         products={homepageProducts}
         totalSortedCount={sortedProducts.length}
         onViewAllCatalog={() => {
-          setCurrentView('catalog');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          navigateToCatalog('all');
         }}
         onResetFilters={() => {
           setSelectedCategory('all');

@@ -64,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
     settings,
     categories,
     setSelectedCategory,
+    navigateToCatalog,
     notifications,
     unreadNotificationCount,
     markNotificationAsRead,
@@ -161,10 +162,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
   };
 
   const handleSelectCategory = (catId: CategoryId) => {
-    setSelectedCategory(catId);
-    setCurrentView('catalog');
+    navigateToCatalog(catId);
     setIsCategoryMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -730,10 +729,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                 {/* Bấm vào chữ "Mẫu Hoa" mở trang Mẫu Hoa mặc định Tất Cả */}
                 <button
                   onClick={() => {
-                    setSelectedCategory('all');
-                    setCurrentView('catalog');
+                    navigateToCatalog('all');
                     setIsCategoryMenuOpen(false);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="px-2 lg:px-2.5 py-1.5 flex items-center gap-1.5 cursor-pointer whitespace-nowrap font-bold"
                   title="Xem tất cả mẫu hoa nghệ thuật"
@@ -860,8 +857,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPopup, isScrolled: propIsS
                     <div
                       onClick={() => {
                         setIsServiceMenuOpen(false);
-                        setSelectedCategory('all');
-                        setCurrentView('catalog');
+                        navigateToCatalog('all');
                       }}
                       className="header-dropdown-item p-2 rounded-xl cursor-pointer flex items-center gap-2.5 group"
                     >

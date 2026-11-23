@@ -57,6 +57,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
     setIsAuthModalOpen,
     setAuthModalMode,
     setSelectedCategory,
+    navigateToCatalog,
     categories,
     settings,
   } = useStore();
@@ -161,23 +162,14 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
   const handleSelectCategory = (catId: CategoryId) => {
     setIsExpanded(false);
     setIsCategorySheetOpen(false);
-    setSelectedCategory(catId);
-    if (currentView !== 'store') {
-      setCurrentView('store');
-    }
-    setTimeout(() => {
-      const el = document.getElementById('featured-flowers') || document.getElementById('categories-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    navigateToCatalog(catId);
   };
 
   const handleCatalogClick = () => {
     handleUserInteract();
     setIsCategorySheetOpen(false);
     setIsUtilityMenuOpen(false);
-    setSelectedCategory('all');
-    setCurrentView('catalog');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigateToCatalog('all');
   };
 
   const handleOrderLookupClick = () => {
@@ -377,9 +369,7 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             <div
               onClick={() => {
                 setIsCategorySheetOpen(false);
-                setSelectedCategory('all');
-                setCurrentView('catalog');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                navigateToCatalog('all');
               }}
               className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 text-white cursor-pointer shadow-md flex items-center justify-between hover:shadow-lg transition-all active:scale-[0.98]"
             >

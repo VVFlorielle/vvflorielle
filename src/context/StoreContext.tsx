@@ -87,9 +87,10 @@ export interface FloatingVoucherNotice {
 interface StoreContextType {
   // Navigation / View
   currentView: StoreView;
-  setCurrentView: (view: StoreView) => void;
+  setCurrentView: (view: StoreView, category?: CategoryId) => void;
   selectedCategory: CategoryId;
-  setSelectedCategory: (cat: CategoryId) => void;
+  setSelectedCategory: (cat: CategoryId, navigateToCatalog?: boolean) => void;
+  navigateToCatalog: (cat?: CategoryId) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 
@@ -589,6 +590,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Navigation & View States
   const [currentView, _setCurrentView] = useState<StoreView>(initialDeepLink.view);
   const [selectedCategory, _setSelectedCategory] = useState<CategoryId>(initialDeepLink.cat);
+  const currentViewRef = useRef<StoreView>(initialDeepLink.view);
+  const selectedCategoryRef = useRef<CategoryId>(initialDeepLink.cat);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeAdminTab, _setActiveAdminTab] = useState<string>(initialDeepLink.adminTab);
 
@@ -699,19 +702,41 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Exposed Setters with automatic URL & Title synchronization
-  const setCurrentView = (view: StoreView) => {
+  const setCurrentView = (view: StoreView, category?: CategoryId) => {
+    const targetCat = category !== undefined ? category : selectedCategoryRef.current;
+    if (category !== undefined) {
+      _setSelectedCategory(category);
+      selectedCategoryRef.current = category;
+    }
     _setCurrentView(view);
+    currentViewRef.current = view;
     _setSelectedProduct(null);
     _setIsCartOpen(false);
-    syncBrowserUrl(view, selectedCategory, null, false, activeAdminTab, 'push');
+    syncBrowserUrl(view, targetCat, null, false, activeAdminTab, 'push');
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
   };
 
-  const setSelectedCategory = (cat: CategoryId) => {
+  const setSelectedCategory = (cat: CategoryId, navigateToCatalog = false) => {
     _setSelectedCategory(cat);
+    selectedCategoryRef.current = cat;
     _setSelectedProduct(null);
-    if (currentView === 'catalog') {
-      syncBrowserUrl('catalog', cat, null, false, activeAdminTab, 'push');
+
+    const targetView: StoreView = navigateToCatalog || currentViewRef.current === 'catalog' ? 'catalog' : currentViewRef.current;
+    if (targetView !== currentViewRef.current) {
+      _setCurrentView(targetView);
+      currentViewRef.current = targetView;
     }
+
+    syncBrowserUrl(targetView, cat, null, false, activeAdminTab, 'push');
+    if (targetView === 'catalog' && typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const navigateToCatalog = (cat: CategoryId = 'all') => {
+    setSelectedCategory(cat, true);
   };
 
   const setSelectedProduct = (prod: FlowerProduct | null) => {
@@ -1039,9 +1064,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return saved || 'STUDIO_CMS';
   });
   // URL Synchronization on mount and PopState / HashChange Listener
+  const hasInitialSyncedRef = useRef(false);
+  const productsRef = useRef(products);
   useEffect(() => {
-    // Initial sync
-    syncBrowserUrl(currentView, selectedCategory, selectedProduct, isCartOpen, activeAdminTab, 'replace');
+    productsRef.current = products;
+  }, [products]);
+
+  useEffect(() => {
+    // Initial sync - strictly once on mount
+    if (!hasInitialSyncedRef.current) {
+      hasInitialSyncedRef.current = true;
+      syncBrowserUrl(initialDeepLink.view, initialDeepLink.cat, selectedProduct, isCartOpen, initialDeepLink.adminTab, 'replace');
+    }
 
     // Friendly notice if requested product deep-link is no longer available
     if (initialDeepLink.productId && !selectedProduct) {
@@ -1070,7 +1104,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const prodMatch = rawPath.match(/^\/san-pham\/([a-zA-Z0-9_-]+)/i) || window.location.hash.match(/^#(?:product|san-pham)\/([a-zA-Z0-9_-]+)/i);
       if (prodMatch) {
         const id = prodMatch[1];
-        const found = products.find((p) => p.id === id) || INITIAL_PRODUCTS.find((p) => p.id === id);
+        const found = (productsRef.current || []).find((p) => p.id === id) || INITIAL_PRODUCTS.find((p) => p.id === id);
         if (found) {
           _setSelectedProduct(found);
           setTimeout(() => { isPopStateRef.current = false; }, 50);
@@ -1083,8 +1117,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // 3. Category
       const catMatch = rawPath.match(/^\/danh-muc\/([a-zA-Z0-9_-]+)/i);
       if (catMatch) {
+        const cat = catMatch[1] as CategoryId;
         _setCurrentView('catalog');
-        _setSelectedCategory(catMatch[1] as CategoryId);
+        _setSelectedCategory(cat);
+        currentViewRef.current = 'catalog';
+        selectedCategoryRef.current = cat;
         setTimeout(() => { isPopStateRef.current = false; }, 50);
         return;
       }
@@ -1095,6 +1132,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const tab = (adminMatch && adminMatch[1]) || (hash.includes('/') ? hash.split('/')[1] : 'dashboard');
         _setCurrentView('admin');
         _setActiveAdminTab(tab || 'dashboard');
+        currentViewRef.current = 'admin';
         setTimeout(() => { isPopStateRef.current = false; }, 50);
         return;
       }
@@ -1103,6 +1141,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const tab = (ownerMatch && ownerMatch[1]) || (hash.includes('/') ? hash.split('/')[1] : 'dashboard');
         _setCurrentView('owner');
         _setActiveAdminTab(tab || 'dashboard');
+        currentViewRef.current = 'owner';
         setTimeout(() => { isPopStateRef.current = false; }, 50);
         return;
       }
@@ -1110,6 +1149,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // 5. Customer
       if (cleanPath === '/hoi-vien' || cleanPath === '/customer' || hash.startsWith('#customer')) {
         _setCurrentView('customer');
+        currentViewRef.current = 'customer';
         setTimeout(() => { isPopStateRef.current = false; }, 50);
         return;
       }
@@ -1118,14 +1158,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (cleanPath === '/mau-hoa' || cleanPath === '/catalog' || hash === '#catalog' || hash === '#mau-hoa') {
         _setCurrentView('catalog');
         _setSelectedCategory('all');
+        currentViewRef.current = 'catalog';
+        selectedCategoryRef.current = 'all';
       } else if (cleanPath === '/gioi-thieu' || cleanPath === '/about' || hash === '#about' || hash === '#gioi-thieu') {
         _setCurrentView('about');
+        currentViewRef.current = 'about';
       } else if (cleanPath === '/lien-he' || cleanPath === '/contact' || hash === '#contact' || hash === '#lien-he') {
         _setCurrentView('contact');
+        currentViewRef.current = 'contact';
       } else if (cleanPath === '/cam-nang' || cleanPath === '/care' || hash === '#care' || hash === '#cam-nang') {
         _setCurrentView('care');
+        currentViewRef.current = 'care';
       } else {
         _setCurrentView('store');
+        currentViewRef.current = 'store';
       }
 
       setTimeout(() => { isPopStateRef.current = false; }, 50);
@@ -1138,7 +1184,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('hashchange', handlePopState);
     };
-  }, [products]);
+  }, []);
 
   const [adminPin, setAdminPin] = useState<string>(() => {
     return localStorage.getItem('vvf_admin_pin') || '1909203';
@@ -5005,6 +5051,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setCurrentView,
         selectedCategory,
         setSelectedCategory,
+        navigateToCatalog,
         searchQuery,
         setSearchQuery,
         sessionRole,
