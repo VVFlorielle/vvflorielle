@@ -211,23 +211,24 @@ export const CustomerReviewsSection: React.FC = () => {
       <div className="absolute top-10 left-1/4 w-72 h-72 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-teal-100/30 rounded-full blur-3xl pointer-events-none -z-10" />
 
-      {/* 1. Header & Title */}
-      <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14 space-y-2.5">
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
-          Khách Hàng Nói Gì Về{' '}
-          <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
-            V&V Florielle
-          </span>
-          ?
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          100% đánh giá minh bạch từ khách hàng đã trực tiếp đặt và trải nghiệm hoa nghệ thuật tại Hà Nội.
-          Mỗi lời khen là nguồn động lực to lớn để florist hoàn thiện từng mẫu hoa trao tay.
-        </p>
-      </div>
+      {/* Unified White Glass Card Container for Reviews (Gộp phần tiêu đề và bảng scorecard vào chung khung trắng nổi bật) */}
+      <div className="bg-white/95 backdrop-blur-xl rounded-[32px] border border-emerald-100/90 shadow-xl shadow-emerald-900/5 p-6 sm:p-10 mb-8 sm:mb-10 transition-all">
+        {/* 1. Header & Title */}
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-10 space-y-2">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
+            Khách Hàng Nói Gì Về{' '}
+            <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
+              V&V Florielle
+            </span>
+            ?
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            100% đánh giá minh bạch từ khách hàng đã trực tiếp đặt và trải nghiệm hoa nghệ thuật tại Hà Nội.
+            Mỗi lời khen là nguồn động lực to lớn để florist hoàn thiện từng mẫu hoa trao tay.
+          </p>
+        </div>
 
-      {/* 2. Rating & Trust Scorecard Banner (3 commitments in 1 row of 3 columns on Mobile & Desktop) */}
-      <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-emerald-100/80 shadow-lg shadow-emerald-900/5 p-4 sm:p-8 mb-8 sm:mb-10 transition-all">
+        {/* 2. Rating & Trust Scorecard Banner (3 commitments in 1 row of 3 columns on Mobile & Desktop) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center">
           {/* Left: Overall Rating */}
           <div className="lg:col-span-4 flex flex-col items-center justify-center text-center p-3.5 sm:p-6 rounded-2xl bg-gradient-to-b from-emerald-50/80 to-teal-50/40 border border-emerald-100">
